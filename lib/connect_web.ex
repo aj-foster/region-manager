@@ -53,6 +53,8 @@ defmodule ConnectWeb do
       use Phoenix.LiveView,
         layout: {ConnectWeb.Layouts, :app}
 
+      import ConnectWeb.Live.Util
+
       unquote(html_helpers())
     end
   end

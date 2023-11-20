@@ -20,6 +20,12 @@ defmodule ConnectWeb.Router do
     get "/", PageController, :home
   end
 
+  scope "/demo", ConnectWeb do
+    pipe_through :browser
+
+    live "/region/import", RegionLive.Import
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", ConnectWeb do
   #   pipe_through :api
