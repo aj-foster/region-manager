@@ -2,4 +2,5 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-/* This file is for your main application CSS */
+/* TODO: Fix */
+@import "../../_build/dev/lib/identity/priv/static/tailwind.css";

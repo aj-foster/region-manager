@@ -31,6 +31,9 @@ config :connect, ConnectWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :connect, Connect.Mailer, adapter: Swoosh.Adapters.Local
 
+config :identity, notifier: Identity.Notifier.Swoosh, repo: Connect.Repo
+config :identity, Identity.Notifier.Swoosh, from: "noreply@ftcregion.com", mailer: Connect.Mailer
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
