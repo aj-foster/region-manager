@@ -1,4 +1,4 @@
-# Connect
+# RM
 
 To start your Phoenix server:
 

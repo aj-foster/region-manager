@@ -1,4 +1,4 @@
-defmodule Connect.Application do
+defmodule RM.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,21 +8,21 @@ defmodule Connect.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      ConnectWeb.Telemetry,
-      Connect.Repo,
-      {DNSCluster, query: Application.get_env(:connect, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: Connect.PubSub},
+      RMWeb.Telemetry,
+      RM.Repo,
+      {DNSCluster, query: Application.get_env(:rm, :dns_cluster_query) || :ignore},
+      {Phoenix.PubSub, name: RM.PubSub},
       # Start the Finch HTTP client for sending emails
-      {Finch, name: Connect.Finch},
-      # Start a worker by calling: Connect.Worker.start_link(arg)
-      # {Connect.Worker, arg},
+      {Finch, name: RM.Finch},
+      # Start a worker by calling: RM.Worker.start_link(arg)
+      # {RM.Worker, arg},
       # Start to serve requests, typically the last entry
-      ConnectWeb.Endpoint
+      RMWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Connect.Supervisor]
+    opts = [strategy: :one_for_one, name: RM.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
@@ -30,7 +30,7 @@ defmodule Connect.Application do
   # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
-    ConnectWeb.Endpoint.config_change(changed, removed)
+    RMWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

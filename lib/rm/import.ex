@@ -1,10 +1,10 @@
-defmodule Connect.Import do
+defmodule RM.Import do
   require NimbleCSV
 
-  alias Connect.Import.Team
-  alias Connect.Repo
+  alias RM.Import.Team
+  alias RM.Repo
 
-  NimbleCSV.define(TeamDataParser,
+  NimbleCSV.define(RM.TeamDataParser,
     separator: "\t",
     escape: "\"",
     encoding: :utf8,
@@ -18,7 +18,7 @@ defmodule Connect.Import do
     stream =
       path_to_file
       |> File.stream!([:trim_bom, encoding: {:utf16, :little}])
-      |> TeamDataParser.parse_stream(skip_headers: false)
+      |> RM.TeamDataParser.parse_stream(skip_headers: false)
 
     [header] =
       stream

@@ -1,4 +1,4 @@
-defmodule Connect.Repo.Migrations.CreateFirstSeasons do
+defmodule RM.Repo.Migrations.CreateFirstSeasons do
   use Ecto.Migration
 
   def change do

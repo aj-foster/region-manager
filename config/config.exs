@@ -7,19 +7,19 @@
 # General application configuration
 import Config
 
-config :connect,
-  ecto_repos: [Connect.Repo],
+config :rm,
+  ecto_repos: [RM.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
 # Configures the endpoint
-config :connect, ConnectWeb.Endpoint,
+config :rm, RMWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: ConnectWeb.ErrorHTML, json: ConnectWeb.ErrorJSON],
+    formats: [html: RMWeb.ErrorHTML, json: RMWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: Connect.PubSub,
+  pubsub_server: RM.PubSub,
   live_view: [signing_salt: "RApVjbt+"]
 
 # Configures the mailer
@@ -29,10 +29,10 @@ config :connect, ConnectWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :connect, Connect.Mailer, adapter: Swoosh.Adapters.Local
+config :rm, RM.Mailer, adapter: Swoosh.Adapters.Local
 
-config :identity, notifier: Identity.Notifier.Swoosh, repo: Connect.Repo
-config :identity, Identity.Notifier.Swoosh, from: "noreply@ftcregion.com", mailer: Connect.Mailer
+config :identity, notifier: Identity.Notifier.Swoosh, repo: RM.Repo
+config :identity, Identity.Notifier.Swoosh, from: "noreply@ftcregion.com", mailer: RM.Mailer
 
 # Configure esbuild (the version is required)
 config :esbuild,

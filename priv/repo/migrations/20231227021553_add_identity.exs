@@ -1,4 +1,4 @@
-defmodule Connect.Repo.Migrations.AddIdentity do
+defmodule RM.Repo.Migrations.AddIdentity do
   use Ecto.Migration
 
   def up, do: Identity.Migrations.up()

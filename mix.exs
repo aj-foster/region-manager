@@ -1,9 +1,9 @@
-defmodule Connect.MixProject do
+defmodule RM.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :connect,
+      app: :rm,
       version: "0.1.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -18,7 +18,7 @@ defmodule Connect.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Connect.Application, []},
+      mod: {RM.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

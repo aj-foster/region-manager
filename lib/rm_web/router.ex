@@ -1,5 +1,5 @@
-defmodule ConnectWeb.Router do
-  use ConnectWeb, :router
+defmodule RMWeb.Router do
+  use RMWeb, :router
   import Identity.Plug
 
   pipeline :browser do
@@ -7,7 +7,7 @@ defmodule ConnectWeb.Router do
     plug :fetch_session
     plug :fetch_live_flash
     plug :fetch_identity
-    plug :put_root_layout, html: {ConnectWeb.Layouts, :root}
+    plug :put_root_layout, html: {RMWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -16,13 +16,13 @@ defmodule ConnectWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", ConnectWeb do
+  scope "/", RMWeb do
     pipe_through :browser
 
     get "/", PageController, :home
   end
 
-  scope "/demo", ConnectWeb do
+  scope "/demo", RMWeb do
     pipe_through :browser
 
     live "/region/import", RegionLive.Import
@@ -69,7 +69,7 @@ defmodule ConnectWeb.Router do
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
-  if Application.compile_env(:connect, :dev_routes) do
+  if Application.compile_env(:rm, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put
     # it behind authentication and allow only admins to access it.
     # If your application does not have an admins-only section yet,
@@ -80,7 +80,7 @@ defmodule ConnectWeb.Router do
     scope "/dev" do
       pipe_through :browser
 
-      live_dashboard "/dashboard", metrics: ConnectWeb.Telemetry
+      live_dashboard "/dashboard", metrics: RMWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end

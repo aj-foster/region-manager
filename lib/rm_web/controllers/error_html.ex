@@ -1,12 +1,12 @@
-defmodule ConnectWeb.ErrorHTML do
-  use ConnectWeb, :html
+defmodule RMWeb.ErrorHTML do
+  use RMWeb, :html
 
   # If you want to customize your error pages,
   # uncomment the embed_templates/1 call below
   # and add pages to the error directory:
   #
-  #   * lib/connect_web/controllers/error_html/404.html.heex
-  #   * lib/connect_web/controllers/error_html/500.html.heex
+  #   * lib/rm_web/controllers/error_html/404.html.heex
+  #   * lib/rm_web/controllers/error_html/500.html.heex
   #
   # embed_templates "error_html/*"
 

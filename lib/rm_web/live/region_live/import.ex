@@ -1,7 +1,7 @@
-defmodule ConnectWeb.RegionLive.Import do
-  use ConnectWeb, :live_view
+defmodule RMWeb.RegionLive.Import do
+  use RMWeb, :live_view
 
-  alias Connect.Import
+  alias RM.Import
 
   #
   # Lifecycle

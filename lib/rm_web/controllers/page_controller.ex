@@ -1,5 +1,5 @@
-defmodule ConnectWeb.PageController do
-  use ConnectWeb, :controller
+defmodule RMWeb.PageController do
+  use RMWeb, :controller
 
   def home(conn, _params) do
     # The home page is often custom made,

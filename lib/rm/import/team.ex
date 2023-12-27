@@ -1,4 +1,4 @@
-defmodule Connect.Import.Team do
+defmodule RM.Import.Team do
   use Ecto.Schema
 
   @primary_key {:id, :binary_id, autogenerate: true}

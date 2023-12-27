@@ -1,12 +1,12 @@
-defmodule ConnectWeb do
+defmodule RMWeb do
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, components, channels, and so on.
 
   This can be used in your application as:
 
-      use ConnectWeb, :controller
-      use ConnectWeb, :html
+      use RMWeb, :controller
+      use RMWeb, :html
 
   The definitions below will be executed for every controller,
   component, etc, so keep them short and clean, focused
@@ -40,7 +40,7 @@ defmodule ConnectWeb do
     quote do
       use Phoenix.Controller,
         formats: [:html, :json],
-        layouts: [html: ConnectWeb.Layouts]
+        layouts: [html: RMWeb.Layouts]
 
       import Plug.Conn
 
@@ -51,9 +51,9 @@ defmodule ConnectWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {ConnectWeb.Layouts, :app}
+        layout: {RMWeb.Layouts, :app}
 
-      import ConnectWeb.Live.Util
+      import RMWeb.Live.Util
 
       unquote(html_helpers())
     end
@@ -85,7 +85,7 @@ defmodule ConnectWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation
-      import ConnectWeb.CoreComponents
+      import RMWeb.CoreComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
@@ -98,9 +98,9 @@ defmodule ConnectWeb do
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
-        endpoint: ConnectWeb.Endpoint,
-        router: ConnectWeb.Router,
-        statics: ConnectWeb.static_paths()
+        endpoint: RMWeb.Endpoint,
+        router: RMWeb.Router,
+        statics: RMWeb.static_paths()
     end
   end
 

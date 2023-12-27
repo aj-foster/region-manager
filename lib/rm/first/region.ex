@@ -1,4 +1,4 @@
-defmodule Connect.FIRST.Region do
+defmodule RM.FIRST.Region do
   use Ecto.Schema
 
   @primary_key {:id, :binary_id, autogenerate: true}

@@ -1,5 +1,5 @@
-defmodule ConnectWeb.PageControllerTest do
-  use ConnectWeb.ConnCase
+defmodule RMWeb.PageControllerTest do
+  use RMWeb.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")

@@ -1,6 +1,6 @@
-defmodule Connect do
+defmodule RM do
   @moduledoc """
-  Connect keeps the contexts that define your domain
+  RM keeps the contexts that define your domain
   and business logic.
 
   Contexts are also responsible for managing your data, regardless

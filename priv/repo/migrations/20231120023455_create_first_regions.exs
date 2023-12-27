@@ -1,4 +1,4 @@
-defmodule Connect.Repo.Migrations.CreateFirstRegions do
+defmodule RM.Repo.Migrations.CreateFirstRegions do
   use Ecto.Migration
 
   def change do

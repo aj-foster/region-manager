@@ -1,4 +1,4 @@
-defmodule ConnectWeb.ErrorJSON do
+defmodule RMWeb.ErrorJSON do
   # If you want to customize a particular status code,
   # you may add your own clauses, such as:
   #

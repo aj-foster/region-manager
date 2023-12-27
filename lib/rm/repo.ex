@@ -1,5 +1,5 @@
-defmodule Connect.Repo do
+defmodule RM.Repo do
   use Ecto.Repo,
-    otp_app: :connect,
+    otp_app: :rm,
     adapter: Ecto.Adapters.Postgres
 end

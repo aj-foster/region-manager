@@ -1,12 +1,12 @@
-defmodule ConnectWeb.Endpoint do
-  use Phoenix.Endpoint, otp_app: :connect
+defmodule RMWeb.Endpoint do
+  use Phoenix.Endpoint, otp_app: :rm
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
   @session_options [
     store: :cookie,
-    key: "_connect_key",
+    key: "_rm_key",
     signing_salt: "1TJ/Cv+f",
     same_site: "Lax"
   ]
@@ -19,9 +19,9 @@ defmodule ConnectWeb.Endpoint do
   # when deploying your static files in production.
   plug Plug.Static,
     at: "/",
-    from: :connect,
+    from: :rm,
     gzip: false,
-    only: ConnectWeb.static_paths()
+    only: RMWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -29,7 +29,7 @@ defmodule ConnectWeb.Endpoint do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
     plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
-    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :connect
+    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :rm
   end
 
   plug Phoenix.LiveDashboard.RequestLogger,
@@ -47,5 +47,5 @@ defmodule ConnectWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  plug ConnectWeb.Router
+  plug RMWeb.Router
 end

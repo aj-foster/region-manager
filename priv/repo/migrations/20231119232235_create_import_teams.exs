@@ -1,4 +1,4 @@
-defmodule Connect.Repo.Migrations.CreateImportTeams do
+defmodule RM.Repo.Migrations.CreateImportTeams do
   use Ecto.Migration
 
   def change do

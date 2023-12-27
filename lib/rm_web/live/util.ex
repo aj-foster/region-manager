@@ -1,4 +1,4 @@
-defmodule ConnectWeb.Live.Util do
+defmodule RMWeb.Live.Util do
   @doc """
   Wrap the socket in a `{:noreply, socket}` tuple
 

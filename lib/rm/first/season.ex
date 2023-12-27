@@ -1,4 +1,4 @@
-defmodule Connect.FIRST.Season do
+defmodule RM.FIRST.Season do
   use Ecto.Schema
 
   @primary_key {:id, :binary_id, autogenerate: true}
