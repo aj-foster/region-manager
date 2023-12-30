@@ -9,7 +9,7 @@ Check back later for more.
 
 ## License
 
-See [LICENSE](LICENSE.md) for license and warranty information.
+See [LICENSE](LICENSE) for license and warranty information.
 
 ## Acknowledgments
 
