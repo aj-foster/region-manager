@@ -1,18 +1,17 @@
-# RM
+# Region Manager
 
-To start your Phoenix server:
+_Information management system for FIRST Tech Challenge regions._
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+---
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+This project is currently in early development.
+Check back later for more.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+## License
 
-## Learn more
+See [LICENSE](LICENSE.md) for license and warranty information.
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+## Acknowledgments
+
+_FIRST®_ and _FIRST®_ Tech Challenge (formerly also known as FTC®) are trademarks of For Inspiration and Recognition of Science and Technology (_FIRST®_).
+This project is not affiliated with _FIRST®_ and _FIRST®_ provides no warranty or support.
