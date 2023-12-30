@@ -32,13 +32,13 @@ defmodule RMWeb.Router do
     pipe_through :browser
 
     # Session
-    get "/session/new", Identity.Controller, :new_session, as: :identity
-    post "/session/new", Identity.Controller, :create_session, as: :identity
+    get "/login", Identity.Controller, :new_session, as: :identity
+    post "/login", Identity.Controller, :create_session, as: :identity
 
-    get "/session/2fa", Identity.Controller, :pending_2fa, as: :identity
-    post "/session/2fa", Identity.Controller, :validate_2fa, as: :identity
+    get "/login/2fa", Identity.Controller, :pending_2fa, as: :identity
+    post "/login/2fa", Identity.Controller, :validate_2fa, as: :identity
 
-    delete "/session", Identity.Controller, :delete_session, as: :identity
+    delete "/logout", Identity.Controller, :delete_session, as: :identity
 
     # Password Reset
     get "/password/new", Identity.Controller, :new_password_token, as: :identity
@@ -48,14 +48,14 @@ defmodule RMWeb.Router do
     put "/password/:token", Identity.Controller, :create_password, as: :identity
 
     # Email Addresses
-    get "/email/new", Identity.Controller, :new_email, as: :identity
-    post "/email/new", Identity.Controller, :create_email, as: :identity
-    get "/email/:token", Identity.Controller, :confirm_email, as: :identity
+    get "/user/email/new", Identity.Controller, :new_email, as: :identity
+    post "/user/email/new", Identity.Controller, :create_email, as: :identity
+    get "/user/email/:token", Identity.Controller, :confirm_email, as: :identity
     delete "/user/email", Identity.Controller, :delete_email, as: :identity
 
     # User Registration
-    get "/user/new", Identity.Controller, :new_user, as: :identity
-    post "/user/new", Identity.Controller, :create_user, as: :identity
+    get "/register", Identity.Controller, :new_user, as: :identity
+    post "/register", Identity.Controller, :create_user, as: :identity
 
     # User Settings
     get "/user/password", Identity.Controller, :edit_password, as: :identity
