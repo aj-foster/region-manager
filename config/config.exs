@@ -31,7 +31,7 @@ config :rm, RMWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :rm, RM.Mailer, adapter: Swoosh.Adapters.Local
 
-config :identity, notifier: Identity.Notifier.Swoosh, repo: RM.Repo
+config :identity, notifier: Identity.Notifier.Swoosh, repo: RM.Repo, user: RM.Account.User
 config :identity, Identity.Notifier.Swoosh, from: "noreply@ftcregion.com", mailer: RM.Mailer
 
 # Configure esbuild (the version is required)
