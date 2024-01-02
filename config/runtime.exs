@@ -21,6 +21,11 @@ if System.get_env("PHX_SERVER") do
 end
 
 if config_env() == :prod do
+  cacerts =
+    System.fetch_env!("DATABASE_CACERT")
+    |> :public_key.pem_decode()
+    |> Enum.map(fn {:Certificate, cert, :not_encrypted} -> cert end)
+
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """
@@ -34,7 +39,13 @@ if config_env() == :prod do
     # ssl: true,
     url: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
-    socket_options: maybe_ipv6
+    socket_options: maybe_ipv6,
+    ssl: true,
+    ssl_opts: [
+      verify: :verify_peer,
+      cacerts: cacerts,
+      server_name_indication: :disable
+    ]
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
