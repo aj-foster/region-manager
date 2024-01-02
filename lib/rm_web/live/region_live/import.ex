@@ -7,6 +7,8 @@ defmodule RMWeb.RegionLive.Import do
   # Lifecycle
   #
 
+  on_mount {Identity.LiveView, {:redirect_if_unauthenticated, to: "/login"}}
+
   @doc false
   @impl true
   def mount(_params, _session, socket) do
@@ -30,8 +32,10 @@ defmodule RMWeb.RegionLive.Import do
   end
 
   def handle_event("import", _params, socket) do
+    user = socket.assigns[:current_user]
+
     consume_uploaded_entries(socket, :team_data, fn %{path: path}, _entry ->
-      Import.parse("FL", path)
+      Import.import_from_team_info_tableau_export(user, path)
       {:ok, path}
     end)
 

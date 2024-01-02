@@ -8,6 +8,7 @@ defmodule RM.Import.Team do
     field :imported_at, :utc_datetime_usec
     field :region, :string
     field :team_id, :integer
+    field :upload_id, Ecto.UUID
 
     embeds_one :data, Data do
       field :admin_email, :string
@@ -45,6 +46,9 @@ defmodule RM.Import.Team do
     end
   end
 
+  @doc """
+  Create a team struct from a Tableau export
+  """
   @spec from_csv(map) :: %__MODULE__{}
   def from_csv(data) do
     %{
@@ -149,4 +153,10 @@ defmodule RM.Import.Team do
 
     DateTime.new!(Date.new!(year, month, day), Time.new!(hour, minute, second, 0))
   end
+
+  @doc """
+  Add an upload ID to an existing team struct
+  """
+  @spec put_upload(%__MODULE__{}, Ecto.UUID.t()) :: %__MODULE__{}
+  def put_upload(team, upload_id), do: %__MODULE__{team | upload_id: upload_id}
 end
