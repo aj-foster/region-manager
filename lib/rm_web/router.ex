@@ -25,7 +25,10 @@ defmodule RMWeb.Router do
   scope "/demo", RMWeb do
     pipe_through :browser
 
-    live "/region/import", RegionLive.Import
+    live_session :authenticated,
+      on_mount: [{Identity.LiveView, {:redirect_if_unauthenticated, to: "/login"}}] do
+      live "/region/import", RegionLive.Import
+    end
   end
 
   scope "/" do

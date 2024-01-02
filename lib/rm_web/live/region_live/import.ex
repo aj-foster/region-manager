@@ -7,8 +7,6 @@ defmodule RMWeb.RegionLive.Import do
   # Lifecycle
   #
 
-  on_mount {Identity.LiveView, {:redirect_if_unauthenticated, to: "/login"}}
-
   @doc false
   @impl true
   def mount(_params, _session, socket) do
