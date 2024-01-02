@@ -2,5 +2,4 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-/* TODO: Fix */
-@import "../../_build/dev/lib/identity/priv/static/tailwind.css";
+@import "../../deps/identity/priv/static/tailwind.css";
