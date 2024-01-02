@@ -9,7 +9,8 @@ defmodule RM.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: [rm: [steps: [:assemble, :tar]]]
     ]
   end
 
@@ -39,7 +40,8 @@ defmodule RM.MixProject do
       {:eqrcode, "~> 0.1.10"},
       {:finch, "~> 0.13"},
       {:floki, ">= 0.30.0", only: :test},
-      {:identity, github: "aj-foster/identity", branch: "main"},
+      {:identity, path: "/Users/aj/Documents/Projects/aj-foster/identity"},
+      # {:identity, github: "aj-foster/identity", branch: "main"},
       {:jason, "~> 1.2"},
       {:nimble_csv, "~> 1.2.0"},
       {:nimble_totp, "~> 1.0"},

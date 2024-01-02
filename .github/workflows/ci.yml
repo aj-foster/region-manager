@@ -1,0 +1,76 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    container: hexpm/elixir:1.16.0-erlang-26.2.1-debian-bookworm-20231009
+    env:
+      MIX_ENV: prod
+    steps:
+      - name: Install Git
+        run: apt update && apt install --yes git
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch Hex Cache
+        uses: actions/cache@v3
+        id: hex-cache
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
+      - name: Build API
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+          mix assets.deploy
+          mix release --path export/
+
+      - name: Archive API
+        uses: actions/upload-artifact@v4
+        with:
+          name: api
+          path: export/*.tar.gz
+
+  deploy:
+    name: "Deploy"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Login to DOCR
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Download API
+        uses: actions/download-artifact@v4
+        with:
+          name: api
+          path: export/
+
+      - name: Build and Push Image
+        run: |
+          docker image build -t registry.digitalocean.com/aj-foster/ftcregion:latest .
+          docker image push registry.digitalocean.com/aj-foster/ftcregion:latest
+
+      # - name: Deploy App
+      #   uses: digitalocean/app_action@main
+      #   with:
+      #     app_name: rsvp
+      #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}

@@ -1,0 +1,4 @@
+#!/bin/sh
+cd -P -- "$(dirname -- "$0")"
+./rm eval RM.Repo.migrate_up
+PHX_SERVER=true exec ./rm start
