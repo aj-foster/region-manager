@@ -12,7 +12,7 @@ jobs:
       MIX_ENV: prod
     steps:
       - name: Install Git
-        run: apt update && apt install --yes git
+        run: apt update && apt install --yes build-essential git
 
       - name: Checkout
         uses: actions/checkout@v4
