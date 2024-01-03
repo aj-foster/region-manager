@@ -39,6 +39,7 @@ defmodule RM.Import.Team do
       field :number, :integer
       field :profile_id, :integer
       field :rookie_year, :integer
+      field :secured, :boolean
       field :sponsors, :string
       field :sponsor_types, :string
       field :team_id, :integer
@@ -72,6 +73,7 @@ defmodule RM.Import.Team do
       "Region Name" => region,
       "School Youth Organizations" => youth_orgs,
       "School Youth Organizations Types" => youth_org_types,
+      "Secured Status" => secured_status,
       "Sponsors" => sponsors,
       "Sponsor Types" => sponsor_types,
       "Team Admin Email" => admin_email,
@@ -122,6 +124,7 @@ defmodule RM.Import.Team do
         number: number,
         profile_id: profile_id,
         rookie_year: rookie_year,
+        secured: secured_status == "Secured",
         sponsors: sponsors,
         sponsor_types: sponsor_types,
         temporary_number: temporary_number,
