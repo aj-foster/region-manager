@@ -4,6 +4,13 @@ defmodule RM.Account.User do
 
   alias RM.Account
 
+  @typedoc "User record"
+  @type t :: %__MODULE__{
+          id: Ecto.UUID.t(),
+          region_assignments: Ecto.Schema.has_many(Account.Region.t()),
+          regions: Ecto.Schema.has_many(RM.FIRST.Region.t())
+        }
+
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "users" do
