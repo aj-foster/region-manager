@@ -24,4 +24,13 @@ defmodule RM.Account do
     |> Query.preload_assoc(opts[:preload])
     |> Repo.get!(id)
   end
+
+  @doc """
+  Load and return regions assigned to the given user
+  """
+  @spec get_regions_for_user(User.t()) :: [RM.FIRST.Region.t()]
+  def get_regions_for_user(user) do
+    user = Repo.preload(user, :regions)
+    user.regions
+  end
 end

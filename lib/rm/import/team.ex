@@ -1,6 +1,9 @@
 defmodule RM.Import.Team do
   use Ecto.Schema
 
+  @typedoc "Imported team record"
+  @type t :: %__MODULE__{}
+
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "import_teams" do

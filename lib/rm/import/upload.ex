@@ -3,6 +3,13 @@ defmodule RM.Import.Upload do
 
   alias Identity.User
 
+  @typedoc "Upload record"
+  @type t :: %__MODULE__{
+          file: term,
+          imported_at: DateTime.t(),
+          imported_by: Ecto.UUID.t()
+        }
+
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "import_uploads" do
