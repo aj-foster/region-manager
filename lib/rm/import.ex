@@ -4,6 +4,7 @@ defmodule RM.Import do
   alias RM.Account
   alias RM.Import.Team
   alias RM.Import.Upload
+  alias RM.Local
   alias RM.Repo
 
   NimbleCSV.define(RM.Import.TeamDataParser,
@@ -16,7 +17,7 @@ defmodule RM.Import do
 
   @spec import_from_team_info_tableau_export(Account.User.t(), String.t()) :: term
   def import_from_team_info_tableau_export(user, path_to_file) do
-    %Upload{id: upload_id} = upload = insert_upload(user, path_to_file)
+    %Upload{id: upload_id} = upload = insert_import_upload(user, path_to_file)
 
     allowed_regions = Account.get_regions_for_user(user)
     allowed_region_names = Enum.map(allowed_regions, & &1.name)
@@ -32,31 +33,72 @@ defmodule RM.Import do
       |> Stream.take(1)
       |> Enum.to_list()
 
-    {_count, teams} =
+    {_count, import_teams} =
       stream
       |> Stream.drop(1)
       |> Stream.map(&Enum.zip(header, &1))
       |> Stream.map(&Map.new/1)
       |> Stream.filter(fn %{"Active Team" => status} -> status == "Active" end)
-      |> Stream.filter(fn %{"Region" => region} -> region in allowed_region_names end)
+      |> Stream.filter(fn %{"Secured Status" => secured, "Intent To Return" => intent} ->
+        secured == "Secured" or intent == "1"
+      end)
+      |> Stream.filter(fn %{"Region Name" => region} -> region in allowed_region_names end)
       |> Stream.map(&Team.from_csv/1)
       |> Stream.map(&Team.put_region(&1, allowed_regions_by_name[&1.region].id))
       |> Stream.map(&Team.put_upload(&1, upload_id))
       |> Enum.to_list()
-      |> insert_teams()
+      |> insert_import_teams()
 
-    %{teams: teams, upload: upload}
+    local_teams_by_id = list_local_teams(import_teams)
+    import_teams_by_id = Map.new(import_teams, fn team -> {team.team_id, team} end)
+
+    diff_teams(local_teams_by_id, import_teams_by_id)
+
+    %{teams: import_teams, upload: upload}
   end
 
-  @spec insert_upload(Account.User.t(), String.t()) :: Upload.t()
-  defp insert_upload(user, path_to_file) do
+  @spec insert_import_upload(Account.User.t(), String.t()) :: Upload.t()
+  defp insert_import_upload(user, path_to_file) do
     Upload.new(user, path_to_file)
     |> Repo.insert!()
   end
 
-  @spec insert_teams([Team.t()]) :: {integer, [Team.t()]}
-  defp insert_teams(teams) do
-    teams = Enum.map(teams, &Map.from_struct/1)
+  @spec insert_import_teams([Team.t()]) :: {integer, [Team.t()]}
+  defp insert_import_teams(teams) do
+    teams = Enum.map(teams, &prepare_import_team_for_insert/1)
     Repo.insert_all(Team, teams, returning: true)
+  end
+
+  @spec prepare_import_team_for_insert(Team.t()) :: map
+  defp prepare_import_team_for_insert(team) do
+    team
+    |> Map.from_struct()
+    |> Map.delete(:__meta__)
+    |> Map.put(:id, Ecto.UUID.generate())
+  end
+
+  @spec list_local_teams([Team.t()]) :: %{integer => Local.Team.t()}
+  defp list_local_teams(import_teams) do
+    import_teams
+    |> Enum.map(& &1.team_id)
+    |> Local.list_teams_by_team_id(preload: [:users])
+    |> Map.new(fn team -> {team.team_id, team} end)
+  end
+
+  defp diff_teams(local_teams_by_id, import_teams_by_id) do
+    {import_overlapping, import_to_add} =
+      Map.split(import_teams_by_id, Map.keys(local_teams_by_id))
+
+    for import_team <- Map.values(import_to_add) do
+      %Local.Team{}
+      |> Local.Team.from_import(import_team)
+      |> Repo.insert!()
+    end
+
+    for import_team <- Map.values(import_overlapping) do
+      local_teams_by_id[import_team.team_id]
+      |> Local.Team.from_import(import_team)
+      |> Repo.update!()
+    end
   end
 end
