@@ -10,6 +10,7 @@ defmodule RM.Import.Team do
     field :data_updated_at, :utc_datetime_usec
     field :imported_at, :utc_datetime_usec
     field :region, :string
+    field :region_id, Ecto.UUID
     field :team_id, :integer
     field :upload_id, Ecto.UUID
 
@@ -159,6 +160,12 @@ defmodule RM.Import.Team do
 
     DateTime.new!(Date.new!(year, month, day), Time.new!(hour, minute, second, 0))
   end
+
+  @doc """
+  Add a region ID to an existing team struct
+  """
+  @spec put_region(%__MODULE__{}, Ecto.UUID.t()) :: %__MODULE__{}
+  def put_region(team, region_id), do: %__MODULE__{team | region_id: region_id}
 
   @doc """
   Add an upload ID to an existing team struct

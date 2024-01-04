@@ -18,9 +18,9 @@ defmodule RM.Import do
   def import_from_team_info_tableau_export(user, path_to_file) do
     %Upload{id: upload_id} = upload = insert_upload(user, path_to_file)
 
-    allowed_region_names =
-      Account.get_regions_for_user(user)
-      |> Enum.map(& &1.name)
+    allowed_regions = Account.get_regions_for_user(user)
+    allowed_region_names = Enum.map(allowed_regions, & &1.name)
+    allowed_regions_by_name = Map.new(allowed_regions, fn region -> {region.name, region} end)
 
     stream =
       path_to_file
@@ -40,6 +40,7 @@ defmodule RM.Import do
       |> Stream.filter(fn %{"Active Team" => status} -> status == "Active" end)
       |> Stream.filter(fn %{"Region" => region} -> region in allowed_region_names end)
       |> Stream.map(&Team.from_csv/1)
+      |> Stream.map(&Team.put_region(&1, allowed_regions_by_name[&1.region].id))
       |> Stream.map(&Team.put_upload(&1, upload_id))
       |> Enum.to_list()
       |> insert_teams()
