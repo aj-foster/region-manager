@@ -128,7 +128,7 @@ defmodule RM.Import.Team do
         secured: secured_status == "Secured",
         sponsors: sponsors,
         sponsor_types: sponsor_types,
-        temporary_number: temporary_number,
+        temporary_number: if(temporary_number != "", do: String.to_integer(temporary_number)),
         youth_orgs: youth_orgs,
         youth_org_types: youth_org_types,
         website: website

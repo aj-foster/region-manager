@@ -54,7 +54,7 @@ defmodule RM.Account.Query do
   def preload_assoc(query, [:regions | rest]) do
     query
     |> join_regions_from_user()
-    |> preload([user: u, region_assignments: ra, regions: r],
+    |> preload([region_assignments: ra, regions: r],
       region_assignments: {ra, region: r},
       regions: r
     )

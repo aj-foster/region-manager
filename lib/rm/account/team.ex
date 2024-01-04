@@ -19,7 +19,7 @@ defmodule RM.Account.Team do
     belongs_to :team, Team
     belongs_to :user, User
 
-    embeds_one :notices, Notices do
+    embeds_one :notices, Notices, on_replace: :delete, primary_key: false do
       field :agree_to_ypp, :boolean
       field :start_ypp, :boolean
     end
