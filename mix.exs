@@ -38,8 +38,11 @@ defmodule RM.MixProject do
       {:ecto_sql, "~> 3.10"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
       {:eqrcode, "~> 0.1.10"},
+      {:ex_aws, "~> 2.5"},
+      {:ex_aws_s3, "~> 2.5"},
       {:finch, "~> 0.13"},
       {:floki, ">= 0.30.0", only: :test},
+      {:hackney, "~> 1.20"},
       {:identity, github: "aj-foster/identity", branch: "main"},
       {:jason, "~> 1.2"},
       {:nimble_csv, "~> 1.2.0"},
@@ -51,10 +54,13 @@ defmodule RM.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.20.1"},
       {:postgrex, ">= 0.0.0"},
+      {:sweet_xml, "~> 0.7.4"},
       {:swoosh, "~> 1.3"},
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 1.0"}
+      {:telemetry_poller, "~> 1.0"},
+      {:waffle, "~> 1.1"},
+      {:waffle_ecto, "~> 0.0.12"}
     ]
   end
 
