@@ -52,9 +52,9 @@ defmodule RM.Import do
     local_teams_by_id = list_local_teams(import_teams)
     import_teams_by_id = Map.new(import_teams, fn team -> {team.team_id, team} end)
 
-    diff_teams(local_teams_by_id, import_teams_by_id)
+    {additions, updates} = diff_teams(local_teams_by_id, import_teams_by_id)
 
-    %{teams: import_teams, upload: upload}
+    %{added: additions, updated: updates, imported: import_teams, upload: upload}
   end
 
   @spec insert_import_upload(Account.User.t(), String.t()) :: Upload.t()
@@ -85,20 +85,29 @@ defmodule RM.Import do
     |> Map.new(fn team -> {team.team_id, team} end)
   end
 
+  @spec diff_teams(%{integer => Local.Team.t()}, %{integer => Team.t()}) ::
+          {[Local.Team.t()], [{Local.Team.t(), Ecto.Changeset.t(Local.Team.t())}]}
   defp diff_teams(local_teams_by_id, import_teams_by_id) do
     {import_overlapping, import_to_add} =
       Map.split(import_teams_by_id, Map.keys(local_teams_by_id))
 
-    for import_team <- Map.values(import_to_add) do
-      %Local.Team{}
-      |> Local.Team.from_import(import_team)
-      |> Repo.insert!()
-    end
+    additions =
+      for import_team <- Map.values(import_to_add) do
+        %Local.Team{}
+        |> Local.Team.from_import(import_team)
+        |> Repo.insert!()
+      end
 
-    for import_team <- Map.values(import_overlapping) do
-      local_teams_by_id[import_team.team_id]
-      |> Local.Team.from_import(import_team)
-      |> Repo.update!()
-    end
+    updates =
+      for import_team <- Map.values(import_overlapping) do
+        changeset =
+          local_teams_by_id[import_team.team_id]
+          |> Local.Team.from_import(import_team)
+
+        team = Repo.update!(changeset)
+        {team, changeset}
+      end
+
+    {additions, updates}
   end
 end
