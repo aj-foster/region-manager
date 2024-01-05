@@ -18,6 +18,20 @@ defmodule RMWeb.Live.Util do
   @spec noreply(Socket.t()) :: {:noreply, Socket.t()}
   def noreply(socket), do: {:noreply, socket}
 
+  @doc """
+  Wrap the socket in a `{:ok, socket}` tuple
+
+  This function is purely cosmetic, allowing most LiveView mount callbacks to be completed with a
+  pipeline:
+
+      socket
+      |> assign(...)
+      |> ok()
+
+  """
+  @spec ok(Socket.t()) :: {:ok, Socket.t()}
+  def ok(socket), do: {:ok, socket}
+
   @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
   def on_mount(:preload_user, _params, _session, socket) do
     case socket.assigns[:current_user] do

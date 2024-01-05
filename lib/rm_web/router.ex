@@ -12,6 +12,10 @@ defmodule RMWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :app_layout do
+    plug :put_layout, html: {RMWeb.Layouts, :app}
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -20,22 +24,19 @@ defmodule RMWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-  end
-
-  scope "/demo", RMWeb do
-    pipe_through :browser
 
     live_session :authenticated,
       on_mount: [
         {Identity.LiveView, {:redirect_if_unauthenticated, to: "/login"}},
         {RMWeb.Live.Util, :preload_user}
       ] do
+      live "/dashboard", DashboardLive.Home
       live "/region/import", RegionLive.Import
     end
   end
 
   scope "/" do
-    pipe_through :browser
+    pipe_through [:browser, :app_layout]
 
     # Session
     get "/login", Identity.Controller, :new_session, as: :identity
