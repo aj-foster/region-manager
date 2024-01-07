@@ -667,4 +667,14 @@ defmodule RMWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  @doc "Create a naive pluralization of the given word"
+  @spec dumb_inflect(String.t(), list | integer) :: String.t()
+  def dumb_inflect(word, []), do: "0 #{word}s"
+  def dumb_inflect(word, [_]), do: "1 #{word}"
+  def dumb_inflect(word, list) when is_list(list), do: "#{length(list)} #{word}s"
+
+  def dumb_inflect(word, 0), do: "0 #{word}s"
+  def dumb_inflect(word, 1), do: "1 #{word}"
+  def dumb_inflect(word, count) when is_integer(count), do: "#{count} #{word}s"
 end

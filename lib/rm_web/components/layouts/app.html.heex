@@ -1,7 +1,7 @@
 <header class="px-4 sm:px-6 lg:px-8">
   <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
     <div class="flex items-center gap-4">
-      <.link :if={@current_user} navigate={~p"/"}>
+      <.link :if={@current_user} navigate={~p"/dashboard"}>
         <img class="w-12" src={~p"/images/rm.svg"} alt="Region Manager" />
       </.link>
       <.link :if={is_nil(@current_user)} navigate={~p"/"}>

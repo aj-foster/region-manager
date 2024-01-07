@@ -1,10 +1,19 @@
 <div>
   <div :if={@region_count > 0}>
     <h2 class="font-title italic mb-4 ml-4 small-caps text-xl">Regions you Manage</h2>
-    <div class="bg-white border border-slate-200 p-4 rounded shadow">
-      <ul>
-        <li :for={region <- @current_user.regions}><%= region.name %></li>
-      </ul>
+    <div
+      :for={region <- @current_user.regions}
+      class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    >
+      <div class="grow">
+        <h3 class="font-bold"><%= region.name %></h3>
+        <p><%= dumb_inflect("team", region.stats.team_count) %></p>
+      </div>
+      <div>
+        <.link class="bg-orange-400 font-medium px-4 py-2 rounded" navigate={~p"/region/import"}>
+          Import
+        </.link>
+      </div>
     </div>
   </div>
 </div>
