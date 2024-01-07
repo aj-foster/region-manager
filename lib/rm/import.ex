@@ -2,6 +2,7 @@ defmodule RM.Import do
   require NimbleCSV
 
   alias RM.Account
+  alias RM.FIRST.Region
   alias RM.Import.Team
   alias RM.Import.Upload
   alias RM.Local
@@ -53,6 +54,7 @@ defmodule RM.Import do
     import_teams_by_id = Map.new(import_teams, fn team -> {team.team_id, team} end)
 
     {additions, updates} = diff_teams(local_teams_by_id, import_teams_by_id)
+    update_region_counts(import_teams)
 
     %{added: additions, updated: updates, imported: import_teams, upload: upload}
   end
@@ -109,5 +111,14 @@ defmodule RM.Import do
       end
 
     {additions, updates}
+  end
+
+  @spec update_region_counts([Team.t()]) :: {integer, nil}
+  defp update_region_counts(import_teams) do
+    import_teams
+    |> Enum.map(& &1.region_id)
+    |> Enum.uniq()
+    |> Region.team_count_update_query()
+    |> Repo.update_all([])
   end
 end
