@@ -1,11 +1,10 @@
 <div>
-  <h1>Dashboard</h1>
-
   <div :if={@region_count > 0}>
-    <h2>Regions you Manage</h2>
-
-    <ul>
-      <li :for={region <- @current_user.regions}><%= region.name %></li>
-    </ul>
+    <h2 class="font-title italic mb-4 ml-4 small-caps text-xl">Regions you Manage</h2>
+    <div class="bg-white border border-slate-200 p-4 rounded shadow">
+      <ul>
+        <li :for={region <- @current_user.regions}><%= region.name %></li>
+      </ul>
+    </div>
   </div>
 </div>

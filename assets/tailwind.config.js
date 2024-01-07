@@ -1,6 +1,7 @@
 // See the Tailwind configuration guide for advanced usage
 // https://tailwindcss.com/docs/configuration
 
+const defaultTheme = require('tailwindcss/defaultTheme')
 const plugin = require("tailwindcss/plugin")
 const fs = require("fs")
 const path = require("path")
@@ -12,9 +13,13 @@ module.exports = {
     "../lib/rm_web/**/*.*ex"
   ],
   theme: {
+    
     extend: {
       colors: {
         brand: "#FD4F00",
+      },
+      fontFamily: {
+        title: ["Montserrat", ...defaultTheme.fontFamily.sans],
       }
     },
   },
