@@ -39,3 +39,8 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+window.addEventListener("phx:js-exec", ({ detail: {to, attr} }) => {
+  document.querySelectorAll(to).forEach(el => {
+    liveSocket.execJS(el, el.getAttribute(attr))
+  })
+})
