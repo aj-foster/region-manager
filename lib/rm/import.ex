@@ -123,7 +123,7 @@ defmodule RM.Import do
     |> Repo.update_all([])
   end
 
-  @spec relink_coaches([Team.t()], [Local.Team.t()]) :: {integer, [Account.Team.t()]}
+  @spec relink_coaches([Team.t()], [Local.Team.t()]) :: {integer, integer}
   defp relink_coaches(import_teams, local_teams) do
     team_id_map = Map.new(local_teams, fn team -> {team.team_id, team.id} end)
 
@@ -135,11 +135,20 @@ defmodule RM.Import do
       |> Enum.map(&prepare_user_team_for_insert/1)
       |> tap(fn x -> IO.inspect(length(x), label: "Number of coaches") end)
 
-    Repo.insert_all(Account.Team, user_teams,
-      on_conflict: :replace_all,
-      conflict_target: [:team_id, :relationship],
-      returning: true
-    )
+    {coaches_count, coaches} =
+      Repo.insert_all(Account.Team, user_teams,
+        on_conflict: :replace_all,
+        conflict_target: [:team_id, :relationship],
+        returning: [:id]
+      )
+
+    {coaches_linked_count, _nil} =
+      coaches
+      |> Enum.map(& &1.id)
+      |> Account.Team.user_update_query()
+      |> Repo.update_all([])
+
+    {coaches_count, coaches_linked_count}
   end
 
   @spec prepare_user_team_for_insert(Account.Team.t()) :: map

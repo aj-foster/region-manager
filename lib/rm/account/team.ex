@@ -1,5 +1,6 @@
 defmodule RM.Account.Team do
   use Ecto.Schema
+  import Ecto.Query
 
   alias RM.Account.User
   alias RM.Local.Team
@@ -70,5 +71,21 @@ defmodule RM.Account.Team do
         user_id: nil
       }
     ]
+  end
+
+  @doc """
+  Create a query to update the `user_id` fields of team assignments with the given IDs
+
+  The resulting query should be passed to `RM.Repo.update_all/3`.
+  """
+  @spec user_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
+  def user_update_query(ids) do
+    from(__MODULE__, as: :user_team)
+    |> where([user_team: ut], ut.id in ^ids)
+    |> join(:inner, [user_team: ut], e in Identity.Schema.Email,
+      on: e.email == ut.email and not is_nil(e.confirmed_at),
+      as: :email
+    )
+    |> update([user_team: ut, email: e], set: [user_id: e.user_id])
   end
 end
