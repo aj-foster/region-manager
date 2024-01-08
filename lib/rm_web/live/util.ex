@@ -166,6 +166,26 @@ defmodule RMWeb.Live.Util do
   @spec ok(Socket.t()) :: {:ok, Socket.t()}
   def ok(socket), do: {:ok, socket}
 
+  @spec get_region(Ecto.UUID.t()) :: RM.FIRST.Region.t()
+  defp get_region(region_name) do
+    RM.FIRST.get_region_by_name(region_name, preload: [:teams])
+    |> Map.update!(:teams, &sort_teams/1)
+  end
+
+  @doc """
+  Refresh the current user
+  """
+  @spec refresh_user(Socket.t()) :: Socket.t()
+  def refresh_user(socket) do
+    case socket.assigns[:current_user] do
+      %{id: user_id} ->
+        assign(socket, current_user: get_user(user_id))
+
+      nil ->
+        socket
+    end
+  end
+
   @spec get_user(Ecto.UUID.t()) :: Account.User.t()
   defp get_user(user_id) do
     Account.get_user_by_id!(user_id, preload: [:emails, :regions, :teams])
@@ -193,20 +213,6 @@ defmodule RMWeb.Live.Util do
     Enum.sort_by(teams, & &1.number)
   end
 
-  @doc """
-  Refresh the current user
-  """
-  @spec refresh_user(Socket.t()) :: Socket.t()
-  def refresh_user(socket) do
-    case socket.assigns[:current_user] do
-      %{id: user_id} ->
-        assign(socket, current_user: get_user(user_id))
-
-      nil ->
-        socket
-    end
-  end
-
   #
   # Hooks
   #
@@ -222,6 +228,10 @@ defmodule RMWeb.Live.Util do
   @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
   def on_mount(name, params, session, socket)
 
+  def on_mount(:preload_region, %{"region" => region_name}, _session, socket) do
+    {:cont, assign(socket, region: get_region(region_name))}
+  end
+
   def on_mount(:preload_user, _params, _session, socket) do
     case socket.assigns[:current_user] do
       %Identity.User{id: user_id} ->
@@ -232,6 +242,22 @@ defmodule RMWeb.Live.Util do
     end
   end
 
+  def on_mount(:require_region_owner, _params, _session, socket) do
+    region = socket.assigns[:region]
+    user = socket.assigns[:current_user]
+
+    if is_nil(region) or is_nil(user) or not region_owner?(user, region) do
+      socket =
+        socket
+        |> LiveView.put_flash(:error, "You do not have permission to perform this action")
+        |> LiveView.redirect(to: "/dashboard")
+
+      {:halt, socket}
+    else
+      {:cont, socket}
+    end
+  end
+
   def on_mount(:setup_uri, _params, _session, socket) do
     socket =
       LiveView.attach_hook(socket, :setup_uri, :handle_params, fn _params, uri, socket ->
@@ -239,5 +265,9 @@ defmodule RMWeb.Live.Util do
       end)
 
     {:cont, socket}
+  end
+
+  defp region_owner?(%Account.User{regions: regions}, %RM.FIRST.Region{id: region_id}) do
+    is_list(regions) and Enum.any?(regions, &(&1.id == region_id))
   end
 end

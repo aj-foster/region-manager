@@ -31,7 +31,10 @@ defmodule RMWeb.Router do
         {RMWeb.Live.Util, :preload_user}
       ] do
       live "/dashboard", DashboardLive.Home
+
       live "/region/import", RegionLive.Import
+      live "/region/:region", RegionLive.Show
+
       live "/user/settings", UserLive.Settings
     end
   end
