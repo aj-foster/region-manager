@@ -41,10 +41,16 @@ defmodule RMWeb.Router do
 
     # Session
     get "/login", Identity.Controller, :new_session, as: :identity
-    post "/login", Identity.Controller, :create_session, as: :identity
+
+    post "/login", Identity.Controller, :create_session,
+      as: :identity,
+      private: %{after_login: "/dashboard"}
 
     get "/login/2fa", Identity.Controller, :pending_2fa, as: :identity
-    post "/login/2fa", Identity.Controller, :validate_2fa, as: :identity
+
+    post "/login/2fa", Identity.Controller, :validate_2fa,
+      as: :identity,
+      private: %{after_validate: "/dashboard"}
 
     delete "/logout", Identity.Controller, :delete_session, as: :identity
 

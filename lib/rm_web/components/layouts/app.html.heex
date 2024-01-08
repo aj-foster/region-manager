@@ -1,20 +1,42 @@
 <header class="px-4 sm:px-6 lg:px-8">
   <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
       <.link :if={@current_user} navigate={~p"/dashboard"}>
         <img class="w-12" src={~p"/images/rm.svg"} alt="Region Manager" />
       </.link>
       <.link :if={is_nil(@current_user)} navigate={~p"/"}>
         <img class="w-12" src={~p"/images/rm.svg"} alt="Region Manager" />
       </.link>
+      <.link
+        :if={@current_user}
+        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+        navigate={~p"/dashboard"}
+      >
+        Dashboard
+      </.link>
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
+      <.link
+        :if={is_nil(@current_user)}
+        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+        navigate={~p"/register"}
+      >
+        Register
+      </.link>
       <.link
         :if={@current_user}
         class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
         navigate={~p"/user/settings"}
       >
         Account
+      </.link>
+
+      <.link
+        :if={is_nil(@current_user)}
+        href={~p"/login"}
+        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+      >
+        Log In <span aria-hidden="true">&rarr;</span>
       </.link>
       <.link
         :if={@current_user}
