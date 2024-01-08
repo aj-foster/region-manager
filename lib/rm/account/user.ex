@@ -18,5 +18,8 @@ defmodule RM.Account.User do
 
     has_many :region_assignments, Account.Region
     has_many :regions, through: [:region_assignments, :region]
+
+    has_many :team_assignments, Account.Team
+    has_many :teams, through: [:team_assignments, :team]
   end
 end

@@ -42,6 +42,16 @@ defmodule RM.Account.Query do
     end)
   end
 
+  @doc "Load the `team_assignments` and `teams` associations on a user"
+  @spec join_teams_from_user(query) :: query
+  def join_teams_from_user(query) do
+    with_named_binding(query, :teams, fn query, binding ->
+      query
+      |> join(:left, [user: u], ta in assoc(u, :team_assignments), as: :team_assignments)
+      |> join(:left, [team_assignments: ta], t in assoc(ta, :team), as: ^binding)
+    end)
+  end
+
   #
   # Preloads
   #
@@ -74,6 +84,16 @@ defmodule RM.Account.Query do
     |> preload([region_assignments: ra, regions: r],
       region_assignments: {ra, region: r},
       regions: r
+    )
+    |> preload_assoc(rest)
+  end
+
+  def preload_assoc(query, [:teams | rest]) do
+    query
+    |> join_teams_from_user()
+    |> preload([team_assignments: ta, teams: t],
+      team_assignments: {ta, team: t},
+      teams: t
     )
     |> preload_assoc(rest)
   end
