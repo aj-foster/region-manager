@@ -1,6 +1,6 @@
 <div>
-  <div :if={@region_count > 0}>
-    <h2 class="font-title italic mb-4 ml-4 small-caps text-xl">Regions you Manage</h2>
+  <div :if={@region_count > 0} class="mb-8">
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Regions you Manage</h2>
     <div
       :for={region <- @current_user.regions}
       class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"

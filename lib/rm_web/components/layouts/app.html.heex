@@ -11,9 +11,16 @@
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
       <.link
         :if={@current_user}
+        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+        navigate={~p"/user/settings"}
+      >
+        Account
+      </.link>
+      <.link
+        :if={@current_user}
         href={~p"/logout"}
         method="delete"
-        class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
+        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
       >
         Log Out <span aria-hidden="true">&rarr;</span>
       </.link>

@@ -23,6 +23,15 @@ defmodule RM.Account.Query do
   # Joins
   #
 
+  @doc "Load the `emails` association on a user"
+  @spec join_emails_from_user(query) :: query
+  def join_emails_from_user(query) do
+    with_named_binding(query, :emails, fn query, binding ->
+      query
+      |> join(:left, [user: u], e in assoc(u, :emails), as: ^binding)
+    end)
+  end
+
   @doc "Load the `region_assignments` and `regions` associations on a user"
   @spec join_regions_from_user(query) :: query
   def join_regions_from_user(query) do
@@ -43,6 +52,7 @@ defmodule RM.Account.Query do
   Data preloaded with this function will be joined and loaded in a single query, which can cause
   performance issues. The associations supported are:
 
+    * `emails`: confirmed and unconfirmed `emails` on a user
     * `regions`: `region_assignments` and `regions` on a user
 
   """
@@ -50,6 +60,13 @@ defmodule RM.Account.Query do
   def preload_assoc(query, associations)
   def preload_assoc(query, nil), do: query
   def preload_assoc(query, []), do: query
+
+  def preload_assoc(query, [:emails | rest]) do
+    query
+    |> join_emails_from_user()
+    |> preload([emails: e], emails: e)
+    |> preload_assoc(rest)
+  end
 
   def preload_assoc(query, [:regions | rest]) do
     query

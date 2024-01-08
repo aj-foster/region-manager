@@ -32,6 +32,7 @@ defmodule RMWeb.Router do
       ] do
       live "/dashboard", DashboardLive.Home
       live "/region/import", RegionLive.Import
+      live "/user/settings", UserLive.Settings
     end
   end
 
@@ -57,7 +58,11 @@ defmodule RMWeb.Router do
     # Email Addresses
     get "/user/email/new", Identity.Controller, :new_email, as: :identity
     post "/user/email/new", Identity.Controller, :create_email, as: :identity
-    get "/user/email/:token", Identity.Controller, :confirm_email, as: :identity
+
+    get "/user/email/:token", Identity.Controller, :confirm_email,
+      as: :identity,
+      private: %{after_all: "/user/settings"}
+
     delete "/user/email", Identity.Controller, :delete_email, as: :identity
 
     # User Registration
