@@ -39,8 +39,33 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+// See RMWeb.Live.Util.push_js/3
 window.addEventListener("phx:js-exec", ({ detail: {to, attr} }) => {
   document.querySelectorAll(to).forEach(el => {
     liveSocket.execJS(el, el.getAttribute(attr))
   })
+})
+
+// See RMWeb.Live.Util.copy/2
+window.addEventListener("phx:copy", (event) => {
+  let content;
+  let copyAttribute = event.target.getAttribute("data-copy");
+  let contentType = event.target.getAttribute("data-copy-type");
+
+  if (copyAttribute != null) {
+    content = copyAttribute;
+  } else if (event.target instanceof HTMLInputElement) {
+    content = event.target.value
+  } else {
+    content = event.target.innerText;
+  }
+
+  if (contentType != null) {
+    const blob = new Blob([content], { contentType });
+    const data = [new ClipboardItem({ [contentType]: blob })];
+
+    navigator.clipboard.write(data)
+  } else {
+    navigator.clipboard.writeText(content)
+  }
 })

@@ -1,9 +1,71 @@
 defmodule RMWeb.Live.Util do
   import Phoenix.Component
 
+  alias Phoenix.Component
   alias Phoenix.LiveView
+  alias Phoenix.LiveView.JS
   alias Phoenix.LiveView.Socket
   alias RM.Account
+
+  @doc """
+  Copy data to the browser's clipboard
+
+  This function allows an action (such as `phx-click`) to initiate copying data to the clipboard.
+  The data can be simple text or rich data depending on the attributes of the element triggering
+  the event.
+
+  ```heex
+  <span id="some-element"><%= @id %></span>
+  <button phx-click={copy("#some-element")}>Copy ID</button>
+  ```
+
+  ## Data Sources
+
+  The data to be copied will be retrieved from the `target` passed. In particular, it will come
+  from the following sources, in order of priority:
+
+  * `data-copy` attribute
+  * `value`, if the element is an input element
+  * Element's inner text
+
+  By default, the data will be copied as plain text. A `data-copy-type` attribute can be added on
+  the same element to modify the type of the data. Note that browser support for non-text
+  clipboard data is limited.
+
+  ## Integration
+
+  Use of this utility requires the following event listener on the client (usually included in
+  `app.js` after the setup of the live socket):
+
+  ```javascript
+  window.addEventListener("phx:copy", (event) => {
+    let content;
+    let copyAttribute = event.target.getAttribute("data-copy");
+    let contentType = event.target.getAttribute("data-copy-type");
+
+    if (copyAttribute != null) {
+      content = copyAttribute;
+    } else if (event.target instanceof HTMLInputElement) {
+      content = event.target.value
+    } else {
+      content = event.target.innerText;
+    }
+
+    if (contentType != null) {
+      const blob = new Blob([content], { contentType });
+      const data = [new ClipboardItem({ [contentType]: blob })];
+
+      navigator.clipboard.write(data)
+    } else {
+      navigator.clipboard.writeText(content)
+    }
+  })
+  ```
+  """
+  @spec copy(%JS{}, String.t()) :: %JS{}
+  def copy(js \\ %JS{}, target) do
+    JS.dispatch(js, "phx:copy", to: target)
+  end
 
   @doc """
   Send a `Phoenix.LiveView.JS.exec/1` call to the client
@@ -104,17 +166,6 @@ defmodule RMWeb.Live.Util do
   @spec ok(Socket.t()) :: {:ok, Socket.t()}
   def ok(socket), do: {:ok, socket}
 
-  @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
-  def on_mount(:preload_user, _params, _session, socket) do
-    case socket.assigns[:current_user] do
-      %Identity.User{id: user_id} ->
-        {:cont, assign(socket, current_user: get_user(user_id))}
-
-      nil ->
-        {:cont, socket}
-    end
-  end
-
   @spec get_user(Ecto.UUID.t()) :: Account.User.t()
   defp get_user(user_id) do
     Account.get_user_by_id!(user_id, preload: [:emails, :regions, :teams])
@@ -154,5 +205,39 @@ defmodule RMWeb.Live.Util do
       nil ->
         socket
     end
+  end
+
+  #
+  # Hooks
+  #
+
+  @doc false
+  defmacro __using__(_opt) do
+    quote do
+      LiveView.on_mount({RMWeb.Live.Util, :setup_uri})
+    end
+  end
+
+  @doc false
+  @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
+  def on_mount(name, params, session, socket)
+
+  def on_mount(:preload_user, _params, _session, socket) do
+    case socket.assigns[:current_user] do
+      %Identity.User{id: user_id} ->
+        {:cont, assign(socket, current_user: get_user(user_id))}
+
+      nil ->
+        {:cont, socket}
+    end
+  end
+
+  def on_mount(:setup_uri, _params, _session, socket) do
+    socket =
+      LiveView.attach_hook(socket, :setup_uri, :handle_params, fn _params, uri, socket ->
+        {:cont, Component.assign(socket, lvu_uri: URI.parse(uri))}
+      end)
+
+    {:cont, socket}
   end
 end
