@@ -55,6 +55,7 @@ defmodule RM.Import do
 
     {additions, updates} = diff_teams(local_teams_by_id, import_teams_by_id)
     update_region_counts(import_teams)
+    relink_coaches(import_teams, additions ++ Enum.map(updates, &elem(&1, 0)))
 
     %{added: additions, updated: updates, imported: import_teams, upload: upload}
   end
@@ -120,5 +121,32 @@ defmodule RM.Import do
     |> Enum.uniq()
     |> Region.team_count_update_query()
     |> Repo.update_all([])
+  end
+
+  @spec relink_coaches([Team.t()], [Local.Team.t()]) :: {integer, [Account.Team.t()]}
+  defp relink_coaches(import_teams, local_teams) do
+    team_id_map = Map.new(local_teams, fn team -> {team.team_id, team.id} end)
+
+    user_teams =
+      import_teams
+      |> tap(fn x -> IO.inspect(length(x), label: "Number of imports") end)
+      |> Enum.map(&Account.Team.from_import(&1, team_id_map))
+      |> List.flatten()
+      |> Enum.map(&prepare_user_team_for_insert/1)
+      |> tap(fn x -> IO.inspect(length(x), label: "Number of coaches") end)
+
+    Repo.insert_all(Account.Team, user_teams,
+      on_conflict: :replace_all,
+      conflict_target: [:team_id, :relationship],
+      returning: true
+    )
+  end
+
+  @spec prepare_user_team_for_insert(Account.Team.t()) :: map
+  defp prepare_user_team_for_insert(user_team) do
+    user_team
+    |> Map.from_struct()
+    |> Map.drop([:__meta__, :team, :user])
+    |> Map.put(:id, Ecto.UUID.generate())
   end
 end

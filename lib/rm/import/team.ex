@@ -26,11 +26,15 @@ defmodule RM.Import.Team do
       field :lc1_name, :string
       field :lc1_phone, :string
       field :lc1_phone_alt, :string
+      field :lc1_ypp, :boolean
+      field :lc1_ypp_reason, :string
       field :lc2_email, :string
       field :lc2_email_alt, :string
       field :lc2_name, :string
       field :lc2_phone, :string
       field :lc2_phone_alt, :string
+      field :lc2_ypp, :boolean
+      field :lc2_ypp_reason, :string
       field :location_city, :string
       field :location_country, :string
       field :location_county, :string
@@ -64,11 +68,15 @@ defmodule RM.Import.Team do
       "LC1 Name" => lc1_name,
       "LC1 Phone" => lc1_phone,
       "LC1 Phone Alternate" => lc1_phone_alt,
+      "LC1 YPP Screening Requirements Met" => lc1_ypp,
+      "LC1 YPP Screening Requirements Details" => lc1_ypp_reason,
       "LC2 Email" => lc2_email,
       "LC2 Email Alternate" => lc2_email_alt,
       "LC2 Name" => lc2_name,
       "LC2 Phone" => lc2_phone,
       "LC2 Phone Alternate" => lc2_phone_alt,
+      "LC2 YPP Screening Requirements Met" => lc2_ypp,
+      "LC2 YPP Screening Requirements Details" => lc2_ypp_reason,
       "Ready to Register for Events" => event_ready_str,
       "Ready to Register for Events Outstanding Issues" => event_ready_issues,
       "Region Name" => region,
@@ -111,11 +119,15 @@ defmodule RM.Import.Team do
         lc1_name: lc1_name,
         lc1_phone: lc1_phone,
         lc1_phone_alt: lc1_phone_alt,
+        lc1_ypp: lc1_ypp =~ "Satisfies",
+        lc1_ypp_reason: if(lc1_ypp =~ "Does Not Satisfy", do: lc1_ypp_reason),
         lc2_email: lc2_email,
         lc2_email_alt: lc2_email_alt,
         lc2_name: lc2_name,
         lc2_phone: lc2_phone,
         lc2_phone_alt: lc2_phone_alt,
+        lc2_ypp: lc2_ypp =~ "Satisfies",
+        lc2_ypp_reason: if(lc2_ypp =~ "Does Not Satisfy", do: lc2_ypp_reason),
         location_city: location_city,
         location_country: location_country,
         location_county: location_county,
