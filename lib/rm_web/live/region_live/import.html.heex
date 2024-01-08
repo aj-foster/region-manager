@@ -1,6 +1,17 @@
-<h1>Import Data</h1>
+<div>
+  <div class="mb-8">
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Import Teams</h2>
 
-<form id="team-data-import" phx-submit="import" phx-change="validate">
-  <.live_file_input upload={@uploads.team_data} />
-  <button type="submit">Import</button>
-</form>
+    <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+      <form id="team-data-import" phx-submit="import" phx-change="validate">
+        <div class="mb-4"><.live_file_input upload={@uploads.team_data} /></div>
+        <button
+          class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
+          type="submit"
+        >
+          Import
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
