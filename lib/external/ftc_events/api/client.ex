@@ -34,6 +34,22 @@ defmodule External.FTCEvents.API.Client do
     end
   end
 
+  @impl true
+  def list_league_members(season, region, league, opts \\ []) do
+    req_opts = Keyword.take(opts, [:headers, :body, :params])
+    url = "/v2.0/#{season}/leagues/members/#{region}/#{league}"
+
+    new(req_opts)
+    |> Req.get(url: url)
+    |> case do
+      {:ok, %Req.Response{status: 200, body: %{"members" => members}}} ->
+        {:ok, members}
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
   #
   # Request
   #
