@@ -54,6 +54,7 @@ defmodule RM.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.20.1"},
       {:postgrex, ">= 0.0.0"},
+      {:req, "~> 0.4.0"},
       {:sweet_xml, "~> 0.7.4"},
       {:swoosh, "~> 1.3"},
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
