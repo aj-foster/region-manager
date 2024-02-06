@@ -92,6 +92,20 @@ resource "digitalocean_app" "this" {
       }
 
       env {
+        key   = "FTC_EVENTS_API_KEY"
+        value = var.rm_ftc_events_api_key
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
+
+      env {
+        key   = "FTC_EVENTS_API_USER"
+        value = var.rm_ftc_events_api_user
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
+
+      env {
         key   = "PHX_HOST"
         value = var.domain
         scope = "RUN_TIME"

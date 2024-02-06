@@ -37,3 +37,6 @@ npm-debug.log
 
 # Uploads
 /import
+
+# Secret configuration
+/config/*.secret.exs

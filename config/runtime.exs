@@ -50,6 +50,10 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  config :rm, External.FTCEvents,
+    key: System.get_env("FTC_EVENTS_API_KEY"),
+    user: System.get_env("FTC_EVENTS_API_USER")
+
   #
   # Dependencies
   #
@@ -67,4 +71,8 @@ if config_env() == :prod do
     asset_host: System.get_env("ASSET_HOST", host),
     bucket: System.get_env("STORAGE_BUCKET", "ftcregion"),
     storage: Waffle.Storage.S3
+end
+
+if File.exists?(Path.expand("runtime.secret.exs", __DIR__)) do
+  Code.require_file("runtime.secret.exs", __DIR__)
 end
