@@ -4,6 +4,7 @@ defmodule RM.FIRST.Query do
   """
   import Ecto.Query
 
+  alias RM.FIRST.League
   alias RM.FIRST.Region
 
   @typedoc "Intermediate query"
@@ -12,6 +13,12 @@ defmodule RM.FIRST.Query do
   #
   # Base
   #
+
+  @doc "Start a query from the leagues table"
+  @spec from_league :: query
+  def from_league do
+    from(League, as: :league)
+  end
 
   @doc "Start a query from the regions table"
   @spec from_region :: query
@@ -22,6 +29,18 @@ defmodule RM.FIRST.Query do
   #
   # Filters
   #
+
+  @doc "Find leagues related to the given region(s)"
+  @spec league_region(query, Region.t()) :: query
+  @spec league_region(query, [Region.t()]) :: query
+  def league_region(query, %Region{id: region_id}) do
+    where(query, [league: l], l.region_id == ^region_id)
+  end
+
+  def league_region(query, regions) when is_list(regions) do
+    region_ids = Enum.map(regions, & &1.id)
+    where(query, [league: l], l.region_id in ^region_ids)
+  end
 
   @doc "Find the region with a given name"
   @spec region_name(query, String.t()) :: query

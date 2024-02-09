@@ -4,6 +4,19 @@ defmodule RM.FIRST.Region do
 
   alias RM.Local.Team
 
+  @type t :: %__MODULE__{
+          abbreviation: String.t(),
+          code: String.t(),
+          description: String.t() | nil,
+          has_leagues: boolean,
+          id: Ecto.UUID.t(),
+          inserted_at: DateTime.t(),
+          name: String.t(),
+          stats: %__MODULE__.Stats{team_count: integer},
+          teams: Ecto.Schema.has_many(Team.t()),
+          updated_at: DateTime.t()
+        }
+
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "first_regions" do
@@ -19,6 +32,11 @@ defmodule RM.FIRST.Region do
     embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
       field :team_count, :integer, default: 0
     end
+  end
+
+  def id_by_code_query do
+    from(__MODULE__, as: :region)
+    |> select([region: r], {r.code, r.id})
   end
 
   def team_count_update_query(region_ids) do
