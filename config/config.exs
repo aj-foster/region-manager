@@ -20,6 +20,8 @@ config :rm, RMWeb.Endpoint,
 
 config :rm, RM.Mailer, adapter: Swoosh.Adapters.Local
 
+config :rm, External.FTCEvents.API, client: External.FTCEvents.API.Client
+
 #
 # Dependencies
 #

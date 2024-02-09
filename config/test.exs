@@ -23,6 +23,8 @@ config :rm, RMWeb.Endpoint,
 # In test we don't send emails.
 config :rm, RM.Mailer, adapter: Swoosh.Adapters.Test
 
+config :rm, External.FTCEvents.API, client: External.FTCEvents.API.Stub
+
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
