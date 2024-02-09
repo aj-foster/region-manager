@@ -8,6 +8,7 @@ defmodule RM.FIRST.Region do
 
   schema "first_regions" do
     field :abbreviation, :string
+    field :code, :string
     field :description, :string
     field :has_leagues, :boolean, default: false
     field :name, :string
