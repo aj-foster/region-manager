@@ -5,6 +5,7 @@ defmodule RM.FIRST.Query do
   import Ecto.Query
 
   alias RM.FIRST.League
+  alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
 
   @typedoc "Intermediate query"
@@ -20,6 +21,12 @@ defmodule RM.FIRST.Query do
     from(League, as: :league)
   end
 
+  @doc "Start a query from the league assignments table"
+  @spec from_league_assignment :: query
+  def from_league_assignment do
+    from(LeagueAssignment, as: :league_assignment)
+  end
+
   @doc "Start a query from the regions table"
   @spec from_region :: query
   def from_region do
@@ -29,6 +36,12 @@ defmodule RM.FIRST.Query do
   #
   # Filters
   #
+
+  @doc "Find assignments related to the given league"
+  @spec assignment_league(query, League.t()) :: query
+  def assignment_league(query, %League{id: league_id}) do
+    where(query, [league_assignment: a], a.league_id == ^league_id)
+  end
 
   @doc "Find leagues related to the given region(s)"
   @spec league_region(query, Region.t()) :: query

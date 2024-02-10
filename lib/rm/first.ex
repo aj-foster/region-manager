@@ -5,8 +5,10 @@ defmodule RM.FIRST do
   import Ecto.Query
 
   alias RM.FIRST.League
+  alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
   alias RM.FIRST.Query
+  alias RM.Local
   alias RM.Repo
 
   @spec list_region_ids_by_code :: %{String.t() => Ecto.UUID.t()}
@@ -65,6 +67,27 @@ defmodule RM.FIRST do
     Repo.insert_all(League, league_data,
       on_conflict: {:replace_all_except, [:id, :inserted_at]},
       conflict_target: :code,
+      returning: true
+    )
+    |> elem(1)
+  end
+
+  @doc """
+  Save team/league assignments from an FTC Events API response
+  """
+  @spec update_league_assignments_from_ftc_events(League.t(), [integer]) :: [LeagueAssignment.t()]
+  def update_league_assignments_from_ftc_events(league, team_numbers) do
+    Query.from_league_assignment()
+    |> Query.assignment_league(league)
+    |> Repo.delete_all()
+
+    assignment_data =
+      Local.list_teams_by_number(team_numbers)
+      |> Enum.map(&LeagueAssignment.new(league, &1))
+
+    Repo.insert_all(LeagueAssignment, assignment_data,
+      on_conflict: {:replace_all_except, [:id, :inserted_at]},
+      conflict_target: [:league_id, :team_id],
       returning: true
     )
     |> elem(1)
