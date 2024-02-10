@@ -12,6 +12,22 @@ defmodule External.FTCEvents.API.Client do
   #
 
   @impl true
+  def list_events(season, opts \\ []) do
+    req_opts = Keyword.take(opts, [:headers, :body, :params])
+    url = "/v2.0/#{season}/events"
+
+    new(req_opts)
+    |> Req.get(url: url)
+    |> case do
+      {:ok, %Req.Response{status: 200, body: %{"eventCount" => count, "events" => events}}} ->
+        {:ok, %{count: count, events: events}}
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  @impl true
   def list_leagues(season, opts \\ []) do
     req_opts = Keyword.take(opts, [:headers, :body, :params])
     url = "/v2.0/#{season}/leagues"

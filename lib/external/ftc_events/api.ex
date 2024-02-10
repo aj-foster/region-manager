@@ -26,6 +26,16 @@ defmodule External.FTCEvents.API do
   @typedoc "Response from API calls"
   @type response(t) :: {:ok, t} | {:error, Exception.t()}
 
+  # List Events
+
+  @typedoc "Response data for the `c:list_events/2` endpoint"
+  @type list_events_response :: %{count: integer, events: [map]}
+
+  @doc false
+  @callback list_events(season) :: response(list_events_response)
+  @doc "Returns all FTC events in a particular season"
+  @callback list_events(season, keyword) :: response(list_events_response)
+
   # List Leagues
 
   @typedoc "Options for the `c:list_leagues/2` endpoint"

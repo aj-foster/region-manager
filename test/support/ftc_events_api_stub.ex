@@ -5,6 +5,11 @@ defmodule External.FTCEvents.API.Stub do
   @behaviour External.FTCEvents.API
 
   @impl true
+  def list_events(_season, _opts \\ []) do
+    {:ok, %{count: 0, events: []}}
+  end
+
+  @impl true
   def list_leagues(_season, _opts \\ []) do
     {:ok, %{count: 0, leagues: []}}
   end
