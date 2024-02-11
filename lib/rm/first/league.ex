@@ -1,5 +1,6 @@
 defmodule RM.FIRST.League do
   use Ecto.Schema
+  import Ecto.Query
 
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
@@ -62,5 +63,10 @@ defmodule RM.FIRST.League do
       remote: remote,
       updated_at: now
     }
+  end
+
+  def id_by_code_query do
+    from(__MODULE__, as: :league)
+    |> select([league: l], {l.code, l.id})
   end
 end

@@ -4,12 +4,20 @@ defmodule RM.FIRST do
   """
   import Ecto.Query
 
+  alias RM.FIRST.Event
   alias RM.FIRST.League
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
   alias RM.FIRST.Query
   alias RM.Local
   alias RM.Repo
+
+  @spec list_league_ids_by_code :: %{String.t() => Ecto.UUID.t()}
+  def list_league_ids_by_code do
+    League.id_by_code_query()
+    |> Repo.all()
+    |> Map.new()
+  end
 
   @spec list_region_ids_by_code :: %{String.t() => Ecto.UUID.t()}
   def list_region_ids_by_code do
@@ -24,6 +32,34 @@ defmodule RM.FIRST do
     |> Query.region_name(name)
     |> Query.preload_assoc(opts[:preload])
     |> Repo.one()
+  end
+
+  def update_events_from_ftc_events(api_events, opts \\ []) do
+    league_id_map = list_league_ids_by_code()
+    region_id_map = list_region_ids_by_code()
+
+    event_data =
+      Enum.map(api_events, &Event.from_ftc_events(&1, region_id_map, league_id_map))
+      |> Enum.reject(&is_nil(&1.region_id))
+      |> Enum.map(&Map.put(&1, :season, 2023))
+
+    events =
+      Repo.insert_all(Event, event_data,
+        on_conflict: {:replace_all_except, [:inserted_at]},
+        conflict_target: [:season, :code],
+        returning: true
+      )
+
+    if region_or_regions = opts[:delete_region] do
+      event_ids = Enum.map(events, & &1.id)
+
+      Query.from_event()
+      |> Query.event_region(region_or_regions)
+      |> where([event: e], e.id not in ^event_ids)
+      |> Repo.delete_all()
+    end
+
+    events
   end
 
   @doc """

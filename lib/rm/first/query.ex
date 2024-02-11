@@ -4,6 +4,7 @@ defmodule RM.FIRST.Query do
   """
   import Ecto.Query
 
+  alias RM.FIRST.Event
   alias RM.FIRST.League
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
@@ -14,6 +15,12 @@ defmodule RM.FIRST.Query do
   #
   # Base
   #
+
+  @doc "Start a query from the events table"
+  @spec from_event :: query
+  def from_event do
+    from(Event, as: :event)
+  end
 
   @doc "Start a query from the leagues table"
   @spec from_league :: query
@@ -41,6 +48,18 @@ defmodule RM.FIRST.Query do
   @spec assignment_league(query, League.t()) :: query
   def assignment_league(query, %League{id: league_id}) do
     where(query, [league_assignment: a], a.league_id == ^league_id)
+  end
+
+  @doc "Find events related to the given region(s)"
+  @spec event_region(query, Region.t()) :: query
+  @spec event_region(query, [Region.t()]) :: query
+  def event_region(query, %Region{id: region_id}) do
+    where(query, [event: e], e.region_id == ^region_id)
+  end
+
+  def event_region(query, regions) when is_list(regions) do
+    region_ids = Enum.map(regions, & &1.id)
+    where(query, [event: e], e.region_id in ^region_ids)
   end
 
   @doc "Find leagues related to the given region(s)"
