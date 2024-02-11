@@ -29,8 +29,10 @@ defmodule RM.FIRST do
   @doc """
   Save league data from an FTC Events API response
 
+  This function assumes that for any league with a parent league, their parent is also included
+  in the list of leagues to update (although not necessarily in a friendly order).
+
   TODO: Validate handling of parent leagues.
-  TODO: Investigate overwriting of insertion dates.
 
   ## Options
 
@@ -53,11 +55,11 @@ defmodule RM.FIRST do
       |> elem(1)
 
     if region_or_regions = opts[:delete_region] do
-      league_ids = Enum.map(leagues, & &1.id)
+      league_codes = Enum.map(leagues, & &1.code)
 
       Query.from_league()
       |> Query.league_region(region_or_regions)
-      |> where([league: l], l.id not in ^league_ids)
+      |> where([league: l], l.code not in ^league_codes)
       |> Repo.delete_all()
     end
 
