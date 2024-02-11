@@ -8,6 +8,7 @@ defmodule RM.Repo.Migrations.CreateFirstEvents do
       add :code, :text, null: false
       add :date_end, :date, null: false
       add :date_start, :date, null: false
+      add :date_timezone, :text, null: false
       add :division_code, :text
       add :field_count, :integer, null: false
       add :hybrid, :boolean, null: false

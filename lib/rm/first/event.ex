@@ -46,6 +46,7 @@ defmodule RM.FIRST.Event do
     field :code, :string
     field :date_end, :date
     field :date_start, :date
+    field :date_timezone, :string
     field :division_code, :string
     field :field_count, :integer
     field :hybrid, :boolean
@@ -91,6 +92,7 @@ defmodule RM.FIRST.Event do
           "regionCode" => region_code,
           "remote" => remote,
           "stateprov" => state_province,
+          "timezone" => timezone,
           "type" => type_code,
           "venue" => venue,
           "website" => website
@@ -104,6 +106,7 @@ defmodule RM.FIRST.Event do
       code: code,
       date_end: cast_date(date_end),
       date_start: cast_date(date_start),
+      date_timezone: timezone,
       division_code: division_code,
       field_count: field_count,
       hybrid: hybrid,
