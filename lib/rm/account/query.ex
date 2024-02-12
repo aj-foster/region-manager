@@ -32,6 +32,16 @@ defmodule RM.Account.Query do
     end)
   end
 
+  @doc "Load the `league_assignments` and `leagues` associations on a user"
+  @spec join_leagues_from_user(query) :: query
+  def join_leagues_from_user(query) do
+    with_named_binding(query, :leagues, fn query, binding ->
+      query
+      |> join(:left, [user: u], la in assoc(u, :league_assignments), as: :league_assignments)
+      |> join(:left, [league_assignments: la], r in assoc(la, :league), as: ^binding)
+    end)
+  end
+
   @doc "Load the `region_assignments` and `regions` associations on a user"
   @spec join_regions_from_user(query) :: query
   def join_regions_from_user(query) do
@@ -75,6 +85,16 @@ defmodule RM.Account.Query do
     query
     |> join_emails_from_user()
     |> preload([emails: e], emails: e)
+    |> preload_assoc(rest)
+  end
+
+  def preload_assoc(query, [:leagues | rest]) do
+    query
+    |> join_leagues_from_user()
+    |> preload([league_assignments: la, leagues: r],
+      league_assignments: {la, league: r},
+      leagues: r
+    )
     |> preload_assoc(rest)
   end
 

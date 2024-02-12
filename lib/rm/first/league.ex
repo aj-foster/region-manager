@@ -39,6 +39,11 @@ defmodule RM.FIRST.League do
     has_many :team_assignments, LeagueAssignment
     has_many :teams, through: [:team_assignments, :team]
 
+    embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
+      field :league_count, :integer, default: 0
+      field :team_count, :integer, default: 0
+    end
+
     timestamps type: :utc_datetime_usec
   end
 

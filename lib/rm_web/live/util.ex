@@ -188,8 +188,9 @@ defmodule RMWeb.Live.Util do
 
   @spec get_user(Ecto.UUID.t()) :: Account.User.t()
   defp get_user(user_id) do
-    Account.get_user_by_id!(user_id, preload: [:emails, :regions, :teams])
+    Account.get_user_by_id!(user_id, preload: [:emails, :leagues, :regions, :teams])
     |> Map.update!(:emails, &sort_emails/1)
+    |> Map.update!(:leagues, &sort_leagues/1)
     |> Map.update!(:regions, &sort_regions/1)
     |> Map.update!(:teams, &sort_teams/1)
   end
@@ -201,6 +202,11 @@ defmodule RMWeb.Live.Util do
       %{confirmed_at: nil}, %{confirmed_at: %DateTime{}} -> false
       %{email: email_one}, %{email: email_two} -> email_one <= email_two
     end)
+  end
+
+  @spec sort_leagues([RM.FIRST.League.t()]) :: [RM.FIRST.League.t()]
+  defp sort_leagues(leagues) do
+    Enum.sort_by(leagues, & &1.name)
   end
 
   @spec sort_regions([RM.FIRST.Region.t()]) :: [RM.FIRST.Region.t()]
