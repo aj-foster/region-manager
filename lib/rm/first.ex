@@ -79,6 +79,8 @@ defmodule RM.FIRST do
   """
   @spec update_leagues_from_ftc_events([map], keyword) :: [League.t()]
   def update_leagues_from_ftc_events(api_leagues, opts \\ []) do
+    # First round: Initial insertion of the records
+
     region_id_map = list_region_ids_by_code()
     league_data = Enum.map(api_leagues, &League.from_ftc_events(&1, region_id_map))
 
@@ -99,15 +101,31 @@ defmodule RM.FIRST do
       |> Repo.delete_all()
     end
 
+    # Second round: update parent/child relationships.
+
     league_id_map = Map.new(leagues, &{&1.code, &1.id})
     league_data = Enum.map(api_leagues, &League.from_ftc_events(&1, region_id_map, league_id_map))
 
-    Repo.insert_all(League, league_data,
-      on_conflict: {:replace_all_except, [:id, :inserted_at]},
-      conflict_target: :code,
-      returning: true
-    )
-    |> elem(1)
+    leagues =
+      Repo.insert_all(League, league_data,
+        on_conflict: {:replace_all_except, [:id, :inserted_at]},
+        conflict_target: :code,
+        returning: true
+      )
+      |> elem(1)
+
+    update_region_league_counts(leagues)
+
+    leagues
+  end
+
+  @spec update_region_league_counts([League.t()]) :: {integer, nil}
+  defp update_region_league_counts(leagues) do
+    leagues
+    |> Enum.map(& &1.region_id)
+    |> Enum.uniq()
+    |> Region.league_count_update_query()
+    |> Repo.update_all([])
   end
 
   @doc """
