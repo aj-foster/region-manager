@@ -3,7 +3,7 @@ defmodule RM.Repo.Migrations.CreateFirstEvents do
 
   def change do
     create_if_not_exists table(:first_events, primary_key: false) do
-      add :id, :uuid, primary_key: false
+      add :id, :uuid, primary_key: true
 
       add :code, :text, null: false
       add :date_end, :date, null: false
