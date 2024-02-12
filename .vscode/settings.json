@@ -1,0 +1,16 @@
+{
+  "emmet.includeLanguages": {
+    "phoenix-heex": "html",
+    "html-heex": "html",
+    "HTML (EEx)": "html"
+  },
+  "tailwindCSS.experimental.configFile": {
+    "assets/tailwind.config.js": [
+      "assets/js/*.js",
+      "lib/rm_web/**/*.*ex"
+    ]
+  },
+  "tailwindCSS.includeLanguages": {
+    "phoenix-heex": "html"
+  }
+}
