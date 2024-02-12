@@ -168,7 +168,7 @@ defmodule RMWeb.Live.Util do
 
   @spec get_region(Ecto.UUID.t()) :: RM.FIRST.Region.t()
   defp get_region(region_name) do
-    RM.FIRST.get_region_by_name(region_name, preload: [:teams])
+    RM.FIRST.get_region_by_name(region_name, preload: [:leagues, :teams])
     |> Map.update!(:teams, &sort_teams/1)
   end
 

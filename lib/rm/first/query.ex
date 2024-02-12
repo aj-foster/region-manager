@@ -84,6 +84,14 @@ defmodule RM.FIRST.Query do
   # Joins
   #
 
+  @doc "Load the `leagues` association on a region"
+  @spec join_leagues_from_region(query) :: query
+  def join_leagues_from_region(query) do
+    with_named_binding(query, :leagues, fn query, binding ->
+      join(query, :left, [region: r], t in assoc(r, :leagues), as: ^binding)
+    end)
+  end
+
   @doc "Load the `teams` association on a region"
   @spec join_teams_from_region(query) :: query
   def join_teams_from_region(query) do
@@ -102,13 +110,21 @@ defmodule RM.FIRST.Query do
   Data preloaded with this function will be joined and loaded in a single query, which can cause
   performance issues. The associations supported are:
 
-    * `users`: `teams` on a region
+    * `leagues`: `leagues` on a region
+    * `teams`: `teams` on a region
 
   """
   @spec preload_assoc(query, [atom] | nil) :: query
   def preload_assoc(query, associations)
   def preload_assoc(query, nil), do: query
   def preload_assoc(query, []), do: query
+
+  def preload_assoc(query, [:leagues | rest]) do
+    query
+    |> join_leagues_from_region()
+    |> preload([leagues: l], leagues: l)
+    |> preload_assoc(rest)
+  end
 
   def preload_assoc(query, [:teams | rest]) do
     query

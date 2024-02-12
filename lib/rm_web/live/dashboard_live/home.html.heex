@@ -16,7 +16,12 @@
     >
       <div class="grow">
         <h3 class="font-bold"><%= region.name %></h3>
-        <p><%= dumb_inflect("team", region.stats.team_count) %></p>
+        <p>
+          <span :if={region.stats.league_count && region.stats.league_count > 0}>
+            <%= dumb_inflect("league", region.stats.league_count) %> &bull;
+          </span>
+          <span><%= dumb_inflect("team", region.stats.team_count) %></span>
+        </p>
       </div>
       <div>
         <.icon name="hero-arrow-right" />
