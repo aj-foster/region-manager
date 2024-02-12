@@ -4,6 +4,7 @@ defmodule RM.FIRST.League do
 
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
+  alias RM.Local.LeagueSettings
   alias RM.Local.Team
 
   @type t :: %__MODULE__{
@@ -13,10 +14,11 @@ defmodule RM.FIRST.League do
           location: String.t() | nil,
           name: String.t(),
           parent_league: Ecto.Schema.belongs_to(t | nil),
-          parent_league_id: Ecto.UUID.t(),
+          parent_league_id: Ecto.UUID.t() | nil,
           region: Ecto.Schema.belongs_to(Region.t()),
           region_id: Ecto.UUID.t(),
           remote: boolean,
+          settings: Ecto.Schema.has_one(LeagueSettings.t()),
           team_assignments: Ecto.Schema.has_many(LeagueAssignment.t()),
           teams: Ecto.Schema.has_many(Team.t()),
           updated_at: DateTime.t()
@@ -32,6 +34,7 @@ defmodule RM.FIRST.League do
 
     belongs_to :parent_league, __MODULE__, type: :binary_id
     belongs_to :region, Region, type: :binary_id
+    has_one :settings, LeagueSettings
 
     has_many :team_assignments, LeagueAssignment
     has_many :teams, through: [:team_assignments, :team]

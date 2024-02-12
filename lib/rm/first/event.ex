@@ -3,6 +3,7 @@ defmodule RM.FIRST.Event do
 
   alias RM.FIRST.League
   alias RM.FIRST.Region
+  alias RM.Local.EventSettings
 
   @type t :: %__MODULE__{}
 
@@ -60,6 +61,7 @@ defmodule RM.FIRST.Event do
 
     belongs_to :league, League
     belongs_to :region, Region
+    has_one :settings, EventSettings
 
     embeds_one :location, Location, on_replace: :update, primary_key: false do
       field :address, :string

@@ -4,6 +4,8 @@ defmodule RM.FIRST.LeagueAssignment do
   alias RM.FIRST.League
   alias RM.Local.Team
 
+  @type t :: %__MODULE__{}
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
