@@ -12,6 +12,24 @@ defmodule RM.FIRST do
   alias RM.Local
   alias RM.Repo
 
+  #
+  # Operations
+  #
+
+  @doc """
+  Refresh the local league information for the given region
+  """
+  @spec refresh_leagues(Region.t()) :: {:ok, [League.t()]} | {:error, Exception.t()}
+  def refresh_leagues(region) do
+    with {:ok, %{leagues: leagues}} = External.FTCEvents.list_leagues(region) do
+      {:ok, update_leagues_from_ftc_events(leagues)}
+    end
+  end
+
+  #
+  # Data
+  #
+
   @spec list_league_ids_by_code :: %{String.t() => Ecto.UUID.t()}
   def list_league_ids_by_code do
     League.id_by_code_query()
@@ -124,7 +142,7 @@ defmodule RM.FIRST do
     leagues
     |> Enum.map(& &1.region_id)
     |> Enum.uniq()
-    |> Region.league_count_update_query()
+    |> Region.league_stats_update_query()
     |> Repo.update_all([])
   end
 

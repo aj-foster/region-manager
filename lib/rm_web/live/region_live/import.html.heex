@@ -11,7 +11,7 @@
       </p>
       <p class="mb-4">
         By submitting this information to <em>Region Manager</em>, you agree to restrict access
-        to this information to only those individuals who need access to it.
+        to this information to only those individuals who need it.
       </p>
       <form id="team-data-import" phx-submit="import" phx-change="validate">
         <div class="mb-4"><.live_file_input upload={@uploads.team_data} /></div>
@@ -39,7 +39,23 @@
         </a>
         and any corrections must be submitted to <em>FIRST</em>.
       </p>
-      <p class="text-sm">Coming Soon</p>
+      <p>
+        <button
+          class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed"
+          disabled={(@refresh && not is_nil(@refresh.loading)) || refreshed_recently?(@region)}
+          phx-click="refresh_leagues"
+          type="submit"
+        >
+          <%= if @refresh && @refresh.loading do %>
+            Refreshing...
+          <% else %>
+            Refresh
+          <% end %>
+        </button>
+        <span class="ml-2 text-sm">
+          Last refreshed <%= format_date(@region.stats.leagues_imported_at, :date) %>
+        </span>
+      </p>
     </div>
   </div>
 </div>

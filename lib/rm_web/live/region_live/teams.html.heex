@@ -6,7 +6,7 @@
       <h2 class="font-title italic small-caps text-xl">Teams Requiring Attention</h2>
       <.link
         class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
-        navigate={~p"/region/import"}
+        navigate={~p"/region/#{String.downcase(@region.name)}/import"}
       >
         Import
       </.link>
@@ -27,7 +27,7 @@
       <h2 class="font-title italic small-caps text-xl">All Teams in <%= @region.name %></h2>
       <.link
         class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
-        navigate={~p"/region/import"}
+        navigate={~p"/region/#{String.downcase(@region.name)}/import"}
       >
         Import
       </.link>
