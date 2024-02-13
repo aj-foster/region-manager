@@ -1,11 +1,15 @@
 defmodule RMWeb.RegionLive.Import do
   use RMWeb, :live_view
+  import RMWeb.RegionLive.Util
 
   alias RM.Import
 
   #
   # Lifecycle
   #
+
+  on_mount {RMWeb.Live.Util, :preload_region}
+  on_mount {RMWeb.Live.Util, :require_region_owner}
 
   @doc false
   @impl true

@@ -1,0 +1,15 @@
+<.nav class="mb-8" region={@region} view={@socket.view} />
+
+<div>
+  <div :if={@league_count > 0}>
+    <div class="flex items-center justify-between mb-4 ml-6">
+      <h2 class="font-title italic small-caps text-xl">Leagues in <%= @region.name %></h2>
+    </div>
+    <ul class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+      <li :for={league <- @region.leagues} class="flex gap-4 items-center mb-2">
+        <h3><%= shorten_league_name(@region, league.name) %></h3>
+      </li>
+      <div></div>
+    </ul>
+  </div>
+</div>

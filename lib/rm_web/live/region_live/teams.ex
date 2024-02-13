@@ -1,4 +1,4 @@
-defmodule RMWeb.RegionLive.Show do
+defmodule RMWeb.RegionLive.Teams do
   use RMWeb, :live_view
   import RMWeb.RegionLive.Util
 
@@ -11,7 +11,6 @@ defmodule RMWeb.RegionLive.Show do
 
     socket
     |> assign(
-      league_count: length(region.leagues),
       team_count: length(region.teams),
       unready_teams: unready_teams,
       unready_team_count: length(unready_teams)

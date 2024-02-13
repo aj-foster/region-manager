@@ -14,6 +14,13 @@
       >
         Dashboard
       </.link>
+      <.link
+        :if={@current_user && length(@current_user.regions) == 1}
+        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+        navigate={~p"/region/#{String.downcase(List.first(@current_user.regions).name)}"}
+      >
+        <%= List.first(@current_user.regions).name %>
+      </.link>
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
       <.link
@@ -49,7 +56,7 @@
     </div>
   </div>
 </header>
-<main class="px-4 py-20 sm:px-6 lg:px-8">
+<main class="px-4 py-10 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-2xl">
     <.flash_group flash={@flash} />
     <%= @inner_content %>
