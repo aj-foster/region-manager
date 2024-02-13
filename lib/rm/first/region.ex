@@ -33,7 +33,9 @@ defmodule RM.FIRST.Region do
 
     embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
       field :league_count, :integer, default: 0
+      field :leagues_imported_at, :utc_datetime_usec
       field :team_count, :integer, default: 0
+      field :teams_imported_at, :utc_datetime_usec
     end
   end
 
@@ -42,7 +44,13 @@ defmodule RM.FIRST.Region do
     |> select([region: r], {r.code, r.id})
   end
 
-  def league_count_update_query(region_ids) do
+  @doc """
+  Query to update cached league statistics for regions with the given IDs
+  """
+  @spec league_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
+  def league_stats_update_query(region_ids) do
+    now = DateTime.utc_now()
+
     count_query =
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
@@ -54,12 +62,24 @@ defmodule RM.FIRST.Region do
     |> join(:inner, [region: r], s in subquery(count_query), on: s.id == r.id, as: :counts)
     |> update([region: r, counts: c],
       set: [
-        stats: fragment("jsonb_set(?, '{league_count}', ?::varchar::jsonb)", r.stats, c.count)
+        stats:
+          fragment(
+            "jsonb_set(jsonb_set(?, '{league_count}', ?::varchar::jsonb), '{leagues_imported_at}', ?)",
+            r.stats,
+            c.count,
+            ^now
+          )
       ]
     )
   end
 
-  def team_count_update_query(region_ids) do
+  @doc """
+  Query to update cached team statistics for regions with the given IDs
+  """
+  @spec team_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
+  def team_stats_update_query(region_ids) do
+    now = DateTime.utc_now()
+
     count_query =
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
@@ -71,7 +91,13 @@ defmodule RM.FIRST.Region do
     |> join(:inner, [region: r], s in subquery(count_query), on: s.id == r.id, as: :counts)
     |> update([region: r, counts: c],
       set: [
-        stats: fragment("jsonb_set(?, '{team_count}', ?::varchar::jsonb)", r.stats, c.count)
+        stats:
+          fragment(
+            "jsonb_set(jsonb_set(?, '{team_count}', ?::varchar::jsonb), '{teams_imported_at}', ?)",
+            r.stats,
+            c.count,
+            ^now
+          )
       ]
     )
   end

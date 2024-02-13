@@ -5,11 +5,15 @@
     <h2 class="font-title italic mb-4 ml-6 small-caps text-xl"><%= @region.name %></h2>
 
     <.link
+      :if={@region.has_leagues}
       class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-      navigate={~p"/region/#{String.downcase(@region.name)}/teams"}
+      navigate={~p"/region/#{String.downcase(@region.name)}/leagues"}
     >
       <div class="grow">
-        <h3 class="font-bold"><%= dumb_inflect("Team", @region.stats.team_count) %></h3>
+        <h3 class="font-bold"><%= dumb_inflect("League", @region.stats.league_count) %></h3>
+        <p :if={@region.stats.leagues_imported_at} class="text-sm">
+          Last refreshed <%= format_date(@region.stats.leagues_imported_at, :date) %>
+        </p>
       </div>
       <div>
         <.icon name="hero-arrow-right" />
@@ -17,12 +21,14 @@
     </.link>
 
     <.link
-      :if={@region.has_leagues}
       class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-      navigate={~p"/region/#{String.downcase(@region.name)}/leagues"}
+      navigate={~p"/region/#{String.downcase(@region.name)}/teams"}
     >
       <div class="grow">
-        <h3 class="font-bold"><%= dumb_inflect("League", @region.stats.league_count) %></h3>
+        <h3 class="font-bold"><%= dumb_inflect("Team", @region.stats.team_count) %></h3>
+        <p :if={@region.stats.teams_imported_at} class="text-sm">
+          Last imported <%= format_date(@region.stats.teams_imported_at, :date) %>
+        </p>
       </div>
       <div>
         <.icon name="hero-arrow-right" />

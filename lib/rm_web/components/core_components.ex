@@ -703,4 +703,20 @@ defmodule RMWeb.CoreComponents do
     |> String.trim_trailing("League")
     |> String.trim()
   end
+
+  @doc """
+  Create a human-readable representation of the given date
+
+  ## Formats
+
+    * `:date` returns only date information, ex. `14 March 2020`
+    * `:full` returns date and time, ex. `14 March 2020 at 15:26 UTC`
+
+  """
+  @spec format_date(DateTime.t() | nil, atom) :: String.t()
+  def format_date(datetime, format)
+  def format_date(nil, :date), do: "Unknown Date"
+  def format_date(nil, :full), do: "Unknown Time"
+  def format_date(datetime, :date), do: Calendar.strftime(datetime, "%-d %B %Y")
+  def format_date(datetime, :full), do: Calendar.strftime(datetime, "%-d %B %Y at %0H:%0M UTC")
 end

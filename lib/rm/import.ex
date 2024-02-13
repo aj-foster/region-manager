@@ -119,7 +119,7 @@ defmodule RM.Import do
     import_teams
     |> Enum.map(& &1.region_id)
     |> Enum.uniq()
-    |> Region.team_count_update_query()
+    |> Region.team_stats_update_query()
     |> Repo.update_all([])
   end
 
