@@ -167,8 +167,8 @@ defmodule RMWeb.Live.Util do
   def ok(socket), do: {:ok, socket}
 
   @spec get_region(Ecto.UUID.t()) :: RM.FIRST.Region.t()
-  defp get_region(region_name) do
-    RM.FIRST.get_region_by_name(region_name, preload: [:leagues, :teams])
+  defp get_region(region_abbreviation) do
+    RM.FIRST.get_region_by_abbreviation(region_abbreviation, preload: [:leagues, :teams])
     |> Map.update!(:teams, &sort_teams/1)
   end
 

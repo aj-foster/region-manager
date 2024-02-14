@@ -44,10 +44,10 @@ defmodule RM.FIRST do
     |> Map.new()
   end
 
-  @spec get_region_by_name(String.t(), keyword) :: Region.t() | nil
-  def get_region_by_name(name, opts \\ []) do
+  @spec get_region_by_abbreviation(String.t(), keyword) :: Region.t() | nil
+  def get_region_by_abbreviation(abbreviation, opts \\ []) do
     Query.from_region()
-    |> Query.region_name(name)
+    |> Query.region_abbreviation(abbreviation)
     |> Query.preload_assoc(opts[:preload])
     |> Repo.one()
   end

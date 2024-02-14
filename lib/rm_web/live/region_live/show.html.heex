@@ -7,7 +7,7 @@
     <.link
       :if={@region.has_leagues}
       class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-      navigate={~p"/region/#{String.downcase(@region.name)}/leagues"}
+      navigate={~p"/region/#{@region}/leagues"}
     >
       <div class="grow">
         <h3 class="font-bold"><%= dumb_inflect("League", @region.stats.league_count) %></h3>
@@ -22,7 +22,7 @@
 
     <.link
       class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-      navigate={~p"/region/#{String.downcase(@region.name)}/teams"}
+      navigate={~p"/region/#{@region}/teams"}
     >
       <div class="grow">
         <h3 class="font-bold"><%= dumb_inflect("Team", @region.stats.team_count) %></h3>

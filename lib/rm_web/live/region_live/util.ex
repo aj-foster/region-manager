@@ -23,7 +23,7 @@ defmodule RMWeb.RegionLive.Util do
       <% else %>
         <.link
           class="border-b border-gray-400 px-4 py-2 transition-colors hover:text-gray-500"
-          navigate={~p"/region/#{String.downcase(@region.name)}"}
+          navigate={~p"/region/#{@region}"}
         >
           Overview
         </.link>
@@ -40,7 +40,7 @@ defmodule RMWeb.RegionLive.Util do
         <% else %>
           <.link
             class="border-b border-gray-400 px-4 py-2 transition-colors hover:text-gray-500"
-            navigate={~p"/region/#{String.downcase(@region.name)}/leagues"}
+            navigate={~p"/region/#{@region}/leagues"}
           >
             Leagues
           </.link>
@@ -57,7 +57,7 @@ defmodule RMWeb.RegionLive.Util do
       <% else %>
         <.link
           class="border-b border-gray-400 px-4 py-2 transition-colors hover:text-gray-500"
-          navigate={~p"/region/#{String.downcase(@region.name)}/teams"}
+          navigate={~p"/region/#{@region}/teams"}
         >
           Teams
         </.link>
@@ -73,7 +73,7 @@ defmodule RMWeb.RegionLive.Util do
       <% else %>
         <.link
           class="border-b border-gray-400 px-4 py-2 transition-colors hover:text-gray-500"
-          navigate={~p"/region/#{String.downcase(@region.name)}/import"}
+          navigate={~p"/region/#{@region}/import"}
         >
           Import
         </.link>

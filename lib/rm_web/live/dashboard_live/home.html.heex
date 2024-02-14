@@ -12,7 +12,7 @@
     <.link
       :for={region <- @current_user.regions}
       class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-      navigate={~p"/region/#{String.downcase(region.name)}"}
+      navigate={~p"/region/#{region}"}
     >
       <div class="grow">
         <h3 class="font-bold"><%= region.name %></h3>

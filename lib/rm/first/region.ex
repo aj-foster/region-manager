@@ -101,4 +101,10 @@ defmodule RM.FIRST.Region do
       ]
     )
   end
+
+  defimpl Phoenix.Param do
+    def to_param(%RM.FIRST.Region{abbreviation: abbreviation}) do
+      String.downcase(abbreviation)
+    end
+  end
 end
