@@ -11,8 +11,8 @@ defmodule RMWeb.RegionLive.Import do
   # Lifecycle
   #
 
-  on_mount {RMWeb.Live.Util, :preload_region}
-  on_mount {RMWeb.Live.Util, :require_region_owner}
+  on_mount {RMWeb.RegionLive.Util, :preload_region}
+  on_mount {RMWeb.RegionLive.Util, :require_region_owner}
 
   @doc false
   @impl true

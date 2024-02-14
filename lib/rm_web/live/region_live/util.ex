@@ -1,6 +1,9 @@
 defmodule RMWeb.RegionLive.Util do
   use RMWeb, :html
 
+  alias RM.Account.User
+  alias RM.FIRST.Region
+
   @doc """
   Navigation component for region views
   """
@@ -82,5 +85,58 @@ defmodule RMWeb.RegionLive.Util do
       <div class="border-b border-gray-400 grow"></div>
     </div>
     """
+  end
+
+  @doc false
+  @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
+  def on_mount(name, params, session, socket)
+
+  def on_mount(:preload_region, %{"region" => region_abbreviation}, _session, socket) do
+    case get_region(region_abbreviation) do
+      {:ok, region} ->
+        {:cont, assign(socket, region: region)}
+
+      {:error, :region, :not_found} ->
+        socket =
+          socket
+          |> LiveView.put_flash(:error, "Region not found")
+          |> LiveView.redirect(to: ~p"/dashboard")
+
+        {:halt, socket}
+    end
+  end
+
+  def on_mount(:require_region_owner, _params, _session, socket) do
+    region = socket.assigns[:region]
+    user = socket.assigns[:current_user]
+
+    if is_nil(region) or is_nil(user) or not region_owner?(user, region) do
+      socket =
+        socket
+        |> LiveView.put_flash(:error, "You do not have permission to perform this action")
+        |> LiveView.redirect(to: ~p"/dashboard")
+
+      {:halt, socket}
+    else
+      {:cont, socket}
+    end
+  end
+
+  @spec get_region(Ecto.UUID.t()) :: {:ok, Region.t()} | {:error, :region, :not_found}
+  defp get_region(region_abbreviation) do
+    case RM.FIRST.get_region_by_abbreviation(region_abbreviation, preload: [:leagues, :teams]) do
+      nil -> {:error, :region, :not_found}
+      region -> {:ok, Map.update!(region, :teams, &sort_teams/1)}
+    end
+  end
+
+  @spec region_owner?(User.t(), Region.t()) :: boolean
+  defp region_owner?(%User{regions: regions}, %Region{id: region_id}) do
+    is_list(regions) and Enum.any?(regions, &(&1.id == region_id))
+  end
+
+  @spec sort_teams([RM.Local.Team.t()]) :: [RM.Local.Team.t()]
+  defp sort_teams(teams) do
+    Enum.sort_by(teams, & &1.number)
   end
 end
