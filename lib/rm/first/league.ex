@@ -78,6 +78,35 @@ defmodule RM.FIRST.League do
     |> select([league: l], {l.code, l.id})
   end
 
+  @doc """
+  Query to update cached team statistics for leagues with the given IDs
+  """
+  @spec team_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
+  def team_stats_update_query(league_ids) do
+    now = DateTime.utc_now()
+
+    count_query =
+      from(__MODULE__, as: :league)
+      |> where([league: l], l.id in ^league_ids)
+      |> join(:left, [league: l], t in assoc(l, :teams), as: :team)
+      |> group_by([league: l], l.id)
+      |> select([league: l, team: t], %{id: l.id, count: count(t.id)})
+
+    from(__MODULE__, as: :league)
+    |> join(:inner, [league: l], s in subquery(count_query), on: s.id == l.id, as: :counts)
+    |> update([league: l, counts: c],
+      set: [
+        stats:
+          fragment(
+            "jsonb_set(jsonb_set(?, '{team_count}', ?::varchar::jsonb), '{teams_imported_at}', ?)",
+            l.stats,
+            c.count,
+            ^now
+          )
+      ]
+    )
+  end
+
   defimpl Phoenix.Param do
     def to_param(%RM.FIRST.League{code: code}) do
       String.downcase(code)

@@ -22,7 +22,19 @@ defmodule RM.FIRST do
   @spec refresh_leagues(Region.t()) :: {:ok, [League.t()]} | {:error, Exception.t()}
   def refresh_leagues(region) do
     with {:ok, %{leagues: leagues}} <- External.FTCEvents.list_leagues(region) do
-      {:ok, update_leagues_from_ftc_events(leagues)}
+      leagues = update_leagues_from_ftc_events(leagues, delete_region: region)
+
+      for league <- leagues do
+        with {:ok, members} <- External.FTCEvents.list_league_members(region, league) do
+          # This is bad. But also... good.
+          Process.sleep(1_000)
+          update_league_assignments_from_ftc_events(league, members)
+        end
+      end
+
+      update_league_team_counts(leagues)
+
+      {:ok, leagues}
     end
   end
 
@@ -165,5 +177,14 @@ defmodule RM.FIRST do
       returning: true
     )
     |> elem(1)
+  end
+
+  @spec update_league_team_counts([League.t()]) :: {integer, nil}
+  defp update_league_team_counts(leagues) do
+    leagues
+    |> Enum.map(& &1.id)
+    |> Enum.uniq()
+    |> League.team_stats_update_query()
+    |> Repo.update_all([])
   end
 end
