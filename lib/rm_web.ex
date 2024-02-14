@@ -53,6 +53,7 @@ defmodule RMWeb do
       use Phoenix.LiveView,
         layout: {RMWeb.Layouts, :app}
 
+      use RMWeb.Live.Util
       import RMWeb.Live.Util
 
       unquote(html_helpers())
