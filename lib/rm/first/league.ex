@@ -77,4 +77,10 @@ defmodule RM.FIRST.League do
     from(__MODULE__, as: :league)
     |> select([league: l], {l.code, l.id})
   end
+
+  defimpl Phoenix.Param do
+    def to_param(%RM.FIRST.League{code: code}) do
+      String.downcase(code)
+    end
+  end
 end

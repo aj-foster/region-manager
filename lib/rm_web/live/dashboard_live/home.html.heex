@@ -36,7 +36,7 @@
     <.link
       :for={league <- @current_user.leagues}
       class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-      navigate={~p"/league/#{String.downcase(league.code)}"}
+      navigate={~p"/league/#{league}"}
     >
       <div class="grow">
         <h3 class="font-bold"><%= league.name %></h3>
