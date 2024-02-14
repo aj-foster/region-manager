@@ -21,7 +21,7 @@ defmodule RM.FIRST do
   """
   @spec refresh_leagues(Region.t()) :: {:ok, [League.t()]} | {:error, Exception.t()}
   def refresh_leagues(region) do
-    with {:ok, %{leagues: leagues}} = External.FTCEvents.list_leagues(region) do
+    with {:ok, %{leagues: leagues}} <- External.FTCEvents.list_leagues(region) do
       {:ok, update_leagues_from_ftc_events(leagues)}
     end
   end
