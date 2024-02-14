@@ -60,6 +60,7 @@ defmodule RM.MixProject do
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
+      {:tzdata, "~> 1.1"},
       {:waffle, "~> 1.1"},
       {:waffle_ecto, "~> 0.0.12"}
     ]

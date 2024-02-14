@@ -714,9 +714,23 @@ defmodule RMWeb.CoreComponents do
 
   """
   @spec format_date(DateTime.t() | nil, atom) :: String.t()
-  def format_date(datetime, format)
-  def format_date(nil, :date), do: "Unknown Date"
-  def format_date(nil, :full), do: "Unknown Time"
-  def format_date(datetime, :date), do: Calendar.strftime(datetime, "%-d %B %Y")
-  def format_date(datetime, :full), do: Calendar.strftime(datetime, "%-d %B %Y at %0H:%0M UTC")
+  def format_date(datetime, format, timezone \\ nil)
+  def format_date(nil, :date, _zone), do: "Unknown Date"
+  def format_date(nil, :full, _zone), do: "Unknown Time"
+
+  def format_date(datetime, :date, timezone) do
+    timezone = timezone || Process.get(:client_timezone, "Etc/UTC")
+
+    datetime
+    |> DateTime.shift_zone!(timezone)
+    |> Calendar.strftime("%-d %B %Y")
+  end
+
+  def format_date(datetime, :full, timezone) do
+    timezone = timezone || Process.get(:client_timezone, "Etc/UTC")
+
+    datetime
+    |> DateTime.shift_zone!(timezone)
+    |> Calendar.strftime("%-d %B %Y at %0H:%0M %Z")
+  end
 end

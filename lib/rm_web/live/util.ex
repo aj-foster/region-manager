@@ -220,6 +220,7 @@ defmodule RMWeb.Live.Util do
   @doc false
   defmacro __using__(_opt) do
     quote do
+      LiveView.on_mount({RMWeb.Live.Util, :setup_timezone})
       LiveView.on_mount({RMWeb.Live.Util, :setup_uri})
     end
   end
@@ -236,6 +237,12 @@ defmodule RMWeb.Live.Util do
       nil ->
         {:cont, socket}
     end
+  end
+
+  def on_mount(:setup_timezone, _params, _session, socket) do
+    timezone = LiveView.get_connect_params(socket)["timezone"] || "Etc/UTC"
+    Process.put(:client_timezone, timezone)
+    {:cont, assign(socket, timezone: timezone)}
   end
 
   def on_mount(:setup_uri, _params, _session, socket) do
