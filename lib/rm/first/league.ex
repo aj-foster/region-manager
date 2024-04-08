@@ -2,6 +2,7 @@ defmodule RM.FIRST.League do
   use Ecto.Schema
   import Ecto.Query
 
+  alias RM.FIRST.Event
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
   alias RM.Local.LeagueSettings
@@ -9,6 +10,7 @@ defmodule RM.FIRST.League do
 
   @type t :: %__MODULE__{
           code: String.t(),
+          events: Ecto.Schema.has_many(Event.t()),
           id: Ecto.UUID.t(),
           inserted_at: DateTime.t(),
           location: String.t() | nil,
@@ -19,6 +21,11 @@ defmodule RM.FIRST.League do
           region_id: Ecto.UUID.t(),
           remote: boolean,
           settings: Ecto.Schema.has_one(LeagueSettings.t()),
+          stats: %__MODULE__.Stats{
+            event_count: integer,
+            league_count: integer,
+            team_count: integer
+          },
           team_assignments: Ecto.Schema.has_many(LeagueAssignment.t()),
           teams: Ecto.Schema.has_many(Team.t()),
           updated_at: DateTime.t()
@@ -36,10 +43,12 @@ defmodule RM.FIRST.League do
     belongs_to :region, Region, type: :binary_id
     has_one :settings, LeagueSettings
 
+    has_many :events, Event
     has_many :team_assignments, LeagueAssignment
     has_many :teams, through: [:team_assignments, :team]
 
     embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
+      field :event_count, :integer, default: 0
       field :league_count, :integer, default: 0
       field :team_count, :integer, default: 0
     end
@@ -76,6 +85,35 @@ defmodule RM.FIRST.League do
   def id_by_code_query do
     from(__MODULE__, as: :league)
     |> select([league: l], {l.code, l.id})
+  end
+
+  @doc """
+  Query to update cached event statistics for leagues with the given IDs
+  """
+  @spec event_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
+  def event_stats_update_query(league_ids) do
+    now = DateTime.utc_now()
+
+    count_query =
+      from(__MODULE__, as: :league)
+      |> where([league: l], l.id in ^league_ids)
+      |> join(:left, [league: l], e in assoc(l, :events), as: :event)
+      |> group_by([league: l], l.id)
+      |> select([league: l, event: e], %{id: l.id, count: count(e.id)})
+
+    from(__MODULE__, as: :league)
+    |> join(:inner, [league: l], s in subquery(count_query), on: s.id == l.id, as: :counts)
+    |> update([league: l, counts: c],
+      set: [
+        stats:
+          fragment(
+            "jsonb_set(jsonb_set(?, '{event_count}', ?::varchar::jsonb), '{events_imported_at}', ?)",
+            l.stats,
+            c.count,
+            ^now
+          )
+      ]
+    )
   end
 
   @doc """

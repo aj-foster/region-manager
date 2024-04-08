@@ -9,6 +9,11 @@ defmodule External.FTCEvents do
 
   @season 2023
 
+  @spec list_events :: API.response(API.list_events_response())
+  def list_events do
+    API.client().list_events(@season)
+  end
+
   @spec list_leagues(Region.t()) :: API.response(API.list_leagues_response())
   def list_leagues(region) do
     %Region{code: region_code} = region

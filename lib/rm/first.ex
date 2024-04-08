@@ -17,6 +17,16 @@ defmodule RM.FIRST do
   #
 
   @doc """
+  Refresh all season events
+  """
+  @spec refresh_events :: {:ok, [Event.t()]} | {:error, Exception.t()}
+  def refresh_events do
+    with {:ok, %{events: events}} <- External.FTCEvents.list_events() do
+      {:ok, update_events_from_ftc_events(events)}
+    end
+  end
+
+  @doc """
   Refresh the local league information for the given region
   """
   @spec refresh_leagues(Region.t()) :: {:ok, [League.t()]} | {:error, Exception.t()}
@@ -64,7 +74,14 @@ defmodule RM.FIRST do
     |> Repo.one()
   end
 
-  def update_events_from_ftc_events(api_events, opts \\ []) do
+  @doc """
+  Save event data from an FTC Events API response
+
+  Because the events API covers all regions, any events not included in the response will be
+  removed (regardless of region).
+  """
+  @spec update_events_from_ftc_events([map]) :: [Event.t()]
+  def update_events_from_ftc_events(api_events) do
     league_id_map = list_league_ids_by_code()
     region_id_map = list_region_ids_by_code()
 
@@ -73,23 +90,43 @@ defmodule RM.FIRST do
       |> Enum.reject(&is_nil(&1.region_id))
       |> Enum.map(&Map.put(&1, :season, 2023))
 
-    events =
+    {_count, events} =
       Repo.insert_all(Event, event_data,
         on_conflict: {:replace_all_except, [:inserted_at]},
         conflict_target: [:season, :code],
         returning: true
       )
 
-    if region_or_regions = opts[:delete_region] do
-      event_ids = Enum.map(events, & &1.id)
+    event_ids = Enum.map(events, & &1.id)
 
+    {_count, deleted_events} =
       Query.from_event()
-      |> Query.event_region(region_or_regions)
       |> where([event: e], e.id not in ^event_ids)
+      |> select([event: e], e)
       |> Repo.delete_all()
-    end
 
+    update_region_event_counts(events ++ deleted_events)
+    update_league_event_counts(events ++ deleted_events)
     events
+  end
+
+  @spec update_region_event_counts([Event.t()]) :: {integer, nil}
+  defp update_region_event_counts(events) do
+    events
+    |> Enum.map(& &1.region_id)
+    |> Enum.uniq()
+    |> Region.event_stats_update_query()
+    |> Repo.update_all([])
+  end
+
+  @spec update_league_event_counts([Event.t()]) :: {integer, nil}
+  defp update_league_event_counts(events) do
+    events
+    |> Enum.map(& &1.league_id)
+    |> Enum.uniq()
+    |> Enum.reject(&is_nil/1)
+    |> League.event_stats_update_query()
+    |> Repo.update_all([])
   end
 
   @doc """
@@ -145,7 +182,6 @@ defmodule RM.FIRST do
       |> elem(1)
 
     update_region_league_counts(leagues)
-
     leagues
   end
 
