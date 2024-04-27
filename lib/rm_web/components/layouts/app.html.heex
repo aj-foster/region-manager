@@ -21,6 +21,13 @@
       >
         <%= List.first(@current_user.regions).name %>
       </.link>
+      <.link
+        :if={@current_user && length(@current_user.leagues) == 1}
+        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+        navigate={~p"/league/#{List.first(@current_user.leagues)}"}
+      >
+        <%= List.first(@current_user.leagues).name %>
+      </.link>
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
       <.link
