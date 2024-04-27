@@ -43,11 +43,14 @@
       <p>
         <button
           class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed"
-          disabled={(@refresh && not is_nil(@refresh.loading)) || refreshed_recently?(@region)}
+          disabled={
+            (@refresh_leagues && not is_nil(@refresh_leagues.loading)) ||
+              refreshed_leagues_recently?(@region)
+          }
           phx-click="refresh_leagues"
           type="submit"
         >
-          <%= if @refresh && @refresh.loading do %>
+          <%= if @refresh_leagues && @refresh_leagues.loading do %>
             Refreshing...
           <% else %>
             Refresh
@@ -55,6 +58,45 @@
         </button>
         <span class="ml-2 text-sm">
           Last refreshed <%= format_date(@region.stats.leagues_imported_at, :full) %>
+        </span>
+      </p>
+    </div>
+  </div>
+
+  <div class="mb-8">
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Refresh Events</h2>
+
+    <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+      <p class="mb-4">
+        After importing the latest team <span :if={@region.has_leagues}>and league</span>
+        data, you can refresh event data.
+      </p>
+      <p class="mb-4">
+        This information comes from the
+        <a href="https://ftc-events.firstinspires.org/services/API" target="blank">
+          <span class="underline">FTC Events API</span>
+          <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4 align-text-top" />
+        </a>
+        and any corrections must be submitted to <em>FIRST</em>.
+      </p>
+      <p>
+        <button
+          class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed"
+          disabled={
+            (@refresh_events && not is_nil(@refresh_events.loading)) ||
+              refreshed_events_recently?(@region)
+          }
+          phx-click="refresh_events"
+          type="submit"
+        >
+          <%= if @refresh_events && @refresh_events.loading do %>
+            Refreshing...
+          <% else %>
+            Refresh
+          <% end %>
+        </button>
+        <span class="ml-2 text-sm">
+          Last refreshed <%= format_date(@region.stats.events_imported_at, :full) %>
         </span>
       </p>
     </div>

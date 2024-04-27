@@ -20,7 +20,7 @@ defmodule RMWeb.RegionLive.Import do
     socket =
       socket
       |> allow_upload(:team_data, accept: ["text/csv"], max_file_size: 1024 * 1024)
-      |> assign(refresh: nil)
+      |> assign(refresh_events: nil, refresh_leagues: nil)
 
     {:ok, socket}
   end
@@ -48,18 +48,39 @@ defmodule RMWeb.RegionLive.Import do
     noreply(socket)
   end
 
+  def handle_event("refresh_events", _params, socket) do
+    socket
+    |> assign_async(:refresh_events, fn -> do_refresh_events() end)
+    |> noreply()
+  end
+
   def handle_event("refresh_leagues", _params, socket) do
     region = socket.assigns[:region]
 
     socket
-    |> assign_async(:refresh, fn -> do_refresh_leagues(region) end)
+    |> assign_async(:refresh_leagues, fn -> do_refresh_leagues(region) end)
     |> noreply()
+  end
+
+  #
+  # Helpers
+  #
+
+  defp do_refresh_events do
+    case FIRST.refresh_events() do
+      {:ok, _events} ->
+        {:ok, %{refresh_events: true}}
+
+      {:error, reason} ->
+        Logger.error("Error while refreshing events: #{inspect(reason)}")
+        {:error, reason}
+    end
   end
 
   defp do_refresh_leagues(region) do
     case FIRST.refresh_leagues(region) do
       {:ok, _leagues} ->
-        {:ok, %{refresh: true}}
+        {:ok, %{refresh_leagues: true}}
 
       {:error, reason} ->
         Logger.error("Error while refreshing leagues: #{inspect(reason)}")
@@ -71,7 +92,12 @@ defmodule RMWeb.RegionLive.Import do
   # Template Helpers
   #
 
-  defp refreshed_recently?(%Region{stats: %{leagues_imported_at: last_refresh}}) do
+  defp refreshed_events_recently?(%Region{stats: %{events_imported_at: last_refresh}}) do
+    is_nil(last_refresh) or
+      DateTime.after?(last_refresh, DateTime.add(DateTime.utc_now(), -1, :hour))
+  end
+
+  defp refreshed_leagues_recently?(%Region{stats: %{leagues_imported_at: last_refresh}}) do
     is_nil(last_refresh) or
       DateTime.after?(last_refresh, DateTime.add(DateTime.utc_now(), -1, :hour))
   end
