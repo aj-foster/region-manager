@@ -11,7 +11,6 @@ defmodule RMWeb.RegionLive.Teams do
 
     socket
     |> assign(
-      team_count: length(region.teams),
       unready_teams: unready_teams,
       unready_team_count: length(unready_teams)
     )

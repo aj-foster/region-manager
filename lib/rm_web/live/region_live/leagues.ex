@@ -6,10 +6,7 @@ defmodule RMWeb.RegionLive.Leagues do
   on_mount {RMWeb.RegionLive.Util, :require_region_owner}
 
   def mount(_params, _session, socket) do
-    region = socket.assigns[:region]
-
     socket
-    |> assign(league_count: length(region.leagues))
     |> ok()
   end
 end

@@ -1,7 +1,7 @@
 <.nav class="mb-8" region={@region} view={@socket.view} />
 
 <div>
-  <div :if={@league_count > 0}>
+  <div :if={@region.stats.league_count > 0}>
     <div class="flex items-center justify-between mb-4 ml-6">
       <h2 class="font-title italic small-caps text-xl">Leagues in <%= @region.name %></h2>
     </div>

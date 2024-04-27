@@ -22,7 +22,7 @@
     </ul>
   </div>
 
-  <div :if={@team_count > 0} class="mb-8">
+  <div :if={@region.stats.team_count > 0} class="mb-8">
     <div class="flex items-center justify-between mb-4 ml-6">
       <h2 class="font-title italic small-caps text-xl">All Teams in <%= @region.name %></h2>
       <.link
