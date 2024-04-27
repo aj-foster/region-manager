@@ -1,0 +1,14 @@
+<.nav class="mb-8" region={@region} view={@socket.view} />
+
+<div>
+  <div>
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Events in <%= @region.name %></h2>
+  </div>
+
+  <ul class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+    <li :for={event <- @region.events} class="flex gap-4 items-center mb-2">
+      <h3><%= event.name %></h3>
+    </li>
+    <div></div>
+  </ul>
+</div>
