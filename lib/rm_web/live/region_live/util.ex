@@ -123,7 +123,7 @@ defmodule RMWeb.RegionLive.Util do
     end
   end
 
-  def on_mount(:require_region_owner, _params, _session, socket) do
+  def on_mount(:require_region_manager, _params, _session, socket) do
     region = socket.assigns[:region]
     user = socket.assigns[:current_user]
 

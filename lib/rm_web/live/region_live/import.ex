@@ -12,7 +12,7 @@ defmodule RMWeb.RegionLive.Import do
   #
 
   on_mount {RMWeb.RegionLive.Util, :preload_region}
-  on_mount {RMWeb.RegionLive.Util, :require_region_owner}
+  on_mount {RMWeb.RegionLive.Util, :require_region_manager}
 
   @doc false
   @impl true
