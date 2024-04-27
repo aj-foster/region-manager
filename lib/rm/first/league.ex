@@ -65,21 +65,34 @@ defmodule RM.FIRST.League do
           "region" => region_code,
           "remote" => remote
         },
-        region_id_map,
+        regions_by_code,
         league_id_map \\ %{}
       ) do
     now = DateTime.utc_now()
+    region = regions_by_code[region_code]
 
     %{
       code: code,
       inserted_at: now,
       location: location,
-      name: name,
+      name: shorten_name(name, region),
       parent_league_id: league_id_map[parent_league_code],
-      region_id: region_id_map[region_code],
+      region_id: region && region.id,
       remote: remote,
       updated_at: now
     }
+  end
+
+  @spec shorten_name(String.t(), Region.t() | nil) :: String.t()
+  defp shorten_name(league_name, nil) do
+    league_name
+    |> String.replace(~r/\s+league\s*$/i, "")
+  end
+
+  defp shorten_name(league_name, %Region{code: region_code, name: region_name}) do
+    league_name
+    |> String.replace(~r/^\s*(#{region_code}|#{region_name})\s+/i, "")
+    |> String.replace(~r/\s+league\s*$/i, "")
   end
 
   def id_by_code_query do

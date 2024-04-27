@@ -59,9 +59,9 @@ defmodule RM.FIRST do
     |> Map.new()
   end
 
-  @spec list_region_ids_by_code :: %{String.t() => Ecto.UUID.t()}
-  def list_region_ids_by_code do
-    Region.id_by_code_query()
+  @spec list_regions_by_code :: %{String.t() => Region.t()}
+  def list_regions_by_code do
+    Region.by_code_query()
     |> Repo.all()
     |> Map.new()
   end
@@ -83,10 +83,10 @@ defmodule RM.FIRST do
   @spec update_events_from_ftc_events([map]) :: [Event.t()]
   def update_events_from_ftc_events(api_events) do
     league_id_map = list_league_ids_by_code()
-    region_id_map = list_region_ids_by_code()
+    regions_by_code = list_regions_by_code()
 
     event_data =
-      Enum.map(api_events, &Event.from_ftc_events(&1, region_id_map, league_id_map))
+      Enum.map(api_events, &Event.from_ftc_events(&1, regions_by_code, league_id_map))
       |> Enum.reject(&is_nil(&1.region_id))
       |> Enum.map(&Map.put(&1, :season, 2023))
 
@@ -148,8 +148,8 @@ defmodule RM.FIRST do
   def update_leagues_from_ftc_events(api_leagues, opts \\ []) do
     # First round: Initial insertion of the records
 
-    region_id_map = list_region_ids_by_code()
-    league_data = Enum.map(api_leagues, &League.from_ftc_events(&1, region_id_map))
+    regions_by_code = list_regions_by_code()
+    league_data = Enum.map(api_leagues, &League.from_ftc_events(&1, regions_by_code))
 
     leagues =
       Repo.insert_all(League, league_data,
@@ -171,7 +171,9 @@ defmodule RM.FIRST do
     # Second round: update parent/child relationships.
 
     league_id_map = Map.new(leagues, &{&1.code, &1.id})
-    league_data = Enum.map(api_leagues, &League.from_ftc_events(&1, region_id_map, league_id_map))
+
+    league_data =
+      Enum.map(api_leagues, &League.from_ftc_events(&1, regions_by_code, league_id_map))
 
     leagues =
       Repo.insert_all(League, league_data,

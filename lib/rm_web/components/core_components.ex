@@ -695,15 +695,6 @@ defmodule RMWeb.CoreComponents do
   def dumb_inflect(word, 1), do: "1 #{word}"
   def dumb_inflect(word, count) when is_integer(count), do: "#{count} #{word}s"
 
-  @doc "Remove region names from the beginning of league names"
-  @spec shorten_league_name(RM.FIRST.Region.t(), String.t()) :: String.t()
-  def shorten_league_name(%RM.FIRST.Region{name: region_name}, league_name) do
-    league_name
-    |> String.trim_leading(region_name)
-    |> String.trim_trailing("League")
-    |> String.trim()
-  end
-
   @doc """
   Create a human-readable representation of the given date
 

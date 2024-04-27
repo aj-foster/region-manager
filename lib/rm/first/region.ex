@@ -55,9 +55,13 @@ defmodule RM.FIRST.Region do
   # Queries
   #
 
-  def id_by_code_query do
+  @doc """
+  Get all regions with their code as a key-value tuple
+  """
+  @spec by_code_query :: Ecto.Query.t()
+  def by_code_query do
     from(__MODULE__, as: :region)
-    |> select([region: r], {r.code, r.id})
+    |> select([region: r], {r.code, r})
   end
 
   @doc """
