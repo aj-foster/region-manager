@@ -99,10 +99,11 @@ defmodule RM.FIRST.Event do
           "venue" => venue,
           "website" => website
         },
-        region_id_map,
+        regions_by_code,
         league_id_map \\ %{}
       ) do
     now = DateTime.utc_now()
+    region = regions_by_code[region_code]
 
     %{
       code: code,
@@ -118,7 +119,7 @@ defmodule RM.FIRST.Event do
       live_stream_url: live_stream_url,
       name: name,
       published: published,
-      region_id: region_id_map[region_code],
+      region_id: region && region.id,
       remote: remote,
       type: cast_type(type_code),
       updated_at: now,
