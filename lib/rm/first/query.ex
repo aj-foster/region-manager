@@ -98,6 +98,14 @@ defmodule RM.FIRST.Query do
     end)
   end
 
+  @doc "Load the `teams` association on a league"
+  @spec join_teams_from_league(query) :: query
+  def join_teams_from_league(query) do
+    with_named_binding(query, :teams, fn query, binding ->
+      join(query, :left, [league: l], t in assoc(l, :teams), as: ^binding)
+    end)
+  end
+
   @doc "Load the `teams` association on a region"
   @spec join_teams_from_region(query) :: query
   def join_teams_from_region(query) do
@@ -116,26 +124,43 @@ defmodule RM.FIRST.Query do
   Data preloaded with this function will be joined and loaded in a single query, which can cause
   performance issues. The associations supported are:
 
+  With `:region` as the base:
+
     * `leagues`: `leagues` on a region
     * `teams`: `teams` on a region
 
-  """
-  @spec preload_assoc(query, [atom] | nil) :: query
-  def preload_assoc(query, associations)
-  def preload_assoc(query, nil), do: query
-  def preload_assoc(query, []), do: query
+  With `:league` as the base:
 
-  def preload_assoc(query, [:leagues | rest]) do
+    * `teams`: `teams` assigned to a league
+
+  """
+  @spec preload_assoc(query, atom, [atom] | nil) :: query
+  def preload_assoc(query, base, associations)
+  def preload_assoc(query, _base, nil), do: query
+  def preload_assoc(query, _base, []), do: query
+
+  # Regions
+
+  def preload_assoc(query, :region, [:leagues | rest]) do
     query
     |> join_leagues_from_region()
     |> preload([leagues: l], leagues: l)
-    |> preload_assoc(rest)
+    |> preload_assoc(:region, rest)
   end
 
-  def preload_assoc(query, [:teams | rest]) do
+  def preload_assoc(query, :region, [:teams | rest]) do
     query
     |> join_teams_from_region()
     |> preload([teams: t], teams: t)
-    |> preload_assoc(rest)
+    |> preload_assoc(:region, rest)
+  end
+
+  # Leagues
+
+  def preload_assoc(query, :league, [:teams | rest]) do
+    query
+    |> join_teams_from_league()
+    |> preload([teams: t], teams: t)
+    |> preload_assoc(:league, rest)
   end
 end

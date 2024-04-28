@@ -70,7 +70,7 @@ defmodule RM.FIRST do
   def get_league_by_code(code, opts \\ []) do
     Query.from_league()
     |> Query.league_code(code)
-    |> Query.preload_assoc(opts[:preload])
+    |> Query.preload_assoc(:league, opts[:preload])
     |> Repo.one()
   end
 
@@ -78,7 +78,7 @@ defmodule RM.FIRST do
   def get_region_by_abbreviation(abbreviation, opts \\ []) do
     Query.from_region()
     |> Query.region_abbreviation(abbreviation)
-    |> Query.preload_assoc(opts[:preload])
+    |> Query.preload_assoc(:region, opts[:preload])
     |> Repo.one()
   end
 
