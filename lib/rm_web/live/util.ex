@@ -231,7 +231,7 @@ defmodule RMWeb.Live.Util do
 
   def on_mount(:preload_user, _params, _session, socket) do
     case socket.assigns[:current_user] do
-      %Identity.User{id: user_id} ->
+      %RM.Account.User{id: user_id} ->
         {:cont, assign(socket, current_user: get_user(user_id))}
 
       nil ->

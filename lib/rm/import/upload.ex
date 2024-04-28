@@ -2,7 +2,7 @@ defmodule RM.Import.Upload do
   use Ecto.Schema
 
   alias Ecto.Changeset
-  alias Identity.User
+  alias RM.Account.User
   alias RM.Import.File
 
   @typedoc "Upload record"
