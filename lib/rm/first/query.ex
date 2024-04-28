@@ -98,6 +98,14 @@ defmodule RM.FIRST.Query do
     end)
   end
 
+  @doc "Load the `region` association on a league"
+  @spec join_region_from_league(query) :: query
+  def join_region_from_league(query) do
+    with_named_binding(query, :region, fn query, binding ->
+      join(query, :left, [league: l], t in assoc(l, :region), as: ^binding)
+    end)
+  end
+
   @doc "Load the `teams` association on a league"
   @spec join_teams_from_league(query) :: query
   def join_teams_from_league(query) do
@@ -156,6 +164,13 @@ defmodule RM.FIRST.Query do
   end
 
   # Leagues
+
+  def preload_assoc(query, :league, [:region | rest]) do
+    query
+    |> join_region_from_league()
+    |> preload([region: r], region: r)
+    |> preload_assoc(:league, rest)
+  end
 
   def preload_assoc(query, :league, [:teams | rest]) do
     query

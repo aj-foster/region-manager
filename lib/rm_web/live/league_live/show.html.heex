@@ -1,1 +1,37 @@
-Placeholder
+<.nav class="mb-8" league={@league} view={@socket.view} />
+
+<div>
+  <div>
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl"><%= @league.name %></h2>
+
+    <div
+      class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+      navigate={~p"/league/#{@league}/events"}
+    >
+      <div class="grow">
+        <h3 class="font-bold"><%= dumb_inflect("Event", @league.stats.event_count) %></h3>
+        <p :if={@league.region.stats.events_imported_at} class="text-sm">
+          Last refreshed <%= format_date(@league.region.stats.events_imported_at, :date) %>
+        </p>
+      </div>
+      <div>
+        <.icon name="hero-arrow-right" />
+      </div>
+    </div>
+
+    <div
+      class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+      navigate={~p"/league/#{@league}/teams"}
+    >
+      <div class="grow">
+        <h3 class="font-bold"><%= dumb_inflect("Team", @league.stats.team_count) %></h3>
+        <p :if={@league.region.stats.teams_imported_at} class="text-sm">
+          Last imported <%= format_date(@league.region.stats.teams_imported_at, :date) %>
+        </p>
+      </div>
+      <div>
+        <.icon name="hero-arrow-right" />
+      </div>
+    </div>
+  </div>
+</div>

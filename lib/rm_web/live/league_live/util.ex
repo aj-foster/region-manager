@@ -1,0 +1,93 @@
+defmodule RMWeb.LeagueLive.Util do
+  use RMWeb, :html
+
+  alias Phoenix.LiveView
+  alias RM.Account.User
+  alias RM.FIRST.League
+
+  @doc """
+  Navigation component for league views
+  """
+  attr :class, :string, default: nil, doc: "Additional classes for the navigation wrapper"
+  attr :league, :any, required: true, doc: "`@league`"
+  attr :view, :any, required: true, doc: "`@socket.view`"
+
+  def nav(assigns) do
+    ~H"""
+    <div class={["flex font-title italic small-caps", @class]}>
+      <div class="border-b border-gray-400 w-4"></div>
+
+      <%= if @view == RMWeb.LeagueLive.Show do %>
+        <div
+          class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
+          style="background-image: linear-gradient(to bottom, white, transparent)"
+        >
+          Overview
+        </div>
+      <% else %>
+        <.link
+          class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
+          navigate={~p"/league/#{@league}"}
+        >
+          Overview
+        </.link>
+      <% end %>
+
+      <div class="border-b border-gray-400 grow"></div>
+    </div>
+    """
+  end
+
+  @doc false
+  @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
+  def on_mount(name, params, session, socket)
+
+  def on_mount(:preload_league, %{"league" => league_code}, _session, socket) do
+    case get_league(league_code) do
+      {:ok, league} ->
+        {:cont, assign(socket, league: league)}
+
+      {:error, :league, :not_found} ->
+        socket =
+          socket
+          |> LiveView.put_flash(:error, "League not found")
+          |> LiveView.redirect(to: ~p"/dashboard")
+
+        {:halt, socket}
+    end
+  end
+
+  def on_mount(:require_league_manager, _params, _session, socket) do
+    league = socket.assigns[:league]
+    user = socket.assigns[:current_user]
+
+    if is_nil(league) or is_nil(user) or not league_owner?(user, league) do
+      socket =
+        socket
+        |> LiveView.put_flash(:error, "You do not have permission to perform this action")
+        |> LiveView.redirect(to: ~p"/dashboard")
+
+      {:halt, socket}
+    else
+      {:cont, socket}
+    end
+  end
+
+  @spec get_league(Ecto.UUID.t()) :: {:ok, League.t()} | {:error, :league, :not_found}
+  defp get_league(league_code) do
+    case RM.FIRST.get_league_by_code(league_code, preload: [:region, :teams]) do
+      nil -> {:error, :league, :not_found}
+      league -> {:ok, Map.update!(league, :teams, &sort_teams/1)}
+    end
+  end
+
+  @spec league_owner?(User.t(), League.t()) :: boolean
+  defp league_owner?(%User{leagues: leagues}, %League{id: league_id}) do
+    is_list(leagues) and Enum.any?(leagues, &(&1.id == league_id))
+  end
+
+  @spec sort_teams([RM.Local.Team.t()]) :: [RM.Local.Team.t()]
+  defp sort_teams(teams) do
+    Enum.sort_by(teams, & &1.number)
+  end
+end
