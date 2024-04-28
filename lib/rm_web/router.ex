@@ -33,6 +33,9 @@ defmodule RMWeb.Router do
       live "/dashboard", DashboardLive.Home
 
       live "/league/:league", LeagueLive.Show
+      live "/league/:league/events", LeagueLive.Events
+      live "/league/:league/teams", LeagueLive.Teams
+
       live "/region/:region", RegionLive.Show
       live "/region/:region/events", RegionLive.Events
       live "/region/:region/leagues", RegionLive.Leagues

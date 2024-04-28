@@ -4,7 +4,7 @@
   <div>
     <h2 class="font-title italic mb-4 ml-6 small-caps text-xl"><%= @league.name %></h2>
 
-    <div
+    <.link
       class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
       navigate={~p"/league/#{@league}/events"}
     >
@@ -17,9 +17,9 @@
       <div>
         <.icon name="hero-arrow-right" />
       </div>
-    </div>
+    </.link>
 
-    <div
+    <.link
       class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
       navigate={~p"/league/#{@league}/teams"}
     >
@@ -32,6 +32,6 @@
       <div>
         <.icon name="hero-arrow-right" />
       </div>
-    </div>
+    </.link>
   </div>
 </div>
