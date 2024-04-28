@@ -62,6 +62,12 @@ defmodule RM.FIRST.Query do
     where(query, [event: e], e.region_id in ^region_ids)
   end
 
+  @doc "Find the league with the given code"
+  @spec league_code(query, String.t()) :: query
+  def league_code(query, code) do
+    where(query, [league: l], l.code == ^code)
+  end
+
   @doc "Find leagues related to the given region(s)"
   @spec league_region(query, Region.t()) :: query
   @spec league_region(query, [Region.t()]) :: query
@@ -74,10 +80,10 @@ defmodule RM.FIRST.Query do
     where(query, [league: l], l.region_id in ^region_ids)
   end
 
-  @doc "Find the region with a given abbreviation"
+  @doc "Find the region with a given abbreviation or code"
   @spec region_abbreviation(query, String.t()) :: query
   def region_abbreviation(query, abbreviation) do
-    where(query, [region: r], fragment("LOWER(?) = ?", r.abbreviation, ^abbreviation))
+    where(query, [region: r], r.abbreviation == ^abbreviation or r.code == ^abbreviation)
   end
 
   #
