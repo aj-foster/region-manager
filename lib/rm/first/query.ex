@@ -94,7 +94,7 @@ defmodule RM.FIRST.Query do
   @spec join_leagues_from_region(query) :: query
   def join_leagues_from_region(query) do
     with_named_binding(query, :leagues, fn query, binding ->
-      join(query, :left, [region: r], t in assoc(r, :leagues), as: ^binding)
+      join(query, :left, [region: r], l in assoc(r, :leagues), as: ^binding)
     end)
   end
 
@@ -102,7 +102,15 @@ defmodule RM.FIRST.Query do
   @spec join_region_from_league(query) :: query
   def join_region_from_league(query) do
     with_named_binding(query, :region, fn query, binding ->
-      join(query, :left, [league: l], t in assoc(l, :region), as: ^binding)
+      join(query, :left, [league: l], r in assoc(l, :region), as: ^binding)
+    end)
+  end
+
+  @doc "Load the `settings` association on a league"
+  @spec join_settings_from_league(query) :: query
+  def join_settings_from_league(query) do
+    with_named_binding(query, :settings, fn query, binding ->
+      join(query, :left, [league: l], s in assoc(l, :settings), as: ^binding)
     end)
   end
 
@@ -169,6 +177,13 @@ defmodule RM.FIRST.Query do
     query
     |> join_region_from_league()
     |> preload([region: r], region: r)
+    |> preload_assoc(:league, rest)
+  end
+
+  def preload_assoc(query, :league, [:settings | rest]) do
+    query
+    |> join_settings_from_league()
+    |> preload([settings: s], settings: s)
     |> preload_assoc(:league, rest)
   end
 
