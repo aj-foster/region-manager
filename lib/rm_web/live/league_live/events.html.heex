@@ -2,6 +2,37 @@
 
 <div>
   <div>
-    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl"><%= @league.name %></h2>
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">
+      Events in <%= @league.name %> League
+    </h2>
+
+    <ul class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+      <li :for={event <- @league.events} class="flex gap-4 items-center mb-2">
+        <h3><%= event.name %></h3>
+      </li>
+    </ul>
+  </div>
+
+  <div>
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">
+      Registration Settings
+    </h2>
+
+    <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+      <p class="mb-4 text-sm">
+        The following settings affect how teams register for events in this league.
+        Individual events may override these settings if necessary.
+      </p>
+
+      <.form for={@registration_settings_form} phx-change="registration_settings_change">
+        <.inputs_for :let={f} field={@registration_settings_form[:registration]}>
+          <.switch
+            explanation="When enabled, teams can register for events here in Region Manager. If disabled, you will need to find another way to track event registration."
+            field={f[:enabled]}
+            label="Event Registration in Region Manager"
+          />
+        </.inputs_for>
+      </.form>
+    </div>
   </div>
 </div>

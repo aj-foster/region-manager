@@ -56,6 +56,8 @@ defmodule RMWeb do
       use RMWeb.Live.Util
       import RMWeb.Live.Util
 
+      alias Phoenix.LiveView.Socket
+
       unquote(html_helpers())
     end
   end

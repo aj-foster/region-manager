@@ -2,8 +2,10 @@ defmodule RMWeb.LeagueLive.Util do
   use RMWeb, :html
 
   alias Phoenix.LiveView
+  alias Phoenix.LiveView.Socket
   alias RM.Account.User
   alias RM.FIRST.League
+  alias RM.Repo
 
   @doc """
   Navigation component for league views
@@ -70,6 +72,42 @@ defmodule RMWeb.LeagueLive.Util do
     """
   end
 
+  @doc """
+  Load events related to the current league
+  """
+  @spec load_events(Socket.t()) :: Socket.t()
+  def load_events(socket) do
+    league =
+      socket.assigns[:league]
+      |> Repo.preload(:events)
+      |> Map.update!(:events, &sort_events/1)
+
+    assign(socket, league: league)
+  end
+
+  @doc """
+  Refresh the current league
+  """
+  @spec refresh_league(Socket.t()) :: Socket.t()
+  @spec refresh_league(Socket.t(), keyword) :: Socket.t()
+  def refresh_league(socket, opts \\ []) do
+    case socket.assigns[:league] do
+      %{code: league_code} ->
+        case get_league(league_code) do
+          {:ok, league} ->
+            socket
+            |> assign(league: league)
+            |> then(fn socket -> if opts[:events], do: load_events(socket), else: socket end)
+
+          {:error, :league, :not_found} ->
+            socket
+        end
+
+      nil ->
+        socket
+    end
+  end
+
   @doc false
   @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
   def on_mount(name, params, session, socket)
@@ -116,6 +154,11 @@ defmodule RMWeb.LeagueLive.Util do
   @spec league_owner?(User.t(), League.t()) :: boolean
   defp league_owner?(%User{leagues: leagues}, %League{id: league_id}) do
     is_list(leagues) and Enum.any?(leagues, &(&1.id == league_id))
+  end
+
+  @spec sort_events([RM.FIRST.Event.t()]) :: [RM.FIRST.Event.t()]
+  defp sort_events(events) do
+    Enum.sort_by(events, & &1.date_start, Date)
   end
 
   @spec sort_teams([RM.Local.Team.t()]) :: [RM.Local.Team.t()]

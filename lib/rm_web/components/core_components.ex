@@ -405,6 +405,83 @@ defmodule RMWeb.CoreComponents do
   end
 
   @doc """
+  iOS-style toggle switch that can replace a checkbox
+  """
+  attr :id, :any, default: nil
+  attr :name, :any
+  attr :value, :any
+
+  attr :field, Phoenix.HTML.FormField,
+    doc: "a form field struct retrieved from the form, for example: `@form[:accept]`"
+
+  attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
+  attr :class, :string, default: nil, doc: "additional classes for the input element"
+  attr :errors, :list, default: [], doc: "error messages to display below the input"
+  attr :explanation, :string, default: nil
+  attr :label, :string, default: nil
+  attr :wrapper, :string, default: nil, doc: "additional classes for the wrapper element"
+
+  attr :rest, :global, include: ~w(autocomplete disabled form readonly required)
+
+  def switch(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+    assigns
+    |> assign(field: nil, id: assigns.id || field.id)
+    |> assign(:errors, Enum.map(field.errors, &translate_error(&1)))
+    |> assign_new(:name, fn -> field.name end)
+    |> assign_new(:value, fn -> field.value end)
+    |> switch()
+  end
+
+  def switch(assigns) do
+    assigns =
+      assign_new(assigns, :checked, fn ->
+        Phoenix.HTML.Form.normalize_value("checkbox", assigns.value)
+      end)
+
+    ~H"""
+    <div class={["group", @wrapper]} phx-feedback-for={@name}>
+      <label class="flex items-start gap-2 relative text-sm">
+        <input type="hidden" name={@name} value="false" />
+        <div class="relative">
+          <input
+            type="checkbox"
+            id={@id}
+            name={@name}
+            value="true"
+            checked={@checked}
+            class={["absolute opacity-0 peer", @class]}
+            {@rest}
+          />
+          <div class={switch_class_bg()} />
+          <div class={switch_class_fg()} />
+        </div>
+        <div>
+          <div><%= @label %></div>
+          <div :if={@explanation} class="mt-1 text-gray-700"><%= @explanation %></div>
+          <.error :for={msg <- @errors}><%= msg %></.error>
+        </div>
+      </label>
+    </div>
+    """
+  end
+
+  @switch_class_bg """
+  bg-slate-300 h-5 rounded-xl transition-colors w-8
+  peer-checked:peer-enabled:bg-orange-400
+  peer-disabled:opacity-40
+  peer-disabled:cursor-not-allowed
+  """
+  defp switch_class_bg, do: @switch_class_bg
+
+  @switch_class_fg """
+  absolute bg-white h-4 left-0.5 rounded-lg top-0.5 transition-all w-4
+  peer-checked:left-3.5
+  peer-disabled:opacity-40
+  peer-disabled:cursor-not-allowed
+  """
+  defp switch_class_fg, do: @switch_class_fg
+
+  @doc """
   Renders a label.
   """
   attr :for, :string, default: nil
