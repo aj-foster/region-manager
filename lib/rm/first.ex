@@ -10,6 +10,7 @@ defmodule RM.FIRST do
   alias RM.FIRST.Region
   alias RM.FIRST.Query
   alias RM.Local
+  alias RM.Local.EventSettings
   alias RM.Local.LeagueSettings
   alias RM.Repo
 
@@ -105,6 +106,16 @@ defmodule RM.FIRST do
         conflict_target: [:season, :code],
         returning: true
       )
+
+    event_settings_data =
+      events
+      |> Repo.preload(league: :settings)
+      |> Enum.map(&EventSettings.default_params/1)
+
+    Repo.insert_all(EventSettings, event_settings_data,
+      on_conflict: :nothing,
+      conflict_target: :event_id
+    )
 
     event_ids = Enum.map(events, & &1.id)
 

@@ -4,6 +4,7 @@ defmodule RM.Local.EventSettings do
   alias Ecto.Changeset
   alias RM.FIRST.Event
   alias RM.Local.RegistrationSettings
+  alias RM.Repo
 
   @typedoc "Settings for an event"
   @type t :: %__MODULE__{
@@ -23,6 +24,29 @@ defmodule RM.Local.EventSettings do
     embeds_one :registration, RegistrationSettings, on_replace: :update
 
     belongs_to :event, Event
+  end
+
+  @doc """
+  Default settings for a new event
+  """
+  @spec default_params(Event.t()) :: map
+  def default_params(event) do
+    event = Repo.preload(event, league: :settings)
+
+    enabled =
+      if event.league && event.league.settings do
+        event.league.settings.registration.enabled
+      else
+        true
+      end
+
+    pool = if event.league, do: :league, else: :region
+    deadline = Date.add(event.date_start, -7)
+
+    %{
+      event_id: event.id,
+      registration: %RegistrationSettings{enabled: enabled, deadline: deadline, pool: pool}
+    }
   end
 
   @doc """
