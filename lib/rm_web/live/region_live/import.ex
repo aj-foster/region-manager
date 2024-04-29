@@ -93,12 +93,12 @@ defmodule RMWeb.RegionLive.Import do
   #
 
   defp refreshed_events_recently?(%Region{stats: %{events_imported_at: last_refresh}}) do
-    is_nil(last_refresh) or
+    not is_nil(last_refresh) and
       DateTime.after?(last_refresh, DateTime.add(DateTime.utc_now(), -1, :hour))
   end
 
   defp refreshed_leagues_recently?(%Region{stats: %{leagues_imported_at: last_refresh}}) do
-    is_nil(last_refresh) or
+    not is_nil(last_refresh) and
       DateTime.after?(last_refresh, DateTime.add(DateTime.utc_now(), -1, :hour))
   end
 end
