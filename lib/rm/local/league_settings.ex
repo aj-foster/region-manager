@@ -13,7 +13,7 @@ defmodule RM.Local.LeagueSettings do
           registration: RegistrationSettings.t()
         }
 
-  @required_fields [:league_id]
+  @required_fields []
   @optional_fields []
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -23,6 +23,14 @@ defmodule RM.Local.LeagueSettings do
     embeds_one :registration, RegistrationSettings, on_replace: :update
 
     belongs_to :league, League
+  end
+
+  @doc """
+  Default settings for a new league
+  """
+  @spec default_params(League.t()) :: map
+  def default_params(league) do
+    %{league_id: league.id, registration: %RegistrationSettings{enabled: true, pool: :league}}
   end
 
   @doc """

@@ -4,6 +4,10 @@ defmodule RM.Local do
   """
   import Ecto.Query
 
+  alias Ecto.Changeset
+  alias RM.FIRST.League
+  alias RM.Local.LeagueSettings
+  alias RM.Local.RegistrationSettings
   alias RM.Local.Query
   alias RM.Local.Team
   alias RM.Repo
@@ -22,5 +26,33 @@ defmodule RM.Local do
     |> where([team: t], t.team_id in ^team_ids)
     |> Query.preload_assoc(opts[:preload])
     |> Repo.all()
+  end
+
+  @spec change_league_settings(League.t()) :: Changeset.t(LeagueSettings.t())
+  def change_league_settings(league) do
+    case Repo.preload(league, :settings) do
+      %League{settings: nil} ->
+        LeagueSettings.changeset(%{})
+        |> Changeset.put_assoc(:league, league)
+
+      %League{settings: settings} ->
+        LeagueSettings.changeset(settings, %{})
+    end
+  end
+
+  @spec update_league_settings(League.t(), map) ::
+          {:ok, LeagueSettings.t()} | {:error, Changeset.t(LeagueSettings.t())}
+  def update_league_settings(league, params) do
+    case Repo.preload(league, :settings) do
+      %League{settings: nil} ->
+        %LeagueSettings{registration: %RegistrationSettings{enabled: true, pool: :league}}
+        |> LeagueSettings.changeset(params)
+        |> Changeset.put_assoc(:league, league)
+        |> Repo.insert()
+
+      %League{settings: settings} ->
+        LeagueSettings.changeset(settings, params)
+        |> Repo.update()
+    end
   end
 end

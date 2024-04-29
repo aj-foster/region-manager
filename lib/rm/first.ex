@@ -10,6 +10,7 @@ defmodule RM.FIRST do
   alias RM.FIRST.Region
   alias RM.FIRST.Query
   alias RM.Local
+  alias RM.Local.LeagueSettings
   alias RM.Repo
 
   #
@@ -166,6 +167,13 @@ defmodule RM.FIRST do
         returning: true
       )
       |> elem(1)
+
+    league_settings_data = Enum.map(leagues, &LeagueSettings.default_params/1)
+
+    Repo.insert_all(LeagueSettings, league_settings_data,
+      on_conflict: :nothing,
+      conflict_target: :league_id
+    )
 
     if region_or_regions = opts[:delete_region] do
       league_codes = Enum.map(leagues, & &1.code)
