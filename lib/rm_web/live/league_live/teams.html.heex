@@ -1,7 +1,43 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
 <div>
-  <div>
-    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl"><%= @league.name %></h2>
+  <div :if={@unready_team_count > 0} class="mb-8">
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">
+      Teams Requiring Attention (<%= @unready_team_count %>)
+    </h2>
+
+    <ul class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+      <li :for={team <- @unready_teams} class="flex gap-4 items-center mb-2">
+        <h3><strong class="tabular-nums"><%= team.number %></strong> <%= team.name %></h3>
+        <p>
+          <span :if={not team.event_ready} class="text-orange-600 text-sm">Not Event Ready</span>
+        </p>
+      </li>
+      <div></div>
+    </ul>
+  </div>
+
+  <div class="mb-8">
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">
+      All Teams in <%= @league.name %> (<%= @league.stats.team_count %>)
+    </h2>
+
+    <ul
+      :if={@league.stats.team_count > 0}
+      class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow"
+    >
+      <li :for={team <- @league.teams} class="flex gap-4 items-center mb-2">
+        <h3><strong class="tabular-nums"><%= team.number %></strong> <%= team.name %></h3>
+        <p>
+          <span :if={not team.event_ready} class="text-orange-600 text-sm">Not Event Ready</span>
+        </p>
+      </li>
+      <div></div>
+    </ul>
+
+    <p :if={@league.stats.team_count == 0}>
+      There are currently no teams assigned to this league.
+      Please ask your region's Program Delivery Partner to update this information.
+    </p>
   </div>
 </div>
