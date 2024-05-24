@@ -1,4 +1,4 @@
-FROM hexpm/erlang:26.2.1-debian-bookworm-20231009-slim
+FROM hexpm/erlang:26.2.2-debian-bookworm-20240130-slim
 
 ENV LC_ALL C.UTF-8
 WORKDIR /srv
