@@ -124,4 +124,10 @@ defmodule RM.Local.Team do
   defp cast_notices(notices, params) do
     Changeset.cast(notices, params, [:lc1_missing, :lc1_ypp, :lc2_missing, :lc2_ypp, :unsecured])
   end
+
+  defimpl Phoenix.Param do
+    def to_param(%RM.Local.Team{number: number}) do
+      Integer.to_string(number)
+    end
+  end
 end

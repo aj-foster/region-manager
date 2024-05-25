@@ -1,7 +1,7 @@
 <div>
   <div :if={@region_count > 0} class="mb-8">
     <div class="flex items-center justify-between mb-4 ml-6">
-      <h2 class="font-title italic small-caps text-xl">Regions you Manage</h2>
+      <h2 class="font-title italic small-caps text-xl">Regions you manage</h2>
       <.link
         class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
         navigate={~p"/region/import"}
@@ -23,15 +23,13 @@
           <span><%= dumb_inflect("team", region.stats.team_count) %></span>
         </p>
       </div>
-      <div>
-        <.icon name="hero-arrow-right" />
-      </div>
+      <div><.icon name="hero-arrow-right" /></div>
     </.link>
   </div>
 
   <div :if={@league_count > 0} class="mb-8">
     <div class="flex items-center justify-between mb-4 ml-6">
-      <h2 class="font-title italic small-caps text-xl">leagues you Manage</h2>
+      <h2 class="font-title italic small-caps text-xl">Leagues you manage</h2>
     </div>
     <.link
       :for={league <- @current_user.leagues}
@@ -47,17 +45,16 @@
           <span><%= dumb_inflect("team", league.stats.team_count) %></span>
         </p>
       </div>
-      <div>
-        <.icon name="hero-arrow-right" />
-      </div>
+      <div><.icon name="hero-arrow-right" /></div>
     </.link>
   </div>
 
   <div :if={@team_count > 0} class="mb-8">
-    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Teams you Manage</h2>
-    <div
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Teams you manage</h2>
+    <.link
       :for={team <- @current_user.teams}
       class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+      navigate={~p"/team/#{team}"}
     >
       <div class="grow">
         <h3><strong><%= team.number %></strong> <%= team.name %></h3>
@@ -65,7 +62,7 @@
           <span :if={not team.event_ready} class="text-orange-600 text-sm">Not Event Ready</span>
         </p>
       </div>
-      <div></div>
-    </div>
+      <div><.icon name="hero-arrow-right" /></div>
+    </.link>
   </div>
 </div>
