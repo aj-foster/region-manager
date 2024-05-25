@@ -48,6 +48,11 @@
             <%= if @team.league, do: @team.league.name, else: "No League Assignment" %>
           </dd>
         <% end %>
+
+        <dt class="col-start-1 col-end-2 font-semibold small-caps">Event Ready?</dt>
+        <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
+          <%= if @team.event_ready, do: "Yes", else: "No" %>
+        </dd>
       </dl>
 
       <p class="text-sm">
@@ -58,6 +63,98 @@
         <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
           <em>FIRST</em> Dashboard.
         </a>
+      </p>
+    </div>
+  </div>
+
+  <div :if={requires_attention?(@team)}>
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Items Requiring Attention</h2>
+
+    <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm">
+      <p class="mb-4 text-sm">The following items may prevent you from registering for events:</p>
+      <div
+        :if={@team.notices.lc1_missing}
+        class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-4 px-4 py-2 rounded"
+      >
+        <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
+        <p>
+          This team is missing information about <strong>Lead Coach / Mentor #1</strong>.
+          Use the
+          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+            <em>FIRST</em> Dashboard
+          </a>
+          to enter this individual's contact information.
+        </p>
+      </div>
+
+      <div
+        :if={@team.notices.lc1_ypp}
+        class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-4 px-4 py-2 rounded"
+      >
+        <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
+        <p>
+          <strong>Lead Coach / Mentor #1</strong>
+          has not completed Youth Protection Program screening requirements.
+          This individual must log in to the
+          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+            <em>FIRST</em> Dashboard
+          </a>
+          and consent to the screening.
+        </p>
+      </div>
+
+      <div
+        :if={@team.notices.lc2_missing}
+        class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-4 px-4 py-2 rounded"
+      >
+        <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
+        <p>
+          This team is missing information about <strong>Lead Coach / Mentor #2</strong>.
+          Use the
+          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+            <em>FIRST</em> Dashboard
+          </a>
+          to enter this individual's contact information.
+        </p>
+      </div>
+
+      <div
+        :if={@team.notices.lc2_ypp}
+        class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-4 px-4 py-2 rounded"
+      >
+        <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
+        <p>
+          <strong>Lead Coach / Mentor #2</strong>
+          has not completed Youth Protection Program screening requirements.
+          This individual must log in to the
+          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+            <em>FIRST</em> Dashboard
+          </a>
+          and consent to the screening.
+        </p>
+      </div>
+
+      <div
+        :if={@team.notices.unsecured}
+        class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-4 px-4 py-2 rounded"
+      >
+        <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
+        <p>
+          <em>FIRST</em>
+          reports it has not received payment for team registration.
+          Please log in to the
+          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+            <em>FIRST</em> Dashboard
+          </a>
+          to complete payment.
+        </p>
+      </div>
+
+      <p class="text-sm">
+        This data is provided by <em>FIRST</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
+          @team.region.stats.teams_imported_at,
+          :date
+        ) %>.
       </p>
     </div>
   </div>

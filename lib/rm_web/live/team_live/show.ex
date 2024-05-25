@@ -8,4 +8,16 @@ defmodule RMWeb.TeamLive.Show do
   def mount(_params, _session, socket) do
     {:ok, socket}
   end
+
+  #
+  # Template Helpers
+  #
+
+  defp requires_attention?(team) do
+    team.notices.lc1_missing or
+      team.notices.lc1_ypp or
+      team.notices.lc2_missing or
+      team.notices.lc2_ypp or
+      team.notices.unsecured
+  end
 end
