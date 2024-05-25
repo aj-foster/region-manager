@@ -3,6 +3,7 @@ defmodule RM.Local.Team do
 
   alias Ecto.Changeset
   alias RM.Account
+  alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
 
   @typedoc "Team record"
@@ -36,6 +37,8 @@ defmodule RM.Local.Team do
     timestamps type: :utc_datetime_usec
 
     belongs_to :region, Region
+    has_one :league_assignment, LeagueAssignment
+    has_one :league, through: [:league_assignment, :league]
     has_many :user_assignments, Account.Team
     has_many :users, through: [:user_assignments, :user]
 

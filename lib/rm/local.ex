@@ -28,6 +28,18 @@ defmodule RM.Local do
     |> Repo.all()
   end
 
+  @spec fetch_team_by_number(integer) :: {:ok, Team.t()} | {:error, :team, :not_found}
+  def fetch_team_by_number(team_number, opts \\ []) do
+    Query.from_team()
+    |> where([team: t], t.number == ^team_number)
+    |> Query.preload_assoc(opts[:preload])
+    |> Repo.one()
+    |> case do
+      %Team{} = team -> {:ok, team}
+      nil -> {:error, :team, :not_found}
+    end
+  end
+
   @spec change_league_settings(League.t()) :: Changeset.t(LeagueSettings.t())
   def change_league_settings(league) do
     case Repo.preload(league, :settings) do

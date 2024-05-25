@@ -42,6 +42,8 @@ defmodule RMWeb.Router do
       live "/region/:region/teams", RegionLive.Teams
       live "/region/:region/import", RegionLive.Import
 
+      live "/team/:team", TeamLive.Show
+
       live "/user/settings", UserLive.Settings
     end
   end
