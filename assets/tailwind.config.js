@@ -13,13 +13,15 @@ module.exports = {
     "../lib/rm_web/**/*.*ex"
   ],
   theme: {
-    
     extend: {
       colors: {
         brand: "#FD4F00",
       },
       fontFamily: {
         title: ["Montserrat", ...defaultTheme.fontFamily.sans],
+      },
+      screens: {
+        'xs': '480px'
       }
     },
   },
