@@ -65,4 +65,31 @@
       <div><.icon name="hero-arrow-right" /></div>
     </.link>
   </div>
+
+  <div :if={@region_count == 0 and @league_count == 0 and @team_count == 0}>
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Your Dashboard</h2>
+    <p class="mb-4">Welcome to <strong>Region Manager</strong>!</p>
+    <p class="mb-4 text-sm">
+      Your account is currently not associated with any teams.
+      This could mean a few things:
+    </p>
+    <ul class="list-disc mb-4 pl-8 text-sm">
+      <li class="mb-4">
+        Your account may not have the same email address as you use in the
+        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+          <em>FIRST®</em> Dashboard.
+        </a>
+        Ensure you register <strong>and confirm</strong>
+        this address in your <.link class="underline" navigate={~p"/user/settings"}>settings</.link>.
+      </li>
+      <li class="mb-4">
+        Your region's <em>FIRST Tech Challenge Program Delivery Partner</em>
+        may not have imported team data since your team was registered or coaching information was updated. Contact them to check on the status of your team.
+      </li>
+      <li class="mb-4">
+        Your region's <em>Program Delivery Partner</em>
+        may not use <strong>Region Manager</strong>. Contact them to learn how they manage your region.
+      </li>
+    </ul>
+  </div>
 </div>
