@@ -52,6 +52,16 @@
         <dt class="col-start-1 col-end-2 font-semibold small-caps">Event Ready?</dt>
         <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
           <%= if @team.event_ready, do: "Yes", else: "No" %>
+          <.icon
+            :if={@team.event_ready}
+            class="align-text-bottom text-green-500"
+            name="hero-check-circle"
+          />
+          <.icon
+            :if={not @team.event_ready}
+            class="align-text-bottom text-orange-500"
+            name="hero-exclamation-triangle"
+          />
         </dd>
       </dl>
 
