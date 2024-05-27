@@ -68,20 +68,30 @@ defmodule RM.FIRST do
     |> Map.new()
   end
 
-  @spec get_league_by_code(String.t(), keyword) :: League.t() | nil
-  def get_league_by_code(code, opts \\ []) do
+  @spec fetch_league_by_code(String.t(), keyword) ::
+          {:ok, League.t()} | {:error, :league, :not_found}
+  def fetch_league_by_code(code, opts \\ []) do
     Query.from_league()
     |> Query.league_code(code)
     |> Query.preload_assoc(:league, opts[:preload])
     |> Repo.one()
+    |> case do
+      %League{} = league -> {:ok, league}
+      nil -> {:error, :league, :not_found}
+    end
   end
 
-  @spec get_region_by_abbreviation(String.t(), keyword) :: Region.t() | nil
-  def get_region_by_abbreviation(abbreviation, opts \\ []) do
+  @spec fetch_region_by_abbreviation(String.t(), keyword) ::
+          {:ok, Region.t()} | {:error, :region, :not_found}
+  def fetch_region_by_abbreviation(abbreviation, opts \\ []) do
     Query.from_region()
     |> Query.region_abbreviation(abbreviation)
     |> Query.preload_assoc(:region, opts[:preload])
     |> Repo.one()
+    |> case do
+      %Region{} = region -> {:ok, region}
+      nil -> {:error, :region, :not_found}
+    end
   end
 
   @doc """

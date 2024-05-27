@@ -28,8 +28,6 @@ defmodule RMWeb.LeagueLive.Events do
   def handle_event(event, unsigned_params, socket)
 
   def handle_event("registration_settings_change", %{"league_settings" => params}, socket) do
-    IO.inspect(params)
-
     socket
     |> registration_settings_change(params)
     |> noreply()
@@ -48,7 +46,7 @@ defmodule RMWeb.LeagueLive.Events do
       |> registration_settings_normalize_team_limit()
       |> registration_settings_normalize_waitlist_limit()
 
-    case RM.Local.update_league_settings(league, params) |> IO.inspect() do
+    case RM.Local.update_league_settings(league, params) do
       {:ok, _settings} ->
         socket
         |> refresh_league(events: true)

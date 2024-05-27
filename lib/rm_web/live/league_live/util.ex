@@ -145,9 +145,10 @@ defmodule RMWeb.LeagueLive.Util do
 
   @spec get_league(Ecto.UUID.t()) :: {:ok, League.t()} | {:error, :league, :not_found}
   defp get_league(league_code) do
-    case RM.FIRST.get_league_by_code(league_code, preload: [:region, :settings, :teams]) do
-      nil -> {:error, :league, :not_found}
-      league -> {:ok, Map.update!(league, :teams, &sort_teams/1)}
+    preloads = [:region, :settings, :teams]
+
+    with {:ok, league} <- RM.FIRST.fetch_league_by_code(league_code, preload: preloads) do
+      {:ok, Map.update!(league, :teams, &sort_teams/1)}
     end
   end
 
