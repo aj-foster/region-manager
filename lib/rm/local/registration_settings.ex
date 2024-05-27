@@ -10,24 +10,24 @@ defmodule RM.Local.RegistrationSettings do
   @typedoc "Settings for the registration process of an event"
   @type t :: %__MODULE__{
           enabled: boolean,
-          deadline: Date.t() | nil,
+          deadline_days: integer,
           pool: pool,
           team_limit: integer | nil,
-          waitlist_deadline: Date.t() | nil,
+          waitlist_deadline_days: integer | nil,
           waitlist_limit: integer | nil
         }
 
-  @required_fields [:enabled, :pool]
-  @optional_fields [:deadline, :team_limit, :waitlist_deadline, :waitlist_limit]
+  @required_fields [:deadline_days, :enabled, :pool]
+  @optional_fields [:team_limit, :waitlist_deadline_days, :waitlist_limit]
 
   @primary_key false
 
   embedded_schema do
     field :enabled, :boolean
-    field :deadline, :date
+    field :deadline_days, :integer, default: 7
     field :pool, Ecto.Enum, values: @pools
     field :team_limit, :integer
-    field :waitlist_deadline, :date
+    field :waitlist_deadline_days, :integer
     field :waitlist_limit, :integer
   end
 

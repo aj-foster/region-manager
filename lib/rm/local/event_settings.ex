@@ -33,6 +33,13 @@ defmodule RM.Local.EventSettings do
   def default_params(event) do
     event = Repo.preload(event, league: :settings)
 
+    deadline_days =
+      if event.league && event.league.settings do
+        event.league.settings.registration.deadline_days
+      else
+        7
+      end
+
     enabled =
       if event.league && event.league.settings do
         event.league.settings.registration.enabled
@@ -41,11 +48,14 @@ defmodule RM.Local.EventSettings do
       end
 
     pool = if event.league, do: :league, else: :region
-    deadline = Date.add(event.date_start, -7)
 
     %{
       event_id: event.id,
-      registration: %RegistrationSettings{enabled: enabled, deadline: deadline, pool: pool}
+      registration: %RegistrationSettings{
+        deadline_days: deadline_days,
+        enabled: enabled,
+        pool: pool
+      }
     }
   end
 
