@@ -2,9 +2,7 @@
 
 <div>
   <div class="mb-8">
-    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">
-      Events in <%= @league.name %> League
-    </h2>
+    <.title>Events in <%= @league.name %> League</.title>
 
     <.link
       :for={event <- @league.events}
@@ -19,9 +17,7 @@
   </div>
 
   <div>
-    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">
-      Registration Settings
-    </h2>
+    <.title>Registration Settings</.title>
 
     <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
       <p class="mb-4 text-sm">

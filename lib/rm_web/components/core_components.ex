@@ -35,6 +35,20 @@ defmodule RMWeb.CoreComponents do
   end
 
   @doc """
+  Page or section title
+  """
+  attr :class, :string, default: nil, doc: "additional classes to apply"
+  slot :inner_block, required: true
+
+  def title(assigns) do
+    ~H"""
+    <h2 class={["font-title italic mb-4 ml-6 small-caps text-xl", @class]}>
+      <%= render_slot(@inner_block) %>
+    </h2>
+    """
+  end
+
+  @doc """
   Renders a modal.
 
   ## Examples
