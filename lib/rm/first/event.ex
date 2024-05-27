@@ -173,4 +173,14 @@ defmodule RM.FIRST.Event do
   def type_name(:volunteer), do: "Volunteer Signup"
   def type_name(:practice), do: "Practice Day"
   def type_name(:unknown), do: "Unknown"
+
+  #
+  # Protocols
+  #
+
+  defimpl Phoenix.Param do
+    def to_param(%RM.FIRST.Event{code: code}) do
+      String.downcase(code)
+    end
+  end
 end

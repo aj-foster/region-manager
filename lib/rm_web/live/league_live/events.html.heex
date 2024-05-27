@@ -1,16 +1,21 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
 <div>
-  <div>
+  <div class="mb-8">
     <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">
       Events in <%= @league.name %> League
     </h2>
 
-    <ul class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-      <li :for={event <- @league.events} class="flex gap-4 items-center mb-2">
-        <h3><%= event.name %></h3>
-      </li>
-    </ul>
+    <.link
+      :for={event <- @league.events}
+      class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+      navigate={~p"/league/#{@league}/events/#{event}"}
+    >
+      <div class="grow">
+        <h3 class="font-bold"><%= event.name %></h3>
+      </div>
+      <div><.icon name="hero-arrow-right" /></div>
+    </.link>
   </div>
 
   <div>

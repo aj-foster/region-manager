@@ -1,0 +1,86 @@
+<.nav class="mb-8" league={@league} view={@socket.view} />
+
+<div>
+  <div>
+    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">
+      <.link navigate={~p"/league/#{@league}/events"}>Events</.link> &bull; <%= @event.name %>
+    </h2>
+
+    <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+      <dl class="grid grid-table gap-x-8 mb-4">
+        <dt class="col-start-1 col-end-2 font-semibold small-caps">Name</dt>
+        <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+          <%= @event.name %>
+        </dd>
+
+        <dt class="col-start-1 col-end-2 font-semibold small-caps">Date</dt>
+        <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+          <%= if Date.diff(@event.date_start, @event.date_end) == 0 do %>
+            <%= format_date(@event.date_start, :date) %>
+          <% else %>
+            <%= format_date(@event.date_start, :date) %> &ndash; <%= format_date(
+              @event.date_end,
+              :date
+            ) %>
+          <% end %>
+        </dd>
+
+        <dt class="col-start-1 col-end-2 font-semibold small-caps">Type</dt>
+        <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+          <%= Event.type_name(@event.type) %>
+        </dd>
+
+        <dt class="col-start-1 col-end-2 font-semibold small-caps">Format</dt>
+        <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+          <%= event_format(@event) %>
+        </dd>
+
+        <dt class="col-start-1 col-end-2 font-semibold small-caps">Location</dt>
+        <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+          <span :if={@event.location.venue} class="block"><%= @event.location.venue %></span>
+          <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
+          <span :if={@event.location.city}><%= @event.location.city %>,</span>
+          <span :if={@event.location.state_province}><%= @event.location.state_province %>,</span>
+          <span>
+            <%= @event.location.country || "Unknown Location" %>
+          </span>
+        </dd>
+
+        <%= if present?(@event.website) do %>
+          <dt class="col-start-1 col-end-2 font-semibold small-caps">Website</dt>
+          <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+            <a class="underline" href={@event.website} target="blank"><%= @event.website %></a>
+          </dd>
+        <% end %>
+
+        <%= if present?(@event.live_stream_url) do %>
+          <dt class="col-start-1 col-end-2 font-semibold small-caps">Live Stream</dt>
+          <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+            <a class="underline" href={@event.live_stream_url} target="blank">
+              <%= @event.live_stream_url %>
+            </a>
+          </dd>
+        <% end %>
+
+        <dt class="col-start-1 col-end-2 font-semibold small-caps">Region</dt>
+        <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+          <%= @event.region.name %>
+        </dd>
+
+        <%= if @event.region.has_leagues do %>
+          <dt class="col-start-1 col-end-2 font-semibold small-caps">League</dt>
+          <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+            <%= if @event.league, do: @event.league.name, else: "No League Assignment" %>
+          </dd>
+        <% end %>
+      </dl>
+
+      <p class="text-sm">
+        This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
+          @event.region.stats.events_imported_at,
+          :date
+        ) %>.
+      </p>
+    </div>
+  </div>
+</div>

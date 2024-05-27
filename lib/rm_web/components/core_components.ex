@@ -786,10 +786,14 @@ defmodule RMWeb.CoreComponents do
     * `:full` returns date and time, ex. `14 March 2020 at 15:26 UTC`
 
   """
-  @spec format_date(DateTime.t() | nil, atom) :: String.t()
+  @spec format_date(Date.t() | DateTime.t() | nil, atom) :: String.t()
   def format_date(datetime, format, timezone \\ nil)
   def format_date(nil, :date, _zone), do: "Unknown Date"
   def format_date(nil, :full, _zone), do: "Unknown Time"
+
+  def format_date(%Date{} = date, _format, _zone) do
+    Calendar.strftime(date, "%-d %B %Y")
+  end
 
   def format_date(datetime, :date, timezone) do
     timezone = timezone || Process.get(:client_timezone, "Etc/UTC")
