@@ -68,6 +68,20 @@ defmodule RM.FIRST do
     |> Map.new()
   end
 
+  @spec fetch_event_by_code(String.t()) :: {:ok, Event.t()} | {:error, :event, :not_found}
+  @spec fetch_event_by_code(String.t(), keyword) ::
+          {:ok, Event.t()} | {:error, :event, :not_found}
+  def fetch_event_by_code(code, opts \\ []) do
+    Query.from_event()
+    |> Query.event_code(code)
+    |> Query.preload_assoc(:event, opts[:preload])
+    |> Repo.one()
+    |> case do
+      %Event{} = event -> {:ok, event}
+      nil -> {:error, :event, :not_found}
+    end
+  end
+
   @spec fetch_league_by_code(String.t(), keyword) ::
           {:ok, League.t()} | {:error, :league, :not_found}
   def fetch_league_by_code(code, opts \\ []) do

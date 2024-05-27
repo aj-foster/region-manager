@@ -50,6 +50,12 @@ defmodule RM.FIRST.Query do
     where(query, [league_assignment: a], a.league_id == ^league_id)
   end
 
+  @doc "Find the event with the given code"
+  @spec event_code(query, String.t()) :: query
+  def event_code(query, code) do
+    where(query, [event: e], e.code == ^code)
+  end
+
   @doc "Find events related to the given region(s)"
   @spec event_region(query, Region.t()) :: query
   @spec event_region(query, [Region.t()]) :: query
@@ -90,11 +96,27 @@ defmodule RM.FIRST.Query do
   # Joins
   #
 
+  @doc "Load the `league` association on an event"
+  @spec join_league_from_event(query) :: query
+  def join_league_from_event(query) do
+    with_named_binding(query, :league, fn query, binding ->
+      join(query, :left, [event: e], l in assoc(e, :league), as: ^binding)
+    end)
+  end
+
   @doc "Load the `leagues` association on a region"
   @spec join_leagues_from_region(query) :: query
   def join_leagues_from_region(query) do
     with_named_binding(query, :leagues, fn query, binding ->
       join(query, :left, [region: r], l in assoc(r, :leagues), as: ^binding)
+    end)
+  end
+
+  @doc "Load the `region` association on an event"
+  @spec join_region_from_event(query) :: query
+  def join_region_from_event(query) do
+    with_named_binding(query, :region, fn query, binding ->
+      join(query, :left, [event: e], r in assoc(e, :region), as: ^binding)
     end)
   end
 
@@ -140,6 +162,11 @@ defmodule RM.FIRST.Query do
   Data preloaded with this function will be joined and loaded in a single query, which can cause
   performance issues. The associations supported are:
 
+  With `:event` as the base:
+
+    * `league`: `league` associated with an event
+    * `region`: `region` associated with an event
+
   With `:region` as the base:
 
     * `leagues`: `leagues` on a region
@@ -154,6 +181,22 @@ defmodule RM.FIRST.Query do
   def preload_assoc(query, base, associations)
   def preload_assoc(query, _base, nil), do: query
   def preload_assoc(query, _base, []), do: query
+
+  # Event
+
+  def preload_assoc(query, :event, [:league | rest]) do
+    query
+    |> join_league_from_event()
+    |> preload([league: l], league: l)
+    |> preload_assoc(:event, rest)
+  end
+
+  def preload_assoc(query, :event, [:region | rest]) do
+    query
+    |> join_region_from_event()
+    |> preload([region: r], region: r)
+    |> preload_assoc(:event, rest)
+  end
 
   # Regions
 
