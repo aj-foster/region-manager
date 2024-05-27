@@ -5,7 +5,9 @@ defmodule RM.Local do
   import Ecto.Query
 
   alias Ecto.Changeset
+  alias RM.FIRST.Event
   alias RM.FIRST.League
+  alias RM.Local.EventSettings
   alias RM.Local.LeagueSettings
   alias RM.Local.RegistrationSettings
   alias RM.Local.Query
@@ -37,6 +39,34 @@ defmodule RM.Local do
     |> case do
       %Team{} = team -> {:ok, team}
       nil -> {:error, :team, :not_found}
+    end
+  end
+
+  @spec change_event_settings(Event.t()) :: Changeset.t(EventSettings.t())
+  def change_event_settings(event) do
+    case Repo.preload(event, :settings) do
+      %Event{settings: nil} ->
+        EventSettings.changeset(%{})
+        |> Changeset.put_assoc(:event, event)
+
+      %Event{settings: settings} ->
+        EventSettings.changeset(settings, %{})
+    end
+  end
+
+  @spec update_event_settings(Event.t(), map) ::
+          {:ok, EventSettings.t()} | {:error, Changeset.t(EventSettings.t())}
+  def update_event_settings(event, params) do
+    case Repo.preload(event, :settings) do
+      %Event{settings: nil} ->
+        %EventSettings{registration: %RegistrationSettings{enabled: true, pool: :event}}
+        |> EventSettings.changeset(params)
+        |> Changeset.put_assoc(:event, event)
+        |> Repo.insert()
+
+      %Event{settings: settings} ->
+        EventSettings.changeset(settings, params)
+        |> Repo.update()
     end
   end
 

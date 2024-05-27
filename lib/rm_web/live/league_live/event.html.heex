@@ -15,13 +15,13 @@
 
         <dt class="col-start-1 col-end-2 font-semibold small-caps">Date</dt>
         <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
-          <%= if Date.diff(@event.date_start, @event.date_end) == 0 do %>
-            <%= format_date(@event.date_start, :date) %>
-          <% else %>
+          <%= if multi_day?(@event) do %>
             <%= format_date(@event.date_start, :date) %> &ndash; <%= format_date(
               @event.date_end,
               :date
             ) %>
+          <% else %>
+            <%= format_date(@event.date_start, :date) %>
           <% end %>
         </dd>
 
@@ -81,6 +81,100 @@
           :date
         ) %>.
       </p>
+    </div>
+  </div>
+
+  <div>
+    <.title>Registration Settings</.title>
+
+    <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+      <p class="mb-4 text-sm">
+        The following settings affect how teams register for this event.
+        Default values are chosen based on the league settings at the time an event is first imported.
+      </p>
+
+      <.form for={@registration_settings_form} phx-change="registration_settings_change">
+        <.inputs_for :let={f} field={@registration_settings_form[:registration]}>
+          <.switch
+            explanation="When enabled, teams can register for this event here in Region Manager. If disabled, you will need to find another way to track event registration. Please check with your region's Program Delivery Partner before making changes."
+            field={f[:enabled]}
+            label="Teams can register for this event in Region Manager"
+            wrapper="mb-4"
+          />
+
+          <div :if={f[:enabled].value}>
+            <.input
+              explanation={
+                if multi_day?(@event) do
+                  "For events with start dates before team activities begin, be sure to adjust this deadline based on the start date listed above."
+                end
+              }
+              field={f[:deadline_days]}
+              label={"How many days before #{format_date(@event.date_start, :date)} of the event should registration close?"}
+              max="60"
+              min="0"
+              step="1"
+              type="number"
+              wrapper="pl-10 mb-6"
+            />
+
+            <.switch
+              explanation="Use this only if the event or venue has restricted capacity. It is not necessary to use this setting to restrict non-league teams from signing up."
+              id="league_registration_registration_team_limit_enable"
+              label="Restrict the number of teams that can register for this event"
+              name="event_settings[registration][team_limit_enable]"
+              value={not is_nil(f[:team_limit].value)}
+              wrapper="mb-2"
+            />
+
+            <div :if={not is_nil(f[:team_limit].value)}>
+              <.input field={f[:team_limit]} min="0" step="1" type="number" wrapper="pl-10 mb-6" />
+
+              <.switch
+                explanation="This enables registration for a waitlist after the event reaches capacity."
+                id="league_registration_registration_waitlist_limit_enable"
+                label="Teams can sign up for a waitlist"
+                name="event_settings[registration][waitlist_limit_enable]"
+                value={not is_nil(f[:waitlist_limit].value)}
+                wrapper="mb-4"
+              />
+
+              <div :if={not is_nil(f[:waitlist_limit].value)}>
+                <.input
+                  explanation="Teams will be presented in the order in which they signed up."
+                  field={f[:waitlist_limit]}
+                  label="How many additional teams can sign up to the wailist?"
+                  min="0"
+                  step="1"
+                  type="number"
+                  wrapper="pl-10 mb-6"
+                />
+
+                <.input
+                  explanation={
+                    if multi_day?(@event) do
+                      "For events with start dates before team activities begin, be sure to adjust this deadline based on the official start date (#{format_date(@event.date_start, :date)})."
+                    end
+                  }
+                  field={f[:waitlist_deadline_days]}
+                  label={
+                    if multi_day?(@event) do
+                      "How many days before the start of the event should the waitlist close?"
+                    else
+                      "How many days before the event should the waitlist close?"
+                    end
+                  }
+                  max="60"
+                  min="0"
+                  step="1"
+                  type="number"
+                  wrapper="pl-10 mb-6"
+                />
+              </div>
+            </div>
+          </div>
+        </.inputs_for>
+      </.form>
     </div>
   </div>
 </div>
