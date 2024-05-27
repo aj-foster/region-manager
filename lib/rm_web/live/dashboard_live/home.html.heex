@@ -16,11 +16,12 @@
     >
       <div class="grow">
         <h3 class="font-bold"><%= region.name %></h3>
-        <p>
+        <p class="text-sm">
           <span :if={region.stats.league_count && region.stats.league_count > 0}>
             <%= dumb_inflect("league", region.stats.league_count) %> &bull;
           </span>
-          <span><%= dumb_inflect("team", region.stats.team_count) %></span>
+          <span><%= dumb_inflect("team", region.stats.team_count) %> &bull;</span>
+          <span><%= dumb_inflect("event", region.stats.event_count) %></span>
         </p>
       </div>
       <div><.icon name="hero-arrow-right" /></div>
@@ -38,11 +39,12 @@
     >
       <div class="grow">
         <h3 class="font-bold"><%= league.name %></h3>
-        <p>
+        <p class="text-sm">
           <span :if={league.stats.league_count && league.stats.league_count > 0}>
             <%= dumb_inflect("league", league.stats.league_count) %> &bull;
           </span>
-          <span><%= dumb_inflect("team", league.stats.team_count) %></span>
+          <span><%= dumb_inflect("team", league.stats.team_count) %> &bull;</span>
+          <span><%= dumb_inflect("event", league.stats.event_count) %></span>
         </p>
       </div>
       <div><.icon name="hero-arrow-right" /></div>
@@ -58,8 +60,8 @@
     >
       <div class="grow">
         <h3><strong><%= team.number %></strong> <%= team.name %></h3>
-        <p>
-          <span :if={not team.event_ready} class="text-orange-600 text-sm">Not Event Ready</span>
+        <p class="text-sm">
+          <span :if={not team.event_ready} class="text-orange-600">Not Event Ready</span>
         </p>
       </div>
       <div><.icon name="hero-arrow-right" /></div>
