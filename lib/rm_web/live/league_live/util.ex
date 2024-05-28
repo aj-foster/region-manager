@@ -80,7 +80,7 @@ defmodule RMWeb.LeagueLive.Util do
     league =
       socket.assigns[:league]
       |> Repo.preload(:events)
-      |> Map.update!(:events, &sort_events/1)
+      |> Map.update!(:events, &Enum.sort(&1, RM.FIRST.Event))
 
     assign(socket, league: league)
   end
@@ -148,22 +148,12 @@ defmodule RMWeb.LeagueLive.Util do
     preloads = [:region, :settings, :teams]
 
     with {:ok, league} <- RM.FIRST.fetch_league_by_code(league_code, preload: preloads) do
-      {:ok, Map.update!(league, :teams, &sort_teams/1)}
+      {:ok, Map.update!(league, :teams, &Enum.sort(&1, RM.Local.Team))}
     end
   end
 
   @spec league_owner?(User.t(), League.t()) :: boolean
   defp league_owner?(%User{leagues: leagues}, %League{id: league_id}) do
     is_list(leagues) and Enum.any?(leagues, &(&1.id == league_id))
-  end
-
-  @spec sort_events([RM.FIRST.Event.t()]) :: [RM.FIRST.Event.t()]
-  defp sort_events(events) do
-    Enum.sort_by(events, & &1.date_start, Date)
-  end
-
-  @spec sort_teams([RM.Local.Team.t()]) :: [RM.Local.Team.t()]
-  defp sort_teams(teams) do
-    Enum.sort_by(teams, & &1.number)
   end
 end

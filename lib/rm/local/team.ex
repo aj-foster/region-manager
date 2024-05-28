@@ -125,9 +125,22 @@ defmodule RM.Local.Team do
     Changeset.cast(notices, params, [:lc1_missing, :lc1_ypp, :lc2_missing, :lc2_ypp, :unsecured])
   end
 
+  #
+  # Protocols
+  #
+
   defimpl Phoenix.Param do
     def to_param(%RM.Local.Team{number: number}) do
       Integer.to_string(number)
+    end
+  end
+
+  @doc false
+  def compare(a, b) do
+    case {a.number || a.temporary_number, b.number || b.temporary_number} do
+      {a, b} when a < b -> :lt
+      {a, b} when a > b -> :gt
+      _else -> :eq
     end
   end
 end

@@ -146,17 +146,12 @@ defmodule RMWeb.RegionLive.Util do
 
     with {:ok, region} <-
            RM.FIRST.fetch_region_by_abbreviation(region_abbreviation, preload: preloads) do
-      {:ok, Map.update!(region, :teams, &sort_teams/1)}
+      {:ok, Map.update!(region, :teams, &Enum.sort(&1, RM.Local.Team))}
     end
   end
 
   @spec region_owner?(User.t(), Region.t()) :: boolean
   defp region_owner?(%User{regions: regions}, %Region{id: region_id}) do
     is_list(regions) and Enum.any?(regions, &(&1.id == region_id))
-  end
-
-  @spec sort_teams([RM.Local.Team.t()]) :: [RM.Local.Team.t()]
-  defp sort_teams(teams) do
-    Enum.sort_by(teams, & &1.number)
   end
 end

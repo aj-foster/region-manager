@@ -48,7 +48,7 @@ defmodule RMWeb.TeamLive.Util do
     team =
       socket.assigns[:team]
       |> Repo.preload(:events)
-      |> Map.update!(:events, &sort_events/1)
+      |> Map.update!(:events, &Enum.sort(&1, RM.FIRST.Event))
 
     assign(socket, team: team)
   end
@@ -125,10 +125,5 @@ defmodule RMWeb.TeamLive.Util do
   @spec team_owner?(User.t(), Team.t()) :: boolean
   defp team_owner?(%User{teams: teams}, %Team{id: team_id}) do
     is_list(teams) and Enum.any?(teams, &(&1.id == team_id))
-  end
-
-  @spec sort_events([RM.FIRST.Event.t()]) :: [RM.FIRST.Event.t()]
-  defp sort_events(events) do
-    Enum.sort_by(events, & &1.date_start, Date)
   end
 end

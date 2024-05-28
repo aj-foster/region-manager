@@ -183,4 +183,9 @@ defmodule RM.FIRST.Event do
       String.downcase(code)
     end
   end
+
+  @doc false
+  def compare(a, b) do
+    Date.compare(a.date_start, b.date_start)
+  end
 end

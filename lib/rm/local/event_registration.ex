@@ -42,4 +42,19 @@ defmodule RM.Local.EventRegistration do
     |> Changeset.cast(params, @required_fields ++ @optional_fields)
     |> Changeset.validate_required(@required_fields)
   end
+
+  #
+  # Protocols
+  #
+
+  defimpl Phoenix.Param do
+    def to_param(%RM.Local.EventRegistration{event: %RM.FIRST.Event{code: code}}) do
+      String.downcase(code)
+    end
+  end
+
+  @doc false
+  def compare(a, b) do
+    RM.FIRST.Event.compare(a.event, b.event)
+  end
 end
