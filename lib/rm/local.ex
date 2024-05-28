@@ -7,6 +7,7 @@ defmodule RM.Local do
   alias Ecto.Changeset
   alias RM.FIRST.Event
   alias RM.FIRST.League
+  alias RM.Local.EventRegistration
   alias RM.Local.EventSettings
   alias RM.Local.LeagueSettings
   alias RM.Local.RegistrationSettings
@@ -40,6 +41,20 @@ defmodule RM.Local do
       %Team{} = team -> {:ok, team}
       nil -> {:error, :team, :not_found}
     end
+  end
+
+  @spec create_event_registration(Event.t(), Team.t(), map) ::
+          {:ok, EventRegistration.t()} | {:error, Changeset.t(EventRegistration.t())}
+  def create_event_registration(event, team, params) do
+    EventRegistration.create_changeset(event, team, params)
+    |> Repo.insert()
+  end
+
+  @spec update_event_registration(EventRegistration.t(), map) ::
+          {:ok, EventRegistration.t()} | {:error, Changeset.t(EventRegistration.t())}
+  def update_event_registration(registration, params) do
+    EventRegistration.update_changeset(registration, params)
+    |> Repo.update()
   end
 
   @spec change_event_settings(Event.t()) :: Changeset.t(EventSettings.t())
