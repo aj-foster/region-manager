@@ -1,0 +1,35 @@
+<.nav class="mb-8" team={@team} view={@socket.view} />
+
+<div
+  :if={not @team.event_ready}
+  class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-6 px-4 py-2 rounded text-sm"
+>
+  <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
+  <p>
+    This team is not <strong>Event Ready</strong>. Please resolve all
+    <.link class="underline" navigate={~p"/team/#{@team}"}>outstanding notices</.link>
+    before attempting to register for events.
+  </p>
+</div>
+
+<div>
+  <.title>Registered Events</.title>
+
+  <div
+    :if={length(@team.event_registrations) == 0}
+    class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm"
+  >
+    <p>This team is not registered for any events.</p>
+  </div>
+
+  <.link
+    :for={event <- @team.event_registrations}
+    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    navigate={~p"/team/#{@team}/events/#{event}"}
+  >
+    <div class="grow">
+      <h3 class="font-bold"><%= event.name %></h3>
+    </div>
+    <div><.icon name="hero-arrow-right" /></div>
+  </.link>
+</div>

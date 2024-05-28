@@ -29,9 +29,25 @@ defmodule RMWeb.TeamLive.Util do
       <% else %>
         <.link
           class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
-          navigate={~p"/league/#{@league}"}
+          navigate={~p"/team/#{@team}"}
         >
           Overview
+        </.link>
+      <% end %>
+
+      <%= if @view == RMWeb.TeamLive.Events do %>
+        <div
+          class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
+          style="background-image: linear-gradient(to bottom, white, transparent)"
+        >
+          Events
+        </div>
+      <% else %>
+        <.link
+          class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
+          navigate={~p"/team/#{@team}/events"}
+        >
+          Events
         </.link>
       <% end %>
 
@@ -49,6 +65,7 @@ defmodule RMWeb.TeamLive.Util do
       socket.assigns[:team]
       |> Repo.preload(:events)
       |> Map.update!(:events, &Enum.sort(&1, RM.FIRST.Event))
+      |> Map.update!(:event_registrations, &Enum.sort(&1, RM.Local.EventRegistration))
 
     assign(socket, team: team)
   end

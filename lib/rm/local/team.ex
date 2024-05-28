@@ -5,6 +5,7 @@ defmodule RM.Local.Team do
   alias RM.Account
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
+  alias RM.Local.EventRegistration
 
   @typedoc "Team record"
   @type t :: %__MODULE__{}
@@ -37,6 +38,8 @@ defmodule RM.Local.Team do
     timestamps type: :utc_datetime_usec
 
     belongs_to :region, Region
+    has_many :event_registrations, EventRegistration
+    has_many :events, through: [:event_registrations, :event]
     has_one :league_assignment, LeagueAssignment
     has_one :league, through: [:league_assignment, :league]
     has_many :user_assignments, Account.Team

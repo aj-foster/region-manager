@@ -2,7 +2,7 @@
 
 <div>
   <div>
-    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl"><%= @team.name %></h2>
+    <.title><%= @team.name %></.title>
 
     <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
       <dl class="grid grid-table gap-x-8 mb-4">
@@ -78,7 +78,7 @@
   </div>
 
   <div :if={requires_attention?(@team)}>
-    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Items Requiring Attention</h2>
+    <.title>Items Requiring Attention</.title>
 
     <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm">
       <p class="mb-4 text-sm">The following items may prevent you from registering for events:</p>
