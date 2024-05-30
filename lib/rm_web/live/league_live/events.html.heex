@@ -10,6 +10,11 @@
   >
     <div class="grow">
       <h3 class="font-bold"><%= event.name %></h3>
+      <p class="text-sm">
+        <span><%= format_range(event.date_start, event.date_end) %></span>
+        <span>&bull; <%= Event.type_name(event.type) %></span>
+        <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+      </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
   </.link>
