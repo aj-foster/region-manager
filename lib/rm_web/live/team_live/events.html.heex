@@ -52,18 +52,9 @@
       <div class="grow">
         <h3 class="font-bold"><%= event.name %></h3>
         <p class="text-sm">
-          <span>
-            <%= if multi_day?(event) do %>
-              <%= format_date(event.date_start, :date) %> &ndash; <%= format_date(
-                event.date_end,
-                :date
-              ) %>
-            <% else %>
-              <%= format_date(event.date_start, :date) %>
-            <% end %>
-          </span>
+          <span><%= format_range(event.date_start, event.date_end) %></span>
           <span>&bull; <%= Event.type_name(event.type) %></span>
-          <span :if={event.remote or event.hybrid}>&bull; <%= event_format(event) %></span>
+          <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
         </p>
       </div>
       <div><.icon name="hero-arrow-right" /></div>

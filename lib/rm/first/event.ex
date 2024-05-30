@@ -116,14 +116,14 @@ defmodule RM.FIRST.Event do
       id: id,
       inserted_at: now,
       league_id: league_id_map[league_code],
-      live_stream_url: live_stream_url,
+      live_stream_url: if(live_stream_url != "", do: live_stream_url),
       name: name,
       published: published,
       region_id: region && region.id,
       remote: remote,
       type: cast_type(type_code),
       updated_at: now,
-      website: website,
+      website: if(website != "", do: website),
       location: %__MODULE__.Location{
         address: address,
         city: city,
@@ -156,6 +156,22 @@ defmodule RM.FIRST.Event do
   defp cast_type("15"), do: :volunteer
   defp cast_type("16"), do: :practice
   defp cast_type(_), do: :unknown
+
+  #
+  # Helpers
+  #
+
+  @doc "Whether the event spans multiple calendar days"
+  @spec multi_day?(t) :: boolean
+  def multi_day?(%__MODULE__{date_start: start, date_end: finish}) do
+    Date.after?(finish, start)
+  end
+
+  @doc "Human-readable format of the event"
+  @spec format_name(t) :: String.t()
+  def format_name(%__MODULE__{remote: true}), do: "Remote"
+  def format_name(%__MODULE__{hybrid: true}), do: "Hybrid"
+  def format_name(_event), do: "Traditional"
 
   @doc "Human-readable name of the given event type"
   @spec type_name(type) :: String.t()

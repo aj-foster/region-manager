@@ -111,23 +111,4 @@ defmodule RMWeb.LeagueLive.Event do
   defp registration_settings_normalize_waitlist_limit(params) do
     put_in(params, ["registration", "waitlist_limit"], nil)
   end
-
-  #
-  # Template Helpers
-  #
-
-  @spec event_format(Event.t()) :: String.t()
-  defp event_format(%Event{remote: true}), do: "Remote"
-  defp event_format(%Event{hybrid: true}), do: "Hybrid"
-  defp event_format(_event), do: "Traditional"
-
-  @spec multi_day?(Event.t()) :: boolean
-  defp multi_day?(%Event{date_start: start, date_end: finish}) do
-    Date.diff(start, finish) != 0
-  end
-
-  @spec present?(String.t() | nil) :: boolean
-  defp present?(""), do: false
-  defp present?(nil), do: false
-  defp present?(_else), do: true
 end

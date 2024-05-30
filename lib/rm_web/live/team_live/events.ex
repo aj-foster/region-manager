@@ -35,18 +35,4 @@ defmodule RMWeb.TeamLive.Events do
       {:ok, %{eligible_events: events}}
     end)
   end
-
-  #
-  # Template Helpers
-  #
-
-  @spec event_format(Event.t()) :: String.t()
-  defp event_format(%Event{remote: true}), do: "Remote"
-  defp event_format(%Event{hybrid: true}), do: "Hybrid"
-  defp event_format(_event), do: "Traditional"
-
-  @spec multi_day?(Event.t()) :: boolean
-  defp multi_day?(%Event{date_start: start, date_end: finish}) do
-    Date.diff(start, finish) != 0
-  end
 end

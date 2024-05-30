@@ -710,4 +710,30 @@ defmodule RMWeb.CoreComponents do
     |> DateTime.shift_zone!(timezone)
     |> Calendar.strftime("%-d %B %Y at %0H:%0M %Z")
   end
+
+  @doc """
+  Create a human-readable representation of a date range
+  """
+  @spec format_range(Date.t(), Date.t()) :: String.t()
+  def format_range(start, finish)
+
+  def format_range(same, same), do: format_date(same, :date)
+
+  def format_range(
+        %Date{year: same_year, month: same_month} = start,
+        %Date{year: same_year, month: same_month} = finish
+      ) do
+    Calendar.strftime(start, "%-d–#{Calendar.strftime(finish, "%-d")} %B %Y")
+  end
+
+  def format_range(
+        %Date{year: same_year} = start,
+        %Date{year: same_year} = finish
+      ) do
+    Calendar.strftime(start, "%-d %B – #{Calendar.strftime(finish, "%-d %B")} %Y")
+  end
+
+  def format_range(start, finish) do
+    format_date(start, :date) <> " – " <> format_date(finish, :date)
+  end
 end

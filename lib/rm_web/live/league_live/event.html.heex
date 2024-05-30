@@ -8,18 +8,9 @@
   <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
     <.table>
       <:row title="Name"><%= @event.name %></:row>
-      <:row title="Date">
-        <%= if multi_day?(@event) do %>
-          <%= format_date(@event.date_start, :date) %> &ndash; <%= format_date(
-            @event.date_end,
-            :date
-          ) %>
-        <% else %>
-          <%= format_date(@event.date_start, :date) %>
-        <% end %>
-      </:row>
+      <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
       <:row title="Type"><%= Event.type_name(@event.type) %></:row>
-      <:row title="Format"><%= event_format(@event) %></:row>
+      <:row title="Format"><%= Event.format_name(@event) %></:row>
       <:row title="Location">
         <span :if={@event.location.venue} class="block"><%= @event.location.venue %></span>
         <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
@@ -29,10 +20,10 @@
           <%= @event.location.country || "Unknown Location" %>
         </span>
       </:row>
-      <:row :if={present?(@event.website)} title="Website">
+      <:row :if={@event.website} title="Website">
         <a class="underline" href={@event.website} target="blank"><%= @event.website %></a>
       </:row>
-      <:row :if={present?(@event.live_stream_url)} title="Live Stream">
+      <:row :if={@event.live_stream_url} title="Live Stream">
         <a class="underline" href={@event.live_stream_url} target="blank">
           <%= @event.live_stream_url %>
         </a>
@@ -73,7 +64,7 @@
         <div :if={f[:enabled].value}>
           <.input
             explanation={
-              if multi_day?(@event) do
+              if Event.multi_day?(@event) do
                 "For events with start dates before team activities begin, be sure to adjust this deadline based on the start date listed above."
               end
             }
@@ -120,13 +111,13 @@
 
               <.input
                 explanation={
-                  if multi_day?(@event) do
+                  if Event.multi_day?(@event) do
                     "For events with start dates before team activities begin, be sure to adjust this deadline based on the official start date (#{format_date(@event.date_start, :date)})."
                   end
                 }
                 field={f[:waitlist_deadline_days]}
                 label={
-                  if multi_day?(@event) do
+                  if Event.multi_day?(@event) do
                     "How many days before the start of the event should the waitlist close?"
                   else
                     "How many days before the event should the waitlist close?"
