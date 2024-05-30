@@ -128,6 +128,14 @@ defmodule RM.FIRST.Query do
     end)
   end
 
+  @doc "Load the `settings` association on an event"
+  @spec join_settings_from_event(query) :: query
+  def join_settings_from_event(query) do
+    with_named_binding(query, :settings, fn query, binding ->
+      join(query, :left, [event: e], s in assoc(e, :settings), as: ^binding)
+    end)
+  end
+
   @doc "Load the `settings` association on a league"
   @spec join_settings_from_league(query) :: query
   def join_settings_from_league(query) do

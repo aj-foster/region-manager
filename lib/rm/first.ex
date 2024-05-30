@@ -12,6 +12,7 @@ defmodule RM.FIRST do
   alias RM.Local
   alias RM.Local.EventSettings
   alias RM.Local.LeagueSettings
+  alias RM.Local.Team
   alias RM.Repo
 
   #
@@ -53,6 +54,40 @@ defmodule RM.FIRST do
   #
   # Data
   #
+
+  @spec list_eligible_events_by_team(Team.t()) :: [Event.t()]
+  @spec list_eligible_events_by_team(Team.t(), keyword) :: [Event.t()]
+  def list_eligible_events_by_team(team, opts \\ []) do
+    Query.from_event()
+    |> Query.join_settings_from_event()
+    |> filter_eligible_events_by_team(team)
+    |> Query.preload_assoc(:event, opts[:preload])
+    |> Repo.all()
+    |> Enum.filter(&is_nil(&1.division_code))
+    |> Enum.sort(Event)
+  end
+
+  @spec filter_eligible_events_by_team(Query.query(), Team.t()) :: Query.query()
+  defp filter_eligible_events_by_team(query, %Team{league: %League{id: league_id}} = team) do
+    %Team{region_id: region_id} = team
+
+    query
+    |> filter_eligible_events_by_team(%Team{region_id: region_id})
+    |> or_where(
+      [event: e, settings: s],
+      e.league_id == ^league_id and fragment("?->>'pool' = 'league'", s.registration)
+    )
+  end
+
+  defp filter_eligible_events_by_team(query, team) do
+    %Team{region_id: region_id} = team
+
+    where(
+      query,
+      [event: e, settings: s],
+      e.region_id == ^region_id and fragment("?->>'pool' = 'region'", s.registration)
+    )
+  end
 
   @spec list_league_ids_by_code :: %{String.t() => Ecto.UUID.t()}
   def list_league_ids_by_code do

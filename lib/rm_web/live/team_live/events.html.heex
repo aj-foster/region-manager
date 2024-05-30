@@ -12,7 +12,7 @@
   </p>
 </div>
 
-<div>
+<div class="mb-8">
   <.title>Registered Events</.title>
 
   <div
@@ -32,4 +32,47 @@
     </div>
     <div><.icon name="hero-arrow-right" /></div>
   </.link>
+</div>
+
+<div>
+  <.title>Available Events</.title>
+
+  <.async_result :let={eligible_events} assign={@eligible_events}>
+    <:loading>
+      <div class="bg-white border border-slate-200 italic mb-4 px-6 py-4 rounded shadow text-sm">
+        <p>Loading...</p>
+      </div>
+    </:loading>
+    <div
+      :if={length(eligible_events) == 0}
+      class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm"
+    >
+      <p>There are no available events.</p>
+    </div>
+
+    <.link
+      :for={event <- eligible_events}
+      class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+      navigate={~p"/team/#{@team}/events/#{event}"}
+    >
+      <div class="grow">
+        <h3 class="font-bold"><%= event.name %></h3>
+        <p class="text-sm">
+          <span>
+            <%= if multi_day?(event) do %>
+              <%= format_date(event.date_start, :date) %> &ndash; <%= format_date(
+                event.date_end,
+                :date
+              ) %>
+            <% else %>
+              <%= format_date(event.date_start, :date) %>
+            <% end %>
+          </span>
+          <span>&bull; <%= Event.type_name(event.type) %></span>
+          <span :if={event.remote or event.hybrid}>&bull; <%= event_format(event) %></span>
+        </p>
+      </div>
+      <div><.icon name="hero-arrow-right" /></div>
+    </.link>
+  </.async_result>
 </div>
