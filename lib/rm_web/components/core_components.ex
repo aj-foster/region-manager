@@ -49,6 +49,26 @@ defmodule RMWeb.CoreComponents do
   end
 
   @doc """
+  Visual warning with left-side icon and arbitrary contents
+  """
+  attr :class, :string, default: nil, doc: "additional classes to apply"
+  slot :inner_block, required: true
+
+  def warning(assigns) do
+    ~H"""
+    <div class={[
+      "bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start px-4 py-2 rounded text-sm",
+      @class
+    ]}>
+      <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
+      <div>
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
   Renders a modal.
 
   ## Examples

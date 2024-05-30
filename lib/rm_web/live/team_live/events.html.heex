@@ -1,16 +1,10 @@
 <.nav class="mb-8" team={@team} view={@socket.view} />
 
-<div
-  :if={not @team.event_ready}
-  class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-6 px-4 py-2 rounded text-sm"
->
-  <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
-  <p>
-    This team is not <strong>Event Ready</strong>. Please resolve all
-    <.link class="underline" navigate={~p"/team/#{@team}"}>outstanding notices</.link>
-    before attempting to register for events.
-  </p>
-</div>
+<.warning :if={not @team.event_ready} class="mb-6">
+  This team is not <strong>Event Ready</strong>. Please resolve all
+  <.link class="underline" navigate={~p"/team/#{@team}"}>outstanding notices</.link>
+  before attempting to register for events.
+</.warning>
 
 <div class="mb-8">
   <.title>Registered Events</.title>

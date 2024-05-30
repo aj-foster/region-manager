@@ -82,83 +82,54 @@
 
     <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm">
       <p class="mb-4 text-sm">The following items may prevent you from registering for events:</p>
-      <div
-        :if={@team.notices.lc1_missing}
-        class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-4 px-4 py-2 rounded"
-      >
-        <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
-        <p>
-          This team is missing information about <strong>Lead Coach / Mentor #1</strong>.
-          Use the
-          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-            <em>FIRST</em> Dashboard
-          </a>
-          to enter this individual's contact information.
-        </p>
-      </div>
 
-      <div
-        :if={@team.notices.lc1_ypp}
-        class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-4 px-4 py-2 rounded"
-      >
-        <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
-        <p>
-          <strong>Lead Coach / Mentor #1</strong>
-          has not completed Youth Protection Program screening requirements.
-          This individual must log in to the
-          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-            <em>FIRST</em> Dashboard
-          </a>
-          and consent to the screening.
-        </p>
-      </div>
+      <.warning :if={@team.notices.lc1_missing} class="mb-4">
+        This team is missing information about <strong>Lead Coach / Mentor #1</strong>.
+        Use the
+        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+          <em>FIRST</em> Dashboard
+        </a>
+        to enter this individual's contact information.
+      </.warning>
 
-      <div
-        :if={@team.notices.lc2_missing}
-        class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-4 px-4 py-2 rounded"
-      >
-        <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
-        <p>
-          This team is missing information about <strong>Lead Coach / Mentor #2</strong>.
-          Use the
-          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-            <em>FIRST</em> Dashboard
-          </a>
-          to enter this individual's contact information.
-        </p>
-      </div>
+      <.warning :if={@team.notices.lc1_ypp} class="mb-4">
+        <strong>Lead Coach / Mentor #1</strong>
+        has not completed Youth Protection Program screening requirements.
+        This individual must log in to the
+        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+          <em>FIRST</em> Dashboard
+        </a>
+        and consent to the screening.
+      </.warning>
 
-      <div
-        :if={@team.notices.lc2_ypp}
-        class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-4 px-4 py-2 rounded"
-      >
-        <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
-        <p>
-          <strong>Lead Coach / Mentor #2</strong>
-          has not completed Youth Protection Program screening requirements.
-          This individual must log in to the
-          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-            <em>FIRST</em> Dashboard
-          </a>
-          and consent to the screening.
-        </p>
-      </div>
+      <.warning :if={@team.notices.lc2_missing} class="mb-4">
+        This team is missing information about <strong>Lead Coach / Mentor #2</strong>.
+        Use the
+        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+          <em>FIRST</em> Dashboard
+        </a>
+        to enter this individual's contact information.
+      </.warning>
 
-      <div
-        :if={@team.notices.unsecured}
-        class="bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start mb-4 px-4 py-2 rounded"
-      >
-        <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
-        <p>
-          <em>FIRST</em>
-          reports it has not received payment for team registration.
-          Please log in to the
-          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-            <em>FIRST</em> Dashboard
-          </a>
-          to complete payment.
-        </p>
-      </div>
+      <.warning :if={@team.notices.lc2_ypp} class="mb-4">
+        <strong>Lead Coach / Mentor #2</strong>
+        has not completed Youth Protection Program screening requirements.
+        This individual must log in to the
+        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+          <em>FIRST</em> Dashboard
+        </a>
+        and consent to the screening.
+      </.warning>
+
+      <.warning :if={@team.notices.unsecured} class="mb-4">
+        <em>FIRST</em>
+        reports it has not received payment for team registration.
+        Please log in to the
+        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+          <em>FIRST</em> Dashboard
+        </a>
+        to complete payment.
+      </.warning>
 
       <p class="text-sm">
         This data is provided by <em>FIRST</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
