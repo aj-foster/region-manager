@@ -45,6 +45,7 @@ defmodule RMWeb.Router do
 
       live "/team/:team", TeamLive.Show
       live "/team/:team/events", TeamLive.Events
+      live "/team/:team/events/:event", TeamLive.Event
 
       live "/user/settings", UserLive.Settings
     end
