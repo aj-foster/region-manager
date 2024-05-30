@@ -67,9 +67,52 @@
     </div>
   </div>
 </header>
-<main class="px-4 py-10 sm:px-6 lg:px-8">
+
+<main class="mb-4 px-4 py-10 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-2xl">
     <.flash_group flash={@flash} />
     <%= @inner_content %>
   </div>
 </main>
+
+<footer class="max-w-2xl mb-8 mx-auto">
+  <p class="text-neutral-600 text-xs">
+    <button phx-click={show_modal("about-site")}>About Region Manager</button>
+  </p>
+</footer>
+
+<.modal id="about-site">
+  <h2 class="font-title italic mb-4 small-caps text-xl">About Region Manager</h2>
+
+  <p class="mb-4">
+    Region Manager is created with love by <a
+      class="underline"
+      href="https://aj-foster.com"
+      target="blank"
+    >AJ Foster</a>.
+    This project is not affiliated with <em>FIRST®</em>, and <em>FIRST</em>
+    provides no warranty or support.
+  </p>
+
+  <p class="mb-4">
+    If this site has made your life easier, please consider
+    <a class="underline" href="https://donate.stripe.com/eVa8A63oQ0drcF2aEE" target="blank">
+      making a donation
+    </a>
+    to AJ's local league.
+  </p>
+
+  <p class="mb-4">
+    You can see the source of this site <a
+      class="underline"
+      href="https://github.com/aj-foster/region-manager"
+      target="blank"
+    >on GitHub</a>.
+  </p>
+
+  <p class="mb-4">
+    <em>FIRST®</em>
+    and <em>FIRST®</em>
+    Tech Challenge (formerly also known as FTC®) are trademarks of For Inspiration and Recognition of Science and Technology (<em>FIRST®</em>).
+  </p>
+</.modal>
