@@ -3,10 +3,26 @@
 <div class="mb-8">
   <.title>Events in <%= @region.name %></.title>
 
-  <ul class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-    <li :for={event <- @region.events} class="flex gap-4 items-center mb-2">
-      <h3><%= event.name %></h3>
-    </li>
-    <div></div>
-  </ul>
+  <div
+    :if={length(@region.events) == 0}
+    class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm"
+  >
+    <p>There are no events scheduled for this region.</p>
+  </div>
+
+  <.link
+    :for={event <- @region.events}
+    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    navigate="#"
+  >
+    <div class="grow">
+      <h3 class="font-bold"><%= event.name %></h3>
+      <p class="text-sm">
+        <span><%= format_range(event.date_start, event.date_end) %></span>
+        <span>&bull; <%= Event.type_name(event.type) %></span>
+        <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+      </p>
+    </div>
+    <div><.icon name="hero-arrow-right" /></div>
+  </.link>
 </div>
