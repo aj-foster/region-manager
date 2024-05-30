@@ -12,14 +12,9 @@
   </.title>
 
   <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-    <dl class="grid grid-table gap-x-8 mb-4">
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Name</dt>
-      <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
-        <%= @event.name %>
-      </dd>
-
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Date</dt>
-      <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+    <.table>
+      <:row title="Name"><%= @event.name %></:row>
+      <:row title="Date">
         <%= if multi_day?(@event) do %>
           <%= format_date(@event.date_start, :date) %> &ndash; <%= format_date(
             @event.date_end,
@@ -28,20 +23,10 @@
         <% else %>
           <%= format_date(@event.date_start, :date) %>
         <% end %>
-      </dd>
-
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Type</dt>
-      <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
-        <%= Event.type_name(@event.type) %>
-      </dd>
-
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Format</dt>
-      <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
-        <%= event_format(@event) %>
-      </dd>
-
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Location</dt>
-      <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+      </:row>
+      <:row title="Type"><%= Event.type_name(@event.type) %></:row>
+      <:row title="Format"><%= event_format(@event) %></:row>
+      <:row title="Location">
         <span :if={@event.location.venue} class="block"><%= @event.location.venue %></span>
         <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
         <span :if={@event.location.city}><%= @event.location.city %>,</span>
@@ -49,36 +34,20 @@
         <span>
           <%= @event.location.country || "Unknown Location" %>
         </span>
-      </dd>
-
-      <%= if present?(@event.website) do %>
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">Website</dt>
-        <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
-          <a class="underline" href={@event.website} target="blank"><%= @event.website %></a>
-        </dd>
-      <% end %>
-
-      <%= if present?(@event.live_stream_url) do %>
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">Live Stream</dt>
-        <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
-          <a class="underline" href={@event.live_stream_url} target="blank">
-            <%= @event.live_stream_url %>
-          </a>
-        </dd>
-      <% end %>
-
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Region</dt>
-      <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
-        <%= @event.region.name %>
-      </dd>
-
-      <%= if @event.region.has_leagues do %>
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">League</dt>
-        <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
-          <%= if @event.league, do: @event.league.name, else: "No League Assignment" %>
-        </dd>
-      <% end %>
-    </dl>
+      </:row>
+      <:row :if={present?(@event.website)} title="Website">
+        <a class="underline" href={@event.website} target="blank"><%= @event.website %></a>
+      </:row>
+      <:row :if={present?(@event.live_stream_url)} title="Live Stream">
+        <a class="underline" href={@event.live_stream_url} target="blank">
+          <%= @event.live_stream_url %>
+        </a>
+      </:row>
+      <:row title="Region"><%= @event.region.name %></:row>
+      <:row :if={@event.region.has_leagues} title="League">
+        <%= if @event.league, do: @event.league.name, else: "No League Assignment" %>
+      </:row>
+    </.table>
 
     <p class="text-sm">
       This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(

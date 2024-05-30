@@ -4,52 +4,27 @@
   <.title><%= @team.name %></.title>
 
   <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-    <dl class="grid grid-table gap-x-8 mb-4">
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Number</dt>
-      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
+    <.table>
+      <:row title="Number">
         <%= if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)" %>
-      </dd>
-
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Name</dt>
-      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-        <%= @team.name %>
-      </dd>
-
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Location</dt>
-      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
+      </:row>
+      <:row title="Name"><%= @team.name %></:row>
+      <:row title="Location">
         <span :if={@team.location.city}><%= @team.location.city %>,</span>
         <span :if={@team.location.state_province}><%= @team.location.state_province %>,</span>
         <span :if={@team.location.country}>
           <%= @team.location.country || "Unknown Location" %>
         </span>
-      </dd>
-
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Rookie Year</dt>
-      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-        <%= @team.rookie_year %>
-      </dd>
-
-      <%= if @team.website do %>
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">Website</dt>
-        <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-          <a class="underline" href={@team.website} target="blank"><%= @team.website %></a>
-        </dd>
-      <% end %>
-
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Region</dt>
-      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-        <%= @team.region.name %>
-      </dd>
-
-      <%= if @team.region.has_leagues do %>
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">League</dt>
-        <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-          <%= if @team.league, do: @team.league.name, else: "No League Assignment" %>
-        </dd>
-      <% end %>
-
-      <dt class="col-start-1 col-end-2 font-semibold small-caps">Event Ready?</dt>
-      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
+      </:row>
+      <:row title="Rookie Year"><%= @team.rookie_year %></:row>
+      <:row :if={@team.website} title="Website">
+        <a class="underline" href={@team.website} target="blank"><%= @team.website %></a>
+      </:row>
+      <:row title="Region"><%= @team.region.name %></:row>
+      <:row :if={@team.region.has_leagues} title="League">
+        <%= if @team.league, do: @team.league.name, else: "No League Assignment" %>
+      </:row>
+      <:row title="Event Ready?">
         <%= if @team.event_ready, do: "Yes", else: "No" %>
         <.icon
           :if={@team.event_ready}
@@ -61,8 +36,8 @@
           class="align-text-bottom text-orange-500"
           name="hero-exclamation-triangle"
         />
-      </dd>
-    </dl>
+      </:row>
+    </.table>
 
     <p class="text-sm">
       This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
