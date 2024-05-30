@@ -1,57 +1,55 @@
-<div>
-  <div class="mb-8">
-    <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Your Account</h2>
-    <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-      <div class="flex mb-4">
-        <div class="grow">
-          <h3 class="font-bold mb-2">Registered Emails</h3>
-          <ul>
-            <li :for={email <- @current_user.emails} class="mb-2">
-              <span class="mr-2"><%= email.email %></span>
-              <span
-                :if={email.confirmed_at}
-                class="bg-green-100 border border-green-300 mr-2 px-1 py-0.5 rounded text-xs"
-              >
-                Confirmed
-              </span>
-              <span
-                :if={is_nil(email.confirmed_at)}
-                class="bg-red-100 border border-red-200 mr-2 px-1 py-0.5 rounded text-xs"
-              >
-                Unconfirmed
-              </span>
-              <button
-                :if={
-                  (is_nil(email.confirmed_at) and @email_count > 1) or @email_confirmed_count > 1
-                }
-                class="hover:"
-                phx-click="delete_email_init"
-                phx-value-email={email.email}
-              >
-                <.icon class="h-4 w-4" name="hero-trash" />
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <.button
-            class="bg-orange-400 font-medium px-4 py-2 rounded"
-            phx-click={show_modal("user-settings-add-email-modal")}
-          >
-            Add Email
-          </.button>
-        </div>
+<div class="mb-8">
+  <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Your Account</h2>
+  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+    <div class="flex mb-4">
+      <div class="grow">
+        <h3 class="font-bold mb-2">Registered Emails</h3>
+        <ul>
+          <li :for={email <- @current_user.emails} class="mb-2">
+            <span class="mr-2"><%= email.email %></span>
+            <span
+              :if={email.confirmed_at}
+              class="bg-green-100 border border-green-300 mr-2 px-1 py-0.5 rounded text-xs"
+            >
+              Confirmed
+            </span>
+            <span
+              :if={is_nil(email.confirmed_at)}
+              class="bg-red-100 border border-red-200 mr-2 px-1 py-0.5 rounded text-xs"
+            >
+              Unconfirmed
+            </span>
+            <button
+              :if={
+                (is_nil(email.confirmed_at) and @email_count > 1) or @email_confirmed_count > 1
+              }
+              class="hover:"
+              phx-click="delete_email_init"
+              phx-value-email={email.email}
+            >
+              <.icon class="h-4 w-4" name="hero-trash" />
+            </button>
+          </li>
+        </ul>
       </div>
-      <p class="text-sm">
-        To see your teams, ensure you register <strong>and confirm</strong>
-        the email address associated with your team in the <a
-          class="underline"
-          href="https://my.firstinspires.org/Dashboard/"
-          target="blank"
-        ><em>FIRST®</em>
-        Dashboard</a>.
-      </p>
+      <div>
+        <.button
+          class="bg-orange-400 font-medium px-4 py-2 rounded"
+          phx-click={show_modal("user-settings-add-email-modal")}
+        >
+          Add Email
+        </.button>
+      </div>
     </div>
+    <p class="text-sm">
+      To see your teams, ensure you register <strong>and confirm</strong>
+      the email address associated with your team in the <a
+        class="underline"
+        href="https://my.firstinspires.org/Dashboard/"
+        target="blank"
+      ><em>FIRST®</em>
+        Dashboard</a>.
+    </p>
   </div>
 </div>
 

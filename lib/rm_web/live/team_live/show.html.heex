@@ -1,142 +1,140 @@
 <.nav class="mb-8" team={@team} view={@socket.view} />
 
-<div>
-  <div>
-    <.title><%= @team.name %></.title>
+<div class="mb-8">
+  <.title><%= @team.name %></.title>
 
-    <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-      <dl class="grid grid-table gap-x-8 mb-4">
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">Number</dt>
+  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+    <dl class="grid grid-table gap-x-8 mb-4">
+      <dt class="col-start-1 col-end-2 font-semibold small-caps">Number</dt>
+      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
+        <%= if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)" %>
+      </dd>
+
+      <dt class="col-start-1 col-end-2 font-semibold small-caps">Name</dt>
+      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
+        <%= @team.name %>
+      </dd>
+
+      <dt class="col-start-1 col-end-2 font-semibold small-caps">Location</dt>
+      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
+        <span :if={@team.location.city}><%= @team.location.city %>,</span>
+        <span :if={@team.location.state_province}><%= @team.location.state_province %>,</span>
+        <span :if={@team.location.country}>
+          <%= @team.location.country || "Unknown Location" %>
+        </span>
+      </dd>
+
+      <dt class="col-start-1 col-end-2 font-semibold small-caps">Rookie Year</dt>
+      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
+        <%= @team.rookie_year %>
+      </dd>
+
+      <%= if @team.website do %>
+        <dt class="col-start-1 col-end-2 font-semibold small-caps">Website</dt>
         <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-          <%= if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)" %>
+          <a class="underline" href={@team.website} target="blank"><%= @team.website %></a>
         </dd>
+      <% end %>
 
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">Name</dt>
+      <dt class="col-start-1 col-end-2 font-semibold small-caps">Region</dt>
+      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
+        <%= @team.region.name %>
+      </dd>
+
+      <%= if @team.region.has_leagues do %>
+        <dt class="col-start-1 col-end-2 font-semibold small-caps">League</dt>
         <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-          <%= @team.name %>
+          <%= if @team.league, do: @team.league.name, else: "No League Assignment" %>
         </dd>
+      <% end %>
 
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">Location</dt>
-        <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-          <span :if={@team.location.city}><%= @team.location.city %>,</span>
-          <span :if={@team.location.state_province}><%= @team.location.state_province %>,</span>
-          <span :if={@team.location.country}>
-            <%= @team.location.country || "Unknown Location" %>
-          </span>
-        </dd>
+      <dt class="col-start-1 col-end-2 font-semibold small-caps">Event Ready?</dt>
+      <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
+        <%= if @team.event_ready, do: "Yes", else: "No" %>
+        <.icon
+          :if={@team.event_ready}
+          class="align-text-bottom text-green-500"
+          name="hero-check-circle"
+        />
+        <.icon
+          :if={not @team.event_ready}
+          class="align-text-bottom text-orange-500"
+          name="hero-exclamation-triangle"
+        />
+      </dd>
+    </dl>
 
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">Rookie Year</dt>
-        <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-          <%= @team.rookie_year %>
-        </dd>
-
-        <%= if @team.website do %>
-          <dt class="col-start-1 col-end-2 font-semibold small-caps">Website</dt>
-          <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-            <a class="underline" href={@team.website} target="blank"><%= @team.website %></a>
-          </dd>
-        <% end %>
-
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">Region</dt>
-        <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-          <%= @team.region.name %>
-        </dd>
-
-        <%= if @team.region.has_leagues do %>
-          <dt class="col-start-1 col-end-2 font-semibold small-caps">League</dt>
-          <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-            <%= if @team.league, do: @team.league.name, else: "No League Assignment" %>
-          </dd>
-        <% end %>
-
-        <dt class="col-start-1 col-end-2 font-semibold small-caps">Event Ready?</dt>
-        <dd class="col-start-1 col-end-2 mb-1 xs:col-start-2 xs:col-end-3">
-          <%= if @team.event_ready, do: "Yes", else: "No" %>
-          <.icon
-            :if={@team.event_ready}
-            class="align-text-bottom text-green-500"
-            name="hero-check-circle"
-          />
-          <.icon
-            :if={not @team.event_ready}
-            class="align-text-bottom text-orange-500"
-            name="hero-exclamation-triangle"
-          />
-        </dd>
-      </dl>
-
-      <p class="text-sm">
-        This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
-          @team.region.stats.teams_imported_at,
-          :date
-        ) %>. Please make corrections in the
-        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-          <em>FIRST</em> Dashboard.
-        </a>
-      </p>
-    </div>
+    <p class="text-sm">
+      This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
+        @team.region.stats.teams_imported_at,
+        :date
+      ) %>. Please make corrections in the
+      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+        <em>FIRST</em> Dashboard.
+      </a>
+    </p>
   </div>
+</div>
 
-  <div :if={requires_attention?(@team)}>
-    <.title>Items Requiring Attention</.title>
+<div :if={requires_attention?(@team)} class="mb-8">
+  <.title>Items Requiring Attention</.title>
 
-    <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm">
-      <p class="mb-4 text-sm">The following items may prevent you from registering for events:</p>
+  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm">
+    <p class="mb-4 text-sm">The following items may prevent you from registering for events:</p>
 
-      <.warning :if={@team.notices.lc1_missing} class="mb-4">
-        This team is missing information about <strong>Lead Coach / Mentor #1</strong>.
-        Use the
-        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-          <em>FIRST</em> Dashboard
-        </a>
-        to enter this individual's contact information.
-      </.warning>
+    <.warning :if={@team.notices.lc1_missing} class="mb-4">
+      This team is missing information about <strong>Lead Coach / Mentor #1</strong>.
+      Use the
+      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+        <em>FIRST</em> Dashboard
+      </a>
+      to enter this individual's contact information.
+    </.warning>
 
-      <.warning :if={@team.notices.lc1_ypp} class="mb-4">
-        <strong>Lead Coach / Mentor #1</strong>
-        has not completed Youth Protection Program screening requirements.
-        This individual must log in to the
-        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-          <em>FIRST</em> Dashboard
-        </a>
-        and consent to the screening.
-      </.warning>
+    <.warning :if={@team.notices.lc1_ypp} class="mb-4">
+      <strong>Lead Coach / Mentor #1</strong>
+      has not completed Youth Protection Program screening requirements.
+      This individual must log in to the
+      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+        <em>FIRST</em> Dashboard
+      </a>
+      and consent to the screening.
+    </.warning>
 
-      <.warning :if={@team.notices.lc2_missing} class="mb-4">
-        This team is missing information about <strong>Lead Coach / Mentor #2</strong>.
-        Use the
-        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-          <em>FIRST</em> Dashboard
-        </a>
-        to enter this individual's contact information.
-      </.warning>
+    <.warning :if={@team.notices.lc2_missing} class="mb-4">
+      This team is missing information about <strong>Lead Coach / Mentor #2</strong>.
+      Use the
+      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+        <em>FIRST</em> Dashboard
+      </a>
+      to enter this individual's contact information.
+    </.warning>
 
-      <.warning :if={@team.notices.lc2_ypp} class="mb-4">
-        <strong>Lead Coach / Mentor #2</strong>
-        has not completed Youth Protection Program screening requirements.
-        This individual must log in to the
-        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-          <em>FIRST</em> Dashboard
-        </a>
-        and consent to the screening.
-      </.warning>
+    <.warning :if={@team.notices.lc2_ypp} class="mb-4">
+      <strong>Lead Coach / Mentor #2</strong>
+      has not completed Youth Protection Program screening requirements.
+      This individual must log in to the
+      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+        <em>FIRST</em> Dashboard
+      </a>
+      and consent to the screening.
+    </.warning>
 
-      <.warning :if={@team.notices.unsecured} class="mb-4">
-        <em>FIRST</em>
-        reports it has not received payment for team registration.
-        Please log in to the
-        <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-          <em>FIRST</em> Dashboard
-        </a>
-        to complete payment.
-      </.warning>
+    <.warning :if={@team.notices.unsecured} class="mb-4">
+      <em>FIRST</em>
+      reports it has not received payment for team registration.
+      Please log in to the
+      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+        <em>FIRST</em> Dashboard
+      </a>
+      to complete payment.
+    </.warning>
 
-      <p class="text-sm">
-        This data is provided by <em>FIRST</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
-          @team.region.stats.teams_imported_at,
-          :date
-        ) %>.
-      </p>
-    </div>
+    <p class="text-sm">
+      This data is provided by <em>FIRST</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
+        @team.region.stats.teams_imported_at,
+        :date
+      ) %>.
+    </p>
   </div>
 </div>
