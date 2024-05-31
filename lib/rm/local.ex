@@ -43,6 +43,54 @@ defmodule RM.Local do
     end
   end
 
+  @spec verify_eligibility(Event.t(), Team.t()) ::
+          :ok | {:error, :not_event_ready | :out_of_scope | :deadline_passed}
+  def verify_eligibility(event, team)
+
+  def verify_eligibility(%Event{type: type}, %Team{event_ready: false})
+      when type in [
+             :league_meet,
+             :qualifier,
+             :league_tournament,
+             :regional_championship,
+             :championship,
+             :super_qualifier
+           ],
+      do: {:error, :not_event_ready}
+
+  def verify_eligibility(
+        %Event{
+          league_id: event_league_id,
+          settings: %EventSettings{registration: %RegistrationSettings{pool: :league}}
+        },
+        %Team{league: %League{id: team_league_id}}
+      )
+      when event_league_id != team_league_id,
+      do: {:error, :out_of_scope}
+
+  def verify_eligibility(
+        %Event{
+          region_id: event_region_id,
+          settings: %EventSettings{registration: %RegistrationSettings{pool: :region}}
+        },
+        %Team{region_id: team_region_id}
+      )
+      when event_region_id != team_region_id,
+      do: {:error, :out_of_scope}
+
+  def verify_eligibility(event, _team) do
+    %Event{date_timezone: date_timezone} = event
+
+    if DateTime.before?(
+         DateTime.now!(date_timezone),
+         Event.registration_deadline(event)
+       ) do
+      :ok
+    else
+      {:error, :deadline_passed}
+    end
+  end
+
   @spec create_event_registration(Event.t(), Team.t(), map) ::
           {:ok, EventRegistration.t()} | {:error, Changeset.t(EventRegistration.t())}
   def create_event_registration(event, team, params) do

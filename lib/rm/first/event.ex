@@ -4,6 +4,7 @@ defmodule RM.FIRST.Event do
   alias RM.FIRST.League
   alias RM.FIRST.Region
   alias RM.Local.EventSettings
+  alias RM.Local.RegistrationSettings
 
   @type t :: %__MODULE__{}
 
@@ -165,6 +166,22 @@ defmodule RM.FIRST.Event do
   @spec multi_day?(t) :: boolean
   def multi_day?(%__MODULE__{date_start: start, date_end: finish}) do
     Date.after?(finish, start)
+  end
+
+  @doc "Deadline for registering, in the event's local timezone"
+  @spec registration_deadline(t) :: DateTime.t()
+  def registration_deadline(event) do
+    %__MODULE__{
+      date_start: date_start,
+      date_timezone: date_timezone,
+      settings: %EventSettings{registration: %RegistrationSettings{deadline_days: deadline_days}}
+    } = event
+
+    DateTime.new!(
+      Date.add(date_start, -1 * deadline_days),
+      Time.new!(23, 59, 59, 999_999),
+      date_timezone
+    )
   end
 
   @doc "Human-readable format of the event"
