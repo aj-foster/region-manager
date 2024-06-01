@@ -1,6 +1,7 @@
 defmodule RMWeb.TeamLive.Event do
   use RMWeb, :live_view
   import RMWeb.TeamLive.Util
+  require Logger
 
   alias RM.FIRST.Event
 
@@ -11,12 +12,14 @@ defmodule RMWeb.TeamLive.Event do
   @impl true
   def mount(_params, _session, socket) do
     socket
-    |> assign(registration_form: nil)
+    |> set_registration()
+    |> set_registered_teams()
+    |> assign(registration_error: nil)
     |> ok()
   end
 
   def on_mount(:preload_event, %{"event" => event_code}, _session, socket) do
-    case RM.FIRST.fetch_event_by_code(event_code, preload: [:league, :region]) do
+    case RM.FIRST.fetch_event_by_code(event_code, preload: [:league, :region, :settings]) do
       {:ok, event} ->
         {:cont, assign(socket, event: event)}
 
@@ -40,6 +43,86 @@ defmodule RMWeb.TeamLive.Event do
   # Events
   #
 
-  # @impl true
-  # def handle_event(event, unsigned_params, socket)
+  @impl true
+  def handle_event(event, unsigned_params, socket)
+
+  def handle_event("registration_submit", _params, socket) do
+    event = socket.assigns[:event]
+    team = socket.assigns[:team]
+
+    case RM.Local.verify_eligibility(event, team) do
+      :ok ->
+        socket
+        |> registration_submit()
+        |> push_js("#registration-modal", "data-cancel")
+        |> set_registration()
+        |> set_registered_teams()
+        |> noreply()
+
+      {:error, _reason} ->
+        socket
+        |> put_flash(:error, "This team is not eligible to register for this event")
+        |> push_js("#registration-modal", "data-cancel")
+        |> refresh_team()
+        |> noreply()
+    end
+  end
+
+  #
+  # Helpers
+  #
+
+  @spec registration_submit(Socket.t()) :: Socket.t()
+  defp registration_submit(socket) do
+    event = socket.assigns[:event]
+    team = socket.assigns[:team]
+    user = socket.assigns[:current_user]
+
+    case RM.Local.create_event_registration(event, team, %{creator: user, waitlisted: false}) do
+      {:ok, registration} ->
+        assign(socket,
+          eligible: false,
+          eligibility_reason: nil,
+          registration: registration,
+          registration_error: nil
+        )
+
+      {:error, changeset} ->
+        Logger.error("Failed to register for event: #{inspect(changeset)}")
+        assign(socket, registration_error: "An error occurred; please contact support.")
+    end
+  end
+
+  @spec set_registration(Socket.t()) :: Socket.t()
+  defp set_registration(socket) do
+    event = socket.assigns[:event]
+    team = socket.assigns[:team]
+
+    case RM.Local.fetch_event_registration(event, team) do
+      {:ok, registration} ->
+        assign(socket, eligible: false, eligibility_reason: nil, registration: registration)
+
+      {:error, :registration, :not_found} ->
+        case RM.Local.verify_eligibility(event, team) do
+          :ok ->
+            assign(socket, eligible: true, eligibility_reason: nil, registration: nil)
+
+          {:error, reason} ->
+            assign(socket, eligible: false, eligibility_reason: reason, registration: nil)
+        end
+    end
+  end
+
+  @spec set_registered_teams(Socket.t()) :: Socket.t()
+  defp set_registered_teams(socket) do
+    event = socket.assigns[:event]
+
+    assign_async(socket, :registered_teams, fn ->
+      teams =
+        RM.Local.list_registered_teams_by_event(event)
+        |> Enum.map(& &1.team)
+
+      {:ok, %{registered_teams: teams}}
+    end)
+  end
 end

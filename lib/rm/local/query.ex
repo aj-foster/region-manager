@@ -4,6 +4,7 @@ defmodule RM.Local.Query do
   """
   import Ecto.Query
 
+  alias RM.Local.EventRegistration
   alias RM.Local.Team
 
   @typedoc "Intermediate query"
@@ -19,9 +20,31 @@ defmodule RM.Local.Query do
     from(Team, as: :team)
   end
 
+  @doc "Start a query from the event registration table"
+  @spec from_registration :: query
+  def from_registration do
+    from(EventRegistration, as: :registration)
+  end
+
   #
   # Joins
   #
+
+  @doc "Load the `event` association on an event registration"
+  @spec join_event_from_registration(query) :: query
+  def join_event_from_registration(query) do
+    with_named_binding(query, :event, fn query, binding ->
+      join(query, :inner, [registration: r], e in assoc(r, :event), as: ^binding)
+    end)
+  end
+
+  @doc "Load the `team` association on an event registration"
+  @spec join_team_from_registration(query) :: query
+  def join_team_from_registration(query) do
+    with_named_binding(query, :team, fn query, binding ->
+      join(query, :inner, [registration: r], t in assoc(r, :team), as: ^binding)
+    end)
+  end
 
   @doc "Load the `league_assignment` and `league` associations on a team"
   @spec join_league_from_team(query) :: query
@@ -61,6 +84,13 @@ defmodule RM.Local.Query do
   Data preloaded with this function will be joined and loaded in a single query, which can cause
   performance issues. The associations supported are:
 
+  With `registration` as the base:
+
+    * `event`: `event` on an event registration
+    * `team`: `team` on an event registration
+
+  With `team` as the base:
+
     * `league`: `league_assignment` and `league` on a team
     * `region`: `region` on a team
     * `users`: `user_assignments` and `users` on a team
@@ -70,6 +100,20 @@ defmodule RM.Local.Query do
   def preload_assoc(query, base, associations)
   def preload_assoc(query, _base, nil), do: query
   def preload_assoc(query, _base, []), do: query
+
+  def preload_assoc(query, :registration, [:event | rest]) do
+    query
+    |> join_event_from_registration()
+    |> preload([event: e], event: e)
+    |> preload_assoc(:registration, rest)
+  end
+
+  def preload_assoc(query, :registration, [:team | rest]) do
+    query
+    |> join_team_from_registration()
+    |> preload([team: t], team: t)
+    |> preload_assoc(:registration, rest)
+  end
 
   def preload_assoc(query, :team, [:league | rest]) do
     query

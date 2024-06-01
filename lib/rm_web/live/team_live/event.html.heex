@@ -6,7 +6,7 @@
   before attempting to register for events.
 </.warning>
 
-<div>
+<div class="mb-8">
   <.title>
     <.link navigate={~p"/team/#{@team}/events"}>Events</.link> &bull; <%= @event.name %>
   </.title>
@@ -48,3 +48,87 @@
     </p>
   </div>
 </div>
+
+<div class="mb-8">
+  <div class="flex items-center justify-between mb-4 ml-6">
+    <h2 class="font-title italic small-caps text-xl">Registration</h2>
+    <.button
+      disabled={not is_nil(@registration) or not @eligible}
+      phx-click={show_modal("registration-modal")}
+    >
+      Register...
+    </.button>
+  </div>
+
+  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+    <.warning :if={@registration_error} class="mb-4"><%= @registration_error %></.warning>
+    <%= if @registration do %>
+      <p class="mb-4">
+        This team registered for the event on <%= format_date(@registration.inserted_at, :date) %>.
+      </p>
+    <% end %>
+
+    <.table>
+      <:row title="Registration">
+        <%= if Event.registration_deadline_passed?(@event) do %>
+          <span class="text-red-600">Closed</span>
+        <% else %>
+          <span class="text-green-600">Open</span>
+        <% end %>
+      </:row>
+      <:row :if={is_nil(@registration)} title="Eligible">
+        <%= if @eligible do %>
+          <span class="text-green-600">Yes</span>
+        <% else %>
+          <span class="text-red-600">No</span>
+          <span :if={@eligibility_reason == :not_event_ready}>(Not event ready)</span>
+          <span :if={@eligibility_reason == :out_of_scope}>
+            (Not in <%= if @event.settings.registration.pool == :league,
+              do: "league",
+              else: "region" %>)
+          </span>
+          <span :if={@eligibility_reason == :deadline_passed}>(Deadline passed)</span>
+        <% end %>
+      </:row>
+      <:row title="Deadline">
+        <%= format_date(Event.registration_deadline(@event), :full) %>
+      </:row>
+      <:row :if={@event.settings.registration.team_limit} title="Capacity">
+        <span class="font-mono text-sm">
+          <.async_result :let={teams} assign={@registered_teams}>
+            <:loading>...</:loading>
+            <:failed>?</:failed>
+            <%= length(teams) %>
+          </.async_result>
+          / <%= @event.settings.registration.team_limit %>
+        </span>
+        filled
+      </:row>
+      <:row title="Registered Teams">
+        <.async_result :let={teams} assign={@registered_teams}>
+          <:loading>
+            <p class="italic text-sm">Loading...</p>
+          </:loading>
+          <:failed>
+            <p class="text-sm">An error occurred while loading teams.</p>
+          </:failed>
+          <ul :if={length(teams) > 0}>
+            <li :for={team <- teams}><strong><%= team.number %></strong> <%= team.name %></li>
+          </ul>
+          <p :if={length(teams) == 0} class="italic">None</p>
+        </.async_result>
+      </:row>
+    </.table>
+  </div>
+</div>
+
+<.modal id="registration-modal">
+  <h2 class="font-title italic mb-4 small-caps text-xl">Register for <%= @event.name %></h2>
+  <p class="mb-4">
+    Please register for events when you are reasonably certain that your team will attend.
+    If your ability to attend changes, please contact the event host as soon as possible.
+  </p>
+  <p>
+    <.button phx-click="registration_submit">Confirm Registration</.button>
+  </p>
+</.modal>

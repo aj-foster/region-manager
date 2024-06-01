@@ -15,6 +15,28 @@ defmodule RM.Local do
   alias RM.Local.Team
   alias RM.Repo
 
+  @spec list_registered_events_by_team(Team.t()) :: [EventRegistration.t()]
+  @spec list_registered_events_by_team(Team.t(), keyword) :: [EventRegistration.t()]
+  def list_registered_events_by_team(team, opts \\ []) do
+    Query.from_registration()
+    |> where([registration: r], r.team_id == ^team.id)
+    |> Query.preload_assoc(:registration, [:event])
+    |> Query.preload_assoc(:registration, opts[:preload])
+    |> Repo.all()
+    |> Enum.sort_by(& &1.event, Event)
+  end
+
+  @spec list_registered_teams_by_event(Event.t()) :: [EventRegistration.t()]
+  @spec list_registered_teams_by_event(Event.t(), keyword) :: [EventRegistration.t()]
+  def list_registered_teams_by_event(event, opts \\ []) do
+    Query.from_registration()
+    |> where([registration: r], r.event_id == ^event.id)
+    |> Query.preload_assoc(:registration, [:team])
+    |> Query.preload_assoc(:registration, opts[:preload])
+    |> Repo.all()
+    |> Enum.sort_by(& &1.team, Team)
+  end
+
   @spec list_teams_by_number([integer], keyword) :: [Team.t()]
   def list_teams_by_number(numbers, opts \\ []) do
     Query.from_team()
@@ -40,6 +62,18 @@ defmodule RM.Local do
     |> case do
       %Team{} = team -> {:ok, team}
       nil -> {:error, :team, :not_found}
+    end
+  end
+
+  @spec fetch_event_registration(Event.t(), Team.t()) ::
+          {:ok, EventRegistration.t()} | {:error, :registration, :not_found}
+  def fetch_event_registration(event, team) do
+    Query.from_registration()
+    |> where([registration: r], r.event_id == ^event.id and r.team_id == ^team.id)
+    |> Repo.one()
+    |> case do
+      %EventRegistration{} = registration -> {:ok, registration}
+      nil -> {:error, :registration, :not_found}
     end
   end
 

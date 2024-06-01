@@ -206,6 +206,13 @@ defmodule RM.FIRST.Query do
     |> preload_assoc(:event, rest)
   end
 
+  def preload_assoc(query, :event, [:settings | rest]) do
+    query
+    |> join_settings_from_event()
+    |> preload([settings: s], settings: s)
+    |> preload_assoc(:event, rest)
+  end
+
   # Regions
 
   def preload_assoc(query, :region, [:leagues | rest]) do

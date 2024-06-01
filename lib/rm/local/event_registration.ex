@@ -30,9 +30,23 @@ defmodule RM.Local.EventRegistration do
   def create_changeset(event, team, params) do
     %__MODULE__{}
     |> Changeset.cast(params, @required_fields ++ @optional_fields)
+    |> cast_creator(params)
     |> Changeset.put_assoc(:event, event)
     |> Changeset.put_assoc(:team, team)
     |> Changeset.validate_required(@required_fields)
+  end
+
+  defp cast_creator(changeset, params) do
+    cond do
+      is_struct(params[:creator], User) ->
+        Changeset.put_assoc(changeset, :creator, params[:creator])
+
+      is_struct(params["creator"], User) ->
+        Changeset.put_assoc(changeset, :creator, params["creator"])
+
+      :else ->
+        changeset
+    end
   end
 
   @doc "Create a changeset for modifying an event registration"
