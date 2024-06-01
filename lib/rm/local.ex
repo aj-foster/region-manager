@@ -79,15 +79,10 @@ defmodule RM.Local do
       do: {:error, :out_of_scope}
 
   def verify_eligibility(event, _team) do
-    %Event{date_timezone: date_timezone} = event
-
-    if DateTime.before?(
-         DateTime.now!(date_timezone),
-         Event.registration_deadline(event)
-       ) do
-      :ok
-    else
+    if Event.registration_deadline_passed?(event) do
       {:error, :deadline_passed}
+    else
+      :ok
     end
   end
 
