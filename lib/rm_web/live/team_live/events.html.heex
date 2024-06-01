@@ -17,16 +17,20 @@
   </div>
 
   <.link
-    :for={event <- @team.event_registrations}
+    :for={registration <- @team.event_registrations}
     class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-    navigate={~p"/team/#{@team}/events/#{event}"}
+    navigate={~p"/team/#{@team}/events/#{registration.event}"}
   >
     <div class="grow">
-      <h3 class="font-bold"><%= event.name %></h3>
+      <h3 class="font-bold"><%= registration.event.name %></h3>
       <p class="text-sm">
-        <span><%= format_range(event.date_start, event.date_end) %></span>
-        <span>&bull; <%= Event.type_name(event.type) %></span>
-        <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+        <span>
+          <%= format_range(registration.event.date_start, registration.event.date_end) %>
+        </span>
+        <span>&bull; <%= Event.type_name(registration.event.type) %></span>
+        <span :if={registration.event.remote or registration.event.hybrid}>
+          &bull; <%= Event.format_name(registration.event) %>
+        </span>
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
