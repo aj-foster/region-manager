@@ -9,20 +9,26 @@ defmodule RM.Local.EventRegistration do
   @typedoc "Event registration record"
   @type t :: %__MODULE__{}
 
-  @required_fields [:waitlisted]
-  @optional_fields [:creator_id]
+  @required_fields [:rescinded, :waitlisted]
+  @optional_fields []
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
   schema "event_registrations" do
+    field :rescinded, :boolean
     field :waitlisted, :boolean
 
-    belongs_to :creator, User
     belongs_to :event, Event
     belongs_to :team, Team
 
     timestamps type: :utc_datetime_usec
+
+    embeds_many :log, Log do
+      field :event, :string
+      field :at, :utc_datetime_usec
+      field :by, Ecto.UUID
+    end
   end
 
   @doc "Create a changeset for new event registrations"
@@ -30,22 +36,21 @@ defmodule RM.Local.EventRegistration do
   def create_changeset(event, team, params) do
     %__MODULE__{}
     |> Changeset.cast(params, @required_fields ++ @optional_fields)
-    |> cast_creator(params)
+    |> Changeset.put_change(:rescinded, false)
     |> Changeset.put_assoc(:event, event)
     |> Changeset.put_assoc(:team, team)
     |> Changeset.validate_required(@required_fields)
+    |> Changeset.put_embed(:log, [
+      %__MODULE__.Log{event: "created", at: DateTime.utc_now(), by: creator(params)}
+    ])
   end
 
-  defp cast_creator(changeset, params) do
+  @spec creator(map) :: Ecto.UUID | nil
+  defp creator(params) do
     cond do
-      is_struct(params[:creator], User) ->
-        Changeset.put_assoc(changeset, :creator, params[:creator])
-
-      is_struct(params["creator"], User) ->
-        Changeset.put_assoc(changeset, :creator, params["creator"])
-
-      :else ->
-        changeset
+      is_struct(params[:creator], User) -> params[:creator].id
+      is_struct(params["creator"], User) -> params["creator"].id
+      :else -> nil
     end
   end
 
