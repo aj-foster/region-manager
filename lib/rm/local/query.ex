@@ -66,32 +66,32 @@ defmodule RM.Local.Query do
     * `users`: `user_assignments` and `users` on a team
 
   """
-  @spec preload_assoc(query, [atom] | nil) :: query
-  def preload_assoc(query, associations)
-  def preload_assoc(query, nil), do: query
-  def preload_assoc(query, []), do: query
+  @spec preload_assoc(query, atom, [atom] | nil) :: query
+  def preload_assoc(query, base, associations)
+  def preload_assoc(query, _base, nil), do: query
+  def preload_assoc(query, _base, []), do: query
 
-  def preload_assoc(query, [:league | rest]) do
+  def preload_assoc(query, :team, [:league | rest]) do
     query
     |> join_league_from_team()
     |> preload([league_assignment: la, league: l], league_assignment: {la, league: l}, league: l)
-    |> preload_assoc(rest)
+    |> preload_assoc(:team, rest)
   end
 
-  def preload_assoc(query, [:region | rest]) do
+  def preload_assoc(query, :team, [:region | rest]) do
     query
     |> join_region_from_team()
     |> preload([region: r], region: r)
-    |> preload_assoc(rest)
+    |> preload_assoc(:team, rest)
   end
 
-  def preload_assoc(query, [:users | rest]) do
+  def preload_assoc(query, :team, [:users | rest]) do
     query
     |> join_users_from_team()
     |> preload([user_assignments: ua, users: u],
       user_assignments: {ua, user: u},
       users: u
     )
-    |> preload_assoc(rest)
+    |> preload_assoc(:team, rest)
   end
 end

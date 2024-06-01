@@ -19,7 +19,7 @@ defmodule RM.Local do
   def list_teams_by_number(numbers, opts \\ []) do
     Query.from_team()
     |> where([team: t], t.number in ^numbers)
-    |> Query.preload_assoc(opts[:preload])
+    |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.all()
   end
 
@@ -27,7 +27,7 @@ defmodule RM.Local do
   def list_teams_by_team_id(team_ids, opts \\ []) do
     Query.from_team()
     |> where([team: t], t.team_id in ^team_ids)
-    |> Query.preload_assoc(opts[:preload])
+    |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.all()
   end
 
@@ -35,7 +35,7 @@ defmodule RM.Local do
   def fetch_team_by_number(team_number, opts \\ []) do
     Query.from_team()
     |> where([team: t], t.number == ^team_number)
-    |> Query.preload_assoc(opts[:preload])
+    |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.one()
     |> case do
       %Team{} = team -> {:ok, team}
