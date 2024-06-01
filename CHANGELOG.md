@@ -3,6 +3,11 @@
 Notable changes to this project will be documented in this file.
 Because this project does not utilize tagged releases, changes will be roughly grouped by date.
 
+## 2024-05-31
+
+Teams can now register for events.
+Registration does not yet support capacity, waitlists, or the ability to revoke a registration.
+
 ## 2024-05-24
 
 Coaches and admins of a team can now see basic information about their team.
