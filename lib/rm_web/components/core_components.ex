@@ -100,7 +100,11 @@ defmodule RMWeb.CoreComponents do
       data-show={show_modal(@id)}
       class="relative z-50 hidden"
     >
-      <div id={"#{@id}-bg"} class="bg-zinc-50/90 fixed inset-0 transition-opacity" aria-hidden="true" />
+      <div
+        id={"#{@id}-bg"}
+        class="bg-slate-200/75 fixed inset-0 transition-opacity"
+        aria-hidden="true"
+      />
       <div
         class="fixed inset-0 overflow-y-auto"
         aria-labelledby={"#{@id}-title"}
@@ -280,8 +284,8 @@ defmodule RMWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-orange-400 hover:bg-orange-300 py-2 px-3",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
+        "phx-submit-loading:opacity-75 rounded-lg bg-orange-400 hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed py-2 px-3",
+        "font-semibold leading-6 text-white active:text-white/80",
         @class
       ]}
       {@rest}
@@ -551,16 +555,19 @@ defmodule RMWeb.CoreComponents do
   @doc """
   Renders a collapsible table
   """
+  attr :class, :string, default: nil, doc: "additional classes for the table"
+
   slot :row do
-    attr :title, :string, required: true
+    attr :class, :string, doc: "additional classes for the row contents"
+    attr :title, :string, required: true, doc: "row header"
   end
 
   def table(assigns) do
     ~H"""
-    <dl class="grid grid-table gap-x-8 mb-4">
+    <dl class={["grid grid-table gap-x-8", @class]}>
       <%= for row <- @row do %>
         <dt class="col-start-1 col-end-2 font-semibold small-caps"><%= row.title %></dt>
-        <dd class="col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3">
+        <dd class={["col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3", Map.get(row, :class)]}>
           <%= render_slot(row) %>
         </dd>
       <% end %>

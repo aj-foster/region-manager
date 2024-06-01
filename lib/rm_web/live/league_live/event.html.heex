@@ -6,7 +6,7 @@
   </.title>
 
   <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-    <.table>
+    <.table class="mb-4">
       <:row title="Name"><%= @event.name %></:row>
       <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
       <:row title="Type"><%= Event.type_name(@event.type) %></:row>

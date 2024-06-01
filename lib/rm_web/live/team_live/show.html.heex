@@ -4,7 +4,7 @@
   <.title><%= @team.name %></.title>
 
   <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-    <.table>
+    <.table class="mb-4">
       <:row title="Number">
         <%= if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)" %>
       </:row>
