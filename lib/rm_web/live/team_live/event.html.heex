@@ -53,19 +53,37 @@
   <div class="flex items-center justify-between mb-4 ml-6">
     <h2 class="font-title italic small-caps text-xl">Registration</h2>
     <.button
-      disabled={not is_nil(@registration) or not @eligible}
-      phx-click={show_modal("registration-modal")}
+      :if={is_nil(@registration)}
+      disabled={not @eligible}
+      phx-click={show_modal("create-registration-modal")}
     >
       Register...
+    </.button>
+    <.button
+      :if={@registration}
+      disabled={@registration.rescinded}
+      phx-click={show_modal("change-registration-modal")}
+    >
+      Change...
     </.button>
   </div>
 
   <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
     <.warning :if={@registration_error} class="mb-4"><%= @registration_error %></.warning>
     <%= if @registration do %>
-      <p class="mb-4">
-        This team registered for the event on <%= format_date(@registration.inserted_at, :date) %>.
-      </p>
+      <%= if @registration.rescinded do %>
+        <p class="mb-4">
+          The registration for this team was <strong>rescinded</strong>
+          on <%= format_date(
+            @registration.updated_at,
+            :date
+          ) %>.
+        </p>
+      <% else %>
+        <p class="mb-4">
+          This team registered for the event on <%= format_date(@registration.inserted_at, :date) %>.
+        </p>
+      <% end %>
     <% end %>
 
     <.table>
@@ -89,6 +107,10 @@
           </span>
           <span :if={@eligibility_reason == :deadline_passed}>(Deadline passed)</span>
         <% end %>
+      </:row>
+      <:row :if={@registration && @registration.rescinded} title="Eligible">
+        <span class="text-red-600">No</span>
+        <span>(Registration rescinded)</span>
       </:row>
       <:row title="Deadline">
         <%= format_date(Event.registration_deadline(@event), :full) %>
@@ -122,7 +144,7 @@
   </div>
 </div>
 
-<.modal id="registration-modal">
+<.modal id="create-registration-modal">
   <h2 class="font-title italic mb-4 small-caps text-xl">Register for <%= @event.name %></h2>
   <p class="mb-4">
     Please register for events when you are reasonably certain that your team will attend.
@@ -130,5 +152,20 @@
   </p>
   <p>
     <.button phx-click="registration_submit">Confirm Registration</.button>
+  </p>
+</.modal>
+
+<.modal id="change-registration-modal">
+  <h2 class="font-title italic mb-4 small-caps text-xl">
+    Change Registration for <%= @event.name %>
+  </h2>
+  <p class="mb-4">
+    If your team is no longer able to attend, you can rescind your registration.
+    Please also <strong>contact the event host</strong>
+    directly to inform them of your change in plans.
+  </p>
+  <p class="mb-4">You will not be able to reinstate your registration once rescinded.</p>
+  <p>
+    <.button phx-click="rescind_submit">Rescind Registration</.button>
   </p>
 </.modal>

@@ -127,10 +127,10 @@ defmodule RM.Local do
     |> Repo.insert()
   end
 
-  @spec update_event_registration(EventRegistration.t(), map) ::
+  @spec rescind_event_registration(EventRegistration.t(), map) ::
           {:ok, EventRegistration.t()} | {:error, Changeset.t(EventRegistration.t())}
-  def update_event_registration(registration, params) do
-    EventRegistration.update_changeset(registration, params)
+  def rescind_event_registration(registration, params) do
+    EventRegistration.rescind_changeset(registration, params)
     |> Repo.update()
   end
 

@@ -41,25 +41,28 @@ defmodule RM.Local.EventRegistration do
     |> Changeset.put_assoc(:team, team)
     |> Changeset.validate_required(@required_fields)
     |> Changeset.put_embed(:log, [
-      %__MODULE__.Log{event: "created", at: DateTime.utc_now(), by: creator(params)}
+      %__MODULE__.Log{event: "created", at: DateTime.utc_now(), by: by(params)}
     ])
   end
 
-  @spec creator(map) :: Ecto.UUID | nil
-  defp creator(params) do
-    cond do
-      is_struct(params[:creator], User) -> params[:creator].id
-      is_struct(params["creator"], User) -> params["creator"].id
-      :else -> nil
-    end
+  @doc "Create a changeset for rescinding an event registration"
+  @spec rescind_changeset(t, map) :: Changeset.t(t)
+  def rescind_changeset(registration, params) do
+    registration
+    |> Changeset.change(rescinded: true)
+    |> Changeset.put_embed(:log, [
+      %__MODULE__.Log{event: "rescinded", at: DateTime.utc_now(), by: by(params)}
+      | registration.log
+    ])
   end
 
-  @doc "Create a changeset for modifying an event registration"
-  @spec update_changeset(t, map) :: Changeset.t(t)
-  def update_changeset(registration, params) do
-    registration
-    |> Changeset.cast(params, @required_fields ++ @optional_fields)
-    |> Changeset.validate_required(@required_fields)
+  @spec by(map) :: Ecto.UUID | nil
+  defp by(params) do
+    cond do
+      is_struct(params[:by], User) -> params[:by].id
+      is_struct(params["by"], User) -> params["by"].id
+      :else -> nil
+    end
   end
 
   #

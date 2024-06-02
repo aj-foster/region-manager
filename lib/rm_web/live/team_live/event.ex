@@ -54,7 +54,7 @@ defmodule RMWeb.TeamLive.Event do
       :ok ->
         socket
         |> registration_submit()
-        |> push_js("#registration-modal", "data-cancel")
+        |> push_js("#create-registration-modal", "data-cancel")
         |> set_registration()
         |> set_registered_teams()
         |> noreply()
@@ -62,10 +62,19 @@ defmodule RMWeb.TeamLive.Event do
       {:error, _reason} ->
         socket
         |> put_flash(:error, "This team is not eligible to register for this event")
-        |> push_js("#registration-modal", "data-cancel")
+        |> push_js("#create-registration-modal", "data-cancel")
         |> refresh_team()
         |> noreply()
     end
+  end
+
+  def handle_event("rescind_submit", _params, socket) do
+    socket
+    |> rescind_submit()
+    |> push_js("#change-registration-modal", "data-cancel")
+    |> set_registration()
+    |> set_registered_teams()
+    |> noreply()
   end
 
   #
@@ -78,7 +87,7 @@ defmodule RMWeb.TeamLive.Event do
     team = socket.assigns[:team]
     user = socket.assigns[:current_user]
 
-    case RM.Local.create_event_registration(event, team, %{creator: user, waitlisted: false}) do
+    case RM.Local.create_event_registration(event, team, %{by: user, waitlisted: false}) do
       {:ok, registration} ->
         assign(socket,
           eligible: false,
@@ -89,6 +98,26 @@ defmodule RMWeb.TeamLive.Event do
 
       {:error, changeset} ->
         Logger.error("Failed to register for event: #{inspect(changeset)}")
+        assign(socket, registration_error: "An error occurred; please contact support.")
+    end
+  end
+
+  @spec rescind_submit(Socket.t()) :: Socket.t()
+  defp rescind_submit(socket) do
+    registration = socket.assigns[:registration]
+    user = socket.assigns[:current_user]
+
+    case RM.Local.rescind_event_registration(registration, %{by: user}) do
+      {:ok, registration} ->
+        assign(socket,
+          eligible: false,
+          eligibility_reason: nil,
+          registration: registration,
+          registration_error: nil
+        )
+
+      {:error, changeset} ->
+        Logger.error("Failed to rescind registration for event: #{inspect(changeset)}")
         assign(socket, registration_error: "An error occurred; please contact support.")
     end
   end
