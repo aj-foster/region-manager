@@ -20,6 +20,8 @@ defmodule RM.Local do
   def list_registered_events_by_team(team, opts \\ []) do
     Query.from_registration()
     |> where([registration: r], r.team_id == ^team.id)
+    |> Query.rescinded(opts[:rescinded])
+    |> Query.waitlisted(opts[:waitlisted])
     |> Query.preload_assoc(:registration, [:event])
     |> Query.preload_assoc(:registration, opts[:preload])
     |> Repo.all()
@@ -31,6 +33,8 @@ defmodule RM.Local do
   def list_registered_teams_by_event(event, opts \\ []) do
     Query.from_registration()
     |> where([registration: r], r.event_id == ^event.id)
+    |> Query.rescinded(opts[:rescinded])
+    |> Query.waitlisted(opts[:waitlisted])
     |> Query.preload_assoc(:registration, [:team])
     |> Query.preload_assoc(:registration, opts[:preload])
     |> Repo.all()

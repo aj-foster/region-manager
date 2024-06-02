@@ -12,5 +12,8 @@
   },
   "tailwindCSS.includeLanguages": {
     "phoenix-heex": "html"
-  }
+  },
+  "cSpell.words": [
+    "waitlisted"
+  ]
 }

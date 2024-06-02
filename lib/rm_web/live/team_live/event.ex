@@ -148,7 +148,7 @@ defmodule RMWeb.TeamLive.Event do
 
     assign_async(socket, :registered_teams, fn ->
       teams =
-        RM.Local.list_registered_teams_by_event(event)
+        RM.Local.list_registered_teams_by_event(event, rescinded: false, waitlisted: false)
         |> Enum.map(& &1.team)
 
       {:ok, %{registered_teams: teams}}

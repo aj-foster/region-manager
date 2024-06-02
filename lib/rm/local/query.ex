@@ -27,6 +27,22 @@ defmodule RM.Local.Query do
   end
 
   #
+  # Filters
+  #
+
+  @doc "Filter by the `rescinded` attribute of a registration"
+  @spec rescinded(query, boolean | nil) :: query
+  def rescinded(query, nil), do: query
+  def rescinded(query, true), do: where(query, [registration: r], r.rescinded)
+  def rescinded(query, false), do: where(query, [registration: r], not r.rescinded)
+
+  @doc "Filter by the `waitlisted` attribute of a registration"
+  @spec waitlisted(query, boolean | nil) :: query
+  def waitlisted(query, nil), do: query
+  def waitlisted(query, true), do: where(query, [registration: r], r.waitlisted)
+  def waitlisted(query, false), do: where(query, [registration: r], not r.waitlisted)
+
+  #
   # Joins
   #
 
