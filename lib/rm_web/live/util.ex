@@ -183,6 +183,7 @@ defmodule RMWeb.Live.Util do
   @spec get_user(Ecto.UUID.t()) :: Account.User.t()
   defp get_user(user_id) do
     Account.get_user_by_id!(user_id, preload: [:emails, :leagues, :regions, :teams])
+    |> RM.Repo.preload(teams: [:league, :region])
     |> Map.update!(:emails, &sort_emails/1)
     |> Map.update!(:leagues, &sort_leagues/1)
     |> Map.update!(:regions, &sort_regions/1)

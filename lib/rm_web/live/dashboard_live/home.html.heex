@@ -58,9 +58,15 @@
     navigate={~p"/team/#{team}"}
   >
     <div class="grow">
-      <h3><strong><%= team.number %></strong> <%= team.name %></h3>
+      <h3>
+        <strong><%= team.number %></strong> <%= team.name %>
+        <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300 ml-2">
+          Not Event Ready
+        </.tag>
+      </h3>
       <p class="text-sm">
-        <span :if={not team.event_ready} class="text-orange-600">Not Event Ready</span>
+        <span :if={team.league}><%= team.league.name %> League &bull;</span>
+        <span><%= team.region.name %></span>
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
