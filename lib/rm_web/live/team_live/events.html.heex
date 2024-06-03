@@ -22,7 +22,15 @@
     navigate={~p"/team/#{@team}/events/#{registration.event}"}
   >
     <div class="grow">
-      <h3 class="font-bold"><%= registration.event.name %></h3>
+      <h3 class="font-bold">
+        <%= registration.event.name %>
+        <.tag :if={registration.rescinded} class="bg-orange-100 border-orange-300 ml-2">
+          Rescinded
+        </.tag>
+        <.tag :if={registration.waitlisted} class="bg-orange-100 border-orange-300 ml-2">
+          Waitlist
+        </.tag>
+      </h3>
       <p class="text-sm">
         <span>
           <%= format_range(registration.event.date_start, registration.event.date_end) %>

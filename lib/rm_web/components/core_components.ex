@@ -26,11 +26,14 @@ defmodule RMWeb.CoreComponents do
       <p><%= team.title %><.tag><%= team.league %></p>
 
   """
+  attr :class, :string, default: nil, doc: "additional classes"
   slot :inner_block, required: true
 
   def tag(assigns) do
     ~H"""
-    <span class="text-gray-500 text-sm"><%= render_slot(@inner_block) %></span>
+    <span class={["border border-1 px-1 py-0.5 rounded text-gray-500 text-sm", @class]}>
+      <%= render_slot(@inner_block) %>
+    </span>
     """
   end
 

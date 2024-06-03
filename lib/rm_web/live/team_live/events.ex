@@ -25,12 +25,12 @@ defmodule RMWeb.TeamLive.Events do
 
   defp load_eligible_events(socket) do
     team = socket.assigns[:team]
+    registered_event_ids = Enum.map(team.event_registrations, & &1.event_id)
 
     assign_async(socket, :eligible_events, fn ->
       events =
         RM.FIRST.list_eligible_events_by_team(team)
-
-      # |> Enum.reject(&Date.before?(&1.date_end, Date.utc_today()))
+        |> Enum.reject(&(&1.id in registered_event_ids))
 
       {:ok, %{eligible_events: events}}
     end)
