@@ -3,10 +3,21 @@
 <div :if={@region.stats.league_count > 0} class="mb-8">
   <.title>Leagues in <%= @region.name %></.title>
 
-  <ul class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-    <li :for={league <- @region.leagues} class="flex gap-4 items-center mb-2">
-      <h3><%= league.name %></h3>
-    </li>
-    <div></div>
-  </ul>
+  <.link
+    :for={league <- @region.leagues}
+    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    navigate={~p"/region/#{@region}/leagues/#{league}"}
+  >
+    <div class="grow">
+      <h3 class="font-bold"><%= league.name %></h3>
+      <p class="text-sm">
+        <span :if={league.stats.league_count && league.stats.league_count > 0}>
+          <%= dumb_inflect("league", league.stats.league_count) %> &bull;
+        </span>
+        <span><%= dumb_inflect("team", league.stats.team_count) %> &bull;</span>
+        <span><%= dumb_inflect("event", league.stats.event_count) %></span>
+      </p>
+    </div>
+    <div><.icon name="hero-arrow-right" /></div>
+  </.link>
 </div>

@@ -1,0 +1,42 @@
+<.nav class="mb-8" region={@region} view={@socket.view} />
+
+<div class="mb-8">
+  <.title><%= @league.name %> League</.title>
+
+  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+    <.table class="mb-4">
+      <:row title="Events">
+        <p :if={@league.stats.event_count == 0} class="italic">No events</p>
+        <ul :if={@league.stats.event_count > 0}>
+          <li :for={event <- @league.events}><%= event.name %></li>
+        </ul>
+      </:row>
+
+      <:row title="Teams">
+        <p :if={@league.stats.team_count == 0} class="italic">No teams</p>
+        <ul :if={@league.stats.team_count > 0}>
+          <li :for={team <- @league.teams}>
+            <strong><%= team.number %></strong> <%= team.name %>
+          </li>
+        </ul>
+      </:row>
+    </.table>
+
+    <p class="text-sm">
+      Last refreshed on <%= format_date(
+        @league.region.stats.leagues_imported_at,
+        :date
+      ) %>.
+    </p>
+  </div>
+</div>
+
+<div class="mb-8">
+  <.title>League Users</.title>
+
+  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+    <ul>
+      <li :for={user <- @league.users}><%= user %></li>
+    </ul>
+  </div>
+</div>

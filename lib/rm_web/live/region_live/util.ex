@@ -146,7 +146,12 @@ defmodule RMWeb.RegionLive.Util do
 
     with {:ok, region} <-
            RM.FIRST.fetch_region_by_abbreviation(region_abbreviation, preload: preloads) do
-      {:ok, Map.update!(region, :teams, &Enum.sort(&1, RM.Local.Team))}
+      region =
+        region
+        |> Map.update!(:leagues, &Enum.sort(&1, RM.FIRST.League))
+        |> Map.update!(:teams, &Enum.sort(&1, RM.Local.Team))
+
+      {:ok, region}
     end
   end
 

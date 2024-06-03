@@ -29,4 +29,20 @@ defmodule RM.Account.User do
     has_many :team_assignments, Account.Team
     has_many :teams, through: [:team_assignments, :team]
   end
+
+  #
+  # Protocols
+  #
+
+  defimpl String.Chars do
+    def to_string(%RM.Account.User{id: id}) do
+      id
+    end
+  end
+
+  defimpl Phoenix.HTML.Safe do
+    def to_iodata(%RM.Account.User{id: id}) do
+      id
+    end
+  end
 end

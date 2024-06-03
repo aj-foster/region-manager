@@ -46,6 +46,8 @@ defmodule RM.FIRST.League do
     has_many :events, Event
     has_many :team_assignments, LeagueAssignment
     has_many :teams, through: [:team_assignments, :team]
+    has_many :user_assignments, RM.Account.League
+    has_many :users, through: [:user_assignments, :user]
 
     embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
       field :event_count, :integer, default: 0
@@ -158,9 +160,22 @@ defmodule RM.FIRST.League do
     )
   end
 
+  #
+  # Protocols
+  #
+
   defimpl Phoenix.Param do
     def to_param(%RM.FIRST.League{code: code}) do
       String.downcase(code)
+    end
+  end
+
+  @doc false
+  def compare(a, b) do
+    case {a.name, b.name} do
+      {a, b} when a < b -> :lt
+      {a, b} when a > b -> :gt
+      _else -> :eq
     end
   end
 end

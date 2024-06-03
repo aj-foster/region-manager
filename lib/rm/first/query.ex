@@ -96,6 +96,14 @@ defmodule RM.FIRST.Query do
   # Joins
   #
 
+  @doc "Load the `events` association on a league"
+  @spec join_events_from_league(query) :: query
+  def join_events_from_league(query) do
+    with_named_binding(query, :events, fn query, binding ->
+      join(query, :left, [league: l], e in assoc(l, :events), as: ^binding)
+    end)
+  end
+
   @doc "Load the `league` association on an event"
   @spec join_league_from_event(query) :: query
   def join_league_from_event(query) do
@@ -230,6 +238,13 @@ defmodule RM.FIRST.Query do
   end
 
   # Leagues
+
+  def preload_assoc(query, :league, [:events | rest]) do
+    query
+    |> join_events_from_league()
+    |> preload([events: t], events: t)
+    |> preload_assoc(:league, rest)
+  end
 
   def preload_assoc(query, :league, [:region | rest]) do
     query
