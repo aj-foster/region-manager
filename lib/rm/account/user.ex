@@ -20,6 +20,8 @@ defmodule RM.Account.User do
   schema "users" do
     user_associations()
 
+    has_one :profile, Account.Profile
+
     has_many :league_assignments, Account.League
     has_many :leagues, through: [:league_assignments, :league]
 

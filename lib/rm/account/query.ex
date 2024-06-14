@@ -27,8 +27,7 @@ defmodule RM.Account.Query do
   @spec join_emails_from_user(query) :: query
   def join_emails_from_user(query) do
     with_named_binding(query, :emails, fn query, binding ->
-      query
-      |> join(:left, [user: u], e in assoc(u, :emails), as: ^binding)
+      join(query, :left, [user: u], e in assoc(u, :emails), as: ^binding)
     end)
   end
 
@@ -39,6 +38,14 @@ defmodule RM.Account.Query do
       query
       |> join(:left, [user: u], la in assoc(u, :league_assignments), as: :league_assignments)
       |> join(:left, [league_assignments: la], r in assoc(la, :league), as: ^binding)
+    end)
+  end
+
+  @doc "Load the `profile` association on a user"
+  @spec join_profile_from_user(query) :: query
+  def join_profile_from_user(query) do
+    with_named_binding(query, :profile, fn query, binding ->
+      join(query, :left, [user: u], p in assoc(u, :profile), as: ^binding)
     end)
   end
 
@@ -95,6 +102,13 @@ defmodule RM.Account.Query do
       league_assignments: {la, league: r},
       leagues: r
     )
+    |> preload_assoc(rest)
+  end
+
+  def preload_assoc(query, [:profile | rest]) do
+    query
+    |> join_profile_from_user()
+    |> preload([profile: p], profile: p)
     |> preload_assoc(rest)
   end
 
