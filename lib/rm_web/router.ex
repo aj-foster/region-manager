@@ -80,16 +80,13 @@ defmodule RMWeb.Router do
     # Email Addresses
     get "/user/email/new", Identity.Controller, :new_email, as: :identity
     post "/user/email/new", Identity.Controller, :create_email, as: :identity
-
-    get "/user/email/:token", Identity.Controller, :confirm_email,
-      as: :identity,
-      private: %{after_all: "/user/settings"}
+    get "/user/email/:token", RMWeb.IdentityController, :confirm_email, as: :identity
 
     delete "/user/email", Identity.Controller, :delete_email, as: :identity
 
     # User Registration
-    get "/register", Identity.Controller, :new_user, as: :identity
-    post "/register", Identity.Controller, :create_user, as: :identity
+    get "/register", RMWeb.IdentityController, :new_user, as: :identity
+    post "/register", RMWeb.IdentityController, :create_user, as: :identity
 
     # User Settings
     get "/user/password", Identity.Controller, :edit_password, as: :identity

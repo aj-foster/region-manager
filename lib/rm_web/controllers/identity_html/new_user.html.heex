@@ -1,0 +1,53 @@
+<div class="id_wrapper id_user_new">
+  <h2 class="font-semibold text-slate-700 text-xl">Create an account</h2>
+  <p class="mb-4 text-sm">All fields are required</p>
+
+  <.form :let={f} for={@changeset} action={~p"/register"} as={:user}>
+    <%= if @changeset.action do %>
+      <div class="id_error_message">
+        <p>Something went wrong. Please check the errors below.</p>
+      </div>
+    <% end %>
+
+    <div class="id_field id_field_text">
+      <label class="id_text_label" for={f[:name].id}>Name</label>
+      <input class="id_text_input" id={f[:name].id} name={f[:name].name} required type="text" />
+      <Identity.Phoenix.HTML.errors field={f[:email]} />
+    </div>
+
+    <div class="id_field id_field_text">
+      <label class="id_text_label" for={f[:email].id}>Email</label>
+      <input
+        class="id_text_input"
+        id={f[:email].id}
+        name={f[:email].name}
+        required
+        type="email"
+        value={Phoenix.HTML.Form.normalize_value("email", f[:email].value)}
+      />
+      <Identity.Phoenix.HTML.errors field={f[:email]} />
+    </div>
+
+    <div class="id_field id_field_text">
+      <label class="id_text_label" for={f[:password].id}>Password</label>
+      <input
+        class="id_text_input"
+        id={f[:password].id}
+        name={f[:password].name}
+        required
+        type="password"
+        value={Phoenix.HTML.Form.normalize_value("password", f[:password].value)}
+      />
+      <Identity.Phoenix.HTML.errors field={f[:password]} />
+    </div>
+
+    <div class="id_submit">
+      <button class="id_submit_button" type="submit">Register</button>
+    </div>
+  </.form>
+
+  <div class="id_links">
+    <.link class="id_link" navigate={~p"/login"}>Log in</.link>
+    &bull; <.link class="id_link" navigate={~p"/password/new"}>Forgot your password?</.link>
+  </div>
+</div>

@@ -1,6 +1,13 @@
 <div class="mb-8">
   <h2 class="font-title italic mb-4 ml-6 small-caps text-xl">Your Account</h2>
   <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+    <div class="mb-4">
+      <h3 class="font-bold mb-2">Your Profile</h3>
+      <.table>
+        <:row title="Name"><%= @current_user.profile.name %></:row>
+      </.table>
+    </div>
+
     <div class="flex mb-4">
       <div class="grow">
         <h3 class="font-bold mb-2">Registered Emails</h3>

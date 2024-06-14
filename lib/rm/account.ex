@@ -9,7 +9,9 @@ defmodule RM.Account do
     * `preload`: List of associations (as atoms) to preload.
 
   """
+  alias RM.Account.Profile
   alias RM.Account.Query
+  alias RM.Account.Team
   alias RM.Account.User
   alias RM.Repo
 
@@ -32,5 +34,34 @@ defmodule RM.Account do
   def get_regions_for_user(user) do
     user = Repo.preload(user, :regions)
     user.regions
+  end
+
+  @doc """
+  Create a user, email, login, and profile
+  """
+  @spec create_user(map, keyword) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t(User.create_data())}
+  def create_user(params, opts \\ []) do
+    opts =
+      Keyword.put(opts, :run, fn %{user: user} ->
+        Profile.create_changeset(params, user)
+        |> Repo.insert()
+      end)
+
+    Identity.create_email_and_login(params, opts)
+  end
+
+  @doc """
+  Confirm and email address by its confirmation token and relink coaches with that email
+  """
+  @spec confirm_email(String.t()) ::
+          {:ok, Identity.Schema.Email.t()} | {:error, :invalid | :not_found}
+  def confirm_email(token) do
+    with {:ok, email} <- Identity.confirm_email(token) do
+      Team.user_update_by_email_query(email.email)
+      |> Repo.update_all([])
+
+      {:ok, email}
+    end
   end
 end
