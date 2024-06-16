@@ -20,12 +20,13 @@ defmodule RM.Account.League do
   @foreign_key_type :binary_id
 
   schema "user_leagues" do
-    embeds_one :permissions, Permission, on_replace: :update, primary_key: false do
-    end
+    field :email, :string
+    timestamps type: :utc_datetime_usec
 
     belongs_to :league, League
     belongs_to :user, User
 
-    timestamps type: :utc_datetime_usec
+    embeds_one :permissions, Permission, on_replace: :update, primary_key: false do
+    end
   end
 end
