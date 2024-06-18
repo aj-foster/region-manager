@@ -9,10 +9,13 @@ defmodule RM.Account do
     * `preload`: List of associations (as atoms) to preload.
 
   """
+  alias Ecto.Changeset
+  alias RM.Account.League
   alias RM.Account.Profile
   alias RM.Account.Query
   alias RM.Account.Team
   alias RM.Account.User
+  alias RM.FIRST
   alias RM.Repo
 
   @doc """
@@ -58,10 +61,33 @@ defmodule RM.Account do
           {:ok, Identity.Schema.Email.t()} | {:error, :invalid | :not_found}
   def confirm_email(token) do
     with {:ok, email} <- Identity.confirm_email(token) do
+      League.user_update_by_email_query(email.email)
+      |> Repo.update_all([])
+
       Team.user_update_by_email_query(email.email)
       |> Repo.update_all([])
 
       {:ok, email}
+    end
+  end
+
+  #
+  # League Users
+  #
+
+  @doc """
+  Add user as a league admin
+  """
+  @spec add_league_user(FIRST.League.t(), map) ::
+          {:ok, League.t()} | {:error, Changeset.t(League.t())}
+  def add_league_user(league, params) do
+    changeset = League.create_changeset(league, params)
+
+    with {:ok, assignment} <- Repo.insert(changeset) do
+      League.user_update_by_email_query(assignment.email)
+      |> Repo.update_all([])
+
+      {:ok, assignment}
     end
   end
 end

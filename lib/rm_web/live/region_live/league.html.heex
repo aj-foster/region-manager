@@ -32,11 +32,79 @@
 </div>
 
 <div class="mb-8">
-  <.title>League Users</.title>
+  <div class="flex items-center justify-between mb-4 ml-6">
+    <h2 class="font-title italic small-caps text-xl">League Administrators</h2>
+    <.button phx-click={show_modal("league-add-user-modal")}>Add...</.button>
+  </div>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-    <ul>
-      <li :for={user <- @league.users}><%= user %></li>
-    </ul>
+  <div
+    :if={length(@league.user_assignments) == 0}
+    class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow"
+  >
+    <p class="italic text-sm">This league currently has no administrators assigned.</p>
+  </div>
+
+  <div
+    :for={assignment <- @league.user_assignments}
+    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+  >
+    <div class="grow">
+      <p class="font-semibold">
+        <%= if assignment.user do %>
+          <%= assignment.user.profile.name %>
+        <% else %>
+          <em>Unregistered User</em>
+        <% end %>
+      </p>
+      <p class="text-sm"><%= assignment.email %></p>
+    </div>
+
+    <div>
+      <button
+        class="leading-none ml-2 p-1 rounded transition-colors hover:bg-neutral-200"
+        phx-click="remove_user_init"
+        phx-value-assignment={assignment.id}
+      >
+        <.icon name="hero-trash" />
+      </button>
+    </div>
   </div>
 </div>
+
+<.modal id="league-add-user-modal">
+  <h2 class="font-title italic mb-4 small-caps text-xl">Add League Administrator</h2>
+  <p class="mb-4">
+    League administrators are entrusted with the <em>Personally Identifiable Information</em>
+    (including names, addresses, and email addresses) of team coaches and mentors.
+  </p>
+
+  <.form for={@add_user_form} phx-submit="add_user_submit">
+    <.input
+      field={@add_user_form[:email]}
+      label="Administrator's Email"
+      placeholder="person@example.com"
+      required
+      type="email"
+      wrapper="mb-4"
+    />
+
+    <.button type="submit">Add Administrator</.button>
+  </.form>
+</.modal>
+
+<.modal id="league-remove-user-modal">
+  <h2 class="font-title italic mb-4 small-caps text-xl">Remove League Administrator</h2>
+  <p :if={@remove_user} class="mb-4">
+    Are you sure you want to remove <strong><%= if @remove_user.user, do: @remove_user.user.profile.name, else: @remove_user.email %></strong>?
+    They will immediately lose access to league information and actions.
+  </p>
+  <p class="text-right">
+    <button
+      class="phx-submit-loading:opacity-75 rounded border border-orange-500 font-semibold leading-6 py-1 px-2 text-orange-500"
+      phx-click="remove_user_cancel"
+    >
+      Cancel
+    </button>
+    <.button class="ml-2" phx-click="remove_user_submit">Remove</.button>
+  </p>
+</.modal>

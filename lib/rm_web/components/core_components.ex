@@ -287,8 +287,8 @@ defmodule RMWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-orange-400 hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed py-2 px-3",
-        "font-semibold leading-6 text-white active:text-white/80",
+        "phx-submit-loading:opacity-75 rounded bg-orange-400 hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed",
+        "font-semibold leading-6 py-1 px-2 text-white active:text-white/80",
         @class
       ]}
       {@rest}

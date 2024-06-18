@@ -129,11 +129,9 @@ defmodule RM.Import do
 
     user_teams =
       import_teams
-      |> tap(fn x -> IO.inspect(length(x), label: "Number of imports") end)
       |> Enum.map(&Account.Team.from_import(&1, team_id_map))
       |> List.flatten()
       |> Enum.map(&prepare_user_team_for_insert/1)
-      |> tap(fn x -> IO.inspect(length(x), label: "Number of coaches") end)
 
     {coaches_count, coaches} =
       Repo.insert_all(Account.Team, user_teams,
