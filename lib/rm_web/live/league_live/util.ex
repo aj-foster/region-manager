@@ -131,15 +131,15 @@ defmodule RMWeb.LeagueLive.Util do
     league = socket.assigns[:league]
     user = socket.assigns[:current_user]
 
-    if is_nil(league) or is_nil(user) or not league_owner?(user, league) do
+    if assignment = get_assignment(league, user) do
+      {:cont, assign(socket, assignment: assignment)}
+    else
       socket =
         socket
         |> LiveView.put_flash(:error, "You do not have permission to perform this action")
         |> LiveView.redirect(to: ~p"/dashboard")
 
       {:halt, socket}
-    else
-      {:cont, socket}
     end
   end
 
@@ -148,12 +148,24 @@ defmodule RMWeb.LeagueLive.Util do
     preloads = [:region, :settings, :teams]
 
     with {:ok, league} <- RM.FIRST.fetch_league_by_code(league_code, preload: preloads) do
-      {:ok, Map.update!(league, :teams, &Enum.sort(&1, RM.Local.Team))}
+      league =
+        league
+        |> RM.Repo.preload([:teams, users: [:profile]])
+        |> Map.update!(:teams, &Enum.sort(&1, RM.Local.Team))
+        |> Map.update!(:users, &Enum.sort(&1, RM.Account.User))
+
+      {:ok, league}
     end
   end
 
-  @spec league_owner?(User.t(), League.t()) :: boolean
-  defp league_owner?(%User{leagues: leagues}, %League{id: league_id}) do
-    is_list(leagues) and Enum.any?(leagues, &(&1.id == league_id))
+  @spec get_assignment(League.t() | nil, User.t() | nil) :: RM.Account.League.t() | nil
+  defp get_assignment(league, user)
+  defp get_assignment(nil, _user), do: nil
+  defp get_assignment(_league, nil), do: nil
+
+  defp get_assignment(league, user) do
+    if is_list(league.user_assignments) do
+      Enum.find(league.user_assignments, &(&1.user_id == user.id))
+    end
   end
 end

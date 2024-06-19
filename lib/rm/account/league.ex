@@ -90,4 +90,21 @@ defmodule RM.Account.League do
     )
     |> update([user_league: ul, email: e], set: [user_id: e.user_id])
   end
+
+  #
+  # Protocols
+  #
+
+  @doc false
+  def compare(%__MODULE__{user: %User{} = a}, %__MODULE__{user: %User{} = b}) do
+    User.compare(a, b)
+  end
+
+  def compare(a, b) do
+    cond do
+      a.inserted_at < b.inserted_at -> :lt
+      a.inserted_at > b.inserted_at -> :gt
+      :else -> :eq
+    end
+  end
 end

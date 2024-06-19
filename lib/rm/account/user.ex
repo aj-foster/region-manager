@@ -57,6 +57,25 @@ defmodule RM.Account.User do
   # Protocols
   #
 
+  @doc false
+  def compare(%__MODULE__{profile: %Account.Profile{name: a_name}}, %__MODULE__{
+        profile: %Account.Profile{name: b_name}
+      }) do
+    cond do
+      a_name < b_name -> :lt
+      a_name > b_name -> :gt
+      :else -> :eq
+    end
+  end
+
+  def compare(a, b) do
+    cond do
+      a.id < b.id -> :lt
+      a.id > b.id -> :gt
+      :else -> :eq
+    end
+  end
+
   defimpl String.Chars do
     def to_string(%RM.Account.User{id: id}) do
       id
