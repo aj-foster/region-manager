@@ -1,7 +1,10 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
 <div class="mb-8">
-  <.title>Events in <%= @league.name %> League</.title>
+  <div class="flex items-center justify-between mb-4 ml-6">
+    <.title flush>Events in <%= @league.name %> League</.title>
+    <.button :if={@assignment.permissions.events}>Propose...</.button>
+  </div>
 
   <.link
     :for={event <- @league.events}

@@ -1,6 +1,6 @@
 <div :if={@region_count > 0} class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
-    <h2 class="font-title italic small-caps text-xl">Regions you manage</h2>
+    <.title flush>Regions you manage</.title>
     <.link
       class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
       navigate={~p"/region/import"}
@@ -29,7 +29,7 @@
 
 <div :if={@league_count > 0} class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
-    <h2 class="font-title italic small-caps text-xl">Leagues you manage</h2>
+    <.title flush>Leagues you manage</.title>
   </div>
   <.link
     :for={league <- @current_user.leagues}

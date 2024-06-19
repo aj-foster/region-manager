@@ -2,7 +2,7 @@
 
 <div :if={@unready_team_count > 0} class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
-    <h2 class="font-title italic small-caps text-xl">Teams Requiring Attention</h2>
+    <.title flush>Teams Requiring Attention</.title>
     <.link
       class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
       navigate={~p"/region/#{@region}/import"}
@@ -23,7 +23,7 @@
 
 <div :if={@region.stats.team_count > 0} class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
-    <h2 class="font-title italic small-caps text-xl">All Teams in <%= @region.name %></h2>
+    <.title flush>All Teams in <%= @region.name %></.title>
     <.link
       class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
       navigate={~p"/region/#{@region}/import"}

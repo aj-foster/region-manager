@@ -33,7 +33,7 @@
 
 <div class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
-    <h2 class="font-title italic small-caps text-xl">League Administrators</h2>
+    <.title flush>League Administrators</.title>
     <.button phx-click={show_modal("league-add-user-modal")}>Add...</.button>
   </div>
 
@@ -72,7 +72,7 @@
 </div>
 
 <.modal id="league-add-user-modal">
-  <h2 class="font-title italic mb-4 small-caps text-xl">Add League Administrator</h2>
+  <.title class="mb-4" flush>Add League Administrator</.title>
   <p class="mb-4">
     League administrators are entrusted with the <em>Personally Identifiable Information</em>
     (including names, addresses, and email addresses) of team coaches and mentors.
@@ -133,7 +133,7 @@
 </.modal>
 
 <.modal id="league-remove-user-modal">
-  <h2 class="font-title italic mb-4 small-caps text-xl">Remove League Administrator</h2>
+  <.title class="mb-4" flush>Remove League Administrator</.title>
   <p :if={@remove_user} class="mb-4">
     Are you sure you want to remove <strong><%= if @remove_user.user, do: @remove_user.user.profile.name, else: @remove_user.email %></strong>?
     They will immediately lose access to league information and actions.

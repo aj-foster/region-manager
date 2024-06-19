@@ -41,11 +41,16 @@ defmodule RMWeb.CoreComponents do
   Page or section title
   """
   attr :class, :string, default: nil, doc: "additional classes to apply"
+  attr :flush, :boolean, default: false, doc: "when true, remove all margin"
   slot :inner_block, required: true
 
   def title(assigns) do
     ~H"""
-    <h2 class={["font-title italic mb-4 ml-6 small-caps text-xl", @class]}>
+    <h2 class={[
+      "font-title italic small-caps text-xl",
+      if(not @flush, do: "mb-4 ml-6"),
+      @class
+    ]}>
       <%= render_slot(@inner_block) %>
     </h2>
     """

@@ -51,7 +51,7 @@
 
 <div class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
-    <h2 class="font-title italic small-caps text-xl">Registration</h2>
+    <.title flush>Registration</.title>
     <.button
       :if={is_nil(@registration)}
       disabled={not @eligible}
@@ -145,7 +145,7 @@
 </div>
 
 <.modal id="create-registration-modal">
-  <h2 class="font-title italic mb-4 small-caps text-xl">Register for <%= @event.name %></h2>
+  <.title class="mb-4" flush>Register for <%= @event.name %></.title>
   <p class="mb-4">
     Please register for events when you are reasonably certain that your team will attend.
     If your ability to attend changes, please contact the event host as soon as possible.
@@ -156,9 +156,9 @@
 </.modal>
 
 <.modal id="change-registration-modal">
-  <h2 class="font-title italic mb-4 small-caps text-xl">
+  <.title class="mb-4" flush>
     Change Registration for <%= @event.name %>
-  </h2>
+  </.title>
   <p class="mb-4">
     If your team is no longer able to attend, you can rescind your registration.
     Please also <strong>contact the event host</strong>
