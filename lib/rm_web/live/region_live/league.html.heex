@@ -78,7 +78,7 @@
     (including names, addresses, and email addresses) of team coaches and mentors.
   </p>
 
-  <.form for={@add_user_form} phx-submit="add_user_submit">
+  <.form for={@add_user_form} phx-change="add_user_change" phx-submit="add_user_submit">
     <.input
       field={@add_user_form[:email]}
       label="Administrator's Email"
@@ -88,7 +88,47 @@
       wrapper="mb-4"
     />
 
-    <.button type="submit">Add Administrator</.button>
+    <.inputs_for :let={p} field={@add_user_form[:permissions]}>
+      <h3 class="font-semibold leading-6 mb-2 text-sm text-zinc-800">Permissions</h3>
+      <.switch
+        explanation="Add additional users as league administrators"
+        field={p[:users]}
+        label="User can add other administrators"
+        wrapper="mb-4"
+      />
+      <.switch
+        disabled={Phoenix.HTML.Form.normalize_value("checkbox", p[:users].value)}
+        explanation="Manage saved venue information, propose events, and propose changes to existing events"
+        field={p[:events]}
+        label="User can propose events"
+        value={
+          Phoenix.HTML.Form.normalize_value("checkbox", p[:users].value) ||
+            Phoenix.HTML.Form.normalize_value("checkbox", p[:events].value)
+        }
+        wrapper="mb-4"
+      />
+      <.switch
+        disabled={Phoenix.HTML.Form.normalize_value("checkbox", p[:users].value)}
+        explanation="View contact information for team lead coaches and mentors"
+        field={p[:contact]}
+        label="User can view team contact information"
+        value={
+          Phoenix.HTML.Form.normalize_value("checkbox", p[:users].value) ||
+            Phoenix.HTML.Form.normalize_value("checkbox", p[:contact].value)
+        }
+        wrapper="mb-4"
+      />
+    </.inputs_for>
+
+    <p class="text-right">
+      <button
+        class="rounded border border-orange-500 font-semibold leading-6 py-1 px-2 text-orange-500"
+        phx-click={hide_modal("league-add-user-modal")}
+      >
+        Cancel
+      </button>
+      <.button class="ml-2" type="submit">Add Administrator</.button>
+    </p>
   </.form>
 </.modal>
 

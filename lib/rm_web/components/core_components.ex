@@ -513,7 +513,7 @@ defmodule RMWeb.CoreComponents do
 
   @switch_class_bg """
   bg-slate-300 h-5 rounded-xl transition-colors w-8
-  peer-checked:peer-enabled:bg-orange-400
+  peer-checked:bg-orange-400
   peer-disabled:opacity-40
   peer-disabled:cursor-not-allowed
   """

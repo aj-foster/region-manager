@@ -46,6 +46,12 @@ defmodule RMWeb.RegionLive.League do
   @impl true
   def handle_event(event, unsigned_params, socket)
 
+  def handle_event("add_user_change", %{"league" => params}, socket) do
+    socket
+    |> add_user_form(params)
+    |> noreply()
+  end
+
   def handle_event("add_user_submit", %{"league" => params}, socket) do
     socket
     |> add_user_submit(params)
@@ -75,9 +81,9 @@ defmodule RMWeb.RegionLive.League do
   #
 
   @spec add_user_form(Socket.t()) :: Socket.t()
-  defp add_user_form(socket) do
+  defp add_user_form(socket, params \\ %{"permissions" => %{"users" => true}}) do
     league = socket.assigns[:league]
-    form = RM.Account.League.create_changeset(league, %{}) |> to_form()
+    form = RM.Account.League.create_changeset(league, params) |> to_form()
     assign(socket, add_user_form: form)
   end
 

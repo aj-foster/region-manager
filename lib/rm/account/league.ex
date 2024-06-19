@@ -12,7 +12,7 @@ defmodule RM.Account.League do
           inserted_at: DateTime.t(),
           league: Ecto.Schema.belongs_to(League.t()),
           league_id: Ecto.UUID.t(),
-          permissions: %__MODULE__.Permission{},
+          permissions: %__MODULE__.Permissions{},
           updated_at: DateTime.t(),
           user: Ecto.Schema.belongs_to(User.t()),
           user_id: Ecto.UUID.t()
@@ -28,7 +28,10 @@ defmodule RM.Account.League do
     belongs_to :league, League
     belongs_to :user, User
 
-    embeds_one :permissions, Permission, on_replace: :update, primary_key: false do
+    embeds_one :permissions, Permissions, on_replace: :update, primary_key: false do
+      field :contact, :boolean, default: false
+      field :events, :boolean, default: false
+      field :users, :boolean, default: false
     end
   end
 
@@ -48,10 +51,24 @@ defmodule RM.Account.League do
     |> Changeset.validate_required([:email])
   end
 
-  @spec permissions_changeset(%__MODULE__.Permission{}, map) ::
-          Changeset.t(%__MODULE__.Permission{})
+  @spec permissions_changeset(%__MODULE__.Permissions{}, map) ::
+          Changeset.t(%__MODULE__.Permissions{})
   defp permissions_changeset(permissions, params) do
-    Changeset.cast(permissions, params, [])
+    permissions
+    |> Changeset.cast(params, [:contact, :events, :users])
+    |> cascade_permissions()
+  end
+
+  @spec cascade_permissions(Changeset.t(%__MODULE__.Permissions{})) ::
+          Changeset.t(%__MODULE__.Permissions{})
+  defp cascade_permissions(changeset) do
+    if Changeset.get_field(changeset, :users) do
+      changeset
+      |> Changeset.put_change(:contact, true)
+      |> Changeset.put_change(:events, true)
+    else
+      changeset
+    end
   end
 
   #
