@@ -2,8 +2,8 @@ defmodule RM.Local.EventRegistration do
   use Ecto.Schema
 
   alias Ecto.Changeset
-  alias RM.Account.User
   alias RM.FIRST.Event
+  alias RM.Local.Log
   alias RM.Local.Team
 
   @typedoc "Event registration record"
@@ -24,11 +24,7 @@ defmodule RM.Local.EventRegistration do
 
     timestamps type: :utc_datetime_usec
 
-    embeds_many :log, Log do
-      field :event, :string
-      field :at, :utc_datetime_usec
-      field :by, Ecto.UUID
-    end
+    embeds_many :log, Log
   end
 
   @doc "Create a changeset for new event registrations"
@@ -40,9 +36,7 @@ defmodule RM.Local.EventRegistration do
     |> Changeset.put_assoc(:event, event)
     |> Changeset.put_assoc(:team, team)
     |> Changeset.validate_required(@required_fields)
-    |> Changeset.put_embed(:log, [
-      %__MODULE__.Log{event: "created", at: DateTime.utc_now(), by: by(params)}
-    ])
+    |> Changeset.put_embed(:log, [Log.new("created", params)])
   end
 
   @doc "Create a changeset for rescinding an event registration"
@@ -50,19 +44,7 @@ defmodule RM.Local.EventRegistration do
   def rescind_changeset(registration, params) do
     registration
     |> Changeset.change(rescinded: true)
-    |> Changeset.put_embed(:log, [
-      %__MODULE__.Log{event: "rescinded", at: DateTime.utc_now(), by: by(params)}
-      | registration.log
-    ])
-  end
-
-  @spec by(map) :: Ecto.UUID | nil
-  defp by(params) do
-    cond do
-      is_struct(params[:by], User) -> params[:by].id
-      is_struct(params["by"], User) -> params["by"].id
-      :else -> nil
-    end
+    |> Changeset.put_embed(:log, [Log.new("rescinded", params) | registration.log])
   end
 
   #
