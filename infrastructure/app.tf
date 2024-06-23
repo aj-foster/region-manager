@@ -114,7 +114,7 @@ resource "digitalocean_app" "this" {
 
       env {
         key   = "POOL_SIZE"
-        value = "20"
+        value = "10"
         scope = "RUN_TIME"
         type  = "GENERAL"
       }
