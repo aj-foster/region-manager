@@ -13,6 +13,7 @@ defmodule RM.Local do
   alias RM.Local.RegistrationSettings
   alias RM.Local.Query
   alias RM.Local.Team
+  alias RM.Local.Venue
   alias RM.Repo
 
   @spec list_registered_events_by_team(Team.t()) :: [EventRegistration.t()]
@@ -192,5 +193,11 @@ defmodule RM.Local do
         LeagueSettings.changeset(settings, params)
         |> Repo.update()
     end
+  end
+
+  @spec create_venue(League.t(), map) :: {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
+  def create_venue(league, params) do
+    Venue.create_changeset(league, params)
+    |> Repo.insert()
   end
 end

@@ -86,6 +86,19 @@ defmodule RMWeb.LeagueLive.Util do
   end
 
   @doc """
+  Load events related to the current team
+  """
+  @spec load_venues(Socket.t()) :: Socket.t()
+  def load_venues(socket) do
+    league =
+      socket.assigns[:league]
+      |> Repo.preload(:venues, force: true)
+      |> Map.update!(:venues, &Enum.sort(&1, RM.Local.Venue))
+
+    assign(socket, league: league)
+  end
+
+  @doc """
   Refresh the current league
   """
   @spec refresh_league(Socket.t()) :: Socket.t()

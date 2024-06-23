@@ -48,6 +48,7 @@ defmodule RM.FIRST.League do
     has_many :teams, through: [:team_assignments, :team]
     has_many :user_assignments, RM.Account.League
     has_many :users, through: [:user_assignments, :user]
+    has_many :venues, RM.Local.Venue
 
     embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
       field :event_count, :integer, default: 0
