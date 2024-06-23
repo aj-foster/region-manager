@@ -422,12 +422,12 @@ defmodule RMWeb.CoreComponents do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div class={@wrapper} phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
-      <div :if={@explanation} class="mt-1 text-gray-700 text-sm"><%= @explanation %></div>
+      <.label :if={@label} for={@id}><%= @label %></.label>
+      <div :if={@explanation} class="mb-2 text-gray-700 text-sm"><%= @explanation %></div>
       <select
         id={@id}
         name={@name}
-        class="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
+        class="block w-full rounded-md border border-gray-300 bg-white shadow-sm disabled:bg-slate-100 focus:border-zinc-400 focus:ring-0 sm:text-sm"
         multiple={@multiple}
         {@rest}
       >
@@ -462,9 +462,13 @@ defmodule RMWeb.CoreComponents do
 
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
+    assigns = assign_new(assigns, :field_is_required, fn -> assigns.rest[:required] == true end)
+
     ~H"""
     <div class={@wrapper} phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <.label for={@id}>
+        <%= @label %><span :if={@field_is_required} class="text-orange-500"> *</span>
+      </.label>
       <div :if={@explanation} class="mt-1 text-gray-700 text-sm"><%= @explanation %></div>
       <input
         type={@type}
