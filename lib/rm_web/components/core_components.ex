@@ -95,6 +95,7 @@ defmodule RMWeb.CoreComponents do
   """
   attr :id, :string, required: true
   attr :show, :boolean, default: false
+  attr :trap, :boolean, default: false
   attr :on_cancel, JS, default: %JS{}
   slot :inner_block, required: true
 
@@ -125,9 +126,9 @@ defmodule RMWeb.CoreComponents do
           <div class="w-full max-w-3xl p-4">
             <.focus_wrap
               id={"#{@id}-container"}
-              phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
+              phx-window-keydown={if(@trap, do: %JS{}, else: JS.exec("data-cancel", to: "##{@id}"))}
               phx-key="escape"
-              phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
+              phx-click-away={if(@trap, do: %JS{}, else: JS.exec("data-cancel", to: "##{@id}"))}
               class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-6 shadow-lg ring-1 transition"
             >
               <div class="absolute top-4 right-6">
