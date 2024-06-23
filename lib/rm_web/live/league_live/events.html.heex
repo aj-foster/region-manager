@@ -3,7 +3,12 @@
 <div class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
     <.title flush>Events in <%= @league.name %> League</.title>
-    <.button :if={@assignment.permissions.events}>Propose...</.button>
+    <.link_button
+      :if={@assignment.permissions.events}
+      navigate={~p"/league/#{@league}/events/new"}
+    >
+      Propose...
+    </.link_button>
   </div>
 
   <.link

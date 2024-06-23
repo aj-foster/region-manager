@@ -293,7 +293,7 @@ defmodule RMWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded bg-orange-400 hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed",
+        "phx-submit-loading:opacity-75 rounded bg-orange-400 hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed transition-colors",
         "font-semibold leading-6 py-1 px-2 text-white active:text-white/80",
         @class
       ]}
@@ -301,6 +301,34 @@ defmodule RMWeb.CoreComponents do
     >
       <%= render_slot(@inner_block) %>
     </button>
+    """
+  end
+
+  @doc """
+  Renders a link that looks like a button
+
+  ## Examples
+
+      <.button navigate={~p"/"}>Back</.button>
+
+  """
+  attr :class, :string, default: nil
+  attr :rest, :global, include: ~w(href navigate patch)
+
+  slot :inner_block, required: true
+
+  def link_button(assigns) do
+    ~H"""
+    <.link
+      class={[
+        "rounded bg-orange-400 hover:bg-orange-300 transition-colors",
+        "font-semibold leading-6 py-1 px-2 text-white active:text-white/80",
+        @class
+      ]}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) %>
+    </.link>
     """
   end
 
