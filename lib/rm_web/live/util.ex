@@ -242,8 +242,17 @@ defmodule RMWeb.Live.Util do
 
   def on_mount(:setup_timezone, _params, _session, socket) do
     timezone = LiveView.get_connect_params(socket)["timezone"] || "Etc/UTC"
-    Process.put(:client_timezone, timezone)
-    {:cont, assign(socket, timezone: timezone)}
+
+    canonical_timezone =
+      if Tzdata.zone_alias?(timezone) do
+        Tzdata.links()
+        |> Map.get(timezone, "Etc/UTC")
+      else
+        timezone
+      end
+
+    Process.put(:client_timezone, canonical_timezone)
+    {:cont, assign(socket, timezone: canonical_timezone)}
   end
 
   def on_mount(:setup_uri, _params, _session, socket) do
