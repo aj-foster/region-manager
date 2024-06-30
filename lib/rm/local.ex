@@ -7,6 +7,7 @@ defmodule RM.Local do
   alias Ecto.Changeset
   alias RM.FIRST.Event
   alias RM.FIRST.League
+  alias RM.Local.EventProposal
   alias RM.Local.EventRegistration
   alias RM.Local.EventSettings
   alias RM.Local.LeagueSettings
@@ -198,6 +199,12 @@ defmodule RM.Local do
   @spec create_venue(League.t(), map) :: {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
   def create_venue(league, params) do
     Venue.create_changeset(league, params)
+    |> Repo.insert()
+  end
+
+  @spec create_event(map) :: {:ok, EventProposal.t()} | {:error, Changeset.t(EventProposal.t())}
+  def create_event(params) do
+    EventProposal.create_changeset(params)
     |> Repo.insert()
   end
 end
