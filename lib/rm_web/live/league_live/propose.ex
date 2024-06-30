@@ -100,13 +100,20 @@ defmodule RMWeb.LeagueLive.Propose do
   @spec event_form(Socket.t()) :: Socket.t()
   @spec event_form(Socket.t(), map) :: Socket.t()
   defp event_form(socket, params \\ %{}) do
+    league = socket.assigns[:league]
+
     params =
       params
       |> Map.put("by", socket.assigns[:current_user])
-      |> Map.put("league", socket.assigns[:league])
-      |> Map.put("region", socket.assigns[:region])
+      |> Map.put("league", league)
+      |> Map.put("region", league.region)
       |> Map.put("season", @season)
       |> Map.put("venue", socket.assigns[:venue])
+      |> Map.put_new("registration_settings", %{"enabled" => "true"})
+      |> event_proposal_normalize_date_end()
+      |> registration_settings_normalize_pool()
+      |> registration_settings_normalize_team_limit()
+      |> registration_settings_normalize_waitlist_limit()
 
     form =
       params
@@ -124,9 +131,13 @@ defmodule RMWeb.LeagueLive.Propose do
       params
       |> Map.put("by", socket.assigns[:current_user])
       |> Map.put("league", league)
-      |> Map.put("region", socket.assigns[:region])
+      |> Map.put("region", league.region)
       |> Map.put("season", @season)
       |> Map.put("venue", socket.assigns[:venue])
+      |> Map.put_new("registration_settings", %{"enabled" => "true"})
+      |> registration_settings_normalize_pool()
+      |> registration_settings_normalize_team_limit()
+      |> registration_settings_normalize_waitlist_limit()
 
     case RM.Local.create_event(params) do
       {:ok, _proposal} ->
@@ -135,8 +146,60 @@ defmodule RMWeb.LeagueLive.Propose do
         |> push_navigate(to: ~p"/league/#{league}/events")
 
       {:error, changeset} ->
-        assign(socket, event_form: to_form(changeset) |> IO.inspect())
+        assign(socket, event_form: to_form(changeset))
     end
+  end
+
+  @spec event_proposal_normalize_date_end(map) :: map
+  defp event_proposal_normalize_date_end(params) do
+    if (date_start = params["date_start"]) && params["date_end"] in ["", nil] do
+      put_in(params, ["date_end"], date_start)
+    else
+      params
+    end
+  end
+
+  @spec registration_settings_normalize_pool(map) :: map
+  defp registration_settings_normalize_pool(params) do
+    if params["type"] in ["league_meet", "league_tournament"] do
+      put_in(params, ["registration_settings", "pool"], "league")
+    else
+      params
+    end
+  end
+
+  @spec registration_settings_normalize_team_limit(map) :: map
+  defp registration_settings_normalize_team_limit(
+         %{"registration_settings" => %{"team_limit_enable" => "true"}} = params
+       ) do
+    put_in(
+      params,
+      ["registration_settings", "team_limit"],
+      params["registration_settings"]["team_limit"] || "50"
+    )
+  end
+
+  defp registration_settings_normalize_team_limit(params) do
+    put_in(params, ["registration_settings", "team_limit"], nil)
+  end
+
+  @spec registration_settings_normalize_waitlist_limit(map) :: map
+  defp registration_settings_normalize_waitlist_limit(
+         %{"registration_settings" => %{"waitlist_limit_enable" => "true"}} = params
+       ) do
+    params
+    |> put_in(
+      ["registration_settings", "waitlist_limit"],
+      params["registration_settings"]["waitlist_limit"] || "50"
+    )
+    |> put_in(
+      ["registration_settings", "waitlist_deadline_days"],
+      params["registration_settings"]["waitlist_deadline_days"] || "7"
+    )
+  end
+
+  defp registration_settings_normalize_waitlist_limit(params) do
+    put_in(params, ["registration_settings", "waitlist_limit"], nil)
   end
 
   @spec venue_change(Socket.t(), Ecto.UUID.t() | String.t()) :: Socket.t()
@@ -177,6 +240,15 @@ defmodule RMWeb.LeagueLive.Propose do
     |> Enum.map(fn type ->
       {RM.FIRST.Event.type_name(type), to_string(type)}
     end)
+  end
+
+  @spec registration_pool_options(RM.FIRST.League.t()) :: [{String.t(), String.t()}]
+  defp registration_pool_options(league) do
+    [
+      {"Teams in #{league.name} League", "league"},
+      {"Teams in #{league.region.name}", "region"},
+      {"Any Team in Region Manager", "all"}
+    ]
   end
 
   @spec venue_options([Venue.t()]) :: [{String.t(), Ecto.UUID.t()}]

@@ -1,6 +1,7 @@
 defmodule RM.Local.EventProposal do
   use Ecto.Schema
 
+  alias RM.Local.RegistrationSettings
   alias Ecto.Changeset
   alias RM.FIRST.League
   alias RM.FIRST.Region
@@ -45,7 +46,6 @@ defmodule RM.Local.EventProposal do
   @required_fields [:date_end, :date_start, :format, :name, :season, :type, :venue]
 
   schema "event_proposals" do
-    field :capacity, :integer
     field :description, :string
     field :date_end, :date
     field :date_start, :date
@@ -68,6 +68,7 @@ defmodule RM.Local.EventProposal do
     belongs_to :region, Region
     belongs_to :venue, Venue
 
+    # Temporary: no longer used once copied to the :first_event on import / reconciliation.
     embeds_one :registration_settings, RegistrationSettings, on_replace: :update
 
     embeds_one :contact, Contact, on_replace: :update do
@@ -90,7 +91,6 @@ defmodule RM.Local.EventProposal do
   def create_changeset(params) do
     %__MODULE__{}
     |> Changeset.cast(params, [
-      :capacity,
       :description,
       :date_end,
       :date_start,
@@ -103,6 +103,7 @@ defmodule RM.Local.EventProposal do
       :website
     ])
     |> Changeset.cast_embed(:contact, with: &contact_changeset/2)
+    |> Changeset.cast_embed(:registration_settings, with: &RegistrationSettings.changeset/2)
     |> Changeset.put_assoc(:league, params["league"])
     |> Changeset.put_assoc(:region, params["region"])
     |> Changeset.put_assoc(:venue, params["venue"])

@@ -69,7 +69,7 @@
               end
             }
             field={f[:deadline_days]}
-            label={"How many days before #{format_date(@event.date_start, :date)} of the event should registration close?"}
+            label={"How many days before #{format_date(@event.date_start, :date)} should registration close?"}
             max="60"
             min="0"
             step="1"
@@ -116,13 +116,7 @@
                   end
                 }
                 field={f[:waitlist_deadline_days]}
-                label={
-                  if Event.multi_day?(@event) do
-                    "How many days before the start of the event should the waitlist close?"
-                  else
-                    "How many days before the event should the waitlist close?"
-                  end
-                }
+                label={"How many days before #{format_date(@event.date_start, :date)} should the waitlist close?"}
                 max="60"
                 min="0"
                 step="1"
