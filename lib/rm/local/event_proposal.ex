@@ -117,4 +117,13 @@ defmodule RM.Local.EventProposal do
     |> Changeset.cast(params, [:email, :name, :phone])
     |> Changeset.validate_required([:email, :name, :phone])
   end
+
+  #
+  # Protocols
+  #
+
+  @doc false
+  def compare(a, b) do
+    Date.compare(a.date_start, b.date_start)
+  end
 end

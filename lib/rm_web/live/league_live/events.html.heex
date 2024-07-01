@@ -26,6 +26,50 @@
     </div>
     <div><.icon name="hero-arrow-right" /></div>
   </.link>
+
+  <div
+    :if={@league.events == []}
+    class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow"
+  >
+    <p class="italic text-sm">There are no published events for this league.</p>
+  </div>
+</div>
+
+<div class="mb-8">
+  <div class="flex items-center justify-between mb-4 ml-6">
+    <.title flush>Proposed Events</.title>
+    <.link_button
+      :if={@assignment.permissions.events}
+      navigate={~p"/league/#{@league}/events/new"}
+    >
+      Propose...
+    </.link_button>
+  </div>
+
+  <.link
+    :for={event <- @proposed_events}
+    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    navigate={~p"/league/#{@league}/events/#{event}"}
+  >
+    <div class="grow">
+      <h3 class="font-bold"><%= event.name %></h3>
+      <p class="text-sm">
+        <span><%= format_range(event.date_start, event.date_end) %></span>
+        <span>&bull; <%= Event.type_name(event.type) %></span>
+        <span :if={event.format != :traditional}>
+          &bull; <%= String.capitalize(event.format) %>
+        </span>
+      </p>
+    </div>
+    <div><.icon name="hero-arrow-right" /></div>
+  </.link>
+
+  <div
+    :if={@proposed_events == []}
+    class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow"
+  >
+    <p class="italic text-sm">There are no unpublished proposed events for this league.</p>
+  </div>
 </div>
 
 <div class="mb-8">

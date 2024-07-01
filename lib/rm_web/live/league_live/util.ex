@@ -80,7 +80,9 @@ defmodule RMWeb.LeagueLive.Util do
     league =
       socket.assigns[:league]
       |> Repo.preload(:events)
+      |> Repo.preload(:event_proposals)
       |> Map.update!(:events, &Enum.sort(&1, RM.FIRST.Event))
+      |> Map.update!(:event_proposals, &Enum.sort(&1, RM.Local.EventProposal))
 
     assign(socket, league: league)
   end

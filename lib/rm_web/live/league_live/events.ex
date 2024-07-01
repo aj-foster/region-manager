@@ -18,6 +18,7 @@ defmodule RMWeb.LeagueLive.Events do
   def handle_params(_params, _uri, socket) do
     socket
     |> load_events()
+    |> filter_events()
     |> registration_settings_form()
     |> noreply()
   end
@@ -38,6 +39,12 @@ defmodule RMWeb.LeagueLive.Events do
   #
   # Helpers
   #
+
+  @spec filter_events(Socket.t()) :: Socket.t()
+  defp filter_events(socket) do
+    proposed_events = socket.assigns[:league].event_proposals
+    assign(socket, proposed_events: Enum.filter(proposed_events, &is_nil(&1.first_event_id)))
+  end
 
   @spec registration_settings_change(Socket.t(), map) :: Socket.t()
   defp registration_settings_change(socket, params) do

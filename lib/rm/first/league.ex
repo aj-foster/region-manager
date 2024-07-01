@@ -5,6 +5,7 @@ defmodule RM.FIRST.League do
   alias RM.FIRST.Event
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
+  alias RM.Local.EventProposal
   alias RM.Local.LeagueSettings
   alias RM.Local.Team
 
@@ -44,6 +45,7 @@ defmodule RM.FIRST.League do
     has_one :settings, LeagueSettings
 
     has_many :events, Event
+    has_many :event_proposals, EventProposal
     has_many :team_assignments, LeagueAssignment
     has_many :teams, through: [:team_assignments, :team]
     has_many :user_assignments, RM.Account.League
