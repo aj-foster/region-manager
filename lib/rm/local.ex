@@ -17,6 +17,10 @@ defmodule RM.Local do
   alias RM.Local.Venue
   alias RM.Repo
 
+  #
+  # Events
+  #
+
   @spec list_registered_events_by_team(Team.t()) :: [EventRegistration.t()]
   @spec list_registered_events_by_team(Team.t(), keyword) :: [EventRegistration.t()]
   def list_registered_events_by_team(team, opts \\ []) do
@@ -28,59 +32,6 @@ defmodule RM.Local do
     |> Query.preload_assoc(:registration, opts[:preload])
     |> Repo.all()
     |> Enum.sort_by(& &1.event, Event)
-  end
-
-  @spec list_registered_teams_by_event(Event.t()) :: [EventRegistration.t()]
-  @spec list_registered_teams_by_event(Event.t(), keyword) :: [EventRegistration.t()]
-  def list_registered_teams_by_event(event, opts \\ []) do
-    Query.from_registration()
-    |> where([registration: r], r.event_id == ^event.id)
-    |> Query.rescinded(opts[:rescinded])
-    |> Query.waitlisted(opts[:waitlisted])
-    |> Query.preload_assoc(:registration, [:team])
-    |> Query.preload_assoc(:registration, opts[:preload])
-    |> Repo.all()
-    |> Enum.sort_by(& &1.team, Team)
-  end
-
-  @spec list_teams_by_number([integer], keyword) :: [Team.t()]
-  def list_teams_by_number(numbers, opts \\ []) do
-    Query.from_team()
-    |> where([team: t], t.number in ^numbers)
-    |> Query.preload_assoc(:team, opts[:preload])
-    |> Repo.all()
-  end
-
-  @spec list_teams_by_team_id([integer], keyword) :: [Team.t()]
-  def list_teams_by_team_id(team_ids, opts \\ []) do
-    Query.from_team()
-    |> where([team: t], t.team_id in ^team_ids)
-    |> Query.preload_assoc(:team, opts[:preload])
-    |> Repo.all()
-  end
-
-  @spec fetch_team_by_number(integer) :: {:ok, Team.t()} | {:error, :team, :not_found}
-  def fetch_team_by_number(team_number, opts \\ []) do
-    Query.from_team()
-    |> where([team: t], t.number == ^team_number)
-    |> Query.preload_assoc(:team, opts[:preload])
-    |> Repo.one()
-    |> case do
-      %Team{} = team -> {:ok, team}
-      nil -> {:error, :team, :not_found}
-    end
-  end
-
-  @spec fetch_event_registration(Event.t(), Team.t()) ::
-          {:ok, EventRegistration.t()} | {:error, :registration, :not_found}
-  def fetch_event_registration(event, team) do
-    Query.from_registration()
-    |> where([registration: r], r.event_id == ^event.id and r.team_id == ^team.id)
-    |> Repo.one()
-    |> case do
-      %EventRegistration{} = registration -> {:ok, registration}
-      nil -> {:error, :registration, :not_found}
-    end
   end
 
   @spec verify_eligibility(Event.t(), Team.t()) ::
@@ -126,20 +77,6 @@ defmodule RM.Local do
     end
   end
 
-  @spec create_event_registration(Event.t(), Team.t(), map) ::
-          {:ok, EventRegistration.t()} | {:error, Changeset.t(EventRegistration.t())}
-  def create_event_registration(event, team, params) do
-    EventRegistration.create_changeset(event, team, params)
-    |> Repo.insert()
-  end
-
-  @spec rescind_event_registration(EventRegistration.t(), map) ::
-          {:ok, EventRegistration.t()} | {:error, Changeset.t(EventRegistration.t())}
-  def rescind_event_registration(registration, params) do
-    EventRegistration.rescind_changeset(registration, params)
-    |> Repo.update()
-  end
-
   @spec change_event_settings(Event.t()) :: Changeset.t(EventSettings.t())
   def change_event_settings(event) do
     case Repo.preload(event, :settings) do
@@ -167,6 +104,50 @@ defmodule RM.Local do
         |> Repo.update()
     end
   end
+
+  #
+  # Event Proposals
+  #
+
+  @spec create_event(map) :: {:ok, EventProposal.t()} | {:error, Changeset.t(EventProposal.t())}
+  def create_event(params) do
+    EventProposal.create_changeset(params)
+    |> Repo.insert()
+  end
+
+  #
+  # Event Registration
+  #
+
+  @spec fetch_event_registration(Event.t(), Team.t()) ::
+          {:ok, EventRegistration.t()} | {:error, :registration, :not_found}
+  def fetch_event_registration(event, team) do
+    Query.from_registration()
+    |> where([registration: r], r.event_id == ^event.id and r.team_id == ^team.id)
+    |> Repo.one()
+    |> case do
+      %EventRegistration{} = registration -> {:ok, registration}
+      nil -> {:error, :registration, :not_found}
+    end
+  end
+
+  @spec create_event_registration(Event.t(), Team.t(), map) ::
+          {:ok, EventRegistration.t()} | {:error, Changeset.t(EventRegistration.t())}
+  def create_event_registration(event, team, params) do
+    EventRegistration.create_changeset(event, team, params)
+    |> Repo.insert()
+  end
+
+  @spec rescind_event_registration(EventRegistration.t(), map) ::
+          {:ok, EventRegistration.t()} | {:error, Changeset.t(EventRegistration.t())}
+  def rescind_event_registration(registration, params) do
+    EventRegistration.rescind_changeset(registration, params)
+    |> Repo.update()
+  end
+
+  #
+  # League Settings
+  #
 
   @spec change_league_settings(League.t()) :: Changeset.t(LeagueSettings.t())
   def change_league_settings(league) do
@@ -196,15 +177,58 @@ defmodule RM.Local do
     end
   end
 
+  #
+  # Teams
+  #
+
+  @spec list_registered_teams_by_event(Event.t()) :: [EventRegistration.t()]
+  @spec list_registered_teams_by_event(Event.t(), keyword) :: [EventRegistration.t()]
+  def list_registered_teams_by_event(event, opts \\ []) do
+    Query.from_registration()
+    |> where([registration: r], r.event_id == ^event.id)
+    |> Query.rescinded(opts[:rescinded])
+    |> Query.waitlisted(opts[:waitlisted])
+    |> Query.preload_assoc(:registration, [:team])
+    |> Query.preload_assoc(:registration, opts[:preload])
+    |> Repo.all()
+    |> Enum.sort_by(& &1.team, Team)
+  end
+
+  @spec list_teams_by_number([integer], keyword) :: [Team.t()]
+  def list_teams_by_number(numbers, opts \\ []) do
+    Query.from_team()
+    |> where([team: t], t.number in ^numbers)
+    |> Query.preload_assoc(:team, opts[:preload])
+    |> Repo.all()
+  end
+
+  @spec list_teams_by_team_id([integer], keyword) :: [Team.t()]
+  def list_teams_by_team_id(team_ids, opts \\ []) do
+    Query.from_team()
+    |> where([team: t], t.team_id in ^team_ids)
+    |> Query.preload_assoc(:team, opts[:preload])
+    |> Repo.all()
+  end
+
+  @spec fetch_team_by_number(integer) :: {:ok, Team.t()} | {:error, :team, :not_found}
+  def fetch_team_by_number(team_number, opts \\ []) do
+    Query.from_team()
+    |> where([team: t], t.number == ^team_number)
+    |> Query.preload_assoc(:team, opts[:preload])
+    |> Repo.one()
+    |> case do
+      %Team{} = team -> {:ok, team}
+      nil -> {:error, :team, :not_found}
+    end
+  end
+
+  #
+  # Venues
+  #
+
   @spec create_venue(League.t(), map) :: {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
   def create_venue(league, params) do
     Venue.create_changeset(league, params)
-    |> Repo.insert()
-  end
-
-  @spec create_event(map) :: {:ok, EventProposal.t()} | {:error, Changeset.t(EventProposal.t())}
-  def create_event(params) do
-    EventProposal.create_changeset(params)
     |> Repo.insert()
   end
 end
