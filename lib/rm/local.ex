@@ -109,6 +109,21 @@ defmodule RM.Local do
   # Event Proposals
   #
 
+  @spec fetch_event_proposal_by_id(Ecto.UUID.t()) ::
+          {:ok, EventProposal.t()} | {:error, :proposal, :not_found}
+  @spec fetch_event_proposal_by_id(Ecto.UUID.t(), keyword) ::
+          {:ok, EventProposal.t()} | {:error, :proposal, :not_found}
+  def fetch_event_proposal_by_id(proposal_id, opts \\ []) do
+    Query.from_proposal()
+    |> Query.league(opts[:league])
+    |> Query.preload_assoc(:proposal, opts[:preload])
+    |> Repo.get(proposal_id)
+    |> case do
+      %EventProposal{} = proposal -> {:ok, proposal}
+      nil -> {:error, :proposal, :not_found}
+    end
+  end
+
   @spec create_event(map) :: {:ok, EventProposal.t()} | {:error, Changeset.t(EventProposal.t())}
   def create_event(params) do
     EventProposal.create_changeset(params)
