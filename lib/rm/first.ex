@@ -8,6 +8,7 @@ defmodule RM.FIRST do
   alias RM.FIRST.League
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
+  alias RM.FIRST.Season
   alias RM.FIRST.Query
   alias RM.Local
   alias RM.Local.EventSettings
@@ -54,6 +55,13 @@ defmodule RM.FIRST do
   #
   # Data
   #
+
+  @spec list_seasons :: [Season.t()]
+  def list_seasons do
+    Query.from_season()
+    |> order_by([season: s], s.year)
+    |> Repo.all()
+  end
 
   @spec list_eligible_events_by_team(Team.t()) :: [Event.t()]
   @spec list_eligible_events_by_team(Team.t(), keyword) :: [Event.t()]

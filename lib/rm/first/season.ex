@@ -1,6 +1,13 @@
 defmodule RM.FIRST.Season do
   use Ecto.Schema
 
+  @type t :: %__MODULE__{
+          inserted_at: DateTime.t(),
+          name: String.t(),
+          updated_at: DateTime.t(),
+          year: integer
+        }
+
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "first_seasons" do

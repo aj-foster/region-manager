@@ -1,6 +1,7 @@
 defmodule RMWeb.Router do
   use RMWeb, :router
   import Identity.Plug
+  import RMWeb.Version, only: [fetch_version: 2]
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -18,7 +19,12 @@ defmodule RMWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_version
   end
+
+  #
+  # Browser Traffic
+  #
 
   scope "/", RMWeb do
     pipe_through :browser
@@ -100,6 +106,35 @@ defmodule RMWeb.Router do
     delete "/user/2fa", Identity.Controller, :delete_2fa, as: :identity
     put "/user/2fa/backup", Identity.Controller, :regenerate_2fa, as: :identity
   end
+
+  #
+  # JSON API
+  #
+
+  scope "/api", RMWeb do
+    pipe_through :api
+
+    # # Metadata
+    get "/", MetaController, :index
+    get "/meta/seasons", MetaController, :seasons
+    # get "/meta/regions", MetaController, :regions
+
+    # # Current-season endpoints
+    # get "/r/:region", RegionController, :show
+    # get "/r/:region/events", RegionController, :events
+    # get "/r/:region/leagues", RegionController, :leagues
+    # get "/r/:region/teams", RegionController, :teams
+
+    # # Specific-season endpoints
+    # get "/s/:season/r/:region", RegionController, :show
+    # get "/s/:season/r/:region/events", RegionController, :events
+    # get "/s/:season/r/:region/leagues", RegionController, :leagues
+    # get "/s/:season/r/:region/teams", RegionController, :teams
+  end
+
+  #
+  # Development
+  #
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:rm, :dev_routes) do

@@ -8,6 +8,7 @@ defmodule RM.FIRST.Query do
   alias RM.FIRST.League
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
+  alias RM.FIRST.Season
 
   @typedoc "Intermediate query"
   @type query :: Ecto.Query.t()
@@ -38,6 +39,12 @@ defmodule RM.FIRST.Query do
   @spec from_region :: query
   def from_region do
     from(Region, as: :region)
+  end
+
+  @doc "Start a query from the seasons table"
+  @spec from_season :: query
+  def from_season do
+    from(Season, as: :season)
   end
 
   #

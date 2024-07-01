@@ -43,6 +43,7 @@ defmodule RMWeb do
         layouts: [html: RMWeb.Layouts]
 
       import Plug.Conn
+      import RMWeb.Version, only: [version: 2]
 
       unquote(verified_routes())
     end
