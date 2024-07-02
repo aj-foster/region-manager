@@ -45,6 +45,8 @@ defmodule RMWeb do
       import Plug.Conn
       import RMWeb.Version, only: [version: 2]
 
+      action_fallback RMWeb.Fallback
+
       unquote(verified_routes())
     end
   end
