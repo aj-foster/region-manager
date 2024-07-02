@@ -104,6 +104,13 @@ defmodule RM.FIRST do
     |> Map.new()
   end
 
+  @spec list_regions :: [Region.t()]
+  def list_regions do
+    Query.from_region()
+    |> order_by([region: r], r.name)
+    |> Repo.all()
+  end
+
   @spec list_regions_by_code :: %{String.t() => Region.t()}
   def list_regions_by_code do
     Region.by_code_query()

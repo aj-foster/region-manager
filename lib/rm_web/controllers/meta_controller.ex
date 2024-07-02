@@ -9,4 +9,9 @@ defmodule RMWeb.MetaController do
     seasons = RM.FIRST.list_seasons()
     render(conn, :seasons, seasons: seasons)
   end
+
+  def regions(conn, _params) do
+    regions = RM.FIRST.list_regions()
+    render(conn, :regions, regions: regions)
+  end
 end
