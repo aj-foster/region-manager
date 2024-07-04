@@ -7,6 +7,7 @@ defmodule RM.Application do
     children = [
       RMWeb.Telemetry,
       RM.Repo,
+      RM.Config,
       {DNSCluster, query: Application.get_env(:rm, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: RM.PubSub},
       {Finch, name: RM.Finch},
