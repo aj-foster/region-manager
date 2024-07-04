@@ -78,4 +78,24 @@ defmodule RMWeb.RegionJSON do
       }
     }
   end
+
+  def leagues(%{leagues: leagues}) do
+    success(%{league_count: length(leagues), leagues: Enum.map(leagues, &league/1)})
+  end
+
+  defp league(%RM.FIRST.League{
+         code: code,
+         location: location,
+         name: name,
+         remote: remote,
+         stats: %{event_count: event_count, league_count: league_count, team_count: team_count}
+       }) do
+    %{
+      code: code,
+      location: location,
+      name: name,
+      remote: remote,
+      stats: %{event_count: event_count, league_count: league_count, team_count: team_count}
+    }
+  end
 end

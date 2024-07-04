@@ -17,6 +17,12 @@ defmodule RMWeb.RegionController do
     end
   end
 
+  def leagues(conn, %{"region" => abbreviation}) do
+    with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(abbreviation, preload: [:leagues]) do
+      render(conn, :leagues, leagues: region.leagues)
+    end
+  end
+
   #
   # Helper Plugs
   #

@@ -122,13 +122,13 @@ defmodule RMWeb.Router do
     # Current-season endpoints
     get "/r/:region", RegionController, :show
     get "/r/:region/events", RegionController, :events
-    # get "/r/:region/leagues", RegionController, :leagues
+    get "/r/:region/leagues", RegionController, :leagues
     # get "/r/:region/teams", RegionController, :teams
 
     # Specific-season endpoints
     get "/s/:season/r/:region", RegionController, :show
     get "/s/:season/r/:region/events", RegionController, :events
-    # get "/s/:season/r/:region/leagues", RegionController, :leagues
+    get "/s/:season/r/:region/leagues", RegionController, :leagues
     # get "/s/:season/r/:region/teams", RegionController, :teams
   end
 
