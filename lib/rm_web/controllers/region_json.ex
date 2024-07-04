@@ -32,4 +32,50 @@ defmodule RMWeb.RegionJSON do
       }
     })
   end
+
+  def events(%{events: events}) do
+    success(%{event_count: length(events), events: Enum.map(events, &event/1)})
+  end
+
+  defp event(%RM.FIRST.Event{
+         code: code,
+         date_end: date_end,
+         date_start: date_start,
+         date_timezone: timezone,
+         hybrid: hybrid,
+         live_stream_url: live_stream_url,
+         name: name,
+         remote: remote,
+         season: season,
+         type: type,
+         website: website,
+         location: %{
+           address: address,
+           city: city,
+           country: country,
+           state_province: state_province,
+           venue: venue
+         }
+       }) do
+    %{
+      code: code,
+      date_end: date_end,
+      date_start: date_start,
+      date_timezone: timezone,
+      hybrid: hybrid,
+      live_stream_url: live_stream_url,
+      name: name,
+      remote: remote,
+      season: season,
+      type: type,
+      website: website,
+      location: %{
+        address: address,
+        city: city,
+        country: country,
+        state_province: state_province,
+        venue: venue
+      }
+    }
+  end
 end

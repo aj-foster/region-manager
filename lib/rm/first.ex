@@ -63,6 +63,18 @@ defmodule RM.FIRST do
     |> Repo.all()
   end
 
+  @spec list_events_by_region(Region.t()) :: [Event.t()]
+  @spec list_events_by_region(Region.t(), keyword) :: [Event.t()]
+  def list_events_by_region(region, opts \\ []) do
+    Query.from_event()
+    |> Query.event_region(region)
+    |> Query.event_season(opts[:season])
+    |> Query.preload_assoc(:event, opts[:preload])
+    |> Repo.all()
+    |> Enum.filter(&is_nil(&1.division_code))
+    |> Enum.sort(Event)
+  end
+
   @spec list_eligible_events_by_team(Team.t()) :: [Event.t()]
   @spec list_eligible_events_by_team(Team.t(), keyword) :: [Event.t()]
   def list_eligible_events_by_team(team, opts \\ []) do

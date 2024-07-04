@@ -75,6 +75,11 @@ defmodule RM.FIRST.Query do
     where(query, [event: e], e.region_id in ^region_ids)
   end
 
+  @doc "Filter events by the season"
+  @spec event_season(query, integer | nil) :: query
+  def event_season(query, nil), do: query
+  def event_season(query, season), do: where(query, [event: e], e.season == ^season)
+
   @doc "Find the league with the given code"
   @spec league_code(query, String.t()) :: query
   def league_code(query, code) do
