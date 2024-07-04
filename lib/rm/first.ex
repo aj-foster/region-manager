@@ -31,146 +31,6 @@ defmodule RM.FIRST do
   end
 
   @doc """
-  Refresh the local league information for the given region
-  """
-  @spec refresh_leagues(Region.t()) :: {:ok, [League.t()]} | {:error, Exception.t()}
-  def refresh_leagues(region) do
-    with {:ok, %{leagues: leagues}} <- External.FTCEvents.list_leagues(region) do
-      leagues = update_leagues_from_ftc_events(leagues, delete_region: region)
-
-      for league <- leagues do
-        with {:ok, members} <- External.FTCEvents.list_league_members(region, league) do
-          # This is bad. But also... good.
-          Process.sleep(1_000)
-          update_league_assignments_from_ftc_events(league, members)
-        end
-      end
-
-      update_league_team_counts(leagues)
-
-      {:ok, leagues}
-    end
-  end
-
-  #
-  # Data
-  #
-
-  @spec list_seasons :: [Season.t()]
-  def list_seasons do
-    Query.from_season()
-    |> order_by([season: s], s.year)
-    |> Repo.all()
-  end
-
-  @spec list_events_by_region(Region.t()) :: [Event.t()]
-  @spec list_events_by_region(Region.t(), keyword) :: [Event.t()]
-  def list_events_by_region(region, opts \\ []) do
-    Query.from_event()
-    |> Query.event_region(region)
-    |> Query.event_season(opts[:season])
-    |> Query.preload_assoc(:event, opts[:preload])
-    |> Repo.all()
-    |> Enum.filter(&is_nil(&1.division_code))
-    |> Enum.sort(Event)
-  end
-
-  @spec list_eligible_events_by_team(Team.t()) :: [Event.t()]
-  @spec list_eligible_events_by_team(Team.t(), keyword) :: [Event.t()]
-  def list_eligible_events_by_team(team, opts \\ []) do
-    Query.from_event()
-    |> Query.join_settings_from_event()
-    |> filter_eligible_events_by_team(team)
-    |> Query.preload_assoc(:event, opts[:preload])
-    |> Repo.all()
-    |> Enum.filter(&is_nil(&1.division_code))
-    |> Enum.sort(Event)
-  end
-
-  @spec filter_eligible_events_by_team(Query.query(), Team.t()) :: Query.query()
-  defp filter_eligible_events_by_team(query, %Team{league: %League{id: league_id}} = team) do
-    %Team{region_id: region_id} = team
-
-    query
-    |> filter_eligible_events_by_team(%Team{region_id: region_id})
-    |> or_where(
-      [event: e, settings: s],
-      e.league_id == ^league_id and fragment("?->>'pool' = 'league'", s.registration)
-    )
-  end
-
-  defp filter_eligible_events_by_team(query, team) do
-    %Team{region_id: region_id} = team
-
-    where(
-      query,
-      [event: e, settings: s],
-      e.region_id == ^region_id and fragment("?->>'pool' = 'region'", s.registration)
-    )
-  end
-
-  @spec list_league_ids_by_code :: %{String.t() => Ecto.UUID.t()}
-  def list_league_ids_by_code do
-    League.id_by_code_query()
-    |> Repo.all()
-    |> Map.new()
-  end
-
-  @spec list_regions :: [Region.t()]
-  def list_regions do
-    Query.from_region()
-    |> order_by([region: r], r.name)
-    |> Repo.all()
-  end
-
-  @spec list_regions_by_code :: %{String.t() => Region.t()}
-  def list_regions_by_code do
-    Region.by_code_query()
-    |> Repo.all()
-    |> Map.new()
-  end
-
-  @spec fetch_event_by_code(String.t()) :: {:ok, Event.t()} | {:error, :event, :not_found}
-  @spec fetch_event_by_code(String.t(), keyword) ::
-          {:ok, Event.t()} | {:error, :event, :not_found}
-  def fetch_event_by_code(code, opts \\ []) do
-    Query.from_event()
-    |> Query.event_code(code)
-    |> Query.preload_assoc(:event, opts[:preload])
-    |> Repo.one()
-    |> case do
-      %Event{} = event -> {:ok, event}
-      nil -> {:error, :event, :not_found}
-    end
-  end
-
-  @spec fetch_league_by_code(String.t(), keyword) ::
-          {:ok, League.t()} | {:error, :league, :not_found}
-  def fetch_league_by_code(code, opts \\ []) do
-    Query.from_league()
-    |> Query.league_code(code)
-    |> Query.preload_assoc(:league, opts[:preload])
-    |> Repo.one()
-    |> case do
-      %League{} = league -> {:ok, league}
-      nil -> {:error, :league, :not_found}
-    end
-  end
-
-  @spec fetch_region_by_abbreviation(String.t(), keyword) ::
-          {:ok, Region.t()} | {:error, :region, :not_found}
-  def fetch_region_by_abbreviation(abbreviation, opts \\ []) do
-    Query.from_region()
-    |> Query.region_abbreviation(abbreviation)
-    |> Query.preload_assoc(:region, opts[:preload])
-    |> Repo.one()
-    |> case do
-      %Region{} = region -> {:ok, region}
-      nil -> {:error, :region, :not_found}
-    end
-  end
-
-  @doc """
   Save event data from an FTC Events API response
 
   Because the events API covers all regions, any events not included in the response will be
@@ -233,6 +93,28 @@ defmodule RM.FIRST do
     |> Enum.reject(&is_nil/1)
     |> League.event_stats_update_query()
     |> Repo.update_all([])
+  end
+
+  @doc """
+  Refresh the local league information for the given region
+  """
+  @spec refresh_leagues(Region.t()) :: {:ok, [League.t()]} | {:error, Exception.t()}
+  def refresh_leagues(region) do
+    with {:ok, %{leagues: leagues}} <- External.FTCEvents.list_leagues(region) do
+      leagues = update_leagues_from_ftc_events(leagues, delete_region: region)
+
+      for league <- leagues do
+        with {:ok, members} <- External.FTCEvents.list_league_members(region, league) do
+          # This is bad. But also... good.
+          Process.sleep(1_000)
+          update_league_assignments_from_ftc_events(league, members)
+        end
+      end
+
+      update_league_team_counts(leagues)
+
+      {:ok, leagues}
+    end
   end
 
   @doc """
@@ -337,5 +219,135 @@ defmodule RM.FIRST do
     |> Enum.uniq()
     |> League.team_stats_update_query()
     |> Repo.update_all([])
+  end
+
+  #
+  # Seasons
+  #
+
+  @spec list_seasons :: [Season.t()]
+  def list_seasons do
+    Query.from_season()
+    |> order_by([season: s], s.year)
+    |> Repo.all()
+  end
+
+  #
+  # Regions
+  #
+
+  @spec list_regions :: [Region.t()]
+  def list_regions do
+    Query.from_region()
+    |> order_by([region: r], r.name)
+    |> Repo.all()
+  end
+
+  @spec list_regions_by_code :: %{String.t() => Region.t()}
+  def list_regions_by_code do
+    Region.by_code_query()
+    |> Repo.all()
+    |> Map.new()
+  end
+
+  @spec fetch_region_by_abbreviation(String.t(), keyword) ::
+          {:ok, Region.t()} | {:error, :region, :not_found}
+  def fetch_region_by_abbreviation(abbreviation, opts \\ []) do
+    Query.from_region()
+    |> Query.region_abbreviation(abbreviation)
+    |> Query.preload_assoc(:region, opts[:preload])
+    |> Repo.one()
+    |> case do
+      %Region{} = region -> {:ok, region}
+      nil -> {:error, :region, :not_found}
+    end
+  end
+
+  #
+  # Leagues
+  #
+
+  @spec list_league_ids_by_code :: %{String.t() => Ecto.UUID.t()}
+  def list_league_ids_by_code do
+    League.id_by_code_query()
+    |> Repo.all()
+    |> Map.new()
+  end
+
+  @spec fetch_league_by_code(String.t(), keyword) ::
+          {:ok, League.t()} | {:error, :league, :not_found}
+  def fetch_league_by_code(code, opts \\ []) do
+    Query.from_league()
+    |> Query.league_code(code)
+    |> Query.preload_assoc(:league, opts[:preload])
+    |> Repo.one()
+    |> case do
+      %League{} = league -> {:ok, league}
+      nil -> {:error, :league, :not_found}
+    end
+  end
+
+  #
+  # Events
+  #
+
+  @spec list_events_by_region(Region.t()) :: [Event.t()]
+  @spec list_events_by_region(Region.t(), keyword) :: [Event.t()]
+  def list_events_by_region(region, opts \\ []) do
+    Query.from_event()
+    |> Query.event_region(region)
+    |> Query.event_season(opts[:season])
+    |> Query.preload_assoc(:event, opts[:preload])
+    |> Repo.all()
+    |> Enum.filter(&is_nil(&1.division_code))
+    |> Enum.sort(Event)
+  end
+
+  @spec list_eligible_events_by_team(Team.t()) :: [Event.t()]
+  @spec list_eligible_events_by_team(Team.t(), keyword) :: [Event.t()]
+  def list_eligible_events_by_team(team, opts \\ []) do
+    Query.from_event()
+    |> Query.join_settings_from_event()
+    |> filter_eligible_events_by_team(team)
+    |> Query.preload_assoc(:event, opts[:preload])
+    |> Repo.all()
+    |> Enum.filter(&is_nil(&1.division_code))
+    |> Enum.sort(Event)
+  end
+
+  @spec filter_eligible_events_by_team(Query.query(), Team.t()) :: Query.query()
+  defp filter_eligible_events_by_team(query, %Team{league: %League{id: league_id}} = team) do
+    %Team{region_id: region_id} = team
+
+    query
+    |> filter_eligible_events_by_team(%Team{region_id: region_id})
+    |> or_where(
+      [event: e, settings: s],
+      e.league_id == ^league_id and fragment("?->>'pool' = 'league'", s.registration)
+    )
+  end
+
+  defp filter_eligible_events_by_team(query, team) do
+    %Team{region_id: region_id} = team
+
+    where(
+      query,
+      [event: e, settings: s],
+      e.region_id == ^region_id and fragment("?->>'pool' = 'region'", s.registration)
+    )
+  end
+
+  @spec fetch_event_by_code(String.t()) :: {:ok, Event.t()} | {:error, :event, :not_found}
+  @spec fetch_event_by_code(String.t(), keyword) ::
+          {:ok, Event.t()} | {:error, :event, :not_found}
+  def fetch_event_by_code(code, opts \\ []) do
+    Query.from_event()
+    |> Query.event_code(code)
+    |> Query.preload_assoc(:event, opts[:preload])
+    |> Repo.one()
+    |> case do
+      %Event{} = event -> {:ok, event}
+      nil -> {:error, :event, :not_found}
+    end
   end
 end
