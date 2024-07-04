@@ -3,13 +3,13 @@ defmodule RMWeb.MetaJSON do
     %{success: true, data: "Welcome to the Region Manager API", errors: nil}
   end
 
-  def seasons(%{seasons: seasons}) do
-    seasons = Enum.map(seasons, &season/1)
-    %{success: true, data: seasons, errors: nil}
+  def seasons(%{seasons: seasons, current: current}) do
+    seasons = Enum.map(seasons, fn s -> season(s, s.year == current) end)
+    %{success: true, data: %{current_season: current, seasons: seasons}, errors: nil}
   end
 
-  defp season(%RM.FIRST.Season{name: name, year: year}) do
-    %{name: name, year: year}
+  defp season(%RM.FIRST.Season{name: name, year: year}, current?) do
+    %{name: name, year: year, current: current?}
   end
 
   def regions(%{regions: regions}) do
