@@ -1,0 +1,22 @@
+defmodule RMWeb.RegionController do
+  use RMWeb, :controller
+  plug :assign_season
+
+  def show(conn, %{"region" => abbreviation}) do
+    with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(abbreviation) do
+      render(conn, :show, region: region)
+    end
+  end
+
+  @spec assign_season(Plug.Conn.t(), any) :: Plug.Conn.t()
+  defp assign_season(%Plug.Conn{path_params: %{"season" => season}} = conn, _opts) do
+    case Integer.parse(season) do
+      {season, ""} -> assign(conn, :season, season)
+      :error -> assign(conn, :season, RM.Config.get("current_season"))
+    end
+  end
+
+  defp assign_season(conn, _opts) do
+    assign(conn, :season, RM.Config.get("current_season"))
+  end
+end
