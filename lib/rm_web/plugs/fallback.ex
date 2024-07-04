@@ -1,5 +1,6 @@
 defmodule RMWeb.Fallback do
   use RMWeb, :controller
+  use RMWeb, :json
 
   def call(conn, {:error, data, :not_found}) do
     conn
@@ -11,9 +12,5 @@ defmodule RMWeb.Fallback do
     conn
     |> put_status(:server_error)
     |> json(error(unknown_reason))
-  end
-
-  defp error(error) do
-    %{success: false, data: nil, errors: [error]}
   end
 end

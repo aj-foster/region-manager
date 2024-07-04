@@ -1,11 +1,13 @@
 defmodule RMWeb.MetaJSON do
+  use RMWeb, :json
+
   def index(_assigns) do
-    %{success: true, data: "Welcome to the Region Manager API", errors: nil}
+    success("Welcome to the Region Manager API")
   end
 
   def seasons(%{seasons: seasons, current: current}) do
     seasons = Enum.map(seasons, fn s -> season(s, s.year == current) end)
-    %{success: true, data: %{current_season: current, seasons: seasons}, errors: nil}
+    success(%{current_season: current, seasons: seasons})
   end
 
   defp season(%RM.FIRST.Season{name: name, year: year}, current?) do
@@ -13,8 +15,8 @@ defmodule RMWeb.MetaJSON do
   end
 
   def regions(%{regions: regions}) do
-    regions = Enum.map(regions, &region/1)
-    %{success: true, data: regions, errors: nil}
+    Enum.map(regions, &region/1)
+    |> success()
   end
 
   defp region(%RM.FIRST.Region{

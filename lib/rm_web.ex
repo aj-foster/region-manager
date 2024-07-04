@@ -110,6 +110,12 @@ defmodule RMWeb do
     end
   end
 
+  def json do
+    quote do
+      import RMWeb.JSON
+    end
+  end
+
   @doc """
   When used, dispatch to the appropriate controller/view/etc.
   """
