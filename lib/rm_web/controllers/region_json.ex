@@ -98,4 +98,32 @@ defmodule RMWeb.RegionJSON do
       stats: %{event_count: event_count, league_count: league_count, team_count: team_count}
     }
   end
+
+  def teams(%{teams: teams}) do
+    success(%{team_count: length(teams), teams: Enum.map(teams, &team/1)})
+  end
+
+  defp team(%RM.Local.Team{
+         name: name,
+         number: number,
+         rookie_year: rookie_year,
+         website: website,
+         location: %{city: city, country: country, county: county, state_province: state_province},
+         league: league
+       }) do
+    %{
+      name: name,
+      number: number,
+      rookie_year: rookie_year,
+      website: website,
+      location: %{city: city, country: country, county: county, state_province: state_province},
+      league: team_league(league)
+    }
+  end
+
+  defp team_league(nil), do: nil
+
+  defp team_league(%RM.FIRST.League{code: code, location: location, name: name, remote: remote}) do
+    %{code: code, location: location, name: name, remote: remote}
+  end
 end

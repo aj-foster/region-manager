@@ -7,6 +7,7 @@ defmodule RM.Local do
   alias Ecto.Changeset
   alias RM.FIRST.Event
   alias RM.FIRST.League
+  alias RM.FIRST.Region
   alias RM.Local.EventProposal
   alias RM.Local.EventRegistration
   alias RM.Local.EventSettings
@@ -209,12 +210,23 @@ defmodule RM.Local do
     |> Enum.sort_by(& &1.team, Team)
   end
 
+  @spec list_teams_by_number([integer]) :: [Team.t()]
   @spec list_teams_by_number([integer], keyword) :: [Team.t()]
   def list_teams_by_number(numbers, opts \\ []) do
     Query.from_team()
     |> where([team: t], t.number in ^numbers)
     |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.all()
+  end
+
+  @spec list_teams_by_region(Region.t()) :: [Team.t()]
+  @spec list_teams_by_region(Region.t(), keyword) :: [Team.t()]
+  def list_teams_by_region(region, opts \\ []) do
+    Query.from_team()
+    |> where([team: t], t.region_id == ^region.id)
+    |> Query.preload_assoc(:team, opts[:preload])
+    |> Repo.all()
+    |> Enum.sort(Team)
   end
 
   @spec list_teams_by_team_id([integer], keyword) :: [Team.t()]
