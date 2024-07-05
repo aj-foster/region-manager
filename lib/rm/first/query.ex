@@ -132,6 +132,14 @@ defmodule RM.FIRST.Query do
     end)
   end
 
+  @doc "Load the `proposal` association on an event"
+  @spec join_proposal_from_event(query) :: query
+  def join_proposal_from_event(query) do
+    with_named_binding(query, :proposal, fn query, binding ->
+      join(query, :left, [event: e], p in assoc(e, :proposal), as: ^binding)
+    end)
+  end
+
   @doc "Load the `region` association on an event"
   @spec join_region_from_event(query) :: query
   def join_region_from_event(query) do
@@ -180,6 +188,16 @@ defmodule RM.FIRST.Query do
     end)
   end
 
+  @doc "Load the `venue` association on an event's proposal"
+  @spec join_venue_from_event(query) :: query
+  def join_venue_from_event(query) do
+    query
+    |> join_proposal_from_event()
+    |> with_named_binding(:venue, fn query, binding ->
+      join(query, :left, [proposal: p], v in assoc(p, :venue), as: ^binding)
+    end)
+  end
+
   #
   # Preloads
   #
@@ -193,7 +211,9 @@ defmodule RM.FIRST.Query do
   With `:event` as the base:
 
     * `league`: `league` associated with an event
+    * `proposal`: `proposal` associated with an event
     * `region`: `region` associated with an event
+    * `venue`: `venue` associated with an event's `proposal`
 
   With `:region` as the base:
 
@@ -219,6 +239,13 @@ defmodule RM.FIRST.Query do
     |> preload_assoc(:event, rest)
   end
 
+  def preload_assoc(query, :event, [:proposal | rest]) do
+    query
+    |> join_proposal_from_event()
+    |> preload([proposal: p], proposal: p)
+    |> preload_assoc(:event, rest)
+  end
+
   def preload_assoc(query, :event, [:region | rest]) do
     query
     |> join_region_from_event()
@@ -230,6 +257,14 @@ defmodule RM.FIRST.Query do
     query
     |> join_settings_from_event()
     |> preload([settings: s], settings: s)
+    |> preload_assoc(:event, rest)
+  end
+
+  def preload_assoc(query, :event, [:venue | rest]) do
+    query
+    |> join_proposal_from_event()
+    |> join_venue_from_event()
+    |> preload([proposal: p, venue: v], proposal: {p, venue: v})
     |> preload_assoc(:event, rest)
   end
 

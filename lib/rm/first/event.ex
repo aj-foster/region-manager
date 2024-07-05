@@ -3,6 +3,7 @@ defmodule RM.FIRST.Event do
 
   alias RM.FIRST.League
   alias RM.FIRST.Region
+  alias RM.Local.EventProposal
   alias RM.Local.EventSettings
   alias RM.Local.RegistrationSettings
 
@@ -62,6 +63,7 @@ defmodule RM.FIRST.Event do
 
     belongs_to :league, League
     belongs_to :region, Region
+    has_one :proposal, EventProposal, foreign_key: :first_event_id
     has_one :settings, EventSettings
 
     embeds_one :location, Location, on_replace: :update, primary_key: false do
