@@ -43,10 +43,8 @@ defmodule RMWeb.RegionJSON do
            date_end: date_end,
            date_start: date_start,
            date_timezone: timezone,
-           hybrid: hybrid,
            live_stream_url: live_stream_url,
            name: name,
-           remote: remote,
            season: season,
            type: type,
            website: website,
@@ -59,16 +57,17 @@ defmodule RMWeb.RegionJSON do
            }
          } = event
        ) do
+    {attending, waitlist} = event_registration_attending_waitlist(event)
+
     %{
       code: code,
       date_end: date_end,
       date_start: date_start,
-      hybrid: hybrid,
+      format: RM.FIRST.Event.format_name(event),
       live_stream_url: live_stream_url,
       name: name,
-      remote: remote,
       season: season,
-      type: type,
+      type: RM.FIRST.Event.type_name(type),
       website: website,
       location: %{
         name: venue,
@@ -80,8 +79,33 @@ defmodule RMWeb.RegionJSON do
         timezone: timezone,
         website: get_in(event.proposal.venue.website),
         notes: get_in(event.proposal.venue.notes)
+      },
+      registration: %{
+        open: event_registration_open(event),
+        deadline: RM.FIRST.Event.registration_deadline(event),
+        url: url(~p"/event/#{event}/register"),
+        attending: Enum.map(attending, & &1.team.number),
+        waitlist: Enum.map(waitlist, & &1.team.number)
       }
     }
+  end
+
+  defp event_registration_open(
+         %RM.FIRST.Event{
+           settings: %RM.Local.EventSettings{
+             registration: %RM.Local.RegistrationSettings{enabled: true}
+           }
+         } = event
+       ) do
+    not RM.FIRST.Event.registration_deadline_passed?(event)
+  end
+
+  defp event_registration_open(_event), do: false
+
+  defp event_registration_attending_waitlist(%RM.FIRST.Event{registrations: registrations}) do
+    registrations
+    |> Enum.reject(& &1.rescinded)
+    |> Enum.split_with(&(not &1.waitlisted))
   end
 
   def leagues(%{leagues: leagues}) do

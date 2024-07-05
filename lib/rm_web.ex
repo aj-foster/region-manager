@@ -113,6 +113,8 @@ defmodule RMWeb do
   def json do
     quote do
       import RMWeb.JSON
+
+      unquote(verified_routes())
     end
   end
 
