@@ -2,7 +2,11 @@ defmodule RMWeb.MetaJSON do
   use RMWeb, :json
 
   def index(_assigns) do
-    success("Welcome to the Region Manager API")
+    success(%{
+      description: "Welcome to the Region Manager API",
+      latest_version: RMWeb.Version.latest_version(),
+      all_versions: RMWeb.Version.all_versions()
+    })
   end
 
   def seasons(%{seasons: seasons, current: current}) do
