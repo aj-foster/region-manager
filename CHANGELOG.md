@@ -3,6 +3,27 @@
 Notable changes to this project will be documented in this file.
 Because this project does not utilize tagged releases, changes will be roughly grouped by date.
 
+## 2024-07-01
+
+_Region Manager_ now has an API located at `https://ftcregion.com/api`.
+This API is versioned using date headers (`X-RM-API-Version: 2024-07-01`) and updates to the API will be communicated in this changelog.
+
+Available in this first release (version `2024-07-01`):
+
+* `"/"` — Base route (informational). Includes a list of all API versions available, including the latest version.
+* `"/meta/seasons"` — Lists the seasons available in Region Manager.
+* `"/meta/regions"` — Lists the regions available in Region Manager.
+
+The following routes can be requested in a season-specific, or current-season way. For example, `"/r/:region"` and `"/s/:season/r/:region"` are equivalent if you pass a season matching the current season.
+
+* `"/s/:season/r/:region”` — General information about the region. Includes statistics about number of teams, leagues, and events.
+* `"/s/:season/r/:region/events"` — List events in the region. Currently unpaginated due to expected number of results. Mostly comprises information available from FIRST, but also peppers in some additional data available if the event was originally proposed in _Region Manager_. Also includes information about registered teams and a URL to register.
+* `"/s/:season/r/:region/leagues"` — List leagues in the region.
+* `"/s/:season/r/:region/teams"` — List teams in the region. Includes information about the team’s league assignment.
+
+In addition to the API, _Region Manager_ also supports proposing events.
+This includes the creation of reusable venue information.
+
 ## 2024-05-31
 
 Teams can now register for events.
