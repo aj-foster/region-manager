@@ -3,6 +3,7 @@ defmodule RM.FIRST.Season do
 
   @type t :: %__MODULE__{
           inserted_at: DateTime.t(),
+          kickoff: Date.t(),
           name: String.t(),
           updated_at: DateTime.t(),
           year: integer
@@ -11,6 +12,7 @@ defmodule RM.FIRST.Season do
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "first_seasons" do
+    field :kickoff, :date
     field :name, :string
     field :year, :integer
 

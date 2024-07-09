@@ -14,8 +14,8 @@ defmodule RMWeb.MetaJSON do
     success(%{season_count: length(seasons), current_season: current, seasons: seasons})
   end
 
-  defp season(%RM.FIRST.Season{name: name, year: year}, current?) do
-    %{name: name, year: year, current: current?}
+  defp season(%RM.FIRST.Season{kickoff: kickoff, name: name, year: year}, current?) do
+    %{kickoff: kickoff, name: name, year: year, current: current?}
   end
 
   def regions(%{regions: regions}) do
