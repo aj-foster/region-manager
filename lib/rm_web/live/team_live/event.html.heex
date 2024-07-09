@@ -1,9 +1,15 @@
 <.nav class="mb-8" team={@team} view={@socket.view} />
 
-<.warning :if={not @team.event_ready} class="mb-6">
+<.warning :if={not @team.event_ready and not @eligible} class="mb-6">
   This team is not <strong>Event Ready</strong>. Please resolve all
   <.link class="underline" navigate={~p"/team/#{@team}"}>outstanding notices</.link>
   before attempting to register for events.
+</.warning>
+
+<.warning :if={not @team.event_ready and @eligible} class="mb-6">
+  This team is not <strong>Event Ready</strong>. Although you can register for this event, please resolve all
+  <.link class="underline" navigate={~p"/team/#{@team}"}>outstanding notices</.link>
+  before attempting to register for future events.
 </.warning>
 
 <div class="mb-8">
@@ -125,6 +131,16 @@
           / <%= @event.settings.registration.team_limit %>
         </span>
         filled
+      </:row>
+      <:row title="Open To">
+        <%= case @event.settings.registration.pool do %>
+          <% :all -> %>
+            All Teams
+          <% :league -> %>
+            Teams in <%= if(@event.league, do: @event.league.name <> " League", else: "league") %>
+          <% :region -> %>
+            Teams in <%= @event.region.name %>
+        <% end %>
       </:row>
       <:row title="Registered Teams">
         <.async_result :let={teams} assign={@registered_teams}>

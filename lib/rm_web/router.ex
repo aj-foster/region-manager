@@ -38,6 +38,8 @@ defmodule RMWeb.Router do
       ] do
       live "/dashboard", DashboardLive.Home
 
+      live "/event/:event/register", EventLive.Register
+
       live "/league/:league", LeagueLive.Show
       live "/league/:league/events", LeagueLive.Events
       live "/league/:league/events/new", LeagueLive.Propose
