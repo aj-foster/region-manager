@@ -77,6 +77,26 @@ defmodule RMWeb.CoreComponents do
   end
 
   @doc """
+  Visual information pane with left-side icon and arbitrary contents
+  """
+  attr :class, :string, default: nil, doc: "additional classes to apply"
+  slot :inner_block, required: true
+
+  def information(assigns) do
+    ~H"""
+    <div class={[
+      "bg-purple-100 border border-purple-400 flex gap-3 items-center justify-start px-4 py-2 rounded text-sm",
+      @class
+    ]}>
+      <.icon name="hero-information-circle" class="shrink-0 text-purple-500" />
+      <div class="grow">
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
   Renders a modal.
 
   ## Examples

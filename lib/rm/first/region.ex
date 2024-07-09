@@ -42,6 +42,7 @@ defmodule RM.FIRST.Region do
     has_many :teams, Team
 
     embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
+      field :current_season, :integer, autogenerate: {RM.Config, :get, ["current_season"]}
       field :event_count, :integer, default: 0
       field :events_imported_at, :utc_datetime_usec
       field :league_count, :integer, default: 0

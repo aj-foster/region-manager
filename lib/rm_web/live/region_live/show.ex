@@ -6,11 +6,14 @@ defmodule RMWeb.RegionLive.Show do
   on_mount {RMWeb.RegionLive.Util, :require_region_manager}
 
   def mount(_params, _session, socket) do
+    current_season = RM.Config.get("current_season")
     region = socket.assigns[:region]
     unready_teams = Enum.reject(region.teams, & &1.event_ready)
 
     socket
     |> assign(
+      current_season: current_season,
+      needs_setup: region.stats.current_season < current_season,
       unready_teams: unready_teams,
       unready_team_count: length(unready_teams)
     )
