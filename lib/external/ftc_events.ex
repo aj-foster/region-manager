@@ -7,11 +7,9 @@ defmodule External.FTCEvents do
   alias RM.FIRST.Region
   alias External.FTCEvents.API
 
-  @season 2023
-
-  @spec list_events :: API.response(API.list_events_response())
-  def list_events do
-    API.client().list_events(@season)
+  @spec list_events(integer) :: API.response(API.list_events_response())
+  def list_events(season) do
+    API.client().list_events(season)
   end
 
   @spec list_leagues(integer, Region.t()) :: API.response(API.list_leagues_response())

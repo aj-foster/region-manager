@@ -98,6 +98,11 @@ defmodule RM.FIRST.Query do
     where(query, [league: l], l.region_id in ^region_ids)
   end
 
+  @doc "Filter leagues by the season"
+  @spec league_season(query, integer | nil) :: query
+  def league_season(query, nil), do: query
+  def league_season(query, season), do: where(query, [league: l], l.season == ^season)
+
   @doc "Find the region with a given abbreviation or code"
   @spec region_abbreviation(query, String.t()) :: query
   def region_abbreviation(query, abbreviation) do

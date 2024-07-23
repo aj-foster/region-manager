@@ -5,6 +5,7 @@ defmodule RM.FIRST.League do
   alias RM.FIRST.Event
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
+  alias RM.FIRST.Query
   alias RM.Local.EventProposal
   alias RM.Local.LeagueSettings
   alias RM.Local.Team
@@ -101,22 +102,25 @@ defmodule RM.FIRST.League do
     |> String.replace(~r/\s+league\s*$/i, "")
   end
 
-  def id_by_code_query do
-    from(__MODULE__, as: :league)
+  @spec id_by_code_query(integer) :: Ecto.Query.t()
+  def id_by_code_query(season) do
+    Query.from_league()
+    |> Query.league_season(season)
     |> select([league: l], {l.code, l.id})
   end
 
   @doc """
   Query to update cached event statistics for leagues with the given IDs
   """
-  @spec event_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
-  def event_stats_update_query(league_ids) do
+  @spec event_stats_update_query([Ecto.UUID.t()], integer) :: Ecto.Query.t()
+  def event_stats_update_query(league_ids, season) do
     now = DateTime.utc_now()
 
     count_query =
       from(__MODULE__, as: :league)
       |> where([league: l], l.id in ^league_ids)
       |> join(:left, [league: l], e in assoc(l, :events), as: :event)
+      |> where([event: e], e.season == ^season)
       |> group_by([league: l], l.id)
       |> select([league: l, event: e], %{id: l.id, count: count(e.id)})
 

@@ -49,8 +49,10 @@ defmodule RMWeb.RegionLive.Import do
   end
 
   def handle_event("refresh_events", _params, socket) do
+    region = socket.assigns[:region]
+
     socket
-    |> assign_async(:refresh_events, fn -> do_refresh_events() end)
+    |> assign_async(:refresh_events, fn -> do_refresh_events(region) end)
     |> noreply()
   end
 
@@ -66,8 +68,8 @@ defmodule RMWeb.RegionLive.Import do
   # Helpers
   #
 
-  defp do_refresh_events do
-    case FIRST.refresh_events() do
+  defp do_refresh_events(region) do
+    case FIRST.refresh_events(region) do
       {:ok, _events} ->
         {:ok, %{refresh_events: true}}
 

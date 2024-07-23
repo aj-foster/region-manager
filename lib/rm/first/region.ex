@@ -68,14 +68,17 @@ defmodule RM.FIRST.Region do
   @doc """
   Query to update cached event statistics for regions with the given IDs
   """
-  @spec event_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
-  def event_stats_update_query(region_ids) do
+  @spec event_stats_update_query([Ecto.UUID.t()], integer) :: Ecto.Query.t()
+  def event_stats_update_query(region_ids, season) do
     now = DateTime.utc_now()
 
     count_query =
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
-      |> join(:left, [region: r], e in assoc(r, :events), as: :event)
+      |> join(:left, [region: r], e in Event,
+        on: e.region_id == r.id and e.season == ^season,
+        as: :event
+      )
       |> group_by([region: r], r.id)
       |> select([region: r, event: e], %{id: r.id, count: count(e.id)})
 
@@ -97,14 +100,15 @@ defmodule RM.FIRST.Region do
   @doc """
   Query to update cached league statistics for regions with the given IDs
   """
-  @spec league_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
-  def league_stats_update_query(region_ids) do
+  @spec league_stats_update_query([Ecto.UUID.t()], integer) :: Ecto.Query.t()
+  def league_stats_update_query(region_ids, season) do
     now = DateTime.utc_now()
 
     count_query =
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
       |> join(:left, [region: r], l in assoc(r, :leagues), as: :league)
+      |> where([league: l], l.season == ^season)
       |> group_by([region: r], r.id)
       |> select([region: r, league: l], %{id: r.id, count: count(l.id)})
 
