@@ -39,6 +39,7 @@ defmodule RM.FIRST.League do
     field :location, :string
     field :name, :string
     field :remote, :boolean
+    field :season, :integer
 
     belongs_to :parent_league, __MODULE__, type: :binary_id
     belongs_to :region, Region, type: :binary_id

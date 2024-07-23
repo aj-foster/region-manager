@@ -97,14 +97,18 @@ defmodule RM.FIRST do
 
   @doc """
   Refresh the local league information for the given region
+
+  This will refresh data for the region's "current season".
   """
   @spec refresh_leagues(Region.t()) :: {:ok, [League.t()]} | {:error, Exception.t()}
   def refresh_leagues(region) do
-    with {:ok, %{leagues: leagues}} <- External.FTCEvents.list_leagues(region) do
+    %Region{stats: %Region.Stats{current_season: season}} = region
+
+    with {:ok, %{leagues: leagues}} <- External.FTCEvents.list_leagues(season, region) do
       leagues = update_leagues_from_ftc_events(leagues, delete_region: region)
 
       for league <- leagues do
-        with {:ok, members} <- External.FTCEvents.list_league_members(region, league) do
+        with {:ok, members} <- External.FTCEvents.list_league_members(season, region, league) do
           # This is bad. But also... good.
           Process.sleep(1_000)
           update_league_assignments_from_ftc_events(league, members)
@@ -142,7 +146,7 @@ defmodule RM.FIRST do
     leagues =
       Repo.insert_all(League, league_data,
         on_conflict: {:replace_all_except, [:id, :inserted_at]},
-        conflict_target: :code,
+        conflict_target: [:code, :season],
         returning: true
       )
       |> elem(1)
@@ -173,7 +177,7 @@ defmodule RM.FIRST do
     leagues =
       Repo.insert_all(League, league_data,
         on_conflict: {:replace_all_except, [:id, :inserted_at]},
-        conflict_target: :code,
+        conflict_target: [:code, :season],
         returning: true
       )
       |> elem(1)
