@@ -24,7 +24,7 @@ defmodule RMWeb.LeagueLive.Proposal do
         socket =
           socket
           |> put_flash(:error, "Event proposal not found")
-          |> redirect(to: ~p"/league/#{league}/events")
+          |> redirect(to: ~p"/league/#{league.region}/#{league}/events")
 
         {:halt, socket}
     end

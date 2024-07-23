@@ -28,7 +28,9 @@
           @current_user && is_list(@current_user.leagues) && length(@current_user.leagues) == 1
         }
         class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
-        navigate={~p"/league/#{List.first(@current_user.leagues)}"}
+        navigate={
+          ~p"/league/#{List.first(@current_user.leagues).region}/#{List.first(@current_user.leagues)}"
+        }
       >
         <%= List.first(@current_user.leagues).name %>
       </.link>

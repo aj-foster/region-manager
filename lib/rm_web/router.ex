@@ -40,12 +40,12 @@ defmodule RMWeb.Router do
 
       live "/event/:event/register", EventLive.Register
 
-      live "/league/:league", LeagueLive.Show
-      live "/league/:league/events", LeagueLive.Events
-      live "/league/:league/events/new", LeagueLive.Propose
-      live "/league/:league/events/:event", LeagueLive.Event
-      live "/league/:league/events/proposal/:event", LeagueLive.Proposal
-      live "/league/:league/teams", LeagueLive.Teams
+      live "/league/:region/:league", LeagueLive.Show
+      live "/league/:region/:league/events", LeagueLive.Events
+      live "/league/:region/:league/events/new", LeagueLive.Propose
+      live "/league/:region/:league/events/:event", LeagueLive.Event
+      live "/league/:region/:league/events/proposal/:event", LeagueLive.Proposal
+      live "/league/:region/:league/teams", LeagueLive.Teams
 
       live "/region/:region", RegionLive.Show
       live "/region/:region/events", RegionLive.Events

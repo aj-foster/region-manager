@@ -2,7 +2,8 @@
 
 <div class="mb-8">
   <.title>
-    <.link navigate={~p"/league/#{@league}/events"}>Events</.link> &bull; <%= @event.name %>
+    <.link navigate={~p"/league/#{@league.region}/#{@league}/events"}>Events</.link>
+    &bull; <%= @event.name %>
   </.title>
 
   <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">

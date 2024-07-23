@@ -5,7 +5,7 @@
     <.title flush>Events in <%= @league.name %> League</.title>
     <.link_button
       :if={@assignment.permissions.events}
-      navigate={~p"/league/#{@league}/events/new"}
+      navigate={~p"/league/#{@league.region}/#{@league}/events/new"}
     >
       Propose...
     </.link_button>
@@ -14,7 +14,7 @@
   <.link
     :for={event <- @league.events}
     class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-    navigate={~p"/league/#{@league}/events/#{event}"}
+    navigate={~p"/league/#{@league.region}/#{@league}/events/#{event}"}
   >
     <div class="grow">
       <h3 class="font-bold"><%= event.name %></h3>
@@ -40,7 +40,7 @@
     <.title flush>Proposed Events</.title>
     <.link_button
       :if={@assignment.permissions.events}
-      navigate={~p"/league/#{@league}/events/new"}
+      navigate={~p"/league/#{@league.region}/#{@league}/events/new"}
     >
       Propose...
     </.link_button>
@@ -49,7 +49,7 @@
   <.link
     :for={event <- @proposed_events}
     class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-    navigate={~p"/league/#{@league}/events/proposal/#{event}"}
+    navigate={~p"/league/#{@league.region}/#{@league}/events/proposal/#{event}"}
   >
     <div class="grow">
       <h3 class="font-bold"><%= event.name %></h3>

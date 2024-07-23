@@ -143,7 +143,7 @@ defmodule RMWeb.LeagueLive.Propose do
       {:ok, _proposal} ->
         socket
         |> put_flash(:info, "Event proposal created successfully")
-        |> push_navigate(to: ~p"/league/#{league}/events")
+        |> push_navigate(to: ~p"/league/#{league.region}/#{league}/events")
 
       {:error, changeset} ->
         assign(socket, event_form: to_form(changeset))

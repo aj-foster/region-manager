@@ -286,10 +286,12 @@ defmodule RM.FIRST do
     |> Map.new()
   end
 
-  @spec fetch_league_by_code(String.t(), keyword) ::
+  @spec fetch_league_by_code(String.t(), String.t(), keyword) ::
           {:ok, League.t()} | {:error, :league, :not_found}
-  def fetch_league_by_code(code, opts \\ []) do
+  def fetch_league_by_code(region_abbr, code, opts \\ []) do
     Query.from_league()
+    |> Query.preload_assoc(:league, [:region])
+    |> Query.region_abbreviation(region_abbr)
     |> Query.league_code(code)
     |> Query.preload_assoc(:league, opts[:preload])
     |> Repo.one()

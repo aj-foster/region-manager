@@ -29,7 +29,7 @@ defmodule RMWeb.LeagueLive.Util do
       <% else %>
         <.link
           class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
-          navigate={~p"/league/#{@league}"}
+          navigate={~p"/league/#{@league.region}/#{@league}"}
         >
           Overview
         </.link>
@@ -45,7 +45,7 @@ defmodule RMWeb.LeagueLive.Util do
       <% else %>
         <.link
           class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
-          navigate={~p"/league/#{@league}/events"}
+          navigate={~p"/league/#{@league.region}/#{@league}/events"}
         >
           Events
         </.link>
@@ -61,7 +61,7 @@ defmodule RMWeb.LeagueLive.Util do
       <% else %>
         <.link
           class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
-          navigate={~p"/league/#{@league}/teams"}
+          navigate={~p"/league/#{@league.region}/#{@league}/teams"}
         >
           Teams
         </.link>
@@ -107,8 +107,8 @@ defmodule RMWeb.LeagueLive.Util do
   @spec refresh_league(Socket.t(), keyword) :: Socket.t()
   def refresh_league(socket, opts \\ []) do
     case socket.assigns[:league] do
-      %{code: league_code} ->
-        case get_league(league_code) do
+      %RM.FIRST.League{code: league_code, region: %RM.FIRST.Region{abbreviation: region_abbr}} ->
+        case get_league(region_abbr, league_code) do
           {:ok, league} ->
             socket
             |> assign(league: league)
@@ -127,8 +127,13 @@ defmodule RMWeb.LeagueLive.Util do
   @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
   def on_mount(name, params, session, socket)
 
-  def on_mount(:preload_league, %{"league" => league_code}, _session, socket) do
-    case get_league(league_code) do
+  def on_mount(
+        :preload_league,
+        %{"region" => region_abbr, "league" => league_code},
+        _session,
+        socket
+      ) do
+    case get_league(region_abbr, league_code) do
       {:ok, league} ->
         {:cont, assign(socket, league: league)}
 
@@ -158,11 +163,12 @@ defmodule RMWeb.LeagueLive.Util do
     end
   end
 
-  @spec get_league(Ecto.UUID.t()) :: {:ok, League.t()} | {:error, :league, :not_found}
-  defp get_league(league_code) do
+  @spec get_league(String.t(), String.t()) :: {:ok, League.t()} | {:error, :league, :not_found}
+  defp get_league(region_abbr, league_code) do
     preloads = [:region, :settings, :teams]
 
-    with {:ok, league} <- RM.FIRST.fetch_league_by_code(league_code, preload: preloads) do
+    with {:ok, league} <-
+           RM.FIRST.fetch_league_by_code(region_abbr, league_code, preload: preloads) do
       league =
         league
         |> RM.Repo.preload([:teams, users: [:profile]])
