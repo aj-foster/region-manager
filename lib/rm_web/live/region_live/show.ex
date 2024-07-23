@@ -13,7 +13,7 @@ defmodule RMWeb.RegionLive.Show do
     socket
     |> assign(
       current_season: current_season,
-      needs_setup: region.stats.current_season < current_season,
+      needs_setup: region.current_season < current_season,
       unready_teams: unready_teams,
       unready_team_count: length(unready_teams)
     )

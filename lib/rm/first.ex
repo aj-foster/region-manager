@@ -25,7 +25,7 @@ defmodule RM.FIRST do
   """
   @spec refresh_events(Region.t()) :: {:ok, [Event.t()]} | {:error, Exception.t()}
   def refresh_events(region) do
-    %Region{stats: %Region.Stats{current_season: season}} = region
+    %Region{current_season: season} = region
 
     with {:ok, %{events: events}} <- External.FTCEvents.list_events(season) do
       {:ok, update_events_from_ftc_events(season, events)}
@@ -105,7 +105,7 @@ defmodule RM.FIRST do
   """
   @spec refresh_leagues(Region.t()) :: {:ok, [League.t()]} | {:error, Exception.t()}
   def refresh_leagues(region) do
-    %Region{stats: %Region.Stats{current_season: season}} = region
+    %Region{current_season: season} = region
 
     with {:ok, %{leagues: leagues}} <- External.FTCEvents.list_leagues(season, region) do
       leagues = update_leagues_from_ftc_events(season, leagues, delete_region: region)

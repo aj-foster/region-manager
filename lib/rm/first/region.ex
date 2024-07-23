@@ -1,4 +1,14 @@
 defmodule RM.FIRST.Region do
+  @moduledoc """
+  _FIRST_ Tech Challenge region
+
+  Regions often represent North American states/provinces or non-American countries. Because
+  regions do not have any endpoints in the FTC Events API, this schema represents both local
+  data and how it is represented elsewhere (ex. `code` for the FTC Events API).
+
+  Regions have a "current season" that should propagate to all related queries. Region admins
+  must choose when to transition to a new season (usually after any off-season events).
+  """
   use Ecto.Schema
   import Ecto.Query
 
@@ -32,6 +42,7 @@ defmodule RM.FIRST.Region do
   schema "first_regions" do
     field :abbreviation, :string
     field :code, :string
+    field :current_season, :integer, autogenerate: {RM.Config, :get, ["current_season"]}
     field :description, :string
     field :has_leagues, :boolean, default: false
     field :name, :string
@@ -42,7 +53,6 @@ defmodule RM.FIRST.Region do
     has_many :teams, Team
 
     embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
-      field :current_season, :integer, autogenerate: {RM.Config, :get, ["current_season"]}
       field :event_count, :integer, default: 0
       field :events_imported_at, :utc_datetime_usec
       field :league_count, :integer, default: 0
