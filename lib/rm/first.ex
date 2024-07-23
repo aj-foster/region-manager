@@ -351,12 +351,14 @@ defmodule RM.FIRST do
     )
   end
 
-  @spec fetch_event_by_code(String.t()) :: {:ok, Event.t()} | {:error, :event, :not_found}
-  @spec fetch_event_by_code(String.t(), keyword) ::
+  @spec fetch_event_by_code(integer, String.t()) ::
           {:ok, Event.t()} | {:error, :event, :not_found}
-  def fetch_event_by_code(code, opts \\ []) do
+  @spec fetch_event_by_code(integer, String.t(), keyword) ::
+          {:ok, Event.t()} | {:error, :event, :not_found}
+  def fetch_event_by_code(season, code, opts \\ []) do
     Query.from_event()
     |> Query.event_code(code)
+    |> Query.event_season(season)
     |> Query.preload_assoc(:event, opts[:preload])
     |> Repo.one()
     |> case do

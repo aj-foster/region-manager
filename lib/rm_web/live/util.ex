@@ -1,4 +1,5 @@
 defmodule RMWeb.Live.Util do
+  use RMWeb, :html
   import Phoenix.Component
 
   alias Phoenix.Component
@@ -221,6 +222,7 @@ defmodule RMWeb.Live.Util do
   @doc false
   defmacro __using__(_opt) do
     quote do
+      LiveView.on_mount({RMWeb.Live.Util, :setup_season})
       LiveView.on_mount({RMWeb.Live.Util, :setup_timezone})
       LiveView.on_mount({RMWeb.Live.Util, :setup_uri})
     end
@@ -236,6 +238,30 @@ defmodule RMWeb.Live.Util do
         {:cont, assign(socket, current_user: get_user(user_id))}
 
       nil ->
+        {:cont, socket}
+    end
+  end
+
+  # Must be called after :setup_season has run
+  def on_mount(:require_season, _params, _session, socket) do
+    if socket.assigns[:season] do
+      {:cont, socket}
+    else
+      socket =
+        socket
+        |> LiveView.put_flash(:error, "Invalid season in the URL")
+        |> LiveView.redirect(to: ~p"/dashboard")
+
+      {:halt, socket}
+    end
+  end
+
+  def on_mount(:setup_season, params, _session, socket) do
+    with {:ok, season_str} <- Map.fetch(params, "season"),
+         {season, ""} <- Integer.parse(season_str) do
+      {:cont, assign(socket, season: season)}
+    else
+      _ ->
         {:cont, socket}
     end
   end

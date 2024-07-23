@@ -3,6 +3,7 @@ defmodule RMWeb.EventLive.Register do
 
   alias RM.FIRST.Event
 
+  on_mount {RMWeb.Live.Util, :require_season}
   on_mount {__MODULE__, :preload_event}
 
   def mount(_params, _session, socket) do
@@ -13,7 +14,9 @@ defmodule RMWeb.EventLive.Register do
   end
 
   def on_mount(:preload_event, %{"event" => event_code}, _session, socket) do
-    case RM.FIRST.fetch_event_by_code(event_code, preload: [:league, :region, :settings]) do
+    season = socket.assigns[:season]
+
+    case RM.FIRST.fetch_event_by_code(season, event_code, preload: [:league, :region, :settings]) do
       {:ok, event} ->
         event = RM.Repo.preload(event, registrations: [:team])
         {:cont, assign(socket, event: event)}
