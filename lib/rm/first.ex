@@ -74,17 +74,17 @@ defmodule RM.FIRST do
       |> select([event: e], e)
       |> Repo.delete_all()
 
-    update_region_event_counts(events ++ deleted_events, season)
+    update_region_event_counts(events ++ deleted_events)
     update_league_event_counts(events ++ deleted_events, season)
     events
   end
 
-  @spec update_region_event_counts([Event.t()], integer) :: {integer, nil}
-  defp update_region_event_counts(events, season) do
+  @spec update_region_event_counts([Event.t()]) :: {integer, nil}
+  defp update_region_event_counts(events) do
     events
     |> Enum.map(& &1.region_id)
     |> Enum.uniq()
-    |> Region.event_stats_update_query(season)
+    |> Region.event_stats_update_query()
     |> Repo.update_all([])
   end
 
@@ -190,16 +190,16 @@ defmodule RM.FIRST do
       )
       |> elem(1)
 
-    update_region_league_counts(leagues, season)
+    update_region_league_counts(leagues)
     leagues
   end
 
-  @spec update_region_league_counts([League.t()], integer) :: {integer, nil}
-  defp update_region_league_counts(leagues, season) do
+  @spec update_region_league_counts([League.t()]) :: {integer, nil}
+  defp update_region_league_counts(leagues) do
     leagues
     |> Enum.map(& &1.region_id)
     |> Enum.uniq()
-    |> Region.league_stats_update_query(season)
+    |> Region.league_stats_update_query()
     |> Repo.update_all([])
   end
 

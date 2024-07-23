@@ -8,6 +8,12 @@ defmodule RM.FIRST.Region do
 
   Regions have a "current season" that should propagate to all related queries. Region admins
   must choose when to transition to a new season (usually after any off-season events).
+
+  Most other pieces of data have a local representation that is separate from the FIRST namespace
+  representation. Regions do not, because it is expected that they will not change from season
+  to season. This may present an issue in the future if, for example, the region's code in the
+  FTC Events API changes — getting previous-season data will not be possible once changed. This
+  is an acceptable trade-off for now.
   """
   use Ecto.Schema
   import Ecto.Query
@@ -77,18 +83,19 @@ defmodule RM.FIRST.Region do
 
   @doc """
   Query to update cached event statistics for regions with the given IDs
+
+  Because regions do not have season-specific records, statistics will always be updated based
+  on the region's `current_season`.
   """
-  @spec event_stats_update_query([Ecto.UUID.t()], integer) :: Ecto.Query.t()
-  def event_stats_update_query(region_ids, season) do
+  @spec event_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
+  def event_stats_update_query(region_ids) do
     now = DateTime.utc_now()
 
     count_query =
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
-      |> join(:left, [region: r], e in Event,
-        on: e.region_id == r.id and e.season == ^season,
-        as: :event
-      )
+      |> join(:left, [region: r], e in assoc(r, :events), as: :event)
+      |> where([region: r, event: e], e.season == r.current_season)
       |> group_by([region: r], r.id)
       |> select([region: r, event: e], %{id: r.id, count: count(e.id)})
 
@@ -109,16 +116,19 @@ defmodule RM.FIRST.Region do
 
   @doc """
   Query to update cached league statistics for regions with the given IDs
+
+  Because regions do not have season-specific records, statistics will always be updated based
+  on the region's `current_season`.
   """
-  @spec league_stats_update_query([Ecto.UUID.t()], integer) :: Ecto.Query.t()
-  def league_stats_update_query(region_ids, season) do
+  @spec league_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
+  def league_stats_update_query(region_ids) do
     now = DateTime.utc_now()
 
     count_query =
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
       |> join(:left, [region: r], l in assoc(r, :leagues), as: :league)
-      |> where([league: l], l.season == ^season)
+      |> where([region: r, league: l], l.season == r.current_season)
       |> group_by([region: r], r.id)
       |> select([region: r, league: l], %{id: r.id, count: count(l.id)})
 
