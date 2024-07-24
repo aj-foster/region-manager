@@ -51,7 +51,7 @@ defmodule RM.FIRST do
     {_count, events} =
       Repo.insert_all(Event, event_data,
         on_conflict: {:replace_all_except, [:inserted_at]},
-        conflict_target: [:season, :code],
+        conflict_target: [:code, :season],
         returning: true
       )
 
