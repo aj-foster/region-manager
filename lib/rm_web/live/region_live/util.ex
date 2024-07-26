@@ -105,6 +105,26 @@ defmodule RMWeb.RegionLive.Util do
     """
   end
 
+  @doc """
+  Refresh the current region
+  """
+  @spec refresh_region(Socket.t()) :: Socket.t()
+  def refresh_region(socket) do
+    case socket.assigns[:region] do
+      %RM.FIRST.Region{abbreviation: region_abbreviation} ->
+        case get_region(region_abbreviation) do
+          {:ok, region} ->
+            assign(socket, region: region)
+
+          {:error, :region, :not_found} ->
+            socket
+        end
+
+      nil ->
+        socket
+    end
+  end
+
   @doc false
   @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
   def on_mount(name, params, session, socket)

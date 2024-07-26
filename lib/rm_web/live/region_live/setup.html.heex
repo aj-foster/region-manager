@@ -1,1 +1,39 @@
-Coming soon.
+<.title>Set up for the new season</.title>
+
+<div
+  :if={@needs_setup and @region.has_leagues}
+  class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow"
+>
+  <p class="mb-4">
+    Setting up a new season requires re-inputting data to the <em>FIRST</em>
+    Tech Challenge Cloud Scoring system. Region Manager makes this
+    easier by first allowing you to choose what data (leagues, league assignments, etc.)
+    should be copied from the previous season. Then it advises you on the differences between
+    what Region Manager knows and what <em>FIRST</em>
+    knows.
+  </p>
+</div>
+
+<div
+  :if={@needs_setup and not @region.has_leagues}
+  class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow"
+>
+  <p class="mb-4">
+    Because this region does not have leagues, there isn't much to set up at the beginning of the
+    season. Please contact an administrator if this region should have leagues in the new season.
+  </p>
+  <p class="mb-4">
+    Are you ready to begin accepting event proposals and registrations for the <%= @current_season %>–<%= @current_season +
+      1 %> season?
+  </p>
+  <p class="text-right">
+    <.button phx-click="setup_submit_no_leagues">Start Season</.button>
+  </p>
+</div>
+
+<div :if={not @needs_setup} class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <p>
+    This region is already set up for the <%= @current_season %>–<%= @current_season + 1 %> season.
+    <.link class="underline" navigate={~p"/region/#{@region}"}>Get Started</.link>
+  </p>
+</div>

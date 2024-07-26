@@ -4,6 +4,7 @@ defmodule RM.FIRST do
   """
   import Ecto.Query
 
+  alias Ecto.Changeset
   alias RM.FIRST.Event
   alias RM.FIRST.League
   alias RM.FIRST.LeagueAssignment
@@ -273,6 +274,14 @@ defmodule RM.FIRST do
       %Region{} = region -> {:ok, region}
       nil -> {:error, :region, :not_found}
     end
+  end
+
+  @spec update_region_season(Region.t(), integer) ::
+          {:ok, Region.t()} | {:error, Changeset.t(Region.t())}
+  def update_region_season(region, season) do
+    region
+    |> Changeset.change(current_season: season)
+    |> Repo.update()
   end
 
   #
