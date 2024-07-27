@@ -25,4 +25,12 @@ defmodule External.FTCEvents do
     %League{code: league_code} = league
     API.client().list_league_members(season, region_code, league_code)
   end
+
+  @spec list_teams(integer, Region.t()) :: API.response(API.list_teams_response())
+  @spec list_teams(integer, Region.t(), API.list_teams_options()) ::
+          API.response(API.list_teams_response())
+  def list_teams(season, region, opts \\ []) do
+    %Region{metadata: %Region.Metadata{code_list_teams: code}} = region
+    API.client().list_teams(season, code, opts)
+  end
 end

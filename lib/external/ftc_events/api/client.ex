@@ -66,6 +66,43 @@ defmodule External.FTCEvents.API.Client do
     end
   end
 
+  @impl true
+  def list_teams(season, region, opts \\ []) do
+    req_opts = Keyword.take(opts, [:headers, :body, :params])
+    url = "/v2.0/#{season}/teams"
+
+    params =
+      Keyword.take(opts, [:page])
+      |> Keyword.put(:state, region)
+
+    new(req_opts)
+    |> Req.get(params: params, url: url)
+    |> case do
+      {:ok,
+       %Req.Response{
+         status: 200,
+         body: %{
+           "teams" => teams,
+           "teamCountTotal" => team_count_total,
+           "teamCountPage" => team_count_page,
+           "pageCurrent" => page_current,
+           "pageTotal" => page_total
+         }
+       }} ->
+        {:ok,
+         %{
+           teams: teams,
+           team_count_total: team_count_total,
+           team_count_page: team_count_page,
+           page_current: page_current,
+           page_total: page_total
+         }}
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
   #
   # Request
   #
