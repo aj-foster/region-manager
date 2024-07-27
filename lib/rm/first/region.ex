@@ -58,7 +58,12 @@ defmodule RM.FIRST.Region do
     has_many :leagues, League
     has_many :teams, Team
 
-    embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
+    embeds_one :metadata, Metadata, on_replace: :update, primary_key: false do
+      # Special code for `c:External.FTCEvents.API.list_teams/3`
+      field :code_list_teams, :string
+    end
+
+    embeds_one :stats, Stats, on_replace: :update, primary_key: false do
       field :event_count, :integer, default: 0
       field :events_imported_at, :utc_datetime_usec
       field :league_count, :integer, default: 0
