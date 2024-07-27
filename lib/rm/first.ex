@@ -10,11 +10,12 @@ defmodule RM.FIRST do
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
   alias RM.FIRST.Season
+  alias RM.FIRST.Team
   alias RM.FIRST.Query
   alias RM.Local
   alias RM.Local.EventSettings
   alias RM.Local.LeagueSettings
-  alias RM.Local.Team
+
   alias RM.Repo
 
   #
@@ -234,6 +235,53 @@ defmodule RM.FIRST do
     |> Repo.update_all([])
   end
 
+  @doc """
+  Refresh all season teams
+  """
+  @spec refresh_teams(Region.t()) :: {:ok, [RM.FIRST.Team.t()]} | {:error, Exception.t()}
+  def refresh_teams(region) do
+    do_refresh_teams(region, [], 1)
+  end
+
+  defp do_refresh_teams(region, team_acc, page) do
+    %Region{current_season: season} = region
+
+    case External.FTCEvents.list_teams(season, region, page: page) do
+      {:ok, %{teams: api_teams, page_current: page_current, page_total: page_total}} ->
+        teams = update_teams_from_ftc_events(region, api_teams)
+
+        if page_current >= page_total do
+          {:ok, teams ++ team_acc}
+        else
+          # This is bad. But also... good.
+          Process.sleep(1_000)
+          do_refresh_teams(region, teams ++ team_acc, page + 1)
+        end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp update_teams_from_ftc_events(region, api_teams) do
+    %Region{code: code, current_season: season} = region
+    regions_by_code = %{code => region}
+
+    team_data =
+      Enum.map(api_teams, &Team.from_ftc_events(&1, regions_by_code))
+      |> Enum.reject(&is_nil(&1.region_id))
+      |> Enum.map(&Map.put(&1, :season, season))
+
+    {_count, teams} =
+      Repo.insert_all(Team, team_data,
+        on_conflict: {:replace_all_except, [:inserted_at]},
+        conflict_target: [:team_number, :season],
+        returning: true
+      )
+
+    teams
+  end
+
   #
   # Seasons
   #
@@ -326,8 +374,8 @@ defmodule RM.FIRST do
     |> Enum.sort(Event)
   end
 
-  @spec list_eligible_events_by_team(Team.t()) :: [Event.t()]
-  @spec list_eligible_events_by_team(Team.t(), keyword) :: [Event.t()]
+  @spec list_eligible_events_by_team(RM.Local.Team.t()) :: [Event.t()]
+  @spec list_eligible_events_by_team(RM.Local.Team.t(), keyword) :: [Event.t()]
   def list_eligible_events_by_team(team, opts \\ []) do
     Query.from_event()
     |> Query.join_settings_from_event()
@@ -338,12 +386,15 @@ defmodule RM.FIRST do
     |> Enum.sort(Event)
   end
 
-  @spec filter_eligible_events_by_team(Query.query(), Team.t()) :: Query.query()
-  defp filter_eligible_events_by_team(query, %Team{league: %League{id: league_id}} = team) do
-    %Team{region_id: region_id} = team
+  @spec filter_eligible_events_by_team(Query.query(), RM.Local.Team.t()) :: Query.query()
+  defp filter_eligible_events_by_team(
+         query,
+         %RM.Local.Team{league: %League{id: league_id}} = team
+       ) do
+    %RM.Local.Team{region_id: region_id} = team
 
     query
-    |> filter_eligible_events_by_team(%Team{region_id: region_id})
+    |> filter_eligible_events_by_team(%RM.Local.Team{region_id: region_id})
     |> or_where(
       [event: e, settings: s],
       e.league_id == ^league_id and fragment("?->>'pool' = 'league'", s.registration)
@@ -351,7 +402,7 @@ defmodule RM.FIRST do
   end
 
   defp filter_eligible_events_by_team(query, team) do
-    %Team{region_id: region_id} = team
+    %RM.Local.Team{region_id: region_id} = team
 
     where(
       query,

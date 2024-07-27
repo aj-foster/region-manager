@@ -11,6 +11,27 @@ defmodule RM.FIRST.Team do
 
   alias RM.FIRST.Region
 
+  @type t :: %__MODULE__{
+          city: String.t() | nil,
+          country: String.t() | nil,
+          display_location: String.t() | nil,
+          display_team_number: String.t() | nil,
+          id: Ecto.UUID.t(),
+          inserted_at: DateTime.t(),
+          name_full: String.t() | nil,
+          name_short: String.t() | nil,
+          region: Ecto.Schema.belongs_to(Region.t()),
+          region_id: Ecto.UUID.t(),
+          robot_name: String.t() | nil,
+          rookie_year: integer | nil,
+          season: integer,
+          school_name: String.t() | nil,
+          state_province: String.t() | nil,
+          team_number: integer,
+          updated_at: DateTime.t(),
+          website: String.t() | nil
+        }
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 

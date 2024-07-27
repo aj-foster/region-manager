@@ -60,6 +60,8 @@ defmodule RM.FIRST.Region do
 
     embeds_one :metadata, Metadata, on_replace: :update, primary_key: false do
       # Special code for `c:External.FTCEvents.API.list_teams/3`
+      # May return more teams than expected (ex. "FL" returns Adventist teams in Florida)
+      # May need to become an array of codes for some regions in the future.
       field :code_list_teams, :string
     end
 
