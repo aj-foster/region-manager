@@ -313,8 +313,8 @@ defmodule RMWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded bg-orange-400 hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed transition-colors",
-        "font-semibold leading-6 py-1 px-2 text-white active:text-white/80",
+        "phx-submit-loading:opacity-75 rounded bg-orange-500 hover:bg-orange-400 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors",
+        "font-semibold leading-6 py-1 px-2 text-white",
         @class
       ]}
       {@rest}
@@ -452,11 +452,11 @@ defmodule RMWeb.CoreComponents do
           <.icon class="align-text-bottom h-4 text-gray-700 w-4" name="hero-information-circle" />
         </button>
       </.label>
-      <div :if={@explanation} class="mb-2 text-gray-700 text-sm"><%= @explanation %></div>
+      <div :if={@explanation} class=" text-gray-700 text-sm"><%= @explanation %></div>
       <select
         id={@id}
         name={@name}
-        class="block w-full rounded-md border border-gray-300 bg-white shadow-sm disabled:bg-slate-100 focus:border-zinc-400 focus:ring-0 sm:text-sm"
+        class="block mt-2 w-full rounded-md border border-gray-300 bg-white shadow-sm disabled:bg-slate-100 focus:border-zinc-400 focus:ring-0 sm:text-sm"
         multiple={@multiple}
         {@rest}
       >
@@ -480,15 +480,15 @@ defmodule RMWeb.CoreComponents do
           <.icon class="align-text-bottom h-4 text-gray-700 w-4" name="hero-information-circle" />
         </button>
       </.label>
-      <div :if={@explanation} class="mb-2 text-gray-700 text-sm"><%= @explanation %></div>
+      <div :if={@explanation} class=" text-gray-700 text-sm"><%= @explanation %></div>
       <textarea
         id={@id}
         name={@name}
         class={[
-          "block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "block mt-2 w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
           "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
+          @errors != [] && "border-orange-500 focus:border-orange-500"
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
@@ -506,17 +506,17 @@ defmodule RMWeb.CoreComponents do
       <.label for={@id}>
         <%= @label %><span :if={@field_is_required} class="text-orange-500"> *</span>
       </.label>
-      <div :if={@explanation} class="mb-2 text-gray-700 text-sm"><%= @explanation %></div>
+      <div :if={@explanation} class=" text-gray-700 text-sm"><%= @explanation %></div>
       <input
         type={@type}
         name={@name}
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "block mt-2 w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
           "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
+          @errors != [] && "border-orange-500 focus:border-orange-500"
         ]}
         {@rest}
       />
@@ -588,7 +588,7 @@ defmodule RMWeb.CoreComponents do
 
   @switch_class_bg """
   bg-slate-300 h-5 rounded-xl transition-colors w-8
-  peer-checked:bg-orange-400
+  peer-checked:bg-orange-500
   peer-disabled:opacity-40
   peer-disabled:cursor-not-allowed
   """
@@ -610,7 +610,7 @@ defmodule RMWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 mb-1 text-zinc-800">
+    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
       <%= render_slot(@inner_block) %>
     </label>
     """
@@ -623,8 +623,8 @@ defmodule RMWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="mt-3 flex gap-3 text-sm leading-6 text-rose-600 phx-no-feedback:hidden">
-      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none" />
+    <p class="ml-4 mt-2 flex gap-2 text-sm leading-6 text-orange-600 phx-no-feedback:hidden">
+      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none bg-orange-500" />
       <%= render_slot(@inner_block) %>
     </p>
     """

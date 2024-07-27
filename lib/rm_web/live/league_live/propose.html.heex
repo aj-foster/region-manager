@@ -32,7 +32,7 @@
           prompt={if(@league.venues == [], do: "No Venues Created", else: "Choose Venue")}
           type="select"
           value=""
-          wrapper="mr-4"
+          wrapper="mb-2 mr-4"
         />
       </.form>
       <.button phx-click={show_modal("add-venue-modal")}>Add Venue...</.button>
