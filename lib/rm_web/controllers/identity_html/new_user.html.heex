@@ -1,53 +1,52 @@
-<div class="id_wrapper id_user_new">
-  <.title flush>Create an account</.title>
-  <p class="mb-4 text-sm">All fields are required</p>
+<div class="max-w-md mx-auto">
+  <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+    <.title flush>Create an account</.title>
+    <p class="mb-4 text-sm">All fields are required</p>
 
-  <.form :let={f} for={@changeset} action={~p"/register"} as={:user}>
-    <%= if @changeset.action do %>
-      <div class="id_error_message">
-        <p>Something went wrong. Please check the errors below.</p>
-      </div>
-    <% end %>
+    <.form :let={f} for={@changeset} action={~p"/register"} as={:user}>
+      <%= if @changeset.action do %>
+        <.warning class="mb-4">
+          <p>Please check the errors below.</p>
+        </.warning>
+      <% end %>
 
-    <div class="id_field id_field_text">
-      <label class="id_text_label" for={f[:name].id}>Name</label>
-      <input class="id_text_input" id={f[:name].id} name={f[:name].name} required type="text" />
-      <Identity.Phoenix.HTML.errors field={f[:email]} />
-    </div>
+      <.input
+        explanation="As it appears in the FIRST dashboard"
+        field={f[:name]}
+        label="Your Name"
+        required
+        wrapper="mb-4"
+      />
 
-    <div class="id_field id_field_text">
-      <label class="id_text_label" for={f[:email].id}>Email</label>
-      <input
-        class="id_text_input"
-        id={f[:email].id}
-        name={f[:email].name}
+      <.input
+        explanation="Address used in the FIRST dashboard"
+        field={f[:email]}
+        label="Email Address"
         required
         type="email"
-        value={Phoenix.HTML.Form.normalize_value("email", f[:email].value)}
+        wrapper="mb-4"
       />
-      <Identity.Phoenix.HTML.errors field={f[:email]} />
-    </div>
 
-    <div class="id_field id_field_text">
-      <label class="id_text_label" for={f[:password].id}>Password</label>
-      <input
-        class="id_text_input"
-        id={f[:password].id}
-        name={f[:password].name}
+      <.input
+        explanation="At least 12 characters in length"
+        field={f[:password]}
+        label="New Password"
         required
         type="password"
-        value={Phoenix.HTML.Form.normalize_value("password", f[:password].value)}
+        wrapper="mb-4"
       />
-      <Identity.Phoenix.HTML.errors field={f[:password]} />
-    </div>
 
-    <div class="id_submit">
-      <button class="id_submit_button" type="submit">Register</button>
-    </div>
-  </.form>
+      <div class="text-right">
+        <.button phx-disable-with="Registering..." type="submit">Register</.button>
+      </div>
+    </.form>
 
-  <div class="id_links">
-    <.link class="id_link" navigate={~p"/login"}>Log in</.link>
-    &bull; <.link class="id_link" navigate={~p"/password/new"}>Forgot your password?</.link>
+    <div class="border-t border-t-slate-300 mt-4 pt-4 text-center text-sm">
+      <.link class="text-orange-600 underline" navigate={~p"/login"}>Log in</.link>
+      &bull;
+      <.link class="text-orange-600 underline" navigate={~p"/password/new"}>
+        Forgot your password?
+      </.link>
+    </div>
   </div>
 </div>
