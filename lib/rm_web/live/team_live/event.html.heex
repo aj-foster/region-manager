@@ -17,7 +17,7 @@
     <.link navigate={~p"/team/#{@team}/events"}>Events</.link> &bull; <%= @event.name %>
   </.title>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <.card>
     <.table class="mb-4">
       <:row title="Name"><%= @event.name %></:row>
       <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
@@ -52,7 +52,7 @@
         :date
       ) %>.
     </p>
-  </div>
+  </.card>
 </div>
 
 <div class="mb-8">
@@ -74,7 +74,7 @@
     </.button>
   </div>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <.card>
     <.warning :if={@registration_error} class="mb-4"><%= @registration_error %></.warning>
     <%= if @registration do %>
       <%= if @registration.rescinded do %>
@@ -157,7 +157,7 @@
         </.async_result>
       </:row>
     </.table>
-  </div>
+  </.card>
 </div>
 
 <.modal id="create-registration-modal">

@@ -6,7 +6,7 @@
     &bull; <%= @event.name %>
   </.title>
 
-  <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+  <.card spaced>
     <.table class="mb-4">
       <:row title="Name"><%= @event.name %></:row>
       <:row title="Type"><%= RM.FIRST.Event.type_name(@event.type) %></:row>
@@ -17,13 +17,13 @@
     <p class="text-sm">
       This event has not yet been accepted and published by <em>FIRST</em>.
     </p>
-  </div>
+  </.card>
 
   <.title>
     Venue Details
   </.title>
 
-  <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+  <.card spaced>
     <.table>
       <:row title="Name"><%= @event.venue.name %></:row>
       <:row title="Location">
@@ -40,25 +40,25 @@
       </:row>
       <:row title="Timezone"><%= @event.venue.timezone %></:row>
     </.table>
-  </div>
+  </.card>
 
   <.title>
     Contact Information
   </.title>
 
-  <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+  <.card spaced>
     <.table>
       <:row title="Name"><%= @event.contact.name %></:row>
       <:row title="Email"><%= @event.contact.email %></:row>
       <:row title="Phone"><%= @event.contact.phone %></:row>
     </.table>
-  </div>
+  </.card>
 
   <.title>
     Additional Information
   </.title>
 
-  <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+  <.card spaced>
     <.table>
       <:row :if={@event.description} title="Description"><%= @event.description %></:row>
       <:row :if={@event.website} title="Website">
@@ -73,5 +73,5 @@
       <:row title="Region"><%= @league.region.name %></:row>
       <:row title="League"><%= @league.name %></:row>
     </.table>
-  </div>
+  </.card>
 </div>

@@ -9,16 +9,13 @@
 <div class="mb-8">
   <.title>Registered Events</.title>
 
-  <div
-    :if={length(@team.event_registrations) == 0}
-    class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm"
-  >
-    <p>This team is not registered for any events.</p>
-  </div>
+  <.card :if={length(@team.event_registrations) == 0}>
+    <p class="italic text-sm">This team is not registered for any events.</p>
+  </.card>
 
-  <.link
+  <.link_card
     :for={registration <- @team.event_registrations}
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    class="flex items-center mb-4"
     navigate={~p"/team/#{@team}/events/#{registration.event}"}
   >
     <div class="grow">
@@ -42,7 +39,7 @@
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
-  </.link>
+  </.link_card>
 </div>
 
 <div class="mb-8">
@@ -50,20 +47,17 @@
 
   <.async_result :let={eligible_events} assign={@eligible_events}>
     <:loading>
-      <div class="bg-white border border-slate-200 italic mb-4 px-6 py-4 rounded shadow text-sm">
-        <p>Loading...</p>
-      </div>
+      <.card>
+        <p class="italic text-sm">Loading...</p>
+      </.card>
     </:loading>
-    <div
-      :if={length(eligible_events) == 0}
-      class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm"
-    >
-      <p>There are no available events.</p>
-    </div>
+    <.card :if={length(eligible_events) == 0}>
+      <p class="italic text-sm">There are no available events.</p>
+    </.card>
 
-    <.link
+    <.link_card
       :for={event <- eligible_events}
-      class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+      class="flex items-center mb-4"
       navigate={~p"/team/#{@team}/events/#{event}"}
     >
       <div class="grow">
@@ -75,6 +69,6 @@
         </p>
       </div>
       <div><.icon name="hero-arrow-right" /></div>
-    </.link>
+    </.link_card>
   </.async_result>
 </div>

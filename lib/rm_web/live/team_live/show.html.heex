@@ -3,7 +3,7 @@
 <div class="mb-8">
   <.title><%= @team.name %></.title>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <.card>
     <.table class="mb-4">
       <:row title="Number">
         <%= if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)" %>
@@ -48,13 +48,13 @@
         <em>FIRST</em> Dashboard.
       </a>
     </p>
-  </div>
+  </.card>
 </div>
 
 <div :if={requires_attention?(@team)} class="mb-8">
   <.title>Items Requiring Attention</.title>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm">
+  <.card>
     <p class="mb-4 text-sm">The following items may prevent you from registering for events:</p>
 
     <.warning :if={@team.notices.lc1_missing} class="mb-4">
@@ -111,5 +111,5 @@
         :date
       ) %>.
     </p>
-  </div>
+  </.card>
 </div>

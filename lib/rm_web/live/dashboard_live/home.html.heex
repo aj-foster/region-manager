@@ -1,16 +1,13 @@
 <div :if={@region_count > 0} class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
     <.title flush>Regions you manage</.title>
-    <.link
-      class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
-      navigate={~p"/region/import"}
-    >
+    <.link_button navigate={~p"/region/import"}>
       Import
-    </.link>
+    </.link_button>
   </div>
-  <.link
+  <.link_card
     :for={region <- @current_user.regions}
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    class="flex items-center mb-4"
     navigate={~p"/region/#{region}"}
   >
     <div class="grow">
@@ -24,16 +21,16 @@
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
-  </.link>
+  </.link_card>
 </div>
 
 <div :if={@league_count > 0} class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
     <.title flush>Leagues you manage</.title>
   </div>
-  <.link
+  <.link_card
     :for={league <- @current_user.leagues}
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    class="flex items-center mb-4"
     navigate={~p"/league/#{league.region}/#{league}"}
   >
     <div class="grow">
@@ -47,14 +44,14 @@
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
-  </.link>
+  </.link_card>
 </div>
 
 <div :if={@team_count > 0} class="mb-8">
   <.title>Teams you manage</.title>
-  <.link
+  <.link_card
     :for={team <- @current_user.teams}
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    class="flex items-center mb-4"
     navigate={~p"/team/#{team}"}
   >
     <div class="grow">
@@ -70,13 +67,13 @@
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
-  </.link>
+  </.link_card>
 </div>
 
 <div :if={@region_count == 0 and @league_count == 0 and @team_count == 0} class="mb-8">
   <.title>Your Dashboard</.title>
 
-  <div class="bg-white border border-slate-200 px-6 py-4 rounded shadow">
+  <.card>
     <p class="mb-4">Welcome to <strong>Region Manager</strong>!</p>
     <p class="mb-4 text-sm">
       Your account is currently not associated with any teams.
@@ -101,5 +98,5 @@
         may not use <strong>Region Manager</strong>. Contact them to learn how they manage your region.
       </li>
     </ul>
-  </div>
+  </.card>
 </div>

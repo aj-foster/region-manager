@@ -19,6 +19,40 @@ defmodule RMWeb.CoreComponents do
   alias Phoenix.LiveView.JS
 
   @doc """
+  Visual foreground for page content
+  """
+  attr :class, :string, default: nil, doc: "additional classes"
+  attr :spaced, :boolean, default: false, doc: "easily add bottom margin"
+  slot :inner_block, required: true
+
+  def card(assigns) do
+    ~H"""
+    <div class={[
+      "bg-white border border-slate-200 px-6 py-4 rounded shadow",
+      @spaced && "mb-8",
+      @class
+    ]}>
+      <%= render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
+  @doc """
+  Visual foreground for page content that also acts as a link
+  """
+  attr :class, :string, default: nil, doc: "additional classes"
+  attr :rest, :global, include: ~w(href navigate patch)
+  slot :inner_block, required: true
+
+  def link_card(assigns) do
+    ~H"""
+    <.link class={["bg-white border border-slate-200 px-6 py-4 rounded shadow", @class]} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  @doc """
   Small tag for metadata following an entity
 
   ## Examples
@@ -47,7 +81,7 @@ defmodule RMWeb.CoreComponents do
   def title(assigns) do
     ~H"""
     <h2 class={[
-      "font-title italic small-caps text-xl",
+      "font-title italic uppercase",
       if(not @flush, do: "mb-4 ml-6"),
       @class
     ]}>
@@ -341,7 +375,7 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <.link
       class={[
-        "rounded bg-orange-400 hover:bg-orange-300 transition-colors",
+        "rounded bg-orange-500 hover:bg-orange-400 transition-colors",
         "font-semibold leading-6 py-1 px-2 text-white active:text-white/80",
         @class
       ]}

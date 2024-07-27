@@ -3,41 +3,41 @@
 <div :if={@unready_team_count > 0} class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
     <.title flush>Teams Requiring Attention</.title>
-    <.link
-      class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
-      navigate={~p"/region/#{@region}/import"}
-    >
+    <.link_button navigate={~p"/region/#{@region}/import"}>
       Import
-    </.link>
+    </.link_button>
   </div>
-  <ul class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-    <li :for={team <- @unready_teams} class="flex gap-4 items-center mb-2">
-      <h3><strong class="tabular-nums"><%= team.number %></strong> <%= team.name %></h3>
-      <p>
-        <span :if={not team.event_ready} class="text-orange-600 text-sm">Not Event Ready</span>
-      </p>
-    </li>
-    <div></div>
-  </ul>
+
+  <.card spaced>
+    <ul>
+      <li :for={team <- @unready_teams} class="flex gap-4 items-center mb-2">
+        <h3><strong class="tabular-nums"><%= team.number %></strong> <%= team.name %></h3>
+        <p>
+          <span :if={not team.event_ready} class="text-orange-600 text-sm">Not Event Ready</span>
+        </p>
+      </li>
+      <div></div>
+    </ul>
+  </.card>
 </div>
 
 <div :if={@region.stats.team_count > 0} class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
     <.title flush>All Teams in <%= @region.name %></.title>
-    <.link
-      class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
-      navigate={~p"/region/#{@region}/import"}
-    >
+    <.link_button navigate={~p"/region/#{@region}/import"}>
       Import
-    </.link>
+    </.link_button>
   </div>
-  <ul class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
-    <li :for={team <- @region.teams} class="flex gap-4 items-center mb-2">
-      <h3><strong class="tabular-nums"><%= team.number %></strong> <%= team.name %></h3>
-      <p>
-        <span :if={not team.event_ready} class="text-orange-600 text-sm">Not Event Ready</span>
-      </p>
-    </li>
-    <div></div>
-  </ul>
+
+  <.card spaced>
+    <ul>
+      <li :for={team <- @region.teams} class="flex gap-4 items-center mb-2">
+        <h3><strong class="tabular-nums"><%= team.number %></strong> <%= team.name %></h3>
+        <p>
+          <span :if={not team.event_ready} class="text-orange-600 text-sm">Not Event Ready</span>
+        </p>
+      </li>
+      <div></div>
+    </ul>
+  </.card>
 </div>

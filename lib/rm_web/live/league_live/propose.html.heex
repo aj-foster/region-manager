@@ -3,17 +3,17 @@
 <div class="mb-8">
   <.title>Propose an Event</.title>
 
-  <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+  <.card spaced>
     <p class="text-sm">
       Proposed events are sent to the Program Delivery Partner to submit to <em>FIRST</em>. They will appear in
       <strong>Region Manager</strong>
       after they are accepted and published by <em>FIRST</em>. This may take some time.
     </p>
-  </div>
+  </.card>
 
   <.title>Event Location</.title>
 
-  <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+  <.card spaced>
     <p class="mb-4 text-sm">
       Choose an existing venue or create a new one:
     </p>
@@ -37,7 +37,7 @@
       </.form>
       <.button phx-click={show_modal("add-venue-modal")}>Add Venue...</.button>
     </div>
-  </div>
+  </.card>
 
   <.form
     for={@event_form}
@@ -47,7 +47,7 @@
   >
     <.title>Event Details</.title>
 
-    <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+    <.card spaced>
       <.input
         explanation="Event names are usually [League] [Event Type] [Number], but can have stylized names."
         field={@event_form[:name]}
@@ -96,11 +96,11 @@
         required
         type="date"
       />
-    </div>
+    </.card>
 
     <.title>Contact Information</.title>
 
-    <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+    <.card spaced>
       <p class="mb-4 text-sm">
         Please provide contact details for the event or tournament director. This information will be available to coaches and mentors in Region Manager.
       </p>
@@ -128,11 +128,11 @@
           type="tel"
         />
       </.inputs_for>
-    </div>
+    </.card>
 
     <.title>Additional Information</.title>
 
-    <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+    <.card spaced>
       <p class="mb-4 text-sm">
         The following information, while optional, will help attendees know what to expect at your event.
       </p>
@@ -170,11 +170,11 @@
         placeholder="This detail may change..."
         type="textarea"
       />
-    </div>
+    </.card>
 
     <.title>Registration Settings</.title>
 
-    <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+    <.card spaced>
       <p class="mb-4 text-sm">
         The following settings will be copied to the event once it is published.
       </p>
@@ -255,11 +255,11 @@
           </div>
         </div>
       </.inputs_for>
-    </div>
+    </.card>
 
     <.title>Submit Proposal</.title>
 
-    <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+    <.card spaced>
       <p class="mb-4 text-sm">
         Thank you for taking the time to fill in all of this information. Remember that it may take some time before
         <em>FIRST</em>
@@ -268,7 +268,7 @@
       <p class="text-right">
         <.button type="submit">Propose Event</.button>
       </p>
-    </div>
+    </.card>
   </.form>
 </div>
 

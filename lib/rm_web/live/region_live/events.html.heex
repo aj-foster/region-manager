@@ -3,18 +3,11 @@
 <div class="mb-8">
   <.title>Events in <%= @region.name %></.title>
 
-  <div
-    :if={length(@region.events) == 0}
-    class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow text-sm"
-  >
-    <p>There are no events scheduled for this region.</p>
-  </div>
+  <.card :if={length(@region.events) == 0}>
+    <p class="text-sm">There are no events scheduled for this region.</p>
+  </.card>
 
-  <.link
-    :for={event <- @region.events}
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-    navigate="#"
-  >
+  <.link_card :for={event <- @region.events} class="flex items-center mb-4" navigate="#">
     <div class="grow">
       <h3 class="font-bold"><%= event.name %></h3>
       <p class="text-sm">
@@ -24,5 +17,5 @@
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
-  </.link>
+  </.link_card>
 </div>

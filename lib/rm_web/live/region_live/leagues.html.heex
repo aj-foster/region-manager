@@ -3,9 +3,9 @@
 <div :if={@region.stats.league_count > 0} class="mb-8">
   <.title>Leagues in <%= @region.name %></.title>
 
-  <.link
+  <.link_card
     :for={league <- @region.leagues}
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    class="flex items-center mb-4"
     navigate={~p"/region/#{@region}/leagues/#{league}"}
   >
     <div class="grow">
@@ -19,5 +19,5 @@
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
-  </.link>
+  </.link_card>
 </div>

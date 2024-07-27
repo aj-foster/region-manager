@@ -3,7 +3,7 @@
 <div class="mb-8">
   <.title>Import Teams</.title>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <.card spaced>
     <p class="mb-4">
       Team data, including the personally-identifiable information of coaches, must be supplied
       from a CSV export of your region's teams from Tableau.
@@ -14,20 +14,17 @@
     </p>
     <form id="team-data-import" phx-submit="import" phx-change="validate">
       <div class="mb-4"><.live_file_input upload={@uploads.team_data} /></div>
-      <button
-        class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300"
-        type="submit"
-      >
+      <.button type="submit">
         Import
-      </button>
+      </.button>
     </form>
-  </div>
+  </.card>
 </div>
 
 <div :if={@region.has_leagues} class="mb-8">
   <.title>Refresh Leagues</.title>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <.card spaced>
     <p class="mb-4">
       After importing the latest team data, you can refresh current league assignments.
     </p>
@@ -40,8 +37,7 @@
       and any corrections must be submitted to <em>FIRST</em>.
     </p>
     <p>
-      <button
-        class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed"
+      <.button
         disabled={
           (@refresh_leagues && not is_nil(@refresh_leagues.loading)) ||
             refreshed_leagues_recently?(@region)
@@ -54,18 +50,18 @@
         <% else %>
           Refresh
         <% end %>
-      </button>
+      </.button>
       <span class="ml-2 text-sm">
         Last refreshed <%= format_date(@region.stats.leagues_imported_at, :full) %>
       </span>
     </p>
-  </div>
+  </.card>
 </div>
 
 <div class="mb-8">
   <.title>Refresh Events</.title>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <.card spaced>
     <p class="mb-4">
       After importing the latest team <span :if={@region.has_leagues}>and league</span>
       data, you can refresh event data.
@@ -79,8 +75,7 @@
       and any corrections must be submitted to <em>FIRST</em>.
     </p>
     <p>
-      <button
-        class="bg-orange-400 font-semibold px-2 py-1 rounded text-white transition-colors hover:bg-orange-300 disabled:bg-orange-300 disabled:cursor-not-allowed"
+      <.button
         disabled={
           (@refresh_events && not is_nil(@refresh_events.loading)) ||
             refreshed_events_recently?(@region)
@@ -93,10 +88,10 @@
         <% else %>
           Refresh
         <% end %>
-      </button>
+      </.button>
       <span class="ml-2 text-sm">
         Last refreshed <%= format_date(@region.stats.events_imported_at, :full) %>
       </span>
     </p>
-  </div>
+  </.card>
 </div>

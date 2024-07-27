@@ -3,7 +3,7 @@
 <div class="mb-8">
   <.title><%= @league.name %> League</.title>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <.card>
     <.table class="mb-4">
       <:row title="Events">
         <p :if={@league.stats.event_count == 0} class="italic">No events</p>
@@ -28,7 +28,7 @@
         :date
       ) %>.
     </p>
-  </div>
+  </.card>
 </div>
 
 <div class="mb-8">
@@ -37,17 +37,11 @@
     <.button phx-click={show_modal("league-add-user-modal")}>Add...</.button>
   </div>
 
-  <div
-    :if={length(@league.user_assignments) == 0}
-    class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow"
-  >
+  <.card :if={length(@league.user_assignments) == 0}>
     <p class="italic text-sm">This league currently has no administrators assigned.</p>
-  </div>
+  </.card>
 
-  <div
-    :for={assignment <- @league.user_assignments}
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-  >
+  <.card :for={assignment <- @league.user_assignments} class="flex items-center mb-4">
     <div class="grow">
       <p class="font-semibold">
         <%= if assignment.user do %>
@@ -68,7 +62,7 @@
         <.icon name="hero-trash" />
       </button>
     </div>
-  </div>
+  </.card>
 </div>
 
 <.modal id="league-add-user-modal">

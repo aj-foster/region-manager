@@ -1,7 +1,7 @@
 <div :if={is_nil(@event)}>
   <.title>Event Not Found</.title>
 
-  <div class="bg-white border border-slate-200 px-6 py-4 rounded shadow">
+  <.card>
     <p class="mb-4">
       The event you are looking for was not found.
       This could happen for a few reasons:
@@ -20,13 +20,13 @@
         may not use <strong>Region Manager</strong>. Contact them to learn how they manage your region.
       </li>
     </ul>
-  </div>
+  </.card>
 </div>
 
 <div :if={@event}>
   <.title><%= @event.name %></.title>
 
-  <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+  <.card spaced>
     <.table class="mb-4">
       <:row title="Name"><%= @event.name %></:row>
       <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
@@ -61,15 +61,15 @@
         :date
       ) %>.
     </p>
-  </div>
+  </.card>
 
   <.title>Event Registration</.title>
 
-  <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+  <.card spaced>
     <.table>
       <:row title="Registration">
         <%= if Event.registration_deadline_passed?(@event) do %>
-          <span class="text-red-600">Closed</span>
+          <span class="text-orange-600">Closed</span>
         <% else %>
           <span class="text-green-600">Open</span>
         <% end %>
@@ -99,7 +99,7 @@
         <% end %>
       </:row>
     </.table>
-  </div>
+  </.card>
 
   <.title>
     Choose Team to Register
@@ -109,9 +109,9 @@
   </.title>
 
   <%= if @teams != [] do %>
-    <.link
+    <.link_card
       :for={{team, _eligibility} <- @teams}
-      class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+      class="flex items-center mb-4"
       navigate={~p"/team/#{team}/events/#{@event}"}
     >
       <div class="grow">
@@ -145,11 +145,11 @@
         </p>
       </div>
       <div><.icon name="hero-arrow-right" /></div>
-    </.link>
+    </.link_card>
   <% else %>
-    <div class="bg-white border border-slate-200 mb-8 px-6 py-4 rounded shadow">
+    <.card spaced>
       <p class="italic text-sm">There are no teams associated with this account.</p>
-    </div>
+    </.card>
   <% end %>
 </div>
 

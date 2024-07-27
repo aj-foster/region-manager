@@ -6,7 +6,7 @@
     &bull; <%= @event.name %>
   </.title>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <.card spaced>
     <.table class="mb-4">
       <:row title="Name"><%= @event.name %></:row>
       <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
@@ -41,13 +41,13 @@
         :date
       ) %>.
     </p>
-  </div>
+  </.card>
 </div>
 
 <div class="mb-8">
   <.title>Registration Settings</.title>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <.card spaced>
     <p class="mb-4 text-sm">
       The following settings affect how teams register for this event.
       Default values are chosen based on the league settings at the time an event is first imported.
@@ -129,5 +129,5 @@
         </div>
       </.inputs_for>
     </.form>
-  </div>
+  </.card>
 </div>

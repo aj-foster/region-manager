@@ -19,10 +19,7 @@
     </.link>
   </.information>
 
-  <.link
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-    navigate={~p"/region/#{@region}/events"}
-  >
+  <.link_card class="flex items-center mb-4" navigate={~p"/region/#{@region}/events"}>
     <div class="grow">
       <h3 class="font-bold"><%= dumb_inflect("Event", @region.stats.event_count) %></h3>
       <p :if={@region.stats.events_imported_at} class="text-sm">
@@ -32,11 +29,11 @@
     <div>
       <.icon name="hero-arrow-right" />
     </div>
-  </.link>
+  </.link_card>
 
-  <.link
+  <.link_card
     :if={@region.has_leagues}
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    class="flex items-center mb-4"
     navigate={~p"/region/#{@region}/leagues"}
   >
     <div class="grow">
@@ -48,12 +45,9 @@
     <div>
       <.icon name="hero-arrow-right" />
     </div>
-  </.link>
+  </.link_card>
 
-  <.link
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
-    navigate={~p"/region/#{@region}/teams"}
-  >
+  <.link_card class="flex items-center mb-4" navigate={~p"/region/#{@region}/teams"}>
     <div class="grow">
       <h3 class="font-bold"><%= dumb_inflect("Team", @region.stats.team_count) %></h3>
       <p :if={@region.stats.teams_imported_at} class="text-sm">
@@ -63,5 +57,5 @@
     <div>
       <.icon name="hero-arrow-right" />
     </div>
-  </.link>
+  </.link_card>
 </div>

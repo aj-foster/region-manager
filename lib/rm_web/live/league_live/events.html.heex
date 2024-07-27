@@ -11,9 +11,9 @@
     </.link_button>
   </div>
 
-  <.link
+  <.link_card
     :for={event <- @league.events}
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    class="flex items-center mb-4"
     navigate={~p"/league/#{@league.region}/#{@league}/events/#{event}"}
   >
     <div class="grow">
@@ -25,14 +25,11 @@
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
-  </.link>
+  </.link_card>
 
-  <div
-    :if={@league.events == []}
-    class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow"
-  >
+  <.card :if={@league.events == []}>
     <p class="italic text-sm">There are no published events for this league.</p>
-  </div>
+  </.card>
 </div>
 
 <div class="mb-8">
@@ -46,9 +43,9 @@
     </.link_button>
   </div>
 
-  <.link
+  <.link_card
     :for={event <- @proposed_events}
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+    class="flex items-center mb-4"
     navigate={~p"/league/#{@league.region}/#{@league}/events/proposal/#{event}"}
   >
     <div class="grow">
@@ -62,20 +59,17 @@
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
-  </.link>
+  </.link_card>
 
-  <div
-    :if={@proposed_events == []}
-    class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow"
-  >
+  <.card :if={@proposed_events == []}>
     <p class="italic text-sm">There are no unpublished proposed events for this league.</p>
-  </div>
+  </.card>
 </div>
 
 <div class="mb-8">
   <.title>Registration Settings</.title>
 
-  <div class="bg-white border border-slate-200 mb-4 px-6 py-4 rounded shadow">
+  <.card>
     <p class="mb-4 text-sm">
       The following settings affect how teams register for events in this league.
       League events will adopt these settings at the time they are first imported.
@@ -150,5 +144,5 @@
         </div>
       </.inputs_for>
     </.form>
-  </div>
+  </.card>
 </div>

@@ -3,8 +3,8 @@
 <div class="mb-8">
   <.title><%= @league.name %></.title>
 
-  <.link
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+  <.link_card
+    class="flex items-center mb-4"
     navigate={~p"/league/#{@league.region}/#{@league}/events"}
   >
     <div class="grow">
@@ -16,10 +16,10 @@
     <div>
       <.icon name="hero-arrow-right" />
     </div>
-  </.link>
+  </.link_card>
 
-  <.link
-    class="bg-white border border-slate-200 flex items-center mb-4 px-6 py-4 rounded shadow"
+  <.link_card
+    class="flex items-center mb-4"
     navigate={~p"/league/#{@league.region}/#{@league}/teams"}
   >
     <div class="grow">
@@ -31,5 +31,5 @@
     <div>
       <.icon name="hero-arrow-right" />
     </div>
-  </.link>
+  </.link_card>
 </div>
