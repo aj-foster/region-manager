@@ -18,11 +18,13 @@ defmodule RM.DataCase do
 
   using do
     quote do
+      alias RM.Factory
       alias RM.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
+      import RM.Assertions
       import RM.DataCase
     end
   end

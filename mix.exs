@@ -40,6 +40,7 @@ defmodule RM.MixProject do
       {:eqrcode, "~> 0.1.10"},
       {:ex_aws, "~> 2.5"},
       {:ex_aws_s3, "~> 2.5"},
+      {:ex_machina, "~> 2.8", only: :test},
       {:finch, "~> 0.13"},
       {:floki, ">= 0.30.0", only: :test},
       {:hackney, "~> 1.20"},

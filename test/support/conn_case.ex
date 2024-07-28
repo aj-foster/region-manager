@@ -24,9 +24,12 @@ defmodule RMWeb.ConnCase do
 
       use RMWeb, :verified_routes
 
+      alias RM.Factory
+
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
+      import RM.Assertions
       import RMWeb.ConnCase
     end
   end
