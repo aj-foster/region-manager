@@ -11,6 +11,7 @@ defmodule RM.Local.Team do
   @type t :: %__MODULE__{}
 
   @required_fields [
+    :active,
     :event_ready,
     :name,
     :number,
@@ -20,6 +21,7 @@ defmodule RM.Local.Team do
   ]
 
   @optional_fields [
+    :hidden_at,
     :temporary_number,
     :website
   ]
@@ -28,6 +30,7 @@ defmodule RM.Local.Team do
   @foreign_key_type :binary_id
 
   schema "teams" do
+    field :active, :boolean
     field :event_ready, :boolean
     field :name, :string
     field :number, :integer
@@ -35,7 +38,9 @@ defmodule RM.Local.Team do
     field :team_id, :integer
     field :temporary_number, :integer
     field :website, :string
+
     timestamps type: :utc_datetime_usec
+    field :hidden_at, :utc_datetime_usec
 
     belongs_to :region, Region
     has_many :event_registrations, EventRegistration
@@ -68,7 +73,9 @@ defmodule RM.Local.Team do
       region_id: region_id,
       team_id: team_id,
       data: %RM.Import.Team.Data{
+        active: active,
         event_ready: event_ready,
+        intend_to_return: intend_to_return,
         lc1_name: lc1_name,
         lc2_name: lc2_name,
         location_city: city,
@@ -88,6 +95,7 @@ defmodule RM.Local.Team do
     team
     |> Changeset.cast(
       %{
+        active: active && (intend_to_return || secured),
         event_ready: event_ready,
         name: name,
         number: number,

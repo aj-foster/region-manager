@@ -39,10 +39,6 @@ defmodule RM.Import do
       |> Stream.drop(1)
       |> Stream.map(&Enum.zip(header, &1))
       |> Stream.map(&Map.new/1)
-      |> Stream.filter(fn %{"Active Team" => status} -> status == "Active" end)
-      |> Stream.filter(fn %{"Secured Status" => secured, "Intent To Return" => intent} ->
-        secured == "Secured" or intent == "1"
-      end)
       |> Stream.filter(fn %{"Region Name" => region} -> region in allowed_region_names end)
       |> Stream.map(&Team.from_csv/1)
       |> Stream.map(&Team.put_region(&1, allowed_regions_by_name[&1.region].id))

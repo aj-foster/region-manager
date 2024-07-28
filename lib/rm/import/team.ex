@@ -15,6 +15,7 @@ defmodule RM.Import.Team do
     field :upload_id, Ecto.UUID
 
     embeds_one :data, Data do
+      field :active, :boolean
       field :admin_email, :string
       field :admin_name, :string
       field :admin_phone, :string
@@ -61,6 +62,7 @@ defmodule RM.Import.Team do
   @spec from_csv(map) :: %__MODULE__{}
   def from_csv(data) do
     %{
+      "Active Team" => active_team_str,
       "Date Last Updated" => date_last_updated_str,
       "Intent To Return" => intend_to_return_str,
       "LC1 Email" => lc1_email,
@@ -108,6 +110,7 @@ defmodule RM.Import.Team do
       region: region,
       team_id: String.to_integer(team_id),
       data: %__MODULE__.Data{
+        active: active_team_str == "Active",
         admin_email: admin_email,
         admin_name: admin_name,
         admin_phone: admin_phone,
