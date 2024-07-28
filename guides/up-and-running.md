@@ -58,9 +58,9 @@ _Region Manager_ runs on port `4000`, and is therefore accessible at `http://loc
 This section describes how the application is run _today_, which naturally describes the pieces of infrastructure necessary to run it elsewhere.
 
 Almost all of the infrastructure was originally set up using [Terraform](https://www.terraform.io/), a way of defining infrastructure as code.
-That code is committed to this repository in the `infrastructure` directory.
+That code is committed to this repository in the `infra` directory.
 Even if you plan to set up the infrastructure manually, the files committed there can act as a manifest of everything that needs to be created.
-See the [readme](../infrastructure/README.md) for more information.
+See the [readme](../infra/README.md) for more information.
 
 ### Application
 
