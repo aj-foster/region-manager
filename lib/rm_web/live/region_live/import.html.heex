@@ -39,9 +39,7 @@
     <p class="flex gap-3 items-center">
       <.button
         class="flex gap-1 items-center"
-        disabled={
-          @refresh_leagues.loading || refreshed_leagues_recently?(@region) |> IO.inspect()
-        }
+        disabled={@refresh_leagues.loading || refreshed_leagues_recently?(@region)}
         phx-click="refresh_leagues"
         type="submit"
       >

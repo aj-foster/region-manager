@@ -154,7 +154,7 @@ defmodule RM.FIRST do
     leagues =
       Repo.insert_all(League, league_data,
         on_conflict: {:replace_all_except, [:id, :inserted_at]},
-        conflict_target: [:code, :season],
+        conflict_target: [:code, :region_id, :season],
         returning: true
       )
       |> elem(1)
@@ -187,7 +187,7 @@ defmodule RM.FIRST do
     leagues =
       Repo.insert_all(League, league_data,
         on_conflict: {:replace_all_except, [:id, :inserted_at]},
-        conflict_target: [:code, :season],
+        conflict_target: [:code, :region_id, :season],
         returning: true
       )
       |> elem(1)

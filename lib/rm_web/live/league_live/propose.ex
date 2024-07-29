@@ -74,7 +74,12 @@ defmodule RMWeb.LeagueLive.Propose do
   @spec add_venue_form(Socket.t(), map) :: Socket.t()
   defp add_venue_form(socket, params \\ %{}) do
     league = socket.assigns[:league]
-    params = Map.put(params, "by", socket.assigns[:current_user])
+
+    params =
+      params
+      |> Map.put("by", socket.assigns[:current_user])
+      |> Map.put_new("timezone", socket.assigns[:timezone])
+
     form = Venue.create_changeset(league, params) |> to_form()
 
     assign(socket, add_venue_form: form)
@@ -86,11 +91,12 @@ defmodule RMWeb.LeagueLive.Propose do
     params = Map.put(params, "by", socket.assigns[:current_user])
 
     case RM.Local.create_venue(league, params) do
-      {:ok, _venue} ->
+      {:ok, venue} ->
         socket
         |> push_js("#add-venue-modal", "data-cancel")
         |> put_flash(:info, "Venue added successfully")
         |> load_venues()
+        |> assign(venue: venue)
 
       {:error, changeset} ->
         assign(socket, add_venue_form: to_form(changeset))
@@ -247,7 +253,7 @@ defmodule RMWeb.LeagueLive.Propose do
     [
       {"Teams in #{league.name} League", "league"},
       {"Teams in #{league.region.name}", "region"},
-      {"Any Team in Region Manager", "all"}
+      {"Any Team", "all"}
     ]
   end
 

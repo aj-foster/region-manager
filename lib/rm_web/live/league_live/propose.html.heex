@@ -14,7 +14,7 @@
   <.title>Event Location</.title>
 
   <.card spaced>
-    <p class="mb-4 text-sm">
+    <p class="mb-2 text-sm">
       Choose an existing venue or create a new one:
     </p>
     <div class="flex items-center">
@@ -31,7 +31,7 @@
           options={venue_options(@league.venues)}
           prompt={if(@league.venues == [], do: "No Venues Created", else: "Choose Venue")}
           type="select"
-          value=""
+          value={if(@venue, do: @venue.id)}
           wrapper="mb-2 mr-4"
         />
       </.form>
@@ -316,6 +316,7 @@
     </div>
     <.input field={@add_venue_form[:country]} label="Country" wrapper="mb-4" required />
     <.input
+      explanation="Official name of the timezone (ex. America/New_York). Start typing for options."
       list="timezones"
       field={@add_venue_form[:timezone]}
       label="Timezone"
