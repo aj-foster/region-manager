@@ -3,6 +3,7 @@ defmodule RMWeb.RegionLive.Import do
   import RMWeb.RegionLive.Util
   require Logger
 
+  alias Phoenix.LiveView.AsyncResult
   alias RM.FIRST
   alias RM.FIRST.Region
   alias RM.Import
@@ -20,7 +21,11 @@ defmodule RMWeb.RegionLive.Import do
     socket =
       socket
       |> allow_upload(:team_data, accept: ["text/csv"], max_file_size: 1024 * 1024)
-      |> assign(refresh_events: nil, refresh_leagues: nil)
+      |> assign(
+        import_successful: nil,
+        refresh_events: AsyncResult.ok(nil),
+        refresh_leagues: AsyncResult.ok(nil)
+      )
 
     {:ok, socket}
   end
@@ -45,14 +50,17 @@ defmodule RMWeb.RegionLive.Import do
       {:ok, path}
     end)
 
-    noreply(socket)
+    socket
+    |> assign(import_successful: true)
+    |> noreply()
   end
 
   def handle_event("refresh_events", _params, socket) do
     region = socket.assigns[:region]
 
     socket
-    |> assign_async(:refresh_events, fn -> do_refresh_events(region) end)
+    |> start_async(:refresh_events, fn -> FIRST.refresh_events(region) end)
+    |> assign(refresh_events: AsyncResult.loading())
     |> noreply()
   end
 
@@ -60,34 +68,43 @@ defmodule RMWeb.RegionLive.Import do
     region = socket.assigns[:region]
 
     socket
-    |> assign_async(:refresh_leagues, fn -> do_refresh_leagues(region) end)
+    |> start_async(:refresh_leagues, fn -> FIRST.refresh_leagues(region) end)
+    |> assign(refresh_leagues: AsyncResult.loading())
     |> noreply()
   end
 
-  #
-  # Helpers
-  #
+  @doc false
+  @impl true
+  def handle_async(name, async_fun_result, socket)
 
-  defp do_refresh_events(region) do
-    case FIRST.refresh_events(region) do
-      {:ok, _events} ->
-        {:ok, %{refresh_events: true}}
-
-      {:error, reason} ->
-        Logger.error("Error while refreshing events: #{inspect(reason)}")
-        {:error, reason}
-    end
+  def handle_async(:refresh_events, {:ok, _events}, socket) do
+    socket
+    |> assign(refresh_events: AsyncResult.ok(true))
+    |> refresh_region()
+    |> noreply()
   end
 
-  defp do_refresh_leagues(region) do
-    case FIRST.refresh_leagues(region) do
-      {:ok, _leagues} ->
-        {:ok, %{refresh_leagues: true}}
+  def handle_async(:refresh_events, {:error, reason}, socket) do
+    Logger.error("Error while refreshing events: #{inspect(reason)}")
 
-      {:error, reason} ->
-        Logger.error("Error while refreshing leagues: #{inspect(reason)}")
-        {:error, reason}
-    end
+    socket
+    |> assign(refresh_events: AsyncResult.ok(false))
+    |> noreply()
+  end
+
+  def handle_async(:refresh_leagues, {:ok, _leagues}, socket) do
+    socket
+    |> assign(refresh_leagues: AsyncResult.ok(true))
+    |> refresh_region()
+    |> noreply()
+  end
+
+  def handle_async(:refresh_leagues, {:error, reason}, socket) do
+    Logger.error("Error while refreshing leagues: #{inspect(reason)}")
+
+    socket
+    |> assign(refresh_leagues: AsyncResult.ok(false))
+    |> noreply()
   end
 
   #

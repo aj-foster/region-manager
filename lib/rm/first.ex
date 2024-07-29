@@ -192,14 +192,23 @@ defmodule RM.FIRST do
       )
       |> elem(1)
 
-    update_region_league_counts(leagues)
+    update_region_league_counts(leagues, opts[:delete_region])
     leagues
   end
 
-  @spec update_region_league_counts([League.t()]) :: {integer, nil}
-  defp update_region_league_counts(leagues) do
+  @spec update_region_league_counts([League.t()], Region.t() | [Region.t()] | nil) ::
+          {integer, nil}
+  defp update_region_league_counts(leagues, region_or_regions) do
+    region_ids =
+      case region_or_regions do
+        nil -> []
+        %Region{} = region -> [region.id]
+        regions when is_list(regions) -> Enum.map(regions, & &1.id)
+      end
+
     leagues
     |> Enum.map(& &1.region_id)
+    |> Enum.concat(region_ids)
     |> Enum.uniq()
     |> Region.league_stats_update_query()
     |> Repo.update_all([])

@@ -14,8 +14,8 @@
     </p>
     <form id="team-data-import" phx-submit="import" phx-change="validate">
       <div class="mb-4"><.live_file_input upload={@uploads.team_data} /></div>
-      <.button type="submit">
-        Import
+      <.button class="flex items-center gap-1" disabled={@import_successful} type="submit">
+        <.icon :if={@import_successful} class="h-5 w-5" name="hero-check-circle" /> Import
       </.button>
     </form>
   </.card>
@@ -36,22 +36,28 @@
       </a>
       and any corrections must be submitted to <em>FIRST</em>.
     </p>
-    <p>
+    <p class="flex gap-3 items-center">
       <.button
+        class="flex gap-1 items-center"
         disabled={
-          (@refresh_leagues && not is_nil(@refresh_leagues.loading)) ||
-            refreshed_leagues_recently?(@region)
+          @refresh_leagues.loading || refreshed_leagues_recently?(@region) |> IO.inspect()
         }
         phx-click="refresh_leagues"
         type="submit"
       >
-        <%= if @refresh_leagues && @refresh_leagues.loading do %>
+        <.icon
+          :if={@refresh_leagues.ok? && @refresh_leagues.result}
+          class="h-5 w-5"
+          name="hero-check-circle"
+        />
+
+        <%= if @refresh_leagues.loading do %>
           Refreshing...
         <% else %>
           Refresh
         <% end %>
       </.button>
-      <span class="ml-2 text-sm">
+      <span class="text-sm">
         Last refreshed <%= format_date(@region.stats.leagues_imported_at, :full) %>
       </span>
     </p>
@@ -74,22 +80,26 @@
       </a>
       and any corrections must be submitted to <em>FIRST</em>.
     </p>
-    <p>
+    <p class="flex gap-3 items-center">
       <.button
-        disabled={
-          (@refresh_events && not is_nil(@refresh_events.loading)) ||
-            refreshed_events_recently?(@region)
-        }
+        class="flex gap-1 items-center"
+        disabled={@refresh_events.loading || refreshed_events_recently?(@region)}
         phx-click="refresh_events"
         type="submit"
       >
-        <%= if @refresh_events && @refresh_events.loading do %>
+        <.icon
+          :if={@refresh_events.ok? && @refresh_events.result}
+          class="h-5 w-5"
+          name="hero-check-circle"
+        />
+
+        <%= if @refresh_events.loading do %>
           Refreshing...
         <% else %>
           Refresh
         <% end %>
       </.button>
-      <span class="ml-2 text-sm">
+      <span class="text-sm">
         Last refreshed <%= format_date(@region.stats.events_imported_at, :full) %>
       </span>
     </p>

@@ -101,8 +101,10 @@ defmodule RM.FIRST.Region do
     count_query =
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
-      |> join(:left, [region: r], e in assoc(r, :events), as: :event)
-      |> where([region: r, event: e], e.season == r.current_season)
+      |> join(:left, [region: r], e in assoc(r, :events),
+        on: e.season == r.current_season,
+        as: :event
+      )
       |> group_by([region: r], r.id)
       |> select([region: r, event: e], %{id: r.id, count: count(e.id)})
 
@@ -134,8 +136,10 @@ defmodule RM.FIRST.Region do
     count_query =
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
-      |> join(:left, [region: r], l in assoc(r, :leagues), as: :league)
-      |> where([region: r, league: l], l.season == r.current_season)
+      |> join(:left, [region: r], l in assoc(r, :leagues),
+        on: l.season == r.current_season,
+        as: :league
+      )
       |> group_by([region: r], r.id)
       |> select([region: r, league: l], %{id: r.id, count: count(l.id)})
 

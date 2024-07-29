@@ -1,10 +1,6 @@
 <div :if={@region_count > 0} class="mb-8">
-  <div class="flex items-center justify-between mb-4 ml-6">
-    <.title flush>Regions you manage</.title>
-    <.link_button navigate={~p"/region/import"}>
-      Import
-    </.link_button>
-  </div>
+  <.title flush>Regions you manage</.title>
+
   <.link_card
     :for={region <- @current_user.regions}
     class="flex items-center mb-4"
