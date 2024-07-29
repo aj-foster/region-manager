@@ -65,7 +65,7 @@ defmodule RMWeb.CoreComponents do
 
   def tag(assigns) do
     ~H"""
-    <span class={["border border-1 font-semibold px-1 py-0.5 rounded text-sm", @class]}>
+    <span class={["border border-1 font-semibold px-1 py-0.5 rounded text-xs", @class]}>
       <%= render_slot(@inner_block) %>
     </span>
     """

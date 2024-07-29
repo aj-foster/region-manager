@@ -6,14 +6,12 @@ defmodule RMWeb.RegionLive.Teams do
   on_mount {RMWeb.RegionLive.Util, :require_region_manager}
 
   def mount(_params, _session, socket) do
-    region = socket.assigns[:region]
-    unready_teams = Enum.reject(region.teams, & &1.event_ready)
+    region =
+      socket.assigns[:region]
+      |> RM.Repo.preload(teams: [:league])
 
     socket
-    |> assign(
-      unready_teams: unready_teams,
-      unready_team_count: length(unready_teams)
-    )
+    |> assign(region: region)
     |> ok()
   end
 end

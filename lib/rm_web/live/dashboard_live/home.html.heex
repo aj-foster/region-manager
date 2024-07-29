@@ -58,8 +58,9 @@
         </.tag>
       </h3>
       <p class="text-sm">
-        <span :if={team.league}><%= team.league.name %> League &bull;</span>
-        <span><%= team.region.name %></span>
+        <span><%= team.region.name %> &bull;</span>
+        <span :if={team.league}><%= team.league.name %> League</span>
+        <span :if={team.region.has_leagues and is_nil(team.league)}>No League</span>
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>

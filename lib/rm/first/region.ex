@@ -168,7 +168,10 @@ defmodule RM.FIRST.Region do
     count_query =
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
-      |> join(:left, [region: r], t in assoc(r, :teams), as: :team)
+      |> join(:left, [region: r], t in assoc(r, :teams),
+        on: t.active and is_nil(t.hidden_at),
+        as: :team
+      )
       |> group_by([region: r], r.id)
       |> select([region: r, team: t], %{id: r.id, count: count(t.id)})
 
