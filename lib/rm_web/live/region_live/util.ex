@@ -162,12 +162,10 @@ defmodule RMWeb.RegionLive.Util do
 
   @spec get_region(Ecto.UUID.t()) :: {:ok, Region.t()} | {:error, :region, :not_found}
   defp get_region(region_abbreviation) do
-    preloads = [:leagues, :teams]
-
-    with {:ok, region} <-
-           RM.FIRST.fetch_region_by_abbreviation(region_abbreviation, preload: preloads) do
+    with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(region_abbreviation) do
       region =
         region
+        |> RM.Repo.preload([:leagues, teams: RM.Local.Team.active_query()])
         |> Map.update!(:leagues, &Enum.sort(&1, RM.FIRST.League))
         |> Map.update!(:teams, &Enum.sort(&1, RM.Local.Team))
 

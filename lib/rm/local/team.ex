@@ -1,5 +1,6 @@
 defmodule RM.Local.Team do
   use Ecto.Schema
+  import Ecto.Query
 
   alias Ecto.Changeset
   alias RM.Account
@@ -134,6 +135,19 @@ defmodule RM.Local.Team do
   @spec cast_notices(%__MODULE__.Notices{}, map) :: Changeset.t(%__MODULE__.Notices{})
   defp cast_notices(notices, params) do
     Changeset.cast(notices, params, [:lc1_missing, :lc1_ypp, :lc2_missing, :lc2_ypp, :unsecured])
+  end
+
+  #
+  # Queries
+  #
+
+  @doc """
+  Select teams with `active = true`
+  """
+  @spec active_query :: Ecto.Query.t()
+  def active_query do
+    from(__MODULE__, as: :team)
+    |> where([team: t], t.active)
   end
 
   #

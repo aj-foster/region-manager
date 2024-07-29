@@ -37,6 +37,10 @@ defmodule RM.Local.Query do
   # Filters
   #
 
+  @doc "Filter teams by active status"
+  @spec active_team(query) :: query
+  def active_team(query), do: where(query, [team: t], t.active)
+
   @doc "Filter by the associated league"
   @spec league(query, RM.FIRST.League.t() | nil) :: query
   def league(query, nil), do: query

@@ -165,13 +165,13 @@ defmodule RMWeb.LeagueLive.Util do
 
   @spec get_league(String.t(), String.t()) :: {:ok, League.t()} | {:error, :league, :not_found}
   defp get_league(region_abbr, league_code) do
-    preloads = [:region, :settings, :teams]
+    preloads = [:region, :settings]
 
     with {:ok, league} <-
            RM.FIRST.fetch_league_by_code(region_abbr, league_code, preload: preloads) do
       league =
         league
-        |> RM.Repo.preload([:teams, users: [:profile]])
+        |> RM.Repo.preload(teams: RM.Local.Team.active_query(), users: [:profile])
         |> Map.update!(:teams, &Enum.sort(&1, RM.Local.Team))
         |> Map.update!(:users, &Enum.sort(&1, RM.Account.User))
 

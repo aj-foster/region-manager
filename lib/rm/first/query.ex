@@ -222,6 +222,7 @@ defmodule RM.FIRST.Query do
 
   With `:region` as the base:
 
+    * `active_teams`: `teams` on a region with `active` set to `true`
     * `leagues`: `leagues` on a region
     * `teams`: `teams` on a region
 
@@ -275,6 +276,14 @@ defmodule RM.FIRST.Query do
 
   # Regions
 
+  def preload_assoc(query, :region, [:active_teams | rest]) do
+    query
+    |> join_teams_from_region()
+    |> where([teams: t], t.active)
+    |> preload([teams: t], teams: t)
+    |> preload_assoc(:region, rest)
+  end
+
   def preload_assoc(query, :region, [:leagues | rest]) do
     query
     |> join_leagues_from_region()
@@ -290,6 +299,14 @@ defmodule RM.FIRST.Query do
   end
 
   # Leagues
+
+  def preload_assoc(query, :league, [:active_teams | rest]) do
+    query
+    |> join_teams_from_league()
+    |> where([teams: t], t.active)
+    |> preload([teams: t], teams: t)
+    |> preload_assoc(:league, rest)
+  end
 
   def preload_assoc(query, :league, [:events | rest]) do
     query
