@@ -1,37 +1,136 @@
-<%= if @needs_setup do %>
-  <.title>Set up for the new season</.title>
+<.nav class="mb-8" region={@region} view={@socket.view} />
 
-  <.card :if={@region.has_leagues}>
-    <p class="mb-4">
-      Setting up a new season requires re-inputting data in the <em>FIRST</em>
-      Tech Challenge Cloud Scoring system. Region Manager makes this
-      easier by first allowing you to choose what data (leagues, league assignments, etc.)
-      should be copied from the previous season. Then it advises you on the differences between
-      what Region Manager knows and what <em>FIRST</em>
-      knows.
-    </p>
-  </.card>
+<%= if @needs_season_update do %>
+  <div class="mb-8">
+    <.title>Set up for the new season</.title>
 
-  <.card :if={not @region.has_leagues}>
-    <p class="mb-4">
-      Because this region does not have leagues, there isn't much to set up at the beginning of the
-      season. Please contact an administrator if this region should have leagues in the new season.
-    </p>
-    <p class="mb-4">
-      Are you ready to begin accepting event proposals and registrations for the <%= @current_season %>–<%= @current_season +
-        1 %> season?
-    </p>
-    <p class="text-right">
-      <.button phx-click="setup_submit_no_leagues">Start Season</.button>
-    </p>
-  </.card>
-<% else %>
-  <.title>Region Setup</.title>
+    <.card :if={@region.has_leagues}>
+      <p class="mb-4">
+        Setting up a new season requires re-inputting data in the <em>FIRST</em>
+        Tech Challenge Cloud Scoring system. Region Manager makes this
+        easier by first allowing you to choose what data (leagues, league assignments, etc.)
+        should be copied from the previous season. Then it advises you on the differences between
+        what Region Manager knows and what <em>FIRST</em>
+        knows.
+      </p>
+    </.card>
 
-  <.card>
-    <p>
-      This region is already set up for the <%= @current_season %>–<%= @current_season + 1 %> season.
-      <.link class="underline" navigate={~p"/region/#{@region}"}>Get Started</.link>
-    </p>
-  </.card>
+    <.card :if={not @region.has_leagues}>
+      <p class="mb-4">
+        Because this region does not have leagues, there isn't much to set up at the beginning of the
+        season. Please contact an administrator if this region should have leagues in the new season.
+      </p>
+      <p class="mb-4">
+        Are you ready to begin accepting event proposals and registrations for the <%= @current_season %>–<%= @current_season +
+          1 %> season?
+      </p>
+      <p class="text-right">
+        <.button phx-click="setup_submit_no_leagues">Start Season</.button>
+      </p>
+    </.card>
+  </div>
 <% end %>
+
+<div class="mb-8">
+  <.title>Team Import</.title>
+
+  <.card spaced>
+    <p class="mb-4">
+      Team data, including the personally-identifiable information of coaches, must be supplied
+      from a CSV export of your region's teams from Tableau.
+    </p>
+    <p class="mb-4">
+      By submitting this information to <em>Region Manager</em>, you agree to restrict access
+      to this information to only those individuals who need it.
+    </p>
+    <form id="team-data-import" phx-submit="import" phx-change="validate">
+      <div class="mb-4"><.live_file_input upload={@uploads.team_data} /></div>
+      <.button class="flex items-center gap-1" disabled={@import_successful} type="submit">
+        <.icon :if={@import_successful} class="h-5 w-5" name="hero-check-circle" /> Import
+      </.button>
+    </form>
+  </.card>
+</div>
+
+<div :if={@region.has_leagues} class="mb-8">
+  <.title>Refresh Leagues</.title>
+
+  <.card spaced>
+    <p class="mb-4">
+      After importing the latest team data, you can refresh current league assignments.
+    </p>
+    <p class="mb-4">
+      This information comes from the
+      <a href="https://ftc-events.firstinspires.org/services/API" target="blank">
+        <span class="underline">FTC Events API</span>
+        <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4 align-text-top" />
+      </a>
+      and any corrections must be submitted to <em>FIRST</em>.
+    </p>
+    <p class="flex gap-3 items-center">
+      <.button
+        class="flex gap-1 items-center"
+        disabled={@refresh_leagues.loading || refreshed_leagues_recently?(@region)}
+        phx-click="refresh_leagues"
+        type="submit"
+      >
+        <.icon
+          :if={@refresh_leagues.ok? && @refresh_leagues.result}
+          class="h-5 w-5"
+          name="hero-check-circle"
+        />
+
+        <%= if @refresh_leagues.loading do %>
+          Refreshing...
+        <% else %>
+          Refresh
+        <% end %>
+      </.button>
+      <span class="text-sm">
+        Last refreshed <%= format_date(@region.stats.leagues_imported_at, :full) %>
+      </span>
+    </p>
+  </.card>
+</div>
+
+<div class="mb-8">
+  <.title>Refresh Events</.title>
+
+  <.card spaced>
+    <p class="mb-4">
+      After importing the latest team <span :if={@region.has_leagues}>and league</span>
+      data, you can refresh event data.
+    </p>
+    <p class="mb-4">
+      This information comes from the
+      <a href="https://ftc-events.firstinspires.org/services/API" target="blank">
+        <span class="underline">FTC Events API</span>
+        <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4 align-text-top" />
+      </a>
+      and any corrections must be submitted to <em>FIRST</em>.
+    </p>
+    <p class="flex gap-3 items-center">
+      <.button
+        class="flex gap-1 items-center"
+        disabled={@refresh_events.loading || refreshed_events_recently?(@region)}
+        phx-click="refresh_events"
+        type="submit"
+      >
+        <.icon
+          :if={@refresh_events.ok? && @refresh_events.result}
+          class="h-5 w-5"
+          name="hero-check-circle"
+        />
+
+        <%= if @refresh_events.loading do %>
+          Refreshing...
+        <% else %>
+          Refresh
+        <% end %>
+      </.button>
+      <span class="text-sm">
+        Last refreshed <%= format_date(@region.stats.events_imported_at, :full) %>
+      </span>
+    </p>
+  </.card>
+</div>
