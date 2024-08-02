@@ -32,22 +32,48 @@
 <% end %>
 
 <div class="mb-8">
-  <.title>Team Import</.title>
+  <.title>
+    Team Import
+    <button phx-click={show_modal("team-import-info")}>
+      <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+    </button>
+  </.title>
 
   <.card spaced>
-    <p class="mb-4">
-      Team data, including the personally-identifiable information of coaches, must be supplied
-      from a CSV export of your region's teams from Tableau.
-    </p>
-    <p class="mb-4">
-      By submitting this information to <em>Region Manager</em>, you agree to restrict access
-      to this information to only those individuals who need it.
-    </p>
-    <form id="team-data-import" phx-submit="import" phx-change="validate">
-      <div class="mb-4"><.live_file_input upload={@uploads.team_data} /></div>
-      <.button class="flex items-center gap-1" disabled={@import_successful} type="submit">
-        <.icon :if={@import_successful} class="h-5 w-5" name="hero-check-circle" /> Import
-      </.button>
+    <form
+      id="team-data-import"
+      phx-change="import_change"
+      phx-drop-target={@uploads.team_data.ref}
+      phx-submit="import_submit"
+    >
+      <label class="bg-slate-100 block border-2 border-slate-300 cursor-pointer py-8 rounded">
+        <%= cond do %>
+          <% @import_status == :in_progress -> %>
+            <div class="font-semibold text-center text-gray-600">
+              <.icon class="animate-spin h-8 w-8" name="hero-arrow-path" />
+              <br /> Uploading...
+            </div>
+          <% @import_status == :done -> %>
+            <div class="font-semibold text-center text-emerald-600">
+              <.icon class="h-8 w-8" name="hero-check" />
+              <br /> Import successful!
+            </div>
+          <% @import_status == :error -> %>
+            <div class="font-semibold text-center text-rose-600">
+              <.icon class="h-8 w-8" name="hero-exclamation-triangle" />
+              <span :for={error <- @import_errors}>
+                <br />
+                <%= upload_error_to_string(error) %>
+              </span>
+            </div>
+          <% :else -> %>
+            <div class="font-semibold text-center text-gray-600">
+              <.icon class="h-8 w-8" name="hero-document-arrow-up" />
+              <br /> Drag file or click to upload (.csv)
+            </div>
+        <% end %>
+        <.live_file_input class="hidden" upload={@uploads.team_data} />
+      </label>
     </form>
   </.card>
 </div>
@@ -134,3 +160,16 @@
     </p>
   </.card>
 </div>
+
+<.modal id="team-import-info">
+  <.title class="mb-4" flush>Team Import Info</.title>
+
+  <p class="mb-4">
+    Team data, including the personally-identifiable information of coaches, must be supplied
+    from a CSV export of your region's teams from Tableau.
+  </p>
+  <p>
+    By submitting this information to <em>Region Manager</em>, you agree to restrict access
+    to this information to only those individuals who need it.
+  </p>
+</.modal>

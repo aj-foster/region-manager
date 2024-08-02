@@ -20,9 +20,15 @@ defmodule RMWeb.RegionLive.Setup do
   def mount(_params, _session, socket) do
     socket
     |> assign_current_season()
-    |> allow_upload(:team_data, accept: ["text/csv"], max_file_size: 1024 * 1024)
+    |> allow_upload(:team_data,
+      accept: ["text/csv"],
+      auto_upload: true,
+      max_file_size: 1024 * 1024,
+      progress: &handle_progress/3
+    )
     |> assign(
-      import_successful: nil,
+      import_errors: [],
+      import_status: :none,
       refresh_events: AsyncResult.ok(nil),
       refresh_leagues: AsyncResult.ok(nil)
     )
@@ -43,21 +49,23 @@ defmodule RMWeb.RegionLive.Setup do
     |> noreply()
   end
 
-  def handle_event("validate", _params, socket) do
-    noreply(socket)
+  def handle_event("import_change", _params, socket) do
+    case socket.assigns[:uploads].team_data do
+      %{entries: [%{valid?: false} = entry]} = upload ->
+        socket
+        |> assign(
+          import_errors: upload_errors(upload, entry),
+          import_status: :error
+        )
+        |> noreply()
+
+      _else ->
+        noreply(socket)
+    end
   end
 
-  def handle_event("import", _params, socket) do
-    user = socket.assigns[:current_user]
-
-    consume_uploaded_entries(socket, :team_data, fn %{path: path}, _entry ->
-      Import.import_from_team_info_tableau_export(user, path)
-      {:ok, path}
-    end)
-
-    socket
-    |> assign(import_successful: true)
-    |> noreply()
+  def handle_event("import_submit", _params, socket) do
+    noreply(socket)
   end
 
   def handle_event("refresh_events", _params, socket) do
@@ -112,6 +120,35 @@ defmodule RMWeb.RegionLive.Setup do
     |> noreply()
   end
 
+  @doc false
+  defp handle_progress(upload, entry, socket)
+
+  defp handle_progress(:team_data, entry, socket) do
+    cond do
+      entry.done? ->
+        user = socket.assigns[:current_user]
+
+        consume_uploaded_entry(socket, entry, fn %{path: path} ->
+          Import.import_from_team_info_tableau_export(user, path)
+          {:ok, path}
+        end)
+
+        socket
+        |> assign(import_status: :done)
+        |> noreply()
+
+      entry.cancelled? ->
+        socket
+        |> assign(import_status: :cancelled)
+        |> noreply()
+
+      :else ->
+        socket
+        |> assign(import_status: :in_progress)
+        |> noreply()
+    end
+  end
+
   #
   # Helpers
   #
@@ -156,4 +193,9 @@ defmodule RMWeb.RegionLive.Setup do
     not is_nil(last_refresh) and
       DateTime.after?(last_refresh, DateTime.add(DateTime.utc_now(), -1, :hour))
   end
+
+  @spec upload_error_to_string(atom) :: String.t()
+  defp upload_error_to_string(:too_large), do: "Provided file is too large"
+  defp upload_error_to_string(:not_accepted), do: "Please select a .csv file"
+  defp upload_error_to_string(:external_client_failure), do: "Something went terribly wrong"
 end
