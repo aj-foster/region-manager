@@ -161,6 +161,67 @@
   </.card>
 </div>
 
+<div class="mb-8">
+  <.title>Event Proposals</.title>
+
+  <.information :if={@pending_proposals_count > 0} class="mb-6">
+    <div class="grow">
+      <p class="font-bold">
+        There <%= dumb_inflect_is("pending event proposal", @pending_proposals_count) %>
+      </p>
+    </div>
+  </.information>
+
+  <.card spaced>
+    <p class="mb-4">Select event proposals to include in a Batch Create spreadsheet:</p>
+
+    <form id="event-proposal-submission-form" phx-submit="event_proposal_submit">
+      <div :for={event <- @pending_proposals} class="relative">
+        <input
+          id={"event-proposal-include-#{event.id}-hidden"}
+          name={"event-proposal-include[#{event.id}]"}
+          type="hidden"
+          value="false"
+        />
+        <input
+          class="absolute left-8 opacity-0 peer"
+          checked={true}
+          id={"event-proposal-include-#{event.id}"}
+          name={"event-proposal-include[#{event.id}]"}
+          type="checkbox"
+          value="true"
+        />
+        <div class="bg-slate-100 border-2 border-slate-300 mb-2 px-4 py-2 rounded transition-colors group peer-checked:bg-emerald-100 peer-checked:border-emerald-300">
+          <label
+            class="cursor-pointer flex gap-3 items-center"
+            for={"event-proposal-include-#{event.id}"}
+          >
+            <div class="bg-slate-300 flex h-5 items-center rounded-sm w-5 peer-checked:group-[]:bg-emerald-300">
+              <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
+            </div>
+            <div class="grow min-w-0 text-ellipsis whitespace-nowrap">
+              <h3 class="font-bold"><%= event.name %></h3>
+              <p class="text-sm">
+                <span><%= format_range(event.date_start, event.date_end) %></span>
+                <span>&bull; <%= RM.FIRST.Event.type_name(event.type) %></span>
+                <span :if={event.format != :traditional}>
+                  &bull; <%= String.capitalize(event.format) %>
+                </span>
+                <span :if={event.league}>
+                  &bull; <%= event.league.name %>
+                </span>
+              </p>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="mt-4 text-right">
+        <.button type="submit">Generate...</.button>
+      </div>
+    </form>
+  </.card>
+</div>
+
 <.modal id="team-import-info">
   <.title class="mb-4" flush>Team Import Info</.title>
 

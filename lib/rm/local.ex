@@ -120,6 +120,11 @@ defmodule RM.Local do
     |> Query.proposal_season(season)
     |> Query.preload_assoc(:proposal, opts[:preload])
     |> Repo.all()
+    |> Enum.sort(EventProposal)
+    |> Enum.map(fn
+      %EventProposal{region: %RM.FIRST.Region{}} = proposal -> proposal
+      proposal -> %EventProposal{proposal | region: region}
+    end)
   end
 
   @spec fetch_event_proposal_by_id(Ecto.UUID.t()) ::

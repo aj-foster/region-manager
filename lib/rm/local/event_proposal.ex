@@ -130,6 +130,13 @@ defmodule RM.Local.EventProposal do
     Date.after?(today, date_end)
   end
 
+  @doc "Whether the proposal should be submitted to FIRST"
+  @spec pending?(t) :: boolean
+  def pending?(event)
+  def pending?(%__MODULE__{first_event_id: <<_::binary>>}), do: false
+  def pending?(%__MODULE__{submitted_at: %DateTime{}}), do: false
+  def pending?(event), do: not event_passed?(event)
+
   #
   # Protocols
   #

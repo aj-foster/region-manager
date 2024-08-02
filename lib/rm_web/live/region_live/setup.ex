@@ -20,6 +20,7 @@ defmodule RMWeb.RegionLive.Setup do
   def mount(_params, _session, socket) do
     socket
     |> assign_current_season()
+    |> assign_proposals()
     |> allow_upload(:team_data,
       accept: ["text/csv"],
       auto_upload: true,
@@ -43,9 +44,9 @@ defmodule RMWeb.RegionLive.Setup do
   @impl true
   def handle_event(event, unsigned_params, socket)
 
-  def handle_event("setup_submit_no_leagues", _params, socket) do
+  def handle_event("event_proposal_submit", %{"event-proposal-include" => params}, socket) do
     socket
-    |> setup_submit_no_leagues()
+    |> event_proposal_submit(params)
     |> noreply()
   end
 
@@ -83,6 +84,12 @@ defmodule RMWeb.RegionLive.Setup do
     socket
     |> start_async(:refresh_leagues, fn -> FIRST.refresh_leagues(region) end)
     |> assign(refresh_leagues: AsyncResult.loading())
+    |> noreply()
+  end
+
+  def handle_event("setup_submit_no_leagues", _params, socket) do
+    socket
+    |> setup_submit_no_leagues()
     |> noreply()
   end
 
@@ -162,6 +169,38 @@ defmodule RMWeb.RegionLive.Setup do
       current_season: current_season,
       needs_season_update: region.current_season < current_season
     )
+  end
+
+  @spec assign_proposals(Socket.t()) :: Socket.t()
+  defp assign_proposals(socket) do
+    region = socket.assigns[:region]
+
+    proposals =
+      RM.Local.list_event_proposals_by_region(region, preload: [:event, :league, :venue])
+
+    pending_proposals = Enum.filter(proposals, &RM.Local.EventProposal.pending?/1)
+
+    assign(socket,
+      pending_proposals: pending_proposals,
+      pending_proposals_count: length(pending_proposals),
+      proposals: proposals
+    )
+  end
+
+  @spec event_proposal_submit(Socket.t(), map) :: Socket.t()
+  defp event_proposal_submit(socket, params) do
+    proposal_ids =
+      params
+      |> Map.filter(fn {_key, value} -> value == "true" end)
+      |> Map.keys()
+
+    proposals =
+      socket.assigns[:pending_proposals]
+      |> Enum.filter(&(&1.id in proposal_ids))
+
+    IO.inspect(proposals)
+
+    socket
   end
 
   @spec setup_submit_no_leagues(Socket.t()) :: Socket.t()
