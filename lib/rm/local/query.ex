@@ -49,6 +49,14 @@ defmodule RM.Local.Query do
     where(query, [any], any.league_id == ^league_id)
   end
 
+  @doc "Filter event proposals by region"
+  @spec proposal_region(query, RM.FIRST.Region.t()) :: query
+  def proposal_region(query, region), do: where(query, [proposal: p], p.region_id == ^region.id)
+
+  @doc "Filter event proposals by season"
+  @spec proposal_season(query, integer) :: query
+  def proposal_season(query, season), do: where(query, [proposal: p], p.season == ^season)
+
   @doc "Filter by the `rescinded` attribute of a registration"
   @spec rescinded(query, boolean | nil) :: query
   def rescinded(query, nil), do: query

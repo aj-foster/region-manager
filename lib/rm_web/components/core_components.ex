@@ -799,6 +799,16 @@ defmodule RMWeb.CoreComponents do
   def dumb_inflect(word, 1), do: "1 #{word}"
   def dumb_inflect(word, count) when is_integer(count), do: "#{count} #{word}s"
 
+  @doc "Create a naive pluralization of the given word with is/are in front"
+  @spec dumb_inflect_is(String.t(), list | integer) :: String.t()
+  def dumb_inflect_is(word, []), do: "are 0 #{word}s"
+  def dumb_inflect_is(word, [_]), do: "is 1 #{word}"
+  def dumb_inflect_is(word, list) when is_list(list), do: "are #{length(list)} #{word}s"
+
+  def dumb_inflect_is(word, 0), do: "are 0 #{word}s"
+  def dumb_inflect_is(word, 1), do: "is 1 #{word}"
+  def dumb_inflect_is(word, count) when is_integer(count), do: "are #{count} #{word}s"
+
   @doc """
   Create a human-readable representation of the given date
 

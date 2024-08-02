@@ -119,6 +119,18 @@ defmodule RM.Local.EventProposal do
   end
 
   #
+  # Helpers
+  #
+
+  @doc "Whether the proposed event has passed"
+  @spec event_passed?(t) :: boolean
+  def event_passed?(event) do
+    %__MODULE__{date_end: date_end, venue: %RM.Local.Venue{timezone: timezone}} = event
+    today = DateTime.now!(timezone) |> DateTime.to_date()
+    Date.after?(today, date_end)
+  end
+
+  #
   # Protocols
   #
 

@@ -110,6 +110,18 @@ defmodule RM.Local do
   # Event Proposals
   #
 
+  @spec list_event_proposals_by_region(RM.FIRST.Region.t()) :: [EventProposal.t()]
+  @spec list_event_proposals_by_region(RM.FIRST.Region.t(), keyword) :: [EventProposal.t()]
+  def list_event_proposals_by_region(region, opts \\ []) do
+    %RM.FIRST.Region{current_season: season} = region
+
+    Query.from_proposal()
+    |> Query.proposal_region(region)
+    |> Query.proposal_season(season)
+    |> Query.preload_assoc(:proposal, opts[:preload])
+    |> Repo.all()
+  end
+
   @spec fetch_event_proposal_by_id(Ecto.UUID.t()) ::
           {:ok, EventProposal.t()} | {:error, :proposal, :not_found}
   @spec fetch_event_proposal_by_id(Ecto.UUID.t(), keyword) ::

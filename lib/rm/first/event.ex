@@ -166,6 +166,14 @@ defmodule RM.FIRST.Event do
   # Helpers
   #
 
+  @doc "Whether the event has passed"
+  @spec event_passed?(t) :: boolean
+  def event_passed?(event) do
+    %__MODULE__{date_end: date_end, date_timezone: date_timezone} = event
+    today = DateTime.now!(date_timezone) |> DateTime.to_date()
+    Date.after?(today, date_end)
+  end
+
   @doc "Whether the event spans multiple calendar days"
   @spec multi_day?(t) :: boolean
   def multi_day?(%__MODULE__{date_start: start, date_end: finish}) do
