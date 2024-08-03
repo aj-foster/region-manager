@@ -148,6 +148,19 @@ defmodule RM.Local do
     |> Repo.insert()
   end
 
+  @spec create_batch_submission(Region.t(), [EventProposal.t()], RM.Account.User.t()) ::
+          {:ok, String.t()} | {:error, any}
+  def create_batch_submission(region, proposals, user) do
+    id = Ecto.UUID.generate()
+
+    with {:ok, {_name, file_contents}} <- RM.Local.EventBatch.new(region, proposals, id: id),
+         changeset <- RM.Local.EventBatch.save(id, file_contents, user),
+         {:ok, event_batch} <- Repo.insert(changeset) do
+      url = RM.Local.EventSubmission.url({"", event_batch}, signed: true)
+      {:ok, url}
+    end
+  end
+
   #
   # Event Registration
   #

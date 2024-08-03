@@ -3,7 +3,7 @@
 <div :if={@region.stats.team_count > 0} class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
     <.title flush>All Teams in <%= @region.name %></.title>
-    <.link_button navigate={~p"/region/#{@region}/import"}>
+    <.link_button navigate={~p"/region/#{@region}/setup"}>
       Import
     </.link_button>
   </div>

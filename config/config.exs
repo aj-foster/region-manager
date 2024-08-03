@@ -59,6 +59,9 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
-config :waffle, storage: Waffle.Storage.Local
+config :waffle,
+  asset_host: "http://localhost:4000/waffle",
+  storage: Waffle.Storage.Local,
+  storage_dir_prefix: "priv/static/waffle"
 
 import_config "#{config_env()}.exs"

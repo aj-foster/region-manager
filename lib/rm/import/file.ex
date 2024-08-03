@@ -14,8 +14,7 @@ defmodule RM.Import.File do
 
   @doc false
   def storage_dir(_version, _file_and_scope) do
-    %Date{year: year, month: month} = Date.utc_today()
-    "import/#{year}/#{String.pad_leading("#{month}", 2, "0")}/"
+    "import/#{Calendar.strftime(Date.utc_today(), "%Y/%m")}/"
   end
 
   @doc false

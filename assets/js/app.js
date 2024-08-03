@@ -74,3 +74,7 @@ window.addEventListener("phx:copy", (event) => {
     navigator.clipboard.writeText(content)
   }
 })
+
+window.addEventListener("phx:window-open", ({ detail: { url } }) => {
+  window.open(url, "_blank", "noopener noreferrer")
+})

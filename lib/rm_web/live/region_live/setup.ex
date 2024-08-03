@@ -189,6 +189,9 @@ defmodule RMWeb.RegionLive.Setup do
 
   @spec event_proposal_submit(Socket.t(), map) :: Socket.t()
   defp event_proposal_submit(socket, params) do
+    region = socket.assigns[:region]
+    user = socket.assigns[:current_user]
+
     proposal_ids =
       params
       |> Map.filter(fn {_key, value} -> value == "true" end)
@@ -198,9 +201,19 @@ defmodule RMWeb.RegionLive.Setup do
       socket.assigns[:pending_proposals]
       |> Enum.filter(&(&1.id in proposal_ids))
 
-    IO.inspect(proposals)
+    case RM.Local.create_batch_submission(region, proposals, user) do
+      {:ok, url} ->
+        socket
+        |> push_event("window-open", %{url: url})
+        |> put_flash(
+          :info,
+          "Batch Create file generated successfully. If a download doesn't start immediately, please allow popups."
+        )
 
-    socket
+      {:error, reason} ->
+        Logger.warning("Error while generating Batch Create file: #{inspect(reason)}")
+        put_flash(socket, :error, "An error occurred while generating file")
+    end
   end
 
   @spec setup_submit_no_leagues(Socket.t()) :: Socket.t()

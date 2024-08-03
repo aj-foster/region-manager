@@ -59,6 +59,9 @@ defmodule RM.FIRST.Region do
     has_many :teams, Team
 
     embeds_one :metadata, Metadata, on_replace: :update, primary_key: false do
+      # Region's country as it appears in Batch Create spreadsheets for events
+      field :code_batch_country, :string
+
       # Special code for `c:External.FTCEvents.API.list_teams/3`
       # May return more teams than expected (ex. "FL" returns Adventist teams in Florida)
       # May need to become an array of codes for some regions in the future.

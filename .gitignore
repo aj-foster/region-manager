@@ -28,6 +28,9 @@ rm-*.tar
 # Ignore assets that are produced by build tools.
 /priv/static/assets/
 
+# Ignore file uploads made in development
+/priv/static/waffle/
+
 # Ignore digested assets cache.
 /priv/static/cache_manifest.json
 

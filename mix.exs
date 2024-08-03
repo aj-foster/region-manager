@@ -36,6 +36,7 @@ defmodule RM.MixProject do
       {:bandit, ">= 0.0.0"},
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
+      {:elixlsx, "~> 0.6.0"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
       {:eqrcode, "~> 0.1.10"},
       {:ex_aws, "~> 2.5"},
