@@ -242,7 +242,7 @@ defmodule RM.Util.Time do
   #
 
   @doc """
-  Create a list of timezone options suitable for an HTML <select> or <datalist>
+  Create a list of timezone options suitable for an HTML `<datalist>`
 
   Timezones are ordered roughly from East to West based on their current offsets. Labels are
   optimized for full text search by city or common zone names, as would occur in a datalist.
@@ -296,6 +296,65 @@ defmodule RM.Util.Time do
         end
 
       {tz.name, label}
+    end)
+  end
+
+  @doc """
+  Create a filtered list of timezone options suitable for an HTML `<select>`
+
+  Timezones are ordered roughly from East to West based on their current offsets. Labels are
+  optimized for clarity, using only the city names allowed by the country restriction.
+  """
+  @spec zones_for_country(String.t()) :: [{String.t(), String.t()}]
+  def zones_for_country(country_name) do
+    now = DateTime.utc_now() |> DateTime.to_gregorian_seconds() |> elem(0)
+    allowed_timezones = RM.Util.Location.timezones(country_name)
+
+    allowed_timezones
+    |> Enum.map(&period_for(&1, now))
+    |> Enum.sort(&timezone_sorter/2)
+    |> Enum.map(fn tz ->
+      names =
+        if aliases = Map.get(@tz_consolidation, tz.name) do
+          aliases
+          |> Enum.filter(&(&1 in allowed_timezones))
+          |> Enum.reject(&MapSet.member?(@tz_exclusions, &1))
+          |> list_names()
+        else
+          list_names([tz.name])
+        end
+
+      offset = tz.utc_off + tz.std_off
+      hour_offset = div(offset, 3600)
+      minute_offset = div(rem(offset, 3600), 60)
+
+      offset_str =
+        Enum.join([
+          if(offset < 0, do: "–", else: "+"),
+          String.pad_leading("#{abs(hour_offset)}", 2, "0"),
+          ":",
+          String.pad_leading("#{abs(minute_offset)}", 2, "0")
+        ])
+
+      affordance = Map.get(@tz_affordances, tz.name)
+      generic_abbr? = tz.zone_abbr == "LMT" or String.match?(tz.zone_abbr, ~r/^-\d+$/)
+
+      label =
+        cond do
+          affordance && generic_abbr? ->
+            "#{affordance} • #{names} • GMT#{offset_str}"
+
+          affordance && !generic_abbr? ->
+            "#{affordance} (#{tz.zone_abbr}) • #{names} • GMT#{offset_str}"
+
+          is_nil(affordance) && generic_abbr? ->
+            "#{names} • GMT#{offset_str}"
+
+          is_nil(affordance) && !generic_abbr? ->
+            "#{tz.zone_abbr} • #{names} • GMT#{offset_str}"
+        end
+
+      {label, tz.name}
     end)
   end
 

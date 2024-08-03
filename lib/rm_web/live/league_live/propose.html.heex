@@ -303,25 +303,37 @@
       wrapper="mb-4"
     />
 
+    <.input
+      field={@add_venue_form[:country]}
+      label="Country"
+      options={country_options()}
+      required
+      type="select"
+      wrapper="mb-4"
+    />
     <.input field={@add_venue_form[:address]} label="Address Line 1" wrapper="mb-4" required />
     <.input field={@add_venue_form[:address_2]} label="Address Line 2" wrapper="mb-4" />
     <.input field={@add_venue_form[:city]} label="City" wrapper="mb-4" required />
+
     <div class="flex gap-4 mb-4">
       <.input
         field={@add_venue_form[:state_province]}
         label="State / Province"
+        options={state_province_options(@add_venue_form[:country].value)}
+        required={RM.Util.Location.state_province_required?(@add_venue_form[:country].value)}
+        type="select"
         wrapper="basis-1/2 grow"
       />
       <.input field={@add_venue_form[:postal_code]} label="Postal Code" wrapper="basis-1/2 grow" />
     </div>
-    <.input field={@add_venue_form[:country]} label="Country" wrapper="mb-4" required />
+
     <.input
-      explanation="Official name of the timezone (ex. America/New_York). Start typing for options."
-      list="timezones"
       field={@add_venue_form[:timezone]}
       label="Timezone"
-      wrapper="mb-4"
+      options={timezone_options(@add_venue_form[:country].value)}
       required
+      type="select"
+      wrapper="mb-4"
     />
     <.input
       explanation="Helpful notes to visitors, such as entrance or parking instructions. Use this field for venue-specific details that don't change from event to event."
@@ -414,9 +426,3 @@
     </li>
   </ul>
 </.modal>
-
-<datalist id="timezones">
-  <option :for={{name, label} <- RM.Util.Time.zones()} value={name}>
-    <%= label %>
-  </option>
-</datalist>

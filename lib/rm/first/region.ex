@@ -66,6 +66,12 @@ defmodule RM.FIRST.Region do
       # May return more teams than expected (ex. "FL" returns Adventist teams in Florida)
       # May need to become an array of codes for some regions in the future.
       field :code_list_teams, :string
+
+      # Default country for event proposals in this region
+      field :default_country, :string
+
+      # Default state/province, if any, for event proposals in this region
+      field :default_state_province, :string
     end
 
     embeds_one :stats, Stats, on_replace: :update, primary_key: false do

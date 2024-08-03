@@ -78,6 +78,11 @@ defmodule RMWeb.LeagueLive.Propose do
     params =
       params
       |> Map.put("by", socket.assigns[:current_user])
+      |> Map.put_new("country", socket.assigns[:league].region.metadata.default_country)
+      |> Map.put_new(
+        "state_province",
+        socket.assigns[:league].region.metadata.default_state_province
+      )
       |> Map.put_new("timezone", socket.assigns[:timezone])
 
     form = Venue.create_changeset(league, params) |> to_form()
@@ -223,6 +228,12 @@ defmodule RMWeb.LeagueLive.Propose do
   # Template Helpers
   #
 
+  @spec country_options :: [{String.t(), String.t()}]
+  defp country_options do
+    RM.Util.Location.countries()
+    |> Enum.map(&{&1, &1})
+  end
+
   @spec event_format_options :: [{String.t(), String.t()}]
   defp event_format_options do
     [
@@ -255,6 +266,17 @@ defmodule RMWeb.LeagueLive.Propose do
       {"Teams in #{league.region.name}", "region"},
       {"Any Team", "all"}
     ]
+  end
+
+  @spec state_province_options(String.t()) :: [{String.t(), String.t()}]
+  defp state_province_options(country_name) do
+    RM.Util.Location.state_provinces(country_name)
+    |> Enum.map(&{&1, &1})
+  end
+
+  @spec timezone_options(String.t()) :: [{String.t(), String.t()}]
+  defp timezone_options(country_name) do
+    RM.Util.Time.zones_for_country(country_name)
   end
 
   @spec venue_options([Venue.t()]) :: [{String.t(), Ecto.UUID.t()}]
