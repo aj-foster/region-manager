@@ -1,11 +1,13 @@
 defmodule RM.Local.EventProposal do
   use Ecto.Schema
+  import Ecto.Query
 
-  alias RM.Local.RegistrationSettings
   alias Ecto.Changeset
   alias RM.FIRST.League
   alias RM.FIRST.Region
   alias RM.Local.Log
+  alias RM.Local.Query
+  alias RM.Local.RegistrationSettings
   alias RM.Local.Venue
 
   @type t :: %__MODULE__{}
@@ -116,6 +118,21 @@ defmodule RM.Local.EventProposal do
     contact
     |> Changeset.cast(params, [:email, :name, :phone])
     |> Changeset.validate_required([:email, :name, :phone])
+  end
+
+  #
+  # Queries
+  #
+
+  @doc "Query to update the provided proposals' submitted_at field to the current time"
+  @spec update_submitted_at_query([t]) :: Ecto.Query.t()
+  def update_submitted_at_query(proposals) do
+    ids = Enum.map(proposals, & &1.id)
+    now = DateTime.utc_now()
+
+    Query.from_proposal()
+    |> where([proposal: p], p.id in ^ids)
+    |> update(set: [submitted_at: ^now])
   end
 
   #
