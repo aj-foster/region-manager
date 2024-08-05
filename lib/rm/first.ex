@@ -198,7 +198,7 @@ defmodule RM.FIRST do
 
   @spec update_region_league_counts([League.t()], Region.t() | [Region.t()] | nil) ::
           {integer, nil}
-  defp update_region_league_counts(leagues, region_or_regions) do
+  def update_region_league_counts(leagues, region_or_regions) do
     region_ids =
       case region_or_regions do
         nil -> []
@@ -344,6 +344,27 @@ defmodule RM.FIRST do
   #
   # Leagues
   #
+
+  @doc """
+  List leagues for the given region
+
+  ## Options
+
+    * `season`: Season to get leagues for. Defaults to the region's current season.
+  """
+  @spec list_leagues_by_region(Region.t()) :: [League.t()]
+  @spec list_leagues_by_region(Region.t(), keyword) :: [League.t()]
+  def list_leagues_by_region(region, opts \\ []) do
+    Query.from_league()
+    |> Query.league_region(region)
+    |> Query.league_season(opts[:season] || region.current_season)
+    |> Query.preload_assoc(:league, opts[:preload])
+    |> Repo.all()
+    |> Enum.map(fn
+      %League{region: %RM.FIRST.Region{}} = league -> league
+      league -> %League{league | region: region}
+    end)
+  end
 
   @spec list_league_ids_by_code(integer) :: %{String.t() => Ecto.UUID.t()}
   def list_league_ids_by_code(season) do

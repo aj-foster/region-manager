@@ -6,7 +6,6 @@ defmodule RM.Local do
 
   alias Ecto.Changeset
   alias RM.FIRST.Event
-  alias RM.FIRST.League
   alias RM.FIRST.Region
   alias RM.Local.EventProposal
   alias RM.Local.EventRegistration
@@ -55,7 +54,7 @@ defmodule RM.Local do
           league_id: event_league_id,
           settings: %EventSettings{registration: %RegistrationSettings{pool: :league}}
         },
-        %Team{league: %League{id: team_league_id}}
+        %Team{league: %RM.FIRST.League{id: team_league_id}}
       )
       when event_league_id != team_league_id,
       do: {:error, :out_of_scope}
@@ -195,32 +194,76 @@ defmodule RM.Local do
   end
 
   #
+  # Leagues
+  #
+
+  @spec create_leagues_from_first(Region.t()) :: [RM.Local.League.t()]
+  @spec create_leagues_from_first(Region.t(), keyword) :: [RM.Local.League.t()]
+  def create_leagues_from_first(region, opts \\ []) do
+    # First round: Initial insertion of the records
+
+    first_leagues = RM.FIRST.list_leagues_by_region(region, opts)
+    league_data = Enum.map(first_leagues, &RM.Local.League.from_first_league/1)
+
+    leagues =
+      Repo.insert_all(RM.Local.League, league_data,
+        on_conflict: {:replace_all_except, [:id, :inserted_at]},
+        conflict_target: [:code, :region_id],
+        returning: true
+      )
+      |> elem(1)
+
+    # league_settings_data = Enum.map(leagues, &LeagueSettings.default_params/1)
+
+    # Repo.insert_all(LeagueSettings, league_settings_data,
+    #   on_conflict: :nothing,
+    #   conflict_target: :league_id
+    # )
+
+    # Second round: update parent/child relationships.
+
+    league_id_map = Map.new(leagues, &{&1.code, &1.id})
+    league_data = Enum.map(first_leagues, &RM.Local.League.from_first_league(&1, league_id_map))
+
+    leagues =
+      Repo.insert_all(RM.Local.League, league_data,
+        on_conflict: {:replace_all_except, [:id, :inserted_at]},
+        conflict_target: [:code, :region_id],
+        returning: true
+      )
+      |> elem(1)
+
+    # RM.FIRST.update_region_league_counts(leagues)
+    leagues
+  end
+
+  #
   # League Settings
   #
 
-  @spec change_league_settings(League.t()) :: Changeset.t(LeagueSettings.t())
+  @spec change_league_settings(RM.FIRST.League.t()) :: Changeset.t(LeagueSettings.t())
   def change_league_settings(league) do
     case Repo.preload(league, :settings) do
-      %League{settings: nil} ->
+      %RM.FIRST.League{settings: nil} ->
         LeagueSettings.changeset(%{})
         |> Changeset.put_assoc(:league, league)
 
-      %League{settings: settings} ->
+      %RM.FIRST.League{settings: settings} ->
         LeagueSettings.changeset(settings, %{})
     end
   end
 
-  @spec update_league_settings(League.t(), map) ::
+  @spec update_league_settings(RM.FIRST.League.t(), map) ::
           {:ok, LeagueSettings.t()} | {:error, Changeset.t(LeagueSettings.t())}
   def update_league_settings(league, params) do
     case Repo.preload(league, :settings) do
-      %League{settings: nil} ->
+      %RM.FIRST.League{settings: nil} ->
         %LeagueSettings{registration: %RegistrationSettings{enabled: true, pool: :league}}
         |> LeagueSettings.changeset(params)
         |> Changeset.put_assoc(:league, league)
         |> Repo.insert()
 
-      %League{settings: settings} ->
+      %RM.FIRST.League{settings: settings} ->
         LeagueSettings.changeset(settings, params)
         |> Repo.update()
     end
@@ -287,7 +330,8 @@ defmodule RM.Local do
   # Venues
   #
 
-  @spec create_venue(League.t(), map) :: {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
+  @spec create_venue(RM.FIRST.League.t(), map) ::
+          {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
   def create_venue(league, params) do
     Venue.create_changeset(league, params)
     |> Repo.insert()

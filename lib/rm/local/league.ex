@@ -21,7 +21,7 @@ defmodule RM.Local.League do
 
   schema "leagues" do
     field :code, :string
-    field :current_season, :integer
+    field :current_season, :integer, autogenerate: {RM.Config, :get, ["current_season"]}
     field :location, :string
     field :name, :string
     field :remote, :boolean
@@ -49,6 +49,15 @@ defmodule RM.Local.League do
     timestamps type: :utc_datetime_usec
   end
 
+  #
+  # Changesets
+  #
+
+  @doc """
+  Create a new local representation of a league from FIRST's representation
+
+  This is useful when creating local data for the first time.
+  """
   @spec from_first_league(RM.FIRST.League.t()) :: map
   def from_first_league(
         %RM.FIRST.League{
@@ -57,7 +66,8 @@ defmodule RM.Local.League do
           name: name,
           parent_league_id: parent_league_id,
           region_id: region_id,
-          remote: remote
+          remote: remote,
+          season: season
         },
         league_id_map \\ %{}
       ) do
@@ -65,6 +75,7 @@ defmodule RM.Local.League do
 
     %{
       code: code,
+      current_season: season,
       inserted_at: now,
       location: location,
       log: [Log.new("copied", %{})],
