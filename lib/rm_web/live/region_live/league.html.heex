@@ -1,19 +1,154 @@
 <.nav class="mb-8" region={@region} view={@socket.view} />
 
 <div class="mb-8">
+  <div class="flex items-center justify-between mb-4 ml-6">
+    <.title flush><%= @league.name %> League</.title>
+    <.button phx-click="edit_league_init">
+      <%= if @edit_league, do: "Cancel", else: "Edit..." %>
+    </.button>
+  </div>
+
+  <.information :if={is_nil(@first_league)} class="mb-4">
+    <p class="font-bold">
+      This league is not listed in public data available from <em>FIRST</em>.
+    </p>
+    <p>
+      Please copy the league into the <a
+        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/"}
+        target="blank"
+      >
+    <span class="underline">Cloud Scoring System</span>
+    <.icon
+          name="hero-arrow-top-right-on-square"
+          class="h-4 w-4 align-text-top"
+        />
+    </a>.
+    </p>
+  </.information>
+
+  <.card :if={not @edit_league}>
+    <.table>
+      <:row title="Name">
+        <div class="flex gap-4 items-center">
+          <div class="grow"><%= @region.name %> <%= @league.name %> League</div>
+          <button
+            class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+            id="copy-league-name"
+            data-copy={"#{@region.name} #{@league.name} League"}
+            phx-click={copy("#copy-league-name")}
+            title="Copy to Clipboard"
+          >
+            <.icon name="hero-document-duplicate" />
+          </button>
+        </div>
+      </:row>
+      <:row title="Code">
+        <div class="flex gap-4 items-center">
+          <div class="grow">
+            <span class="font-mono text-orange-600"><%= @league.code %></span>
+          </div>
+          <button
+            class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+            id="copy-league-code"
+            data-copy={@league.code}
+            phx-click={copy("#copy-league-code")}
+            title="Copy to Clipboard"
+          >
+            <.icon name="hero-document-duplicate" />
+          </button>
+        </div>
+      </:row>
+      <:row title="Location">
+        <div class="flex gap-4 items-center shrink">
+          <div class="min-w-0 shrink"><%= @league.location %></div>
+          <button
+            class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+            id="copy-league-location"
+            data-copy={@league.location}
+            phx-click={copy("#copy-league-location")}
+            title="Copy to Clipboard"
+          >
+            <.icon name="hero-document-duplicate" />
+          </button>
+        </div>
+      </:row>
+      <:row title="style"><%= if(@league.remote, do: "Remote", else: "Traditional") %></:row>
+    </.table>
+  </.card>
+
+  <.card :if={@edit_league}>
+    <p class="mb-4 text-sm">
+      Use this form to update league information in <strong>Region Manager</strong>.
+      Afterwards, these changes must be copied to the <a
+        class="text-orange-600"
+        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/#leagues"}
+        target="blank"
+      ><span class="underline"><em>FIRST</em> Cloud Scoring System</span>
+    <.icon
+          name="hero-arrow-top-right-on-square"
+          class="h-4 w-4 align-text-top"
+        /></a>.
+    </p>
+
+    <.form for={@edit_league_form} phx-change="edit_league_change" phx-submit="edit_league_submit">
+      <.input
+        explanation={"Full name: #{@region.name} #{@edit_league_form[:name].value} League"}
+        field={@edit_league_form[:name]}
+        label="League Name"
+        required
+        wrapper="mb-4"
+      />
+
+      <.input
+        explanation="Recommended 2 characters. Max of 4 characters. Capital letters or numbers only."
+        field={@edit_league_form[:code]}
+        info_modal="league-edit-code-modal"
+        label="League Code"
+        maxlength="4"
+        pattern="[A-Z0-9]{1,4}"
+        required
+        wrapper="mb-4"
+      />
+
+      <.input
+        explanation="Cities, counties, or other geographies covered by this league"
+        field={@edit_league_form[:location]}
+        label="Location"
+        required
+        type="textarea"
+        wrapper="mb-4"
+      />
+
+      <.switch
+        explanation="Remote leagues can only have remote events"
+        field={@edit_league_form[:remote]}
+        info_modal="league-edit-style-modal"
+        label="Remote League"
+        type="checkbox"
+        wrapper="mb-4"
+      />
+
+      <p class="text-right">
+        <.button type="submit">Update League</.button>
+      </p>
+    </.form>
+  </.card>
+</div>
+
+<div class="mb-8">
   <.title><%= @league.name %> League</.title>
 
   <.card>
     <.table class="mb-4">
       <:row title="Events">
-        <p :if={@league.stats.event_count == 0} class="italic">No events</p>
+        <p :if={@league.stats.event_count == 0} class="italic text-sm">No events</p>
         <ul :if={@league.stats.event_count > 0}>
           <li :for={event <- @league.events}><%= event.name %></li>
         </ul>
       </:row>
 
       <:row title="Teams">
-        <p :if={@league.stats.team_count == 0} class="italic">No teams</p>
+        <p :if={@league.stats.team_count == 0} class="italic text-sm">No teams</p>
         <ul :if={@league.stats.team_count > 0}>
           <li :for={team <- @league.teams}>
             <strong><%= team.number %></strong> <%= team.name %>
@@ -55,7 +190,7 @@
 
     <div>
       <button
-        class="leading-none ml-2 p-1 rounded transition-colors hover:bg-neutral-200"
+        class="leading-none ml-2 p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
         phx-click="remove_user_init"
         phx-value-assignment={assignment.id}
       >
@@ -64,6 +199,83 @@
     </div>
   </.card>
 </div>
+
+<.modal id="league-edit-code-modal">
+  <.title class="mb-4" flush>About League Codes</.title>
+
+  <div class="text-sm">
+    <p class="italic mb-4">The following information was provided by <em>FIRST</em>:</p>
+
+    <p class="mb-4">
+      League codes uniquely identify a league <strong>within a region</strong>. Some guidance on making league codes:
+    </p>
+    <ul class="list-disc pl-8 mb-4">
+      <li>
+        <strong>Keep it short!</strong>
+        The recommended code length is 2 characters. 1 character is fine! If necessary, they can be up to 4 characters.
+      </li>
+      <li>
+        <strong>Base codes on league name.</strong>
+        An acronym for the name will work well! Don't count the word "League". Some approaches:
+        <ul class="list-disc pl-8">
+          <li>1 word name - use the first letter or first two letters.</li>
+          <li>2 word name - use the first letter of each word</li>
+          <li>
+            3+ word name - use the first letter of the two most important or distinguishing words. Or use the first letter of the first and last word.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <strong>Don't duplicate region info.</strong>
+        Do not include country or state abbreviations unless your region runs exactly 1 league and the league name is not different from the region name.
+      </li>
+      <li>
+        <strong>Don't include program acronym.</strong>
+        If the league isn't for FTC, you're in the wrong place!
+      </li>
+      <li>
+        <strong>Don't include remote.</strong>
+        Base the code on other information unless it is your region's only remote league and the name of the league is just "Remote".
+      </li>
+      <li>
+        <strong>Avoid numbers.</strong>
+        While they are allowed, avoid numbers unless necessary for uniqueness.
+      </li>
+    </ul>
+
+    <p>
+      League codes will appear in event codes to help identify related league events. They will appear between the region code and the event type identifier. For example, the first meet in a New Hampshire (<span class="font-mono text-orange-600">USNH</span>) league with code
+      <span class="font-mono text-orange-600">EX</span>
+      will have event code <span class="font-mono text-orange-600">USNHEXM1</span>, and that league's tournament will have event code <span class="font-mono text-orange-600">USNHEXLT</span>.
+    </p>
+  </div>
+</.modal>
+
+<.modal id="league-edit-style-modal">
+  <.title class="mb-4" flush>About League Style</.title>
+
+  <div class="text-sm">
+    <p class="italic mb-4">The following information was provided by <em>FIRST</em>:</p>
+
+    <p class="mb-4">
+      Leagues are either "traditional" or "remote". Remote and traditional rankings are not compatible. Leagues of different styles will not share rankings. For example, matches from a remote meet will not contribute towards a team's ranking at a traditional or hybrid league tournament.
+    </p>
+    <ul class="list-disc pl-8 mb-4">
+      <li>
+        <strong>Traditional League:</strong>
+        Can only have traditional meets. Can have a traditional or hybrid league tournament.
+      </li>
+      <li>
+        <strong>Remote League:</strong>
+        Can only have remote meets. Can only have a remote league tournament.
+      </li>
+    </ul>
+
+    <p>
+      Child leagues must match the style of their parent league.
+    </p>
+  </div>
+</.modal>
 
 <.modal id="league-add-user-modal">
   <.title class="mb-4" flush>Add League Administrator</.title>

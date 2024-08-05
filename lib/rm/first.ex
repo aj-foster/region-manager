@@ -366,6 +366,19 @@ defmodule RM.FIRST do
     |> Map.new()
   end
 
+  @spec get_league_by_code(Region.t(), String.t()) ::
+          {:ok, League.t()} | {:error, :league, :not_found}
+  @spec get_league_by_code(Region.t(), String.t(), keyword) ::
+          {:ok, League.t()} | {:error, :league, :not_found}
+  def get_league_by_code(region, code, opts \\ []) do
+    Query.from_league()
+    |> Query.league_code(code)
+    |> Query.league_region(region)
+    |> Query.league_season(region.current_season)
+    |> Query.preload_assoc(:league, opts[:preload])
+    |> Repo.one()
+  end
+
   #
   # Events
   #

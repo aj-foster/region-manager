@@ -253,6 +253,12 @@ defmodule RM.Local do
     leagues
   end
 
+  @spec update_league(League.t(), map) :: {:ok, League.t()} | {:error, Changeset.t(League.t())}
+  def update_league(league, params) do
+    League.update_changeset(league, params)
+    |> Repo.update()
+  end
+
   #
   # League Settings
   #

@@ -482,11 +482,11 @@ defmodule RMWeb.CoreComponents do
       <.label :if={@label} for={@id}>
         <%= @label %>
         <span :if={@field_is_required} class="text-orange-500"> *</span>
-        <button :if={@info_modal} phx-click={show_modal(@info_modal)}>
+        <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
           <.icon class="align-text-bottom h-4 text-gray-700 w-4" name="hero-information-circle" />
         </button>
       </.label>
-      <div :if={@explanation} class=" text-gray-700 text-sm"><%= @explanation %></div>
+      <div :if={@explanation} class="text-gray-700 text-sm"><%= @explanation %></div>
       <select
         id={@id}
         name={@name}
@@ -510,11 +510,11 @@ defmodule RMWeb.CoreComponents do
       <.label for={@id}>
         <%= @label %>
         <span :if={@field_is_required} class="text-orange-500"> *</span>
-        <button :if={@info_modal} phx-click={show_modal(@info_modal)}>
+        <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
           <.icon class="align-text-bottom h-4 text-gray-700 w-4" name="hero-information-circle" />
         </button>
       </.label>
-      <div :if={@explanation} class=" text-gray-700 text-sm"><%= @explanation %></div>
+      <div :if={@explanation} class="text-gray-700 text-sm"><%= @explanation %></div>
       <textarea
         id={@id}
         name={@name}
@@ -538,9 +538,13 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <div class={@wrapper} phx-feedback-for={@name}>
       <.label for={@id}>
-        <%= @label %><span :if={@field_is_required} class="text-orange-500"> *</span>
+        <%= @label %>
+        <span :if={@field_is_required} class="text-orange-500"> *</span>
+        <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
+          <.icon class="align-text-bottom h-4 text-gray-700 w-4" name="hero-information-circle" />
+        </button>
       </.label>
-      <div :if={@explanation} class=" text-gray-700 text-sm"><%= @explanation %></div>
+      <div :if={@explanation} class="text-gray-700 text-sm"><%= @explanation %></div>
       <input
         type={@type}
         name={@name}
@@ -554,7 +558,9 @@ defmodule RMWeb.CoreComponents do
         ]}
         {@rest}
       />
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors}>
+        "<%= Phoenix.HTML.Form.normalize_value(@type, @value) %>" <%= msg %>
+      </.error>
     </div>
     """
   end
@@ -573,6 +579,7 @@ defmodule RMWeb.CoreComponents do
   attr :class, :string, default: nil, doc: "additional classes for the input element"
   attr :errors, :list, default: [], doc: "error messages to display below the input"
   attr :explanation, :string, default: nil
+  attr :info_modal, :string, default: nil, doc: "ID of a modal for additional information"
   attr :label, :string, default: nil
   attr :wrapper, :string, default: nil, doc: "additional classes for the wrapper element"
 
@@ -592,6 +599,7 @@ defmodule RMWeb.CoreComponents do
       assign_new(assigns, :checked, fn ->
         Phoenix.HTML.Form.normalize_value("checkbox", assigns.value)
       end)
+      |> assign_new(:field_is_required, fn -> assigns.rest[:required] == true end)
 
     ~H"""
     <div class={["group", @wrapper]} phx-feedback-for={@name}>
@@ -611,7 +619,13 @@ defmodule RMWeb.CoreComponents do
           <div class={switch_class_fg()} />
         </div>
         <div>
-          <div class="font-semibold"><%= @label %></div>
+          <div class="font-semibold">
+            <%= @label %>
+            <span :if={@field_is_required} class="text-orange-500"> *</span>
+            <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
+              <.icon class="align-text-bottom h-4 text-gray-700 w-4" name="hero-information-circle" />
+            </button>
+          </div>
           <div :if={@explanation} class="mt-1 text-gray-700"><%= @explanation %></div>
           <.error :for={msg <- @errors}><%= msg %></.error>
         </div>

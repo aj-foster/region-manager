@@ -9,6 +9,7 @@ defmodule RM.Local.League do
   """
   use Ecto.Schema
 
+  alias Ecto.Changeset
   alias RM.Local.EventProposal
   alias RM.Local.LeagueAssignment
   alias RM.Local.LeagueSettings
@@ -16,6 +17,8 @@ defmodule RM.Local.League do
   alias RM.Local.Venue
 
   @type t :: %__MODULE__{}
+
+  @required_fields [:code, :current_season, :location, :name, :remote]
 
   @primary_key {:id, :binary_id, autogenerate: true}
 
@@ -52,6 +55,17 @@ defmodule RM.Local.League do
   #
   # Changesets
   #
+
+  @doc """
+  Create a changeset for editing league details
+  """
+  @spec update_changeset(t, map) :: Changeset.t(t)
+  def update_changeset(league, params) do
+    league
+    |> Changeset.cast(params, [:code, :location, :name, :remote])
+    |> Changeset.validate_required(@required_fields)
+    |> Changeset.unique_constraint([:code, :region_id])
+  end
 
   @doc """
   Create a new local representation of a league from FIRST's representation
