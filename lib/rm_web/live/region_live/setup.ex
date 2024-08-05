@@ -119,7 +119,7 @@ defmodule RMWeb.RegionLive.Setup do
     region = socket.assigns[:region]
 
     proposals =
-      RM.Local.list_event_proposals_by_region(region, preload: [:event, :league, :venue])
+      RM.Local.list_event_proposals_by_region(region, preload: [:event, :league, :region, :venue])
 
     pending_proposals = Enum.filter(proposals, &RM.Local.EventProposal.pending?/1)
 
@@ -152,6 +152,7 @@ defmodule RMWeb.RegionLive.Setup do
           :info,
           "Batch Create file generated successfully. If a download doesn't start immediately, please allow popups."
         )
+        |> assign_proposals()
 
       {:error, reason} ->
         Logger.warning("Error while generating Batch Create file: #{inspect(reason)}")

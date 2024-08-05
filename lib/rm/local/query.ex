@@ -159,6 +159,14 @@ defmodule RM.Local.Query do
     end)
   end
 
+  @doc "Load the `league` association on an event proposal"
+  @spec join_region_from_proposal(query) :: query
+  def join_region_from_proposal(query) do
+    with_named_binding(query, :region, fn query, binding ->
+      join(query, :left, [proposal: p], r in assoc(p, :region), as: ^binding)
+    end)
+  end
+
   @doc "Load the `region` association on a team"
   @spec join_region_from_team(query) :: query
   def join_region_from_team(query) do
@@ -207,6 +215,7 @@ defmodule RM.Local.Query do
 
     * `event`: `first_event` on an event proposal
     * `league`: `league` on an event proposal
+    * `region`: `region` on an event proposal
     * `venue`: `venue` on an event proposal
 
   With `registration` as the base:
@@ -277,6 +286,13 @@ defmodule RM.Local.Query do
     query
     |> join_league_from_proposal()
     |> preload([league: l], league: l)
+    |> preload_assoc(:proposal, rest)
+  end
+
+  def preload_assoc(query, :proposal, [:region | rest]) do
+    query
+    |> join_region_from_proposal()
+    |> preload([region: r], region: r)
     |> preload_assoc(:proposal, rest)
   end
 

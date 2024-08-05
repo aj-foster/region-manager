@@ -226,10 +226,18 @@ defmodule RM.Local.EventBatch do
   defp event_style(%EventProposal{format: :hybrid}), do: "HYBRID"
   defp event_style(%EventProposal{format: :remote}), do: "REMOTE"
 
-  # TODO: Ensure full names are used in the future
   @spec league(EventProposal.t()) :: String.t()
   defp league(%EventProposal{league: nil}), do: ""
-  defp league(%EventProposal{league: %League{code: code, name: name}}), do: "[#{code}] #{name}"
+
+  defp league(%EventProposal{league: league, region: region, type: type})
+       when type in [:league_meet, :league_tournament] do
+    %Region{name: region_name} = region
+    %League{code: code, name: name} = league
+
+    "[#{code}] #{region_name} #{name} League"
+  end
+
+  defp league(_proposal), do: ""
 
   @spec contact_first_name(EventProposal.t()) :: String.t()
   defp contact_first_name(%EventProposal{contact: %EventProposal.Contact{name: nil}}), do: ""
