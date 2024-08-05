@@ -21,7 +21,7 @@ defmodule RMWeb.RegionLive.League do
   def on_mount(:preload_league, %{"league" => league_code}, _session, socket) do
     region = socket.assigns[:region]
 
-    case RM.FIRST.fetch_league_by_code(region.abbreviation, league_code, preload: [:region]) do
+    case RM.Local.fetch_league_by_code(region.abbreviation, league_code, preload: [:region]) do
       {:ok, league} ->
         league =
           league

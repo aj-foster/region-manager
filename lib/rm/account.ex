@@ -15,7 +15,6 @@ defmodule RM.Account do
   alias RM.Account.Query
   alias RM.Account.Team
   alias RM.Account.User
-  alias RM.FIRST
   alias RM.Repo
 
   @doc """
@@ -78,7 +77,7 @@ defmodule RM.Account do
   @doc """
   Add user as a league admin
   """
-  @spec add_league_user(FIRST.League.t(), map) ::
+  @spec add_league_user(RM.Local.League.t(), map) ::
           {:ok, League.t()} | {:error, Changeset.t(League.t())}
   def add_league_user(league, params) do
     changeset = League.create_changeset(league, params)

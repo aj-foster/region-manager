@@ -9,7 +9,7 @@ defmodule RM.Account.User do
   @type t :: %__MODULE__{
           id: Ecto.UUID.t(),
           league_assignments: Ecto.Schema.has_many(Account.League.t()),
-          leagues: Ecto.Schema.has_many(RM.FIRST.League.t()),
+          leagues: Ecto.Schema.has_many(RM.Local.League.t()),
           region_assignments: Ecto.Schema.has_many(Account.Region.t()),
           regions: Ecto.Schema.has_many(RM.FIRST.Region.t()),
           team_assignments: Ecto.Schema.has_many(Account.Team.t()),

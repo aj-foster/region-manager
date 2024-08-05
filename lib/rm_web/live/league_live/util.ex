@@ -168,7 +168,7 @@ defmodule RMWeb.LeagueLive.Util do
     preloads = [:region, :settings]
 
     with {:ok, league} <-
-           RM.FIRST.fetch_league_by_code(region_abbr, league_code, preload: preloads) do
+           RM.Local.fetch_league_by_code(region_abbr, league_code, preload: preloads) do
       league =
         league
         |> RM.Repo.preload(teams: RM.Local.Team.active_query(), users: [:profile])

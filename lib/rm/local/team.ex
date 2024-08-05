@@ -4,9 +4,9 @@ defmodule RM.Local.Team do
 
   alias Ecto.Changeset
   alias RM.Account
-  alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
   alias RM.Local.EventRegistration
+  alias RM.Local.LeagueAssignment
 
   @typedoc "Team record"
   @type t :: %__MODULE__{}

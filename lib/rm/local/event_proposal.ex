@@ -3,8 +3,8 @@ defmodule RM.Local.EventProposal do
   import Ecto.Query
 
   alias Ecto.Changeset
-  alias RM.FIRST.League
   alias RM.FIRST.Region
+  alias RM.Local.League
   alias RM.Local.Log
   alias RM.Local.Query
   alias RM.Local.RegistrationSettings

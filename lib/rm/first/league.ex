@@ -82,24 +82,12 @@ defmodule RM.FIRST.League do
       code: code,
       inserted_at: now,
       location: location,
-      name: shorten_name(name, region),
+      name: name,
       parent_league_id: league_id_map[parent_league_code],
       region_id: region && region.id,
       remote: remote,
       updated_at: now
     }
-  end
-
-  @spec shorten_name(String.t(), Region.t() | nil) :: String.t()
-  defp shorten_name(league_name, nil) do
-    league_name
-    |> String.replace(~r/\s+league\s*$/i, "")
-  end
-
-  defp shorten_name(league_name, %Region{code: region_code, name: region_name}) do
-    league_name
-    |> String.replace(~r/^\s*(#{region_code}|#{region_name})\s+/i, "")
-    |> String.replace(~r/\s+league\s*$/i, "")
   end
 
   @spec id_by_code_query(integer) :: Ecto.Query.t()

@@ -65,7 +65,7 @@ defmodule RM.Local.League do
           location: location,
           name: name,
           parent_league_id: parent_league_id,
-          region_id: region_id,
+          region: region,
           remote: remote,
           season: season
         },
@@ -79,12 +79,24 @@ defmodule RM.Local.League do
       inserted_at: now,
       location: location,
       log: [Log.new("copied", %{})],
-      name: name,
+      name: shorten_name(name, region),
       parent_league_id: league_id_map[parent_league_id],
       remote: remote,
-      region_id: region_id,
+      region_id: region.id,
       updated_at: now
     }
+  end
+
+  @spec shorten_name(String.t(), RM.FIRST.Region.t() | nil) :: String.t()
+  defp shorten_name(league_name, nil) do
+    league_name
+    |> String.replace(~r/\s+league\s*$/i, "")
+  end
+
+  defp shorten_name(league_name, %RM.FIRST.Region{code: region_code, name: region_name}) do
+    league_name
+    |> String.replace(~r/^\s*(#{region_code}|#{region_name})\s+/i, "")
+    |> String.replace(~r/\s+league\s*$/i, "")
   end
 
   #

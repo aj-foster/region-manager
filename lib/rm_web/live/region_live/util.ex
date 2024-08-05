@@ -166,7 +166,7 @@ defmodule RMWeb.RegionLive.Util do
       region =
         region
         |> RM.Repo.preload([:leagues, teams: RM.Local.Team.active_query()])
-        |> Map.update!(:leagues, &Enum.sort(&1, RM.FIRST.League))
+        |> Map.update!(:leagues, &Enum.sort(&1, RM.Local.League))
         |> Map.update!(:teams, &Enum.sort(&1, RM.Local.Team))
 
       {:ok, region}

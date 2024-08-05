@@ -7,10 +7,10 @@ defmodule RM.Local.EventBatch do
   alias Ecto.Changeset
   alias Elixlsx.Workbook
   alias Elixlsx.Sheet
-  alias RM.FIRST.League
   alias RM.FIRST.Region
   alias RM.Local.EventProposal
   alias RM.Local.EventSubmission
+  alias RM.Local.League
 
   @batch_filename "EventRequests.xlsx"
 

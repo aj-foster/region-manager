@@ -6,6 +6,7 @@ defmodule RM.Local.Query do
 
   alias RM.Local.EventProposal
   alias RM.Local.EventRegistration
+  alias RM.Local.League
   alias RM.Local.Team
 
   @typedoc "Intermediate query"
@@ -19,6 +20,12 @@ defmodule RM.Local.Query do
   @spec from_proposal :: query
   def from_proposal do
     from(EventProposal, as: :proposal)
+  end
+
+  @doc "Start a query from the leagues table"
+  @spec from_league :: query
+  def from_league do
+    from(League, as: :league)
   end
 
   @doc "Start a query from the event registration table"
@@ -42,11 +49,17 @@ defmodule RM.Local.Query do
   def active_team(query), do: where(query, [team: t], t.active)
 
   @doc "Filter by the associated league"
-  @spec league(query, RM.FIRST.League.t() | nil) :: query
+  @spec league(query, League.t() | nil) :: query
   def league(query, nil), do: query
 
-  def league(query, %RM.FIRST.League{id: league_id}) do
+  def league(query, %League{id: league_id}) do
     where(query, [any], any.league_id == ^league_id)
+  end
+
+  @doc "Find the league with the given code"
+  @spec league_code(query, String.t()) :: query
+  def league_code(query, code) do
+    where(query, [league: l], l.code == ^code)
   end
 
   @doc "Find leagues related to the given region(s)"
@@ -85,6 +98,14 @@ defmodule RM.Local.Query do
   def join_event_from_proposal(query) do
     with_named_binding(query, :event, fn query, binding ->
       join(query, :left, [proposal: p], e in assoc(p, :first_event), as: ^binding)
+    end)
+  end
+
+  @doc "Load the `events` association on a league"
+  @spec join_events_from_league(query) :: query
+  def join_events_from_league(query) do
+    with_named_binding(query, :events, fn query, binding ->
+      join(query, :left, [league: l], e in assoc(l, :events), as: ^binding)
     end)
   end
 
@@ -130,11 +151,35 @@ defmodule RM.Local.Query do
     end)
   end
 
+  @doc "Load the `region` association on a league"
+  @spec join_region_from_league(query) :: query
+  def join_region_from_league(query) do
+    with_named_binding(query, :region, fn query, binding ->
+      join(query, :left, [league: l], r in assoc(l, :region), as: ^binding)
+    end)
+  end
+
   @doc "Load the `region` association on a team"
   @spec join_region_from_team(query) :: query
   def join_region_from_team(query) do
     with_named_binding(query, :region, fn query, binding ->
       join(query, :left, [team: t], r in assoc(t, :region), as: ^binding)
+    end)
+  end
+
+  @doc "Load the `settings` association on a league"
+  @spec join_settings_from_league(query) :: query
+  def join_settings_from_league(query) do
+    with_named_binding(query, :settings, fn query, binding ->
+      join(query, :left, [league: l], s in assoc(l, :settings), as: ^binding)
+    end)
+  end
+
+  @doc "Load the `teams` association on a league"
+  @spec join_teams_from_league(query) :: query
+  def join_teams_from_league(query) do
+    with_named_binding(query, :teams, fn query, binding ->
+      join(query, :left, [league: l], t in assoc(l, :teams), as: ^binding)
     end)
   end
 
@@ -181,6 +226,46 @@ defmodule RM.Local.Query do
   def preload_assoc(query, _base, nil), do: query
   def preload_assoc(query, _base, []), do: query
 
+  # League
+
+  def preload_assoc(query, :league, [:active_teams | rest]) do
+    query
+    |> join_teams_from_league()
+    |> where([teams: t], t.active)
+    |> preload([teams: t], teams: t)
+    |> preload_assoc(:league, rest)
+  end
+
+  def preload_assoc(query, :league, [:events | rest]) do
+    query
+    |> join_events_from_league()
+    |> preload([events: t], events: t)
+    |> preload_assoc(:league, rest)
+  end
+
+  def preload_assoc(query, :league, [:region | rest]) do
+    query
+    |> join_region_from_league()
+    |> preload([region: r], region: r)
+    |> preload_assoc(:league, rest)
+  end
+
+  def preload_assoc(query, :league, [:settings | rest]) do
+    query
+    |> join_settings_from_league()
+    |> preload([settings: s], settings: s)
+    |> preload_assoc(:league, rest)
+  end
+
+  def preload_assoc(query, :league, [:teams | rest]) do
+    query
+    |> join_teams_from_league()
+    |> preload([teams: t], teams: t)
+    |> preload_assoc(:league, rest)
+  end
+
+  # Event Proposal
+
   def preload_assoc(query, :proposal, [:event | rest]) do
     query
     |> join_event_from_proposal()
@@ -202,6 +287,8 @@ defmodule RM.Local.Query do
     |> preload_assoc(:proposal, rest)
   end
 
+  # Registration
+
   def preload_assoc(query, :registration, [:event | rest]) do
     query
     |> join_event_from_registration()
@@ -215,6 +302,8 @@ defmodule RM.Local.Query do
     |> preload([team: t], team: t)
     |> preload_assoc(:registration, rest)
   end
+
+  # Team
 
   def preload_assoc(query, :team, [:league | rest]) do
     query

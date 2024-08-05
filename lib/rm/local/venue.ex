@@ -2,7 +2,7 @@ defmodule RM.Local.Venue do
   use Ecto.Schema
 
   alias Ecto.Changeset
-  alias RM.FIRST.League
+  alias RM.Local.League
   alias RM.Local.Log
 
   @type t :: %__MODULE__{}

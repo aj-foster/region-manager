@@ -4,7 +4,7 @@ defmodule RM.Account.League do
 
   alias Ecto.Changeset
   alias RM.Account.User
-  alias RM.FIRST.League
+  alias RM.Local.League
 
   @typedoc "Association record between users and leagues"
   @type t :: %__MODULE__{

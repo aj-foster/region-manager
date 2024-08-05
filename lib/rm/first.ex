@@ -14,7 +14,6 @@ defmodule RM.FIRST do
   alias RM.FIRST.Query
   alias RM.Local
   alias RM.Local.EventSettings
-  alias RM.Local.LeagueSettings
 
   alias RM.Repo
 
@@ -42,6 +41,7 @@ defmodule RM.FIRST do
   """
   @spec update_events_from_ftc_events(integer, [map]) :: [Event.t()]
   def update_events_from_ftc_events(season, api_events) do
+    # TODO: Must include region in key as well as season
     league_id_map = list_league_ids_by_code(season)
     regions_by_code = list_regions_by_code()
 
@@ -158,13 +158,6 @@ defmodule RM.FIRST do
         returning: true
       )
       |> elem(1)
-
-    league_settings_data = Enum.map(leagues, &LeagueSettings.default_params/1)
-
-    Repo.insert_all(LeagueSettings, league_settings_data,
-      on_conflict: :nothing,
-      conflict_target: :league_id
-    )
 
     if region_or_regions = opts[:delete_region] do
       league_codes = Enum.map(leagues, & &1.code)
@@ -371,21 +364,6 @@ defmodule RM.FIRST do
     League.id_by_code_query(season)
     |> Repo.all()
     |> Map.new()
-  end
-
-  @spec fetch_league_by_code(String.t(), String.t(), keyword) ::
-          {:ok, League.t()} | {:error, :league, :not_found}
-  def fetch_league_by_code(region_abbr, code, opts \\ []) do
-    Query.from_league()
-    |> Query.preload_assoc(:league, [:region])
-    |> Query.region_abbreviation(region_abbr)
-    |> Query.league_code(code)
-    |> Query.preload_assoc(:league, opts[:preload])
-    |> Repo.one()
-    |> case do
-      %League{} = league -> {:ok, league}
-      nil -> {:error, :league, :not_found}
-    end
   end
 
   #

@@ -55,7 +55,8 @@ defmodule RM.FIRST.Region do
     timestamps type: :utc_datetime_usec
 
     has_many :events, Event
-    has_many :leagues, League
+    has_many :first_leagues, League
+    has_many :leagues, RM.Local.League
     has_many :teams, Team
 
     embeds_one :metadata, Metadata, on_replace: :update, primary_key: false do
@@ -145,7 +146,7 @@ defmodule RM.FIRST.Region do
     count_query =
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
-      |> join(:left, [region: r], l in assoc(r, :leagues),
+      |> join(:left, [region: r], l in assoc(r, :first_leagues),
         on: l.season == r.current_season,
         as: :league
       )
