@@ -131,6 +131,26 @@ defmodule RMWeb.CoreComponents do
   end
 
   @doc """
+  Visual information pane with left-side check mark and arbitrary contents
+  """
+  attr :class, :string, default: nil, doc: "additional classes to apply"
+  slot :inner_block, required: true
+
+  def confirmation(assigns) do
+    ~H"""
+    <div class={[
+      "bg-green-100 border border-green-400 flex gap-3 items-center justify-start px-4 py-2 rounded text-sm",
+      @class
+    ]}>
+      <.icon name="hero-check-circle" class="shrink-0 text-green-500" />
+      <div class="grow">
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
   Renders a modal.
 
   ## Examples

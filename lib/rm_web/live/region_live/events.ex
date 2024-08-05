@@ -1,6 +1,7 @@
 defmodule RMWeb.RegionLive.Events do
   use RMWeb, :live_view
   import RMWeb.RegionLive.Util
+  require Logger
 
   alias RM.FIRST.Event
 
@@ -18,6 +19,20 @@ defmodule RMWeb.RegionLive.Events do
     |> assign_events()
     |> assign_proposals()
     |> ok()
+  end
+
+  #
+  # Events
+  #
+
+  @doc false
+  @impl true
+  def handle_event(event, unsigned_params, socket)
+
+  def handle_event("event_proposal_submit", %{"event-proposal-include" => params}, socket) do
+    socket
+    |> event_proposal_submit(params)
+    |> noreply()
   end
 
   #
@@ -47,7 +62,8 @@ defmodule RMWeb.RegionLive.Events do
   defp assign_proposals(socket) do
     region = socket.assigns[:region]
 
-    proposals = RM.Local.list_event_proposals_by_region(region, preload: [:event, :venue])
+    preloads = [:event, :league, :region, :venue]
+    proposals = RM.Local.list_event_proposals_by_region(region, preload: preloads)
     pending_proposals = Enum.filter(proposals, &RM.Local.EventProposal.pending?/1)
 
     assign(socket,
@@ -55,5 +71,35 @@ defmodule RMWeb.RegionLive.Events do
       pending_proposals_count: length(pending_proposals),
       proposals: proposals
     )
+  end
+
+  @spec event_proposal_submit(Socket.t(), map) :: Socket.t()
+  defp event_proposal_submit(socket, params) do
+    region = socket.assigns[:region]
+    user = socket.assigns[:current_user]
+
+    proposal_ids =
+      params
+      |> Map.filter(fn {_key, value} -> value == "true" end)
+      |> Map.keys()
+
+    proposals =
+      socket.assigns[:pending_proposals]
+      |> Enum.filter(&(&1.id in proposal_ids))
+
+    case RM.Local.create_batch_submission(region, proposals, user) do
+      {:ok, url} ->
+        socket
+        |> push_event("window-open", %{url: url})
+        |> put_flash(
+          :info,
+          "Batch Create file generated successfully. If a download doesn't start immediately, please allow popups."
+        )
+        |> assign_proposals()
+
+      {:error, reason} ->
+        Logger.warning("Error while generating Batch Create file: #{inspect(reason)}")
+        put_flash(socket, :error, "An error occurred while generating file")
+    end
   end
 end
