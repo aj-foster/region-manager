@@ -21,6 +21,7 @@ defmodule RM.Local.League do
   @required_fields [:code, :current_season, :location, :name, :remote]
 
   @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
 
   schema "leagues" do
     field :code, :string
@@ -30,8 +31,8 @@ defmodule RM.Local.League do
     field :remote, :boolean
     field :removed_at, :utc_datetime_usec
 
-    belongs_to :parent_league, __MODULE__, type: :binary_id
-    belongs_to :region, RM.FIRST.Region, type: :binary_id
+    belongs_to :parent_league, __MODULE__
+    belongs_to :region, RM.FIRST.Region
     has_one :settings, LeagueSettings
 
     has_many :events, RM.FIRST.Event

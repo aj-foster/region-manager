@@ -49,7 +49,7 @@
                   <span><%= format_range(event.date_start, event.date_end) %></span>
                   <span>&bull; <%= RM.FIRST.Event.type_name(event.type) %></span>
                   <span :if={event.format != :traditional}>
-                    &bull; <%= String.capitalize(event.format) %>
+                    &bull; <%= EventProposal.format_string(event) %>
                   </span>
                   <span :if={event.league}>
                     &bull; <%= event.league.name %>

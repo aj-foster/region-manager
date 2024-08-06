@@ -4,6 +4,7 @@ defmodule RMWeb.RegionLive.Events do
   require Logger
 
   alias RM.FIRST.Event
+  alias RM.Local.EventProposal
 
   #
   # Lifecycle

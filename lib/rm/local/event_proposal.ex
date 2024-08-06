@@ -154,6 +154,12 @@ defmodule RM.Local.EventProposal do
   def pending?(%__MODULE__{submitted_at: %DateTime{}}), do: false
   def pending?(event), do: not event_passed?(event)
 
+  @doc "Human-readable event format"
+  @spec format_string(t) :: String.t()
+  def format_string(%__MODULE__{format: :traditional}), do: "Traditional"
+  def format_string(%__MODULE__{format: :hybrid}), do: "Hybrid"
+  def format_string(%__MODULE__{format: :remote}), do: "Remote"
+
   #
   # Protocols
   #
