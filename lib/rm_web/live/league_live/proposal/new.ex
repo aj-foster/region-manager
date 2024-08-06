@@ -1,4 +1,4 @@
-defmodule RMWeb.LeagueLive.Propose do
+defmodule RMWeb.LeagueLive.Proposal.New do
   use RMWeb, :live_view
   import RMWeb.LeagueLive.Util
 
