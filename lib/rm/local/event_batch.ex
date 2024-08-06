@@ -21,14 +21,18 @@ defmodule RM.Local.EventBatch do
           generated_by: Ecto.UUID.t()
         }
 
-  @required_fields [:id, :generated_at, :generated_by]
+  @required_fields [:id, :event_count, :generated_at, :generated_by]
 
   @primary_key {:id, :binary_id, autogenerate: false}
+  @foreign_key_type :binary_id
 
   schema "event_batches" do
+    field :event_count, :integer
     field :file, EventSubmission.Type
     field :generated_at, :utc_datetime_usec
     field :generated_by, Ecto.UUID
+
+    belongs_to :region, Region
   end
 
   @doc """
@@ -56,16 +60,12 @@ defmodule RM.Local.EventBatch do
   @doc """
   Save a generated event batch submission file
   """
-  @spec save(Ecto.UUID.t(), binary, RM.Account.User.t()) :: Changeset.t(t)
-  def save(id, workbook, user) do
-    params = %{
-      id: id,
-      generated_at: DateTime.utc_now(),
-      generated_by: user.id
-    }
-
+  @spec save(binary, map) :: Changeset.t(t)
+  def save(workbook, params) do
     %__MODULE__{}
     |> Changeset.cast(params, @required_fields)
+    |> Changeset.put_assoc(:region, params[:region])
+    |> Changeset.put_change(:generated_at, DateTime.utc_now())
     |> cast_file(workbook)
     |> Changeset.validate_required(@required_fields)
   end

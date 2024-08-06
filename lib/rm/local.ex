@@ -152,9 +152,10 @@ defmodule RM.Local do
           {:ok, String.t()} | {:error, any}
   def create_batch_submission(region, proposals, user) do
     id = Ecto.UUID.generate()
+    params = %{event_count: length(proposals), id: id, generated_by: user.id, region: region}
 
     with {:ok, {_name, file_contents}} <- RM.Local.EventBatch.new(region, proposals, id: id),
-         changeset <- RM.Local.EventBatch.save(id, file_contents, user),
+         changeset <- RM.Local.EventBatch.save(file_contents, params),
          {:ok, event_batch} <- Repo.insert(changeset) do
       EventProposal.update_submitted_at_query(proposals)
       |> Repo.update_all([])
