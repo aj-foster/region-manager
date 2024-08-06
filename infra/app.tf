@@ -46,6 +46,10 @@ resource "digitalocean_app" "this" {
         registry_type = "DOCR"
         repository    = "ftcregion"
         tag           = "latest"
+
+        deploy_on_push {
+          enabled = true
+        }
       }
 
       health_check {

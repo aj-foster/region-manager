@@ -68,9 +68,3 @@ jobs:
         run: |
           docker image build -t registry.digitalocean.com/aj-foster/ftcregion:latest .
           docker image push registry.digitalocean.com/aj-foster/ftcregion:latest
-
-      - name: Deploy App
-        uses: digitalocean/app_action@main
-        with:
-          app_name: ftcregion
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
