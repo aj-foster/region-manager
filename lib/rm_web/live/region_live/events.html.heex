@@ -18,7 +18,7 @@
       </p>
     </.information>
 
-    <.card>
+    <.card class="mb-4">
       <form id="event-proposal-submission-form" phx-submit="event_proposal_submit">
         <div :for={event <- @pending_proposals} class="relative">
           <input
@@ -35,12 +35,12 @@
             type="checkbox"
             value="true"
           />
-          <div class="bg-slate-100 border-2 border-slate-300 mb-2 px-4 py-2 rounded transition-colors group peer-checked:bg-purple-100 peer-checked:border-purple-300">
+          <div class="bg-slate-50 border-2 border-slate-200 mb-2 px-4 py-2 rounded transition-colors group peer-checked:bg-slate-100 peer-checked:border-slate-300">
             <label
               class="cursor-pointer flex gap-3 items-center"
               for={"event-proposal-include-#{event.id}"}
             >
-              <div class="bg-slate-300 flex h-5 items-center rounded-sm w-5 peer-checked:group-[]:bg-purple-300">
+              <div class="bg-slate-200 flex h-5 items-center rounded-sm w-5 peer-checked:group-[]:bg-slate-300">
                 <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
               </div>
               <div class="grow min-w-0 text-ellipsis whitespace-nowrap">
