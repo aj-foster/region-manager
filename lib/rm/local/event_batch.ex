@@ -184,8 +184,8 @@ defmodule RM.Local.EventBatch do
     |> Sheet.set_at(row, 1, event_style(proposal))
     |> Sheet.set_at(row, 2, league(proposal))
     |> Sheet.set_at(row, 3, proposal.name)
-    |> Sheet.set_at(row, 4, Calendar.strftime(proposal.date_start, "%m/%d/%Y"))
-    |> Sheet.set_at(row, 5, Calendar.strftime(proposal.date_end, "%m/%d/%Y"))
+    |> Sheet.set_at(row, 4, {:excelts, date_code(proposal.date_start)}, num_format: "mm/dd/yyyy")
+    |> Sheet.set_at(row, 5, {:excelts, date_code(proposal.date_end)}, num_format: "mm/dd/yyyy")
     |> Sheet.set_at(row, 6, proposal.venue.state_province || "")
     |> Sheet.set_at(row, 7, proposal.venue.city)
     |> Sheet.set_at(row, 8, proposal.venue.timezone)
@@ -238,6 +238,10 @@ defmodule RM.Local.EventBatch do
   end
 
   defp league(_proposal), do: ""
+
+  # 1900-01-01 is day "1", but Lotus/Excel accidentally considered 1900 to be a leap year
+  @spec date_code(Date.t()) :: integer
+  defp date_code(date), do: Date.diff(date, ~D[1899-12-31]) + 1
 
   @spec contact_first_name(EventProposal.t()) :: String.t()
   defp contact_first_name(%EventProposal{contact: %EventProposal.Contact{name: nil}}), do: ""
