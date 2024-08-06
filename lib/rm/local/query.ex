@@ -90,6 +90,21 @@ defmodule RM.Local.Query do
   def waitlisted(query, false), do: where(query, [registration: r], not r.waitlisted)
 
   #
+  # Pagination
+  #
+
+  @default_per_page 10
+
+  @doc """
+  Paginate the query according to the given limit and return the given page. Return all by default.
+  """
+  @spec paginate(query, pos_integer | nil, pos_integer | nil) :: query
+  def paginate(query, limit, page)
+  def paginate(query, _limit, nil), do: query
+  def paginate(query, nil, page), do: paginate(query, @default_per_page, page)
+  def paginate(query, limit, page), do: limit(query, ^limit) |> offset(^((page - 1) * limit))
+
+  #
   # Joins
   #
 

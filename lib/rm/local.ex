@@ -165,6 +165,16 @@ defmodule RM.Local do
     end
   end
 
+  @spec list_batch_submissions(Region.t()) :: [RM.Local.EventBatch.t()]
+  @spec list_batch_submissions(Region.t(), keyword) :: [RM.Local.EventBatch.t()]
+  def list_batch_submissions(region, opts \\ []) do
+    from(RM.Local.EventBatch, as: :batch)
+    |> where([batch: b], b.region_id == ^region.id)
+    |> order_by([batch: b], desc: b.generated_at)
+    |> Query.paginate(opts[:per_page], opts[:page])
+    |> Repo.all()
+  end
+
   #
   # Event Registration
   #

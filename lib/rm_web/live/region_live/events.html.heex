@@ -71,6 +71,28 @@
       </p>
     </.confirmation>
   <% end %>
+
+  <.card :if={@event_batches_count > 0}>
+    <.reveal id="batch-submissions" title="Previous Batch Create Submissions">
+      <ul class="mt-4 text-sm">
+        <li :for={batch <- @event_batches} class="mb-1">
+          <button
+            class="transition-colors hover:text-orange-600"
+            phx-click="download_batch"
+            phx-value-batch={batch.id}
+          >
+            <.icon class="h-4 mr-1 w-4" name="hero-arrow-down-tray" />
+            <span class="underline">
+              <%= format_date(batch.generated_at, :full) %> (<%= dumb_inflect(
+                "event",
+                batch.event_count
+              ) %>)
+            </span>
+          </button>
+        </li>
+      </ul>
+    </.reveal>
+  </.card>
 </div>
 
 <div class="mb-8">

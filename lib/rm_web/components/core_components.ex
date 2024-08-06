@@ -744,10 +744,42 @@ defmodule RMWeb.CoreComponents do
   """
   attr :name, :string, required: true
   attr :class, :string, default: nil
+  attr :rest, :global
 
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
-    <span class={[@name, @class]} />
+    <span class={[@name, @class]} {@rest} />
+    """
+  end
+
+  @doc """
+  Expandable content with a title and toggle arrow
+  """
+  attr :id, :string, required: true
+  attr :show, :boolean, default: false, doc: "whether to show the content by default"
+  attr :title, :string, required: true
+  slot :inner_block, required: true
+
+  def reveal(assigns) do
+    ~H"""
+    <div>
+      <div
+        class="cursor-pointer flex gap-4 items-center"
+        phx-click={
+          JS.toggle_class("h-0 h-auto", to: "##{@id}-reveal-contents")
+          |> JS.toggle_class("rotate-180", to: "##{@id}-reveal-icon")
+        }
+      >
+        <h3 class="font-semibold grow"><%= @title %></h3>
+        <.icon class="transition-transform" id={"#{@id}-reveal-icon"} name="hero-chevron-up" />
+      </div>
+      <div
+        class={["overflow-hidden", if(@show, do: "h-auto", else: "h-0")]}
+        id={"#{@id}-reveal-contents"}
+      >
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
     """
   end
 

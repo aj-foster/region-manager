@@ -17,6 +17,7 @@ defmodule RMWeb.RegionLive.Events do
   @impl true
   def mount(_params, _session, socket) do
     socket
+    |> assign_batches()
     |> assign_events()
     |> assign_proposals()
     |> ok()
@@ -30,6 +31,12 @@ defmodule RMWeb.RegionLive.Events do
   @impl true
   def handle_event(event, unsigned_params, socket)
 
+  def handle_event("download_batch", %{"batch" => batch_id}, socket) do
+    socket
+    |> download_batch(batch_id)
+    |> noreply()
+  end
+
   def handle_event("event_proposal_submit", %{"event-proposal-include" => params}, socket) do
     socket
     |> event_proposal_submit(params)
@@ -39,6 +46,14 @@ defmodule RMWeb.RegionLive.Events do
   #
   # Helpers
   #
+
+  @spec assign_batches(Socket.t()) :: Socket.t()
+  defp assign_batches(socket) do
+    region = socket.assigns[:region]
+    batches = RM.Local.list_batch_submissions(region, page: 1, per_page: 5)
+
+    assign(socket, event_batches: batches, event_batches_count: length(batches))
+  end
 
   @spec assign_events(Socket.t()) :: Socket.t()
   defp assign_events(socket) do
@@ -74,6 +89,24 @@ defmodule RMWeb.RegionLive.Events do
     )
   end
 
+  @spec download_batch(Socket.t(), String.t()) :: Socket.t()
+  defp download_batch(socket, batch_id) do
+    if batch = Enum.find(socket.assigns[:event_batches], &(&1.id == batch_id)) do
+      url = RM.Local.EventSubmission.url({"", batch}, signed: true)
+
+      socket
+      |> push_event("window-open", %{url: url})
+      |> put_flash(
+        :info,
+        "Download started. If a download doesn't start immediately, please allow popups."
+      )
+    else
+      socket
+      |> put_flash(:error, "Event batch not found")
+      |> assign_batches()
+    end
+  end
+
   @spec event_proposal_submit(Socket.t(), map) :: Socket.t()
   defp event_proposal_submit(socket, params) do
     region = socket.assigns[:region]
@@ -96,6 +129,7 @@ defmodule RMWeb.RegionLive.Events do
           :info,
           "Batch Create file generated successfully. If a download doesn't start immediately, please allow popups."
         )
+        |> assign_batches()
         |> assign_proposals()
 
       {:error, reason} ->
