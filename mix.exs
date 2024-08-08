@@ -49,6 +49,7 @@ defmodule RM.MixProject do
       {:jason, "~> 1.2"},
       {:nimble_csv, "~> 1.2.0"},
       {:nimble_totp, "~> 1.0"},
+      {:oban, "~> 2.17"},
       {:phoenix, "~> 1.7.10"},
       {:phoenix_ecto, "~> 4.4"},
       {:phoenix_html, "~> 4.0"},

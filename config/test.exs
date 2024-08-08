@@ -25,6 +25,8 @@ config :rm, RM.Mailer, adapter: Swoosh.Adapters.Test
 
 config :rm, External.FTCEvents.API, client: External.FTCEvents.API.Stub
 
+config :rm, Oban, testing: :inline
+
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 

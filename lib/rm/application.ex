@@ -4,6 +4,8 @@ defmodule RM.Application do
 
   @impl true
   def start(_type, _args) do
+    Oban.Telemetry.attach_default_logger()
+
     children = [
       RMWeb.Telemetry,
       RM.Repo,
@@ -11,7 +13,8 @@ defmodule RM.Application do
       {DNSCluster, query: Application.get_env(:rm, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: RM.PubSub},
       {Finch, name: RM.Finch},
-      RMWeb.Endpoint
+      RMWeb.Endpoint,
+      {Oban, Application.fetch_env!(:rm, Oban)}
     ]
 
     opts = [strategy: :one_for_one, name: RM.Supervisor]
