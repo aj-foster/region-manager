@@ -48,6 +48,20 @@ config :logger, :console,
 
 config :phoenix, :json_library, Jason
 
+config :rm, Oban,
+  engine: Oban.Engines.Basic,
+  plugins: [
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"30 4 * * *", RM.FIRST.RefreshJob}
+     ],
+     timezone: "America/New_York"},
+    {Oban.Plugins.Lifeline, rescue_after: :timer.minutes(60)},
+    {Oban.Plugins.Pruner, max_age: 60 * 60 * 24 * 7}
+  ],
+  queues: [default: 10],
+  repo: RM.Repo
+
 config :tailwind,
   version: "3.3.2",
   default: [

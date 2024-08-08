@@ -22,12 +22,19 @@ defmodule RM.FIRST do
   #
 
   @doc """
-  Refresh all season events
+  Refresh all events for the given season or the given region's current season
   """
   @spec refresh_events(Region.t()) :: {:ok, [Event.t()]} | {:error, Exception.t()}
-  def refresh_events(region) do
-    %Region{current_season: season} = region
+  @spec refresh_events(integer) :: {:ok, [Event.t()]} | {:error, Exception.t()}
+  def refresh_events(region_or_season)
 
+  def refresh_events(%Region{current_season: season}) do
+    with {:ok, %{events: events}} <- External.FTCEvents.list_events(season) do
+      {:ok, update_events_from_ftc_events(season, events)}
+    end
+  end
+
+  def refresh_events(season) when is_integer(season) do
     with {:ok, %{events: events}} <- External.FTCEvents.list_events(season) do
       {:ok, update_events_from_ftc_events(season, events)}
     end
@@ -113,9 +120,10 @@ defmodule RM.FIRST do
       leagues = update_leagues_from_ftc_events(season, leagues, delete_region: region)
 
       for league <- leagues do
+        # This is bad. But also... good.
+        Process.sleep(1_000)
+
         with {:ok, members} <- External.FTCEvents.list_league_members(season, region, league) do
-          # This is bad. But also... good.
-          Process.sleep(1_000)
           update_league_assignments_from_ftc_events(league, members)
         end
       end
