@@ -84,7 +84,7 @@ defmodule RMWeb.RegionLive.Util do
         </.link>
       <% end %>
 
-      <%= if @view == RMWeb.RegionLive.Setup do %>
+      <%!-- <%= if @view == RMWeb.RegionLive.Setup do %>
         <div
           class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
           style="background-image: linear-gradient(to bottom, white, transparent)"
@@ -98,7 +98,7 @@ defmodule RMWeb.RegionLive.Util do
         >
           Setup
         </.link>
-      <% end %>
+      <% end %> --%>
 
       <div class="border-b border-gray-400 grow"></div>
     </div>

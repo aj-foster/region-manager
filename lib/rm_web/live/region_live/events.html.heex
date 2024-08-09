@@ -135,6 +135,47 @@
   </.card>
 </div>
 
+<div class="mb-8">
+  <.title>Sync with FIRST</.title>
+
+  <.card>
+    <div class="flex gap-4 items-center">
+      <div class="grow">
+        <p class="mb-4 text-sm">
+          If necessary, you can update the event data provided by <em>FIRST.</em>
+          This is done automatically at least once per day.
+          <%= if @refresh_events_disabled do %>
+            Please wait 10 minutes between refreshes.
+          <% end %>
+        </p>
+        <p class="text-sm">
+          Last refreshed <%= format_date(@region.stats.events_imported_at, :full) %>.
+        </p>
+      </div>
+      <div>
+        <.button
+          class="flex gap-1 items-center"
+          disabled={@refresh_events.loading || @refresh_events_disabled}
+          phx-click="refresh_events"
+          type="submit"
+        >
+          <.icon
+            :if={@refresh_events.ok? && @refresh_events.result}
+            class="h-5 w-5"
+            name="hero-check-circle"
+          />
+
+          <%= if @refresh_events.loading do %>
+            Refreshing...
+          <% else %>
+            Refresh
+          <% end %>
+        </.button>
+      </div>
+    </div>
+  </.card>
+</div>
+
 <.modal id="event-proposal-info">
   <.title class="mb-4" flush>Event Proposal Info</.title>
 

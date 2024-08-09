@@ -3,7 +3,10 @@ defmodule RMWeb.RegionLive.Events do
   import RMWeb.RegionLive.Util
   require Logger
 
+  alias Phoenix.LiveView.AsyncResult
+  alias RM.FIRST
   alias RM.FIRST.Event
+  alias RM.FIRST.Region
   alias RM.Local.EventProposal
 
   #
@@ -20,6 +23,8 @@ defmodule RMWeb.RegionLive.Events do
     |> assign_batches()
     |> assign_events()
     |> assign_proposals()
+    |> assign_refresh_disabled()
+    |> assign(refresh_events: AsyncResult.ok(nil))
     |> ok()
   end
 
@@ -40,6 +45,43 @@ defmodule RMWeb.RegionLive.Events do
   def handle_event("event_proposal_submit", %{"event-proposal-include" => params}, socket) do
     socket
     |> event_proposal_submit(params)
+    |> noreply()
+  end
+
+  def handle_event("refresh_events", _params, socket) do
+    region = socket.assigns[:region]
+
+    socket
+    |> start_async(:refresh_events, fn -> FIRST.refresh_events(region) end)
+    |> assign(refresh_events: AsyncResult.loading())
+    |> noreply()
+  end
+
+  @doc false
+  @impl true
+  def handle_async(name, async_fun_result, socket)
+
+  def handle_async(:refresh_events, {:ok, _events}, socket) do
+    socket
+    |> assign(refresh_events: AsyncResult.ok(true))
+    |> refresh_region()
+    |> assign_events()
+    |> assign_proposals()
+    |> assign_refresh_disabled()
+    |> noreply()
+  end
+
+  def handle_async(:refresh_events, {:error, reason}, socket) do
+    Logger.error("Error while refreshing events: #{inspect(reason)}")
+
+    socket
+    |> assign(refresh_events: AsyncResult.ok(false))
+    |> noreply()
+  end
+
+  def handle_async(:refresh_events_disabled, {:ok, :done}, socket) do
+    socket
+    |> assign(refresh_events_disabled: false)
     |> noreply()
   end
 
@@ -87,6 +129,27 @@ defmodule RMWeb.RegionLive.Events do
       pending_proposals_count: length(pending_proposals),
       proposals: proposals
     )
+  end
+
+  @spec assign_refresh_disabled(Socket.t()) :: Socket.t()
+  defp assign_refresh_disabled(socket) do
+    %Region{stats: %{events_imported_at: last_refresh}} = socket.assigns[:region]
+
+    if not is_nil(last_refresh) and
+         DateTime.after?(last_refresh, DateTime.add(DateTime.utc_now(), -10, :minute)) do
+      time_until_enabled_ms =
+        DateTime.add(last_refresh, 10, :minute)
+        |> DateTime.diff(DateTime.utc_now(), :millisecond)
+
+      socket
+      |> assign(refresh_events_disabled: true)
+      |> start_async(:refresh_events_disabled, fn ->
+        Process.sleep(time_until_enabled_ms)
+        :done
+      end)
+    else
+      assign(socket, refresh_events_disabled: false)
+    end
   end
 
   @spec download_batch(Socket.t(), String.t()) :: Socket.t()
