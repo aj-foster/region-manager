@@ -51,6 +51,8 @@ defmodule RM.Local.League do
 
     embeds_many :log, Log
     timestamps type: :utc_datetime_usec
+
+    field :first_league, :any, virtual: true
   end
 
   #
@@ -112,6 +114,34 @@ defmodule RM.Local.League do
     league_name
     |> String.replace(~r/^\s*(#{region_code}|#{region_name})\s+/i, "")
     |> String.replace(~r/\s+league\s*$/i, "")
+  end
+
+  #
+  # Helpers
+  #
+
+  @spec matches_public_data?(t) :: boolean
+  def matches_public_data?(%__MODULE__{first_league: nil}), do: false
+
+  def matches_public_data?(league) do
+    %RM.Local.League{
+      code: code,
+      name: name,
+      location: location,
+      region: region,
+      remote: remote,
+      first_league: %RM.FIRST.League{
+        code: first_code,
+        name: first_name,
+        location: first_location,
+        remote: first_remote
+      }
+    } = league
+
+    code == first_code and
+      name == shorten_name(first_name, region) and
+      location == first_location and
+      remote == first_remote
   end
 
   #

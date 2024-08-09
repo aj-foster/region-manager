@@ -352,6 +352,7 @@ defmodule RM.FIRST do
   ## Options
 
     * `season`: Season to get leagues for. Defaults to the region's current season.
+
   """
   @spec list_leagues_by_region(Region.t()) :: [League.t()]
   @spec list_leagues_by_region(Region.t(), keyword) :: [League.t()]

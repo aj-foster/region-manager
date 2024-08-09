@@ -4,12 +4,23 @@
   <.title>Leagues in <%= @region.name %></.title>
 
   <.link_card
-    :for={league <- @region.leagues}
+    :for={league <- @visible_leagues}
     class="flex items-center mb-4"
     navigate={~p"/region/#{@region}/leagues/#{league}"}
   >
     <div class="grow">
-      <h3 class="font-bold"><%= league.name %></h3>
+      <h3 class="flex font-bold gap-2 items-center">
+        <%= league.name %>
+        <.tag :if={is_nil(league.first_league)} class="bg-rose-100 border-rose-300">
+          Unpublished
+        </.tag>
+        <.tag
+          :if={is_struct(league.first_league) and not League.matches_public_data?(league)}
+          class="bg-orange-100 border-orange-300"
+        >
+          Incorrect Data
+        </.tag>
+      </h3>
       <p class="text-sm">
         <span :if={league.stats.league_count && league.stats.league_count > 0}>
           <%= dumb_inflect("league", league.stats.league_count) %> &bull;
@@ -20,4 +31,59 @@
     </div>
     <div><.icon name="hero-arrow-right" /></div>
   </.link_card>
+</div>
+
+<div class="mb-8">
+  <.title>Sync with FIRST</.title>
+  <.card :if={@unmatched_first_leagues_count > 0}>
+    <h3 class="font-semibold mb-4">Leagues Not Found in Region Manager</h3>
+    <p class="mb-4 text-sm">
+      The following leagues were found in publicly-available data from <em>FIRST</em>
+      but they do not have matching records here in <strong>Region Manager</strong>.
+    </p>
+    <p class="mb-4 text-sm">
+      If this is because a local record needs to be edited, please ensure the league
+      <strong>codes</strong>
+      match.
+      Otherwise, you can copy the <em>FIRST</em>
+      data below.
+    </p>
+
+    <ul>
+      <li :for={league <- @unmatched_first_leagues} class="flex gap-4 items-center mb-2">
+        <div class="grow">
+          <h3 class="flex font-bold gap-2 items-center">
+            <%= league.name %>
+          </h3>
+          <p class="text-sm">
+            <span class="font-mono text-orange-600"><%= league.code %></span>
+            &bull; <span><%= if league.remote, do: "Remote", else: "Traditional" %></span>
+            &bull; <span :if={is_nil(league.local_league)}>Local Record Missing</span>
+            <span :if={
+              is_struct(league.local_league) and not is_nil(league.local_league.removed_at)
+            }>
+              Local League Hidden
+            </span>
+          </p>
+        </div>
+
+        <div>
+          <.button
+            :if={is_nil(league.local_league)}
+            phx-click="copy_league"
+            phx-value-league={league.id}
+          >
+            Copy to RM
+          </.button>
+          <.button
+            :if={is_struct(league.local_league) and not is_nil(league.local_league.removed_at)}
+            phx-click="unhide_league"
+            phx-value-league={league.local_league.id}
+          >
+            Unhide League
+          </.button>
+        </div>
+      </li>
+    </ul>
+  </.card>
 </div>

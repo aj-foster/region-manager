@@ -209,6 +209,19 @@ defmodule RM.Local do
   # Leagues
   #
 
+  @spec list_leagues_by_region(Region.t()) :: [League.t()]
+  @spec list_leagues_by_region(Region.t(), keyword) :: [League.t()]
+  def list_leagues_by_region(region, opts \\ []) do
+    Query.from_league()
+    |> Query.league_region(region)
+    |> Query.preload_assoc(:league, opts[:preload])
+    |> Repo.all()
+    |> Enum.map(fn
+      %League{region: %RM.FIRST.Region{}} = league -> league
+      league -> %League{league | region: region}
+    end)
+  end
+
   @spec fetch_league_by_code(String.t(), String.t(), keyword) ::
           {:ok, League.t()} | {:error, :league, :not_found}
   def fetch_league_by_code(region_abbr, code, opts \\ []) do
@@ -224,8 +237,21 @@ defmodule RM.Local do
     end
   end
 
-  @spec create_leagues_from_first(Region.t()) :: [RM.Local.League.t()]
-  @spec create_leagues_from_first(Region.t(), keyword) :: [RM.Local.League.t()]
+  @spec create_league_from_first(RM.FIRST.League.t()) ::
+          {:ok, League.t()} | {:error, Changeset.t(League.t())}
+  def create_league_from_first(first_league) do
+    league_id_map =
+      list_leagues_by_region(first_league.region)
+      |> Map.new(&{&1.code, &1.id})
+
+    params = League.from_first_league(first_league, league_id_map)
+
+    Changeset.change(%League{}, params)
+    |> Repo.insert()
+  end
+
+  @spec create_leagues_from_first(Region.t()) :: [League.t()]
+  @spec create_leagues_from_first(Region.t(), keyword) :: [League.t()]
   def create_leagues_from_first(region, opts \\ []) do
     # First round: Initial insertion of the records
 
@@ -267,6 +293,18 @@ defmodule RM.Local do
   @spec update_league(League.t(), map) :: {:ok, League.t()} | {:error, Changeset.t(League.t())}
   def update_league(league, params) do
     League.update_changeset(league, params)
+    |> Repo.update()
+  end
+
+  @spec hide_league(League.t()) :: {:ok, League.t()} | {:error, Changeset.t(League.t())}
+  def hide_league(league) do
+    Changeset.change(league, removed_at: DateTime.utc_now())
+    |> Repo.update()
+  end
+
+  @spec unhide_league(League.t()) :: {:ok, League.t()} | {:error, Changeset.t(League.t())}
+  def unhide_league(league) do
+    Changeset.change(league, removed_at: nil)
     |> Repo.update()
   end
 

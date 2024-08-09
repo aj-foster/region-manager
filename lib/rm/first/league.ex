@@ -61,6 +61,8 @@ defmodule RM.FIRST.League do
     end
 
     timestamps type: :utc_datetime_usec
+
+    field :local_league, :any, virtual: true
   end
 
   def from_ftc_events(
