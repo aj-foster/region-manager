@@ -31,47 +31,6 @@
   </div>
 <% end %>
 
-<div :if={@region.has_leagues} class="mb-8">
-  <.title>Refresh Leagues</.title>
-
-  <.card spaced>
-    <p class="mb-4">
-      After importing the latest team data, you can refresh current league assignments.
-    </p>
-    <p class="mb-4">
-      This information comes from the
-      <a href="https://ftc-events.firstinspires.org/services/API" target="blank">
-        <span class="underline">FTC Events API</span>
-        <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4 align-text-top" />
-      </a>
-      and any corrections must be submitted to <em>FIRST</em>.
-    </p>
-    <p class="flex gap-3 items-center">
-      <.button
-        class="flex gap-1 items-center"
-        disabled={@refresh_leagues.loading || refreshed_leagues_recently?(@region)}
-        phx-click="refresh_leagues"
-        type="submit"
-      >
-        <.icon
-          :if={@refresh_leagues.ok? && @refresh_leagues.result}
-          class="h-5 w-5"
-          name="hero-check-circle"
-        />
-
-        <%= if @refresh_leagues.loading do %>
-          Refreshing...
-        <% else %>
-          Refresh
-        <% end %>
-      </.button>
-      <span class="text-sm">
-        Last refreshed <%= format_date(@region.stats.leagues_imported_at, :full) %>
-      </span>
-    </p>
-  </.card>
-</div>
-
 <div class="mb-8">
   <.title>Refresh Events</.title>
 

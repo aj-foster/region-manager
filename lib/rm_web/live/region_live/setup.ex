@@ -19,10 +19,7 @@ defmodule RMWeb.RegionLive.Setup do
   def mount(_params, _session, socket) do
     socket
     |> assign_current_season()
-    |> assign(
-      refresh_events: AsyncResult.ok(nil),
-      refresh_leagues: AsyncResult.ok(nil)
-    )
+    |> assign(refresh_events: AsyncResult.ok(nil))
     |> ok()
   end
 
@@ -40,15 +37,6 @@ defmodule RMWeb.RegionLive.Setup do
     socket
     |> start_async(:refresh_events, fn -> FIRST.refresh_events(region) end)
     |> assign(refresh_events: AsyncResult.loading())
-    |> noreply()
-  end
-
-  def handle_event("refresh_leagues", _params, socket) do
-    region = socket.assigns[:region]
-
-    socket
-    |> start_async(:refresh_leagues, fn -> FIRST.refresh_leagues(region) end)
-    |> assign(refresh_leagues: AsyncResult.loading())
     |> noreply()
   end
 
@@ -74,21 +62,6 @@ defmodule RMWeb.RegionLive.Setup do
 
     socket
     |> assign(refresh_events: AsyncResult.ok(false))
-    |> noreply()
-  end
-
-  def handle_async(:refresh_leagues, {:ok, _leagues}, socket) do
-    socket
-    |> assign(refresh_leagues: AsyncResult.ok(true))
-    |> refresh_region()
-    |> noreply()
-  end
-
-  def handle_async(:refresh_leagues, {:error, reason}, socket) do
-    Logger.error("Error while refreshing leagues: #{inspect(reason)}")
-
-    socket
-    |> assign(refresh_leagues: AsyncResult.ok(false))
     |> noreply()
   end
 
@@ -127,12 +100,6 @@ defmodule RMWeb.RegionLive.Setup do
 
   @spec refreshed_events_recently?(Region.t()) :: boolean
   defp refreshed_events_recently?(%Region{stats: %{events_imported_at: last_refresh}}) do
-    not is_nil(last_refresh) and
-      DateTime.after?(last_refresh, DateTime.add(DateTime.utc_now(), -1, :hour))
-  end
-
-  @spec refreshed_leagues_recently?(Region.t()) :: boolean
-  defp refreshed_leagues_recently?(%Region{stats: %{leagues_imported_at: last_refresh}}) do
     not is_nil(last_refresh) and
       DateTime.after?(last_refresh, DateTime.add(DateTime.utc_now(), -1, :hour))
   end

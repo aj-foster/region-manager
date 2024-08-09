@@ -35,6 +35,7 @@
 
 <div class="mb-8">
   <.title>Sync with FIRST</.title>
+
   <.card :if={@unmatched_first_leagues_count > 0}>
     <h3 class="font-semibold mb-4">Leagues Not Found in Region Manager</h3>
     <p class="mb-4 text-sm">
@@ -85,5 +86,42 @@
         </div>
       </li>
     </ul>
+  </.card>
+
+  <.card>
+    <div class="flex gap-4 items-center">
+      <div class="grow">
+        <p class="mb-4 text-sm">
+          If necessary, you can update the league data provided by <em>FIRST.</em>
+          This is done automatically at least once per day.
+          <%= if @refresh_leagues_disabled do %>
+            Please wait 10 minutes between refreshes.
+          <% end %>
+        </p>
+        <p class="text-sm">
+          Last refreshed <%= format_date(@region.stats.leagues_imported_at, :full) %>.
+        </p>
+      </div>
+      <div>
+        <.button
+          class="flex gap-1 items-center"
+          disabled={@refresh_leagues.loading || @refresh_leagues_disabled}
+          phx-click="refresh_leagues"
+          type="submit"
+        >
+          <.icon
+            :if={@refresh_leagues.ok? && @refresh_leagues.result}
+            class="h-5 w-5"
+            name="hero-check-circle"
+          />
+
+          <%= if @refresh_leagues.loading do %>
+            Refreshing...
+          <% else %>
+            Refresh
+          <% end %>
+        </.button>
+      </div>
+    </div>
   </.card>
 </div>

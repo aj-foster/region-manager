@@ -1,7 +1,10 @@
 defmodule RMWeb.RegionLive.Leagues do
   use RMWeb, :live_view
   import RMWeb.RegionLive.Util
+  require Logger
 
+  alias Phoenix.LiveView.AsyncResult
+  alias RM.FIRST.Region
   alias RM.Local.League
 
   #
@@ -17,6 +20,8 @@ defmodule RMWeb.RegionLive.Leagues do
     socket
     |> assign_first_leagues()
     |> assign_leagues()
+    |> assign_refresh_disabled()
+    |> assign(refresh_leagues: AsyncResult.ok(nil))
     |> ok()
   end
 
@@ -34,9 +39,46 @@ defmodule RMWeb.RegionLive.Leagues do
     |> noreply()
   end
 
+  def handle_event("refresh_leagues", _params, socket) do
+    region = socket.assigns[:region]
+
+    socket
+    |> start_async(:refresh_leagues, fn -> RM.FIRST.refresh_leagues(region) end)
+    |> assign(refresh_leagues: AsyncResult.loading())
+    |> noreply()
+  end
+
   def handle_event("unhide_league", %{"league" => league_id}, socket) do
     socket
     |> unhide_league(league_id)
+    |> noreply()
+  end
+
+  @doc false
+  @impl true
+  def handle_async(name, async_fun_result, socket)
+
+  def handle_async(:refresh_leagues, {:ok, _leagues}, socket) do
+    socket
+    |> assign(refresh_leagues: AsyncResult.ok(true))
+    |> refresh_region()
+    |> assign_first_leagues()
+    |> assign_leagues()
+    |> assign_refresh_disabled()
+    |> noreply()
+  end
+
+  def handle_async(:refresh_leagues, {:error, reason}, socket) do
+    Logger.error("Error while refreshing leagues: #{inspect(reason)}")
+
+    socket
+    |> assign(refresh_leagues: AsyncResult.ok(false))
+    |> noreply()
+  end
+
+  def handle_async(:refresh_leagues_disabled, {:ok, :done}, socket) do
+    socket
+    |> assign(refresh_leagues_disabled: false)
     |> noreply()
   end
 
@@ -83,6 +125,27 @@ defmodule RMWeb.RegionLive.Leagues do
     visible_leagues = Enum.filter(region.leagues, &is_nil(&1.removed_at))
 
     assign(socket, visible_leagues: visible_leagues)
+  end
+
+  @spec assign_refresh_disabled(Socket.t()) :: Socket.t()
+  defp assign_refresh_disabled(socket) do
+    %Region{stats: %{leagues_imported_at: last_refresh}} = socket.assigns[:region]
+
+    if not is_nil(last_refresh) and
+         DateTime.after?(last_refresh, DateTime.add(DateTime.utc_now(), -10, :minute)) do
+      time_until_enabled_ms =
+        DateTime.add(last_refresh, 10, :minute)
+        |> DateTime.diff(DateTime.utc_now(), :millisecond)
+
+      socket
+      |> assign(refresh_leagues_disabled: true)
+      |> start_async(:refresh_leagues_disabled, fn ->
+        Process.sleep(time_until_enabled_ms)
+        :done
+      end)
+    else
+      assign(socket, refresh_leagues_disabled: false)
+    end
   end
 
   @spec copy_league(Socket.t(), String.t()) :: Socket.t()
