@@ -194,7 +194,7 @@ defmodule RM.Local.EventBatch do
     |> Sheet.set_at(row, 11, proposal.venue.address_2 || "")
     |> Sheet.set_at(row, 12, proposal.venue.postal_code || "")
     |> Sheet.set_at(row, 13, proposal.venue.website || "")
-    |> Sheet.set_at(row, 14, proposal.registration_settings.team_limit || "")
+    |> Sheet.set_at(row, 14, proposal.registration_settings.team_limit || 24)
     |> Sheet.set_at(row, 15, "")
     |> Sheet.set_at(row, 16, proposal.website || "")
     |> Sheet.set_at(row, 17, proposal.live_stream_url || "")
