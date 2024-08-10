@@ -6,6 +6,8 @@ defmodule RM.FIRST.RefreshJob do
 
   alias RM.FIRST
 
+  @delay_between_calls_ms 1_000
+
   def perform(_job) do
     regions = FIRST.list_regions()
 
@@ -14,18 +16,25 @@ defmodule RM.FIRST.RefreshJob do
       |> Enum.uniq()
       |> Enum.sort()
 
+    # Teams
+
+    Enum.each(regions, fn region ->
+      FIRST.refresh_teams(region)
+      Process.sleep(@delay_between_calls_ms)
+    end)
+
     # Events
 
     Enum.each(seasons, fn season ->
       FIRST.refresh_events(season)
-      Process.sleep(1_000)
+      Process.sleep(@delay_between_calls_ms)
     end)
 
     # Leagues & Assignments
 
     Enum.each(regions, fn region ->
       FIRST.refresh_leagues(region)
-      Process.sleep(1_000)
+      Process.sleep(@delay_between_calls_ms)
     end)
 
     :ok
