@@ -66,6 +66,8 @@ defmodule RM.Local.Team do
       field :lc2_ypp, :boolean
       field :unsecured, :boolean
     end
+
+    field :first_team, :any, virtual: true
   end
 
   @spec from_import(%__MODULE__{}, RM.Import.Team.t()) :: Changeset.t(t)

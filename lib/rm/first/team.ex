@@ -53,6 +53,8 @@ defmodule RM.FIRST.Team do
     belongs_to :region, Region
 
     timestamps type: :utc_datetime_usec
+
+    field :local_team, :any, virtual: true
   end
 
   @spec from_ftc_events(map, map) :: map

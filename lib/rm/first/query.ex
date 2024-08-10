@@ -9,6 +9,7 @@ defmodule RM.FIRST.Query do
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
   alias RM.FIRST.Season
+  alias RM.FIRST.Team
 
   @typedoc "Intermediate query"
   @type query :: Ecto.Query.t()
@@ -45,6 +46,12 @@ defmodule RM.FIRST.Query do
   @spec from_season :: query
   def from_season do
     from(Season, as: :season)
+  end
+
+  @doc "Start a query from the teams table"
+  @spec from_team :: query
+  def from_team do
+    from(Team, as: :team)
   end
 
   #
@@ -108,6 +115,17 @@ defmodule RM.FIRST.Query do
   def region_abbreviation(query, abbreviation) do
     where(query, [region: r], r.abbreviation == ^abbreviation or r.code == ^abbreviation)
   end
+
+  @doc "Find teams related to the given region"
+  @spec team_region(query, Region.t()) :: query
+  def team_region(query, %Region{id: region_id}) do
+    where(query, [team: t], t.region_id == ^region_id)
+  end
+
+  @doc "Filter teams by the season"
+  @spec team_season(query, integer | nil) :: query
+  def team_season(query, nil), do: query
+  def team_season(query, season), do: where(query, [team: t], t.season == ^season)
 
   #
   # Joins

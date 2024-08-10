@@ -20,6 +20,7 @@ defmodule RMWeb.RegionLive.Teams do
 
     socket
     |> assign(region: region)
+    |> assign_first_teams()
     |> assign_teams()
     |> allow_upload(:team_data,
       accept: ["text/csv"],
@@ -93,6 +94,25 @@ defmodule RMWeb.RegionLive.Teams do
   #
   # Helpers
   #
+
+  @spec assign_first_teams(Socket.t()) :: Socket.t()
+  defp assign_first_teams(socket) do
+    region = socket.assigns[:region]
+    teams_by_number = Map.new(region.teams, fn team -> {team.number, team} end)
+
+    first_teams =
+      RM.FIRST.list_teams_by_region(region)
+      |> Enum.map(fn team ->
+        Map.put(team, :local_team, teams_by_number[team.team_number])
+      end)
+
+    unmatched_first_teams = Enum.filter(first_teams, &is_nil(&1.local_team))
+
+    assign(socket,
+      unmatched_first_teams: unmatched_first_teams,
+      unmatched_first_teams_count: length(unmatched_first_teams)
+    )
+  end
 
   @spec assign_teams(Socket.t()) :: Socket.t()
   defp assign_teams(socket) do

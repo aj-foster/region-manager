@@ -456,4 +456,30 @@ defmodule RM.FIRST do
       nil -> {:error, :event, :not_found}
     end
   end
+
+  #
+  # Teams
+  #
+
+  @doc """
+  List teams for the given region
+
+  ## Options
+
+    * `season`: Season to get teams for. Defaults to the region's current season.
+
+  """
+  @spec list_teams_by_region(Region.t()) :: [League.t()]
+  @spec list_teams_by_region(Region.t(), keyword) :: [League.t()]
+  def list_teams_by_region(region, opts \\ []) do
+    Query.from_team()
+    |> Query.team_region(region)
+    |> Query.team_season(opts[:season] || region.current_season)
+    |> Query.preload_assoc(:team, opts[:preload])
+    |> Repo.all()
+    |> Enum.map(fn
+      %Team{region: %RM.FIRST.Region{}} = team -> team
+      team -> %Team{team | region: region}
+    end)
+  end
 end

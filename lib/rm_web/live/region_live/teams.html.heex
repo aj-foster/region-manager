@@ -8,6 +8,16 @@
     </button>
   </.title>
 
+  <.information :if={@unmatched_first_teams_count > 0} class="mb-4">
+    <p class="font-bold">
+      There <%= dumb_inflect_is("team", @unmatched_first_teams_count) %> awaiting import
+    </p>
+    <p>
+      Publicly available data from <em>FIRST</em>
+      includes teams that are not known by Region Manager. An import is recommended.
+    </p>
+  </.information>
+
   <.card spaced>
     <form
       id="team-data-import"
