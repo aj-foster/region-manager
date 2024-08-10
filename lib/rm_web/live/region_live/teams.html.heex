@@ -51,10 +51,47 @@
   </.card>
 </div>
 
-<div :if={@region.stats.team_count > 0} class="mb-8">
-  <.title>All Teams in <%= @region.name %></.title>
+<div :if={@active_teams_count > 0} class="mb-8">
+  <.title>
+    Active Teams in <%= @region.name %>
+    <button phx-click={show_modal("team-active-info")}>
+      <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+    </button>
+  </.title>
 
-  <.card :for={team <- @region.teams} class="flex items-center mb-4">
+  <.card :for={team <- @active_teams} class="flex items-center mb-4">
+    <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
+    <div class="grow">
+      <h3 class="flex gap-2 items-center">
+        <strong><%= team.number %></strong>
+        <span><%= team.name %></span>
+        <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
+          Not Event Ready
+        </.tag>
+
+        <.tag
+          :if={@region.has_leagues and is_nil(team.league)}
+          class="bg-rose-100 border-rose-300"
+        >
+          No League
+        </.tag>
+      </h3>
+      <p class="text-sm">
+        <span><%= team.location.city || "Unknown City" %> &bull;</span>
+        <span :if={team.league}><%= team.league.name %> League</span>
+        <span :if={@region.has_leagues and is_nil(team.league)}>
+          No League
+        </span>
+      </p>
+    </div>
+    <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
+  </.card>
+</div>
+
+<div :if={@inactive_teams_count > 0} class="mb-8">
+  <.title>Inactive Teams in <%= @region.name %></.title>
+
+  <.card :for={team <- @inactive_teams} class="flex items-center mb-4">
     <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
     <div class="grow">
       <h3 class="flex gap-2 items-center">
@@ -84,7 +121,7 @@
 </div>
 
 <.modal id="team-import-info">
-  <.title class="mb-4" flush>Team Import Info</.title>
+  <.title class="mb-4" flush>Team Import Information</.title>
 
   <p class="mb-4">
     Team data, including the personally-identifiable information of coaches, must be supplied
@@ -94,4 +131,29 @@
     By submitting this information to <em>Region Manager</em>, you agree to restrict access
     to this information to only those individuals who need it.
   </p>
+</.modal>
+
+<.modal id="team-active-info">
+  <.title class="mb-4" flush>About Active Teams</.title>
+
+  <p class="mb-4">
+    Teams are considered <strong>active</strong> when the following conditions are met:
+  </p>
+  <ul class="list-disc mb-4 pl-8">
+    <li>
+      The team is considered <strong>active</strong>
+      by <em>FIRST</em>, meaning they have participated within the past several seasons, and
+    </li>
+    <li>
+      <p>A lead coach / mentor has either:</p>
+      <ul class="list-disc pl-8">
+        <li>
+          Have logged in to <em>FIRST</em>
+          this season and signalled an <strong>intent to return</strong>, or
+        </li>
+        <li>Have <strong>secured payment</strong> for the current season.</li>
+      </ul>
+    </li>
+  </ul>
+  <p>This information is updated when team data is imported.</p>
 </.modal>

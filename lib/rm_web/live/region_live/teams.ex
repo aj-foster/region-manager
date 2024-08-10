@@ -20,6 +20,7 @@ defmodule RMWeb.RegionLive.Teams do
 
     socket
     |> assign(region: region)
+    |> assign_teams()
     |> allow_upload(:team_data,
       accept: ["text/csv"],
       auto_upload: true,
@@ -87,6 +88,23 @@ defmodule RMWeb.RegionLive.Teams do
         |> assign(import_status: :in_progress)
         |> noreply()
     end
+  end
+
+  #
+  # Helpers
+  #
+
+  @spec assign_teams(Socket.t()) :: Socket.t()
+  defp assign_teams(socket) do
+    teams = socket.assigns[:region].teams
+    {active_teams, inactive_teams} = Enum.split_with(teams, & &1.active)
+
+    assign(socket,
+      active_teams: active_teams,
+      active_teams_count: length(active_teams),
+      inactive_teams: inactive_teams,
+      inactive_teams_count: length(inactive_teams)
+    )
   end
 
   #
