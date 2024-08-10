@@ -11,6 +11,7 @@ defmodule RM.Local do
   alias RM.Local.EventRegistration
   alias RM.Local.EventSettings
   alias RM.Local.League
+  alias RM.Local.LeagueAssignment
   alias RM.Local.LeagueSettings
   alias RM.Local.RegistrationSettings
   alias RM.Local.Query
@@ -306,6 +307,32 @@ defmodule RM.Local do
   def unhide_league(league) do
     Changeset.change(league, removed_at: nil)
     |> Repo.update()
+  end
+
+  #
+  # League Assignments
+  #
+
+  @spec create_league_assignments_from_first(Region.t()) :: [LeagueAssignment.t()]
+  @spec create_league_assignments_from_first(Region.t(), keyword) :: [LeagueAssignment.t()]
+  def create_league_assignments_from_first(region, opts \\ []) do
+    first_leagues = RM.FIRST.list_leagues_by_region(region, opts ++ [preload: [:teams]])
+
+    assignment_data =
+      for first_league <- first_leagues do
+        {:ok, league} = fetch_league_by_code(region.abbreviation, first_league.code)
+
+        for team <- first_league.teams do
+          LeagueAssignment.new(league, team)
+        end
+      end
+
+    Repo.insert_all(LeagueAssignment, List.flatten(assignment_data),
+      on_conflict: {:replace_all_except, [:id, :inserted_at]},
+      conflict_target: [:league_id, :team_id],
+      returning: true
+    )
+    |> elem(1)
   end
 
   #
