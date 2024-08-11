@@ -40,6 +40,13 @@ defmodule RM.Local.EventSettings do
         7
       end
 
+    open_days =
+      if event.league && event.league.settings do
+        event.league.settings.registration.open_days
+      else
+        21
+      end
+
     enabled =
       if event.league && event.league.settings do
         event.league.settings.registration.enabled
@@ -54,6 +61,7 @@ defmodule RM.Local.EventSettings do
       registration: %RegistrationSettings{
         deadline_days: deadline_days,
         enabled: enabled,
+        open_days: open_days,
         pool: pool
       }
     }

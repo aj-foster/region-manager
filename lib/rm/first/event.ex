@@ -207,6 +207,22 @@ defmodule RM.FIRST.Event do
     )
   end
 
+  @doc "Start of registration, in the event's local timezone"
+  @spec registration_opens(t) :: DateTime.t()
+  def registration_opens(event) do
+    %__MODULE__{
+      date_start: date_start,
+      date_timezone: date_timezone,
+      settings: %EventSettings{registration: %RegistrationSettings{open_days: open_days}}
+    } = event
+
+    DateTime.new!(
+      Date.add(date_start, -1 * open_days),
+      Time.new!(0, 0, 0, 1),
+      date_timezone
+    )
+  end
+
   @doc "Human-readable format of the event"
   @spec format_name(t) :: String.t()
   def format_name(%__MODULE__{remote: true}), do: "Remote"
