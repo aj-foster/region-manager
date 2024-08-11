@@ -9,7 +9,6 @@ defmodule RMWeb.EventLive.Register do
   def mount(_params, _session, socket) do
     socket
     |> assign_event_metadata()
-    |> validate_team_eligibility()
     |> ok()
   end
 
@@ -50,30 +49,5 @@ defmodule RMWeb.EventLive.Register do
           %{team: team} -> {team.number, :attending}
         end)
     )
-  end
-
-  defp validate_team_eligibility(socket) do
-    if event = socket.assigns[:event] do
-      teams =
-        socket.assigns[:current_user].teams
-        |> Enum.map(fn team ->
-          eligibility =
-            case RM.Local.verify_eligibility(event, team) do
-              :ok -> :ok
-              {:error, reason} -> reason
-            end
-
-          {team, eligibility}
-        end)
-
-      eligible_teams =
-        teams
-        |> Enum.filter(fn {_team, eligibility} -> eligibility == :ok end)
-        |> Enum.map(fn {team, _} -> team end)
-
-      assign(socket, eligible_teams: eligible_teams, teams: teams)
-    else
-      assign(socket, eligible_teams: [], teams: [])
-    end
   end
 end

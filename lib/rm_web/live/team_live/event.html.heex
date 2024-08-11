@@ -47,7 +47,7 @@
     </.table>
 
     <p class="text-sm">
-      This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
+      This data is provided by <em>FIRST®</em>. It was last imported on <%= format_date(
         @event.region.stats.events_imported_at,
         :date
       ) %>.
@@ -94,10 +94,15 @@
 
     <.table>
       <:row title="Registration">
-        <%= if Event.registration_deadline_passed?(@event) do %>
-          <span class="text-red-600">Closed</span>
-        <% else %>
-          <span class="text-green-600">Open</span>
+        <%= cond do %>
+          <% Event.registration_deadline_passed?(@event) -> %>
+            <span class="text-orange-600"> Closed</span>
+          <% Event.registration_opening_passed?(@event) -> %>
+            <span class="text-green-600">Open</span>
+          <% :else -> %>
+            <span class="text-orange-600">
+              Opens <%= format_date(Event.registration_opens(@event), :date) %>
+            </span>
         <% end %>
       </:row>
       <:row :if={is_nil(@registration)} title="Eligible">
@@ -112,6 +117,7 @@
               else: "region" %>)
           </span>
           <span :if={@eligibility_reason == :deadline_passed}>(Deadline passed)</span>
+          <span :if={@eligibility_reason == :too_early}>(Registration not yet open)</span>
         <% end %>
       </:row>
       <:row :if={@registration && @registration.rescinded} title="Eligible">

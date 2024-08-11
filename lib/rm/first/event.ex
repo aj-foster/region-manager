@@ -223,6 +223,17 @@ defmodule RM.FIRST.Event do
     )
   end
 
+  @doc "Whether the registration opening has passed"
+  @spec registration_opening_passed?(t) :: boolean
+  def registration_opening_passed?(event) do
+    %__MODULE__{date_timezone: date_timezone} = event
+
+    DateTime.after?(
+      DateTime.now!(date_timezone),
+      registration_opens(event)
+    )
+  end
+
   @doc "Human-readable format of the event"
   @spec format_name(t) :: String.t()
   def format_name(%__MODULE__{remote: true}), do: "Remote"

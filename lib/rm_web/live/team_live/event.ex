@@ -50,24 +50,14 @@ defmodule RMWeb.TeamLive.Event do
   def handle_event(event, unsigned_params, socket)
 
   def handle_event("registration_submit", _params, socket) do
-    event = socket.assigns[:event]
-    team = socket.assigns[:team]
-
-    case RM.Local.verify_eligibility(event, team) do
-      :ok ->
-        socket
-        |> registration_submit()
-        |> push_js("#create-registration-modal", "data-cancel")
-        |> set_registration()
-        |> set_registered_teams()
-        |> noreply()
-
-      {:error, _reason} ->
-        socket
-        |> put_flash(:error, "This team is not eligible to register for this event")
-        |> push_js("#create-registration-modal", "data-cancel")
-        |> refresh_team()
-        |> noreply()
+    with :ok <- verify_deadline(socket),
+         :ok <- verify_eligibility(socket) do
+      socket
+      |> registration_submit()
+      |> push_js("#create-registration-modal", "data-cancel")
+      |> set_registration()
+      |> set_registered_teams()
+      |> noreply()
     end
   end
 
@@ -156,5 +146,47 @@ defmodule RMWeb.TeamLive.Event do
 
       {:ok, %{registered_teams: teams}}
     end)
+  end
+
+  @spec verify_deadline(Socket.t()) :: :ok | Socket.t()
+  defp verify_deadline(socket) do
+    event = socket.assigns[:event]
+
+    case RM.Local.verify_deadline(event) do
+      :ok ->
+        :ok
+
+      {:error, :too_early} ->
+        socket
+        |> put_flash(:error, "Registration for this event is not yet open")
+        |> push_js("#create-registration-modal", "data-cancel")
+        |> refresh_team()
+        |> noreply()
+
+      {:error, :too_late} ->
+        socket
+        |> put_flash(:error, "Registration for this event has closed")
+        |> push_js("#create-registration-modal", "data-cancel")
+        |> refresh_team()
+        |> noreply()
+    end
+  end
+
+  @spec verify_eligibility(Socket.t()) :: :ok | Socket.t()
+  defp verify_eligibility(socket) do
+    event = socket.assigns[:event]
+    team = socket.assigns[:team]
+
+    case RM.Local.verify_eligibility(event, team) do
+      :ok ->
+        :ok
+
+      {:error, _reason} ->
+        socket
+        |> put_flash(:error, "This team is not eligible to register for this event")
+        |> push_js("#create-registration-modal", "data-cancel")
+        |> refresh_team()
+        |> noreply()
+    end
   end
 end

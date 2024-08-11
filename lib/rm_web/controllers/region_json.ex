@@ -97,7 +97,8 @@ defmodule RMWeb.RegionJSON do
            }
          } = event
        ) do
-    not RM.FIRST.Event.registration_deadline_passed?(event)
+    RM.FIRST.Event.registration_opening_passed?(event) and
+      not RM.FIRST.Event.registration_deadline_passed?(event)
   end
 
   defp event_registration_open(_event), do: false

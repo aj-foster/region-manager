@@ -56,7 +56,7 @@
     </.table>
 
     <p class="text-sm">
-      This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
+      This data is provided by <em>FIRST®</em>. It was last imported on <%= format_date(
         @event.region.stats.events_imported_at,
         :date
       ) %>.
@@ -68,10 +68,15 @@
   <.card spaced>
     <.table>
       <:row title="Registration">
-        <%= if Event.registration_deadline_passed?(@event) do %>
-          <span class="text-orange-600">Closed</span>
-        <% else %>
-          <span class="text-green-600">Open</span>
+        <%= cond do %>
+          <% Event.registration_deadline_passed?(@event) -> %>
+            <span class="text-orange-600"> Closed</span>
+          <% Event.registration_opening_passed?(@event) -> %>
+            <span class="text-green-600">Open</span>
+          <% :else -> %>
+            <span class="text-orange-600">
+              Opens <%= format_date(Event.registration_opens(@event), :date) %>
+            </span>
         <% end %>
       </:row>
       <:row title="Deadline">
@@ -108,9 +113,9 @@
     </button>
   </.title>
 
-  <%= if @teams != [] do %>
+  <%= if @current_user.teams != [] do %>
     <.link_card
-      :for={{team, _eligibility} <- @teams}
+      :for={team <- @current_user.teams}
       class="flex items-center mb-4"
       navigate={~p"/team/#{team}/events/#{@event}"}
     >

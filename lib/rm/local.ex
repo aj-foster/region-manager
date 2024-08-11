@@ -36,8 +36,17 @@ defmodule RM.Local do
     |> Enum.sort_by(& &1.event, Event)
   end
 
+  @spec verify_deadline(Event.t()) :: :ok | {:error, :too_early | :too_late}
+  def verify_deadline(event) do
+    cond do
+      Event.registration_deadline_passed?(event) -> {:error, :too_late}
+      Event.registration_opening_passed?(event) -> :ok
+      :else -> {:error, :too_early}
+    end
+  end
+
   @spec verify_eligibility(Event.t(), Team.t()) ::
-          :ok | {:error, :not_event_ready | :out_of_scope | :deadline_passed}
+          :ok | {:error, :not_event_ready | :out_of_scope}
   def verify_eligibility(event, team)
 
   def verify_eligibility(%Event{type: type}, %Team{event_ready: false})
@@ -71,13 +80,7 @@ defmodule RM.Local do
       when event_region_id != team_region_id,
       do: {:error, :out_of_scope}
 
-  def verify_eligibility(event, _team) do
-    if Event.registration_deadline_passed?(event) do
-      {:error, :deadline_passed}
-    else
-      :ok
-    end
-  end
+  def verify_eligibility(_event, _team), do: :ok
 
   @spec change_event_settings(Event.t()) :: Changeset.t(EventSettings.t())
   def change_event_settings(event) do
