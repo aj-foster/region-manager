@@ -87,7 +87,7 @@ defmodule RM.FIRST.League do
       name: name,
       parent_league_id: league_id_map[parent_league_code],
       region_id: region && region.id,
-      remote: remote,
+      remote: remote || false,
       updated_at: now
     }
   end

@@ -361,10 +361,14 @@ defmodule RM.Local do
 
     assignment_data =
       for first_league <- first_leagues do
-        {:ok, league} = fetch_league_by_code(region.abbreviation, first_league.code)
+        case fetch_league_by_code(region.abbreviation, first_league.code) do
+          {:ok, league} ->
+            for team <- first_league.teams do
+              LeagueAssignment.new(league, team)
+            end
 
-        for team <- first_league.teams do
-          LeagueAssignment.new(league, team)
+          _else ->
+            []
         end
       end
 
