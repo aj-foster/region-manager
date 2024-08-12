@@ -23,17 +23,17 @@ defmodule RM.FIRST.RefreshJob do
       Process.sleep(@delay_between_calls_ms)
     end)
 
-    # Events
-
-    Enum.each(seasons, fn season ->
-      FIRST.refresh_events(season)
-      Process.sleep(@delay_between_calls_ms)
-    end)
-
     # Leagues & Assignments
 
     Enum.each(regions, fn region ->
       FIRST.refresh_leagues(region)
+      Process.sleep(@delay_between_calls_ms)
+    end)
+
+    # Events
+
+    Enum.each(seasons, fn season ->
+      FIRST.refresh_events(season)
       Process.sleep(@delay_between_calls_ms)
     end)
 
