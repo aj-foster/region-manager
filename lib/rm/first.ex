@@ -412,7 +412,7 @@ defmodule RM.FIRST do
   def list_events_by_region(region, opts \\ []) do
     Query.from_event()
     |> Query.event_region(region)
-    |> Query.event_season(opts[:season])
+    |> Query.event_season(opts[:season] || region.current_season)
     |> Query.event_not_removed()
     |> Query.preload_assoc(:event, opts[:preload])
     |> Repo.all()

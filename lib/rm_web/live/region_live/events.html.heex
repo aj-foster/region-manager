@@ -112,16 +112,21 @@
     <p class="italic text-sm">There are no upcoming events scheduled for this season.</p>
   </.card>
 
-  <.card :for={event <- @upcoming_events} class="flex items-center mb-4">
-    <div class="grow">
-      <h3 class="font-bold"><%= event.name %></h3>
-      <p class="text-sm">
-        <span><%= format_range(event.date_start, event.date_end) %></span>
-        <span>&bull; <%= Event.type_name(event.type) %></span>
-        <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
-      </p>
+  <.card :if={@upcoming_events_count > 0}>
+    <div
+      :for={event <- @upcoming_events}
+      class="border-b flex items-center py-2 first:-mt-2 last:border-0 last:-mb-2"
+    >
+      <div class="grow">
+        <h3 class="font-bold"><%= event.name %></h3>
+        <p class="text-sm">
+          <span><%= format_range(event.date_start, event.date_end) %></span>
+          <span>&bull; <%= Event.type_name(event.type) %></span>
+          <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+        </p>
+      </div>
+      <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
     </div>
-    <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
   </.card>
 </div>
 
@@ -132,16 +137,21 @@
     <p class="italic text-sm">There are no past events for this season.</p>
   </.card>
 
-  <.card :for={event <- @past_events} class="flex items-center mb-4">
-    <div class="grow">
-      <h3 class="font-bold"><%= event.name %></h3>
-      <p class="text-sm">
-        <span><%= format_range(event.date_start, event.date_end) %></span>
-        <span>&bull; <%= Event.type_name(event.type) %></span>
-        <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
-      </p>
+  <.card :if={@past_events_count > 0}>
+    <div
+      :for={event <- @past_events}
+      class="border-b flex items-center py-2 first:-mt-2 last:border-0 last:-mb-2"
+    >
+      <div class="grow">
+        <h3 class="font-bold"><%= event.name %></h3>
+        <p class="text-sm">
+          <span><%= format_range(event.date_start, event.date_end) %></span>
+          <span>&bull; <%= Event.type_name(event.type) %></span>
+          <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+        </p>
+      </div>
+      <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
     </div>
-    <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
   </.card>
 </div>
 
