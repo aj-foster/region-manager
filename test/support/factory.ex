@@ -46,6 +46,40 @@ defmodule RM.Factory do
   #
 
   @doc false
+  def first_event_factory do
+    code = sequence("event", &"E#{&1}")
+    today = Date.utc_today()
+
+    %RM.FIRST.Event{
+      code: code,
+      date_end: today,
+      date_start: today,
+      date_timezone: "Etc/UTC",
+      field_count: 1,
+      hybrid: false,
+      name: "Event #{code}",
+      published: false,
+      region: fn -> build(:region) end,
+      remote: false,
+      season: RM.Config.get("current_season"),
+      type: :scrimmage
+    }
+  end
+
+  @doc false
+  def first_league_factory do
+    code = sequence("league", &"L#{&1}")
+
+    %RM.FIRST.League{
+      code: code,
+      name: "League #{code}",
+      region: fn -> build(:region) end,
+      remote: false,
+      season: RM.Config.get("current_season")
+    }
+  end
+
+  @doc false
   def region_factory do
     code = sequence("region", &"R#{&1}")
 
@@ -63,6 +97,19 @@ defmodule RM.Factory do
   #
   # Local
   #
+
+  @doc false
+  def event_settings_factory do
+    %RM.Local.EventSettings{
+      event: fn -> build(:first_event) end,
+      registration: %RM.Local.RegistrationSettings{
+        enabled: true,
+        deadline_days: 7,
+        open_days: 21,
+        pool: :region
+      }
+    }
+  end
 
   @doc false
   def team_factory do

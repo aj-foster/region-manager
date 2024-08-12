@@ -57,6 +57,23 @@ defmodule RM.Assertions do
   end
 
   @doc """
+  Assert the given pattern does not match any items in the enumerable
+
+  ## Example
+
+      my_function()
+      |> assert_no_match_in(%{"key" => _})
+
+  """
+  defmacro assert_no_match_in(left, right) do
+    quote do
+      left = unquote(left)
+      refute Enum.any?(left, &match?(unquote(right), &1))
+      left
+    end
+  end
+
+  @doc """
   Assert a timestamp is recent. Defaults to a 10 second threshold.
 
   ## Example
