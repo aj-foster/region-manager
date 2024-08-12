@@ -29,7 +29,7 @@ defmodule RMWeb.RegionController do
 
   def teams(conn, %{"region" => abbreviation}) do
     with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(abbreviation, preload: [:leagues]) do
-      teams = RM.Local.list_teams_by_region(region, preload: [:league])
+      teams = RM.Local.list_teams_by_region(region, active: true, preload: [:league])
       render(conn, :teams, teams: teams)
     end
   end

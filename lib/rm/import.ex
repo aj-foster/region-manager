@@ -22,6 +22,7 @@ defmodule RM.Import do
 
     allowed_regions = Account.get_regions_for_user(user)
     allowed_region_names = Enum.map(allowed_regions, & &1.name)
+    allowed_regions_by_id = Map.new(allowed_regions, fn region -> {region.id, region} end)
     allowed_regions_by_name = Map.new(allowed_regions, fn region -> {region.name, region} end)
 
     stream =
@@ -46,7 +47,13 @@ defmodule RM.Import do
       |> Enum.to_list()
       |> insert_import_teams()
 
-    local_teams_by_id = list_local_teams(import_teams)
+    regions_affected =
+      import_teams
+      |> Enum.map(& &1.region_id)
+      |> Enum.uniq()
+      |> Enum.map(&allowed_regions_by_id[&1])
+
+    local_teams_by_id = list_local_teams(regions_affected)
     import_teams_by_id = Map.new(import_teams, fn team -> {team.team_id, team} end)
 
     {additions, updates} = diff_teams(local_teams_by_id, import_teams_by_id)
@@ -76,11 +83,11 @@ defmodule RM.Import do
     |> Map.put(:id, Ecto.UUID.generate())
   end
 
-  @spec list_local_teams([Team.t()]) :: %{integer => Local.Team.t()}
-  defp list_local_teams(import_teams) do
-    import_teams
-    |> Enum.map(& &1.team_id)
-    |> Local.list_teams_by_team_id(preload: [:users])
+  @spec list_local_teams([Region.t()]) :: %{integer => Local.Team.t()}
+  defp list_local_teams(regions) do
+    regions
+    |> Enum.map(&RM.Local.list_teams_by_region(&1, preload: [:users]))
+    |> List.flatten()
     |> Map.new(fn team -> {team.team_id, team} end)
   end
 
@@ -89,6 +96,9 @@ defmodule RM.Import do
   defp diff_teams(local_teams_by_id, import_teams_by_id) do
     {import_overlapping, import_to_add} =
       Map.split(import_teams_by_id, Map.keys(local_teams_by_id))
+
+    {_import_overlapping, local_to_deactivate} =
+      Map.split(local_teams_by_id, Map.keys(import_teams_by_id))
 
     additions =
       for import_team <- Map.values(import_to_add) do
@@ -106,6 +116,11 @@ defmodule RM.Import do
         team = Repo.update!(changeset)
         {team, changeset}
       end
+
+    Map.values(local_to_deactivate)
+    |> Enum.map(& &1.team_id)
+    |> Local.Team.update_active_status(false)
+    |> Repo.update_all([])
 
     {additions, updates}
   end

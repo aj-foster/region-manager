@@ -53,5 +53,35 @@ defmodule RM.ImportTest do
       assert %RM.Local.Team{active: false, event_ready: false, number: 5555} =
                RM.Repo.reload!(team)
     end
+
+    test "updates active status across seasons", %{region: region, user: user} do
+      Factory.insert(:team, active: false, region: region, number: 3333, team_id: 103_333)
+      Factory.insert(:team, active: true, region: region, number: 4444, team_id: 104_444)
+      Factory.insert(:team, active: true, region: region, number: 5555, team_id: 105_555)
+
+      Import.import_from_team_info_tableau_export(user, @fixture_import)
+      |> assert_match(%{added: added, imported: imported, updated: updated, upload: _})
+
+      assert length(added) == 2
+      assert length(imported) == 5
+      assert length(updated) == 3
+
+      assert_match_in updated, {%RM.Local.Team{active: true, event_ready: false, number: 3333}, _}
+
+      assert_match_in updated,
+                      {%RM.Local.Team{active: false, event_ready: false, number: 4444}, _}
+
+      assert_match_in updated,
+                      {%RM.Local.Team{active: false, event_ready: false, number: 5555}, _}
+    end
+
+    test "marks missing teams as inactive", %{region: region, user: user} do
+      team = Factory.insert(:team, active: true, region: region, number: 6666, team_id: 106_666)
+
+      Import.import_from_team_info_tableau_export(user, @fixture_import)
+
+      Repo.reload!(team)
+      |> assert_match(%RM.Local.Team{active: false, number: 6666, team_id: 106_666})
+    end
   end
 end

@@ -77,6 +77,7 @@ defmodule RMWeb.RegionLive.Teams do
 
         socket
         |> assign(import_status: :done)
+        |> assign_teams()
         |> noreply()
 
       entry.cancelled? ->

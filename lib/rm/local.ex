@@ -438,7 +438,7 @@ defmodule RM.Local do
   @spec list_teams_by_region(Region.t(), keyword) :: [Team.t()]
   def list_teams_by_region(region, opts \\ []) do
     Query.from_team()
-    |> Query.active_team()
+    |> Query.active_team(opts[:active])
     |> where([team: t], t.region_id == ^region.id)
     |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.all()

@@ -152,6 +152,14 @@ defmodule RM.Local.Team do
     |> where([team: t], t.active)
   end
 
+  @doc "Update active status for teams with the given IDs"
+  @spec update_active_status([integer], boolean) :: Ecto.Query.t()
+  def update_active_status(ids, active?) do
+    from(__MODULE__, as: :team)
+    |> where([team: t], t.team_id in ^ids)
+    |> update(set: [active: ^active?])
+  end
+
   #
   # Protocols
   #
