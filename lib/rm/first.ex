@@ -84,16 +84,18 @@ defmodule RM.FIRST do
     )
 
     event_ids = Enum.map(events, & &1.id)
+    now = DateTime.utc_now()
 
-    {_count, deleted_events} =
+    {_count, removed_events} =
       Query.from_event()
       |> Query.event_season(season)
       |> where([event: e], e.id not in ^event_ids)
+      |> update(set: [removed_at: ^now])
       |> select([event: e], e)
-      |> Repo.delete_all()
+      |> Repo.update_all([])
 
-    update_region_event_counts(events ++ deleted_events)
-    update_league_event_counts(events ++ deleted_events, season)
+    update_region_event_counts(events ++ removed_events)
+    update_league_event_counts(events ++ removed_events, season)
     events
   end
 
@@ -411,6 +413,7 @@ defmodule RM.FIRST do
     Query.from_event()
     |> Query.event_region(region)
     |> Query.event_season(opts[:season])
+    |> Query.event_not_removed()
     |> Query.preload_assoc(:event, opts[:preload])
     |> Repo.all()
     |> Enum.filter(&is_nil(&1.division_code))
@@ -421,6 +424,7 @@ defmodule RM.FIRST do
   @spec list_eligible_events_by_team(RM.Local.Team.t(), keyword) :: [Event.t()]
   def list_eligible_events_by_team(team, opts \\ []) do
     Query.from_event()
+    |> Query.event_not_removed()
     |> Query.join_settings_from_event()
     |> filter_eligible_events_by_team(team)
     |> Query.preload_assoc(:event, opts[:preload])
@@ -462,6 +466,7 @@ defmodule RM.FIRST do
     Query.from_event()
     |> Query.event_code(code)
     |> Query.event_season(season)
+    |> Query.event_not_removed()
     |> Query.preload_assoc(:event, opts[:preload])
     |> Repo.one()
     |> case do

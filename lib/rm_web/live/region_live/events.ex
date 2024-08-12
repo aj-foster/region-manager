@@ -99,18 +99,13 @@ defmodule RMWeb.RegionLive.Events do
 
   @spec assign_events(Socket.t()) :: Socket.t()
   defp assign_events(socket) do
-    region =
-      socket.assigns[:region]
-      |> RM.Repo.preload(:events)
-      |> Map.update!(:events, &Enum.sort(&1, Event))
-
-    {past_events, upcoming_events} =
-      Enum.split_with(region.events, &RM.FIRST.Event.event_passed?/1)
+    region = socket.assigns[:region]
+    events = RM.FIRST.list_events_by_region(region)
+    {past_events, upcoming_events} = Enum.split_with(events, &RM.FIRST.Event.event_passed?/1)
 
     assign(socket,
       past_events: past_events,
       past_events_count: length(past_events),
-      region: region,
       upcoming_events: upcoming_events,
       upcoming_events_count: length(upcoming_events)
     )

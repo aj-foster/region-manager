@@ -113,8 +113,10 @@ defmodule RM.FIRST.League do
     count_query =
       from(__MODULE__, as: :league)
       |> where([league: l], l.id in ^league_ids)
-      |> join(:left, [league: l], e in assoc(l, :events), as: :event)
-      |> where([event: e], e.season == ^season)
+      |> join(:left, [league: l], e in assoc(l, :events),
+        on: e.season == ^season and is_nil(e.removed_at),
+        as: :event
+      )
       |> group_by([league: l], l.id)
       |> select([league: l, event: e], %{id: l.id, count: count(e.id)})
 

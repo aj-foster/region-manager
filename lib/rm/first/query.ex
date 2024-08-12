@@ -70,6 +70,10 @@ defmodule RM.FIRST.Query do
     where(query, [event: e], e.code == ^code)
   end
 
+  @doc "Filter out events that have been removed"
+  @spec event_not_removed(query) :: query
+  def event_not_removed(query), do: where(query, [event: e], is_nil(e.removed_at))
+
   @doc "Find events related to the given region(s)"
   @spec event_region(query, Region.t()) :: query
   @spec event_region(query, [Region.t()]) :: query

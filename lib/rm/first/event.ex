@@ -77,6 +77,7 @@ defmodule RM.FIRST.Event do
     end
 
     timestamps type: :utc_datetime_usec
+    field :removed_at, :utc_datetime_usec
   end
 
   @spec from_ftc_events(map, map, map) :: map
@@ -127,6 +128,7 @@ defmodule RM.FIRST.Event do
       published: published,
       region_id: region && region.id,
       remote: remote,
+      removed_at: nil,
       type: cast_type(type_code),
       updated_at: now,
       website: if(website != "", do: website),

@@ -14,6 +14,9 @@ defmodule RM.FIRSTTest do
       # Event to be removed
       Factory.insert(:first_event, code: "USIDKS", season: 2023)
 
+      # Removed event to be resurrected
+      Factory.insert(:first_event, code: "USFLFLORM2", season: 2023)
+
       FIRST.update_events_from_ftc_events(2023, fixture_events())
 
       events = RM.Repo.all(RM.FIRST.Event)
@@ -31,15 +34,26 @@ defmodule RM.FIRSTTest do
         league_id: ^league_id,
         name: "FL Orlando Robotics League Tournament",
         region_id: ^region_id,
+        removed_at: nil,
         type: :league_tournament
       })
       |> assert_match_in(%FIRST.Event{
         code: "USFLFLORM1",
         league_id: ^league_id,
         name: "FL Orlando Robotics League Meet #1",
+        region_id: ^region_id,
+        removed_at: nil,
         season: 2023
       })
-      |> assert_no_match_in(%FIRST.Event{code: "USIDKS"})
+      |> assert_match_in(%FIRST.Event{
+        code: "USFLFLORM2",
+        league_id: ^league_id,
+        name: "FL Orlando Robotics League Meet #2",
+        region_id: ^region_id,
+        removed_at: nil,
+        season: 2023
+      })
+      |> assert_match_in(%FIRST.Event{code: "USIDKS", removed_at: %DateTime{}})
     end
 
     test "matches event proposals" do

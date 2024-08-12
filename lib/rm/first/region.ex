@@ -112,7 +112,7 @@ defmodule RM.FIRST.Region do
       from(__MODULE__, as: :region)
       |> where([region: r], r.id in ^region_ids)
       |> join(:left, [region: r], e in assoc(r, :events),
-        on: e.season == r.current_season,
+        on: e.season == r.current_season and is_nil(e.removed_at),
         as: :event
       )
       |> group_by([region: r], r.id)
