@@ -269,6 +269,14 @@ defmodule RM.FIRST.Event do
 
   @doc false
   def compare(a, b) do
-    Date.compare(a.date_start, b.date_start)
+    date_comparison = Date.compare(a.date_start, b.date_start)
+
+    cond do
+      date_comparison == :lt -> :lt
+      date_comparison == :gt -> :gt
+      a.name < b.name -> :lt
+      a.name > b.name -> :gt
+      :else -> :eq
+    end
   end
 end
