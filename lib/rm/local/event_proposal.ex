@@ -139,20 +139,46 @@ defmodule RM.Local.EventProposal do
   # Helpers
   #
 
+  @doc "Whether the given event originated from the given proposal"
+  @spec event_matches?(t, RM.FIRST.Event.t()) :: boolean
+  def event_matches?(proposal, event)
+
+  def event_matches?(%__MODULE__{first_event_id: a}, %RM.FIRST.Event{id: b}) when not is_nil(a) do
+    a == b
+  end
+
+  def event_matches?(proposal, event) do
+    proposal.region_id == event.region_id and
+      proposal.date_end == event.date_end and
+      proposal.type == event.type and
+      loose_match?(proposal.venue.city, event.location.city)
+  end
+
+  defp loose_match?(nil, nil), do: true
+  defp loose_match?(_, nil), do: false
+  defp loose_match?(nil, _), do: false
+
+  defp loose_match?(a, b) do
+    String.jaro_distance(
+      a |> String.trim() |> String.downcase(),
+      b |> String.trim() |> String.downcase()
+    ) > 0.8
+  end
+
   @doc "Whether the proposed event has passed"
   @spec event_passed?(t) :: boolean
-  def event_passed?(event) do
-    %__MODULE__{date_end: date_end, venue: %RM.Local.Venue{timezone: timezone}} = event
+  def event_passed?(proposal) do
+    %__MODULE__{date_end: date_end, venue: %RM.Local.Venue{timezone: timezone}} = proposal
     today = DateTime.now!(timezone) |> DateTime.to_date()
     Date.after?(today, date_end)
   end
 
   @doc "Whether the proposal should be submitted to FIRST"
   @spec pending?(t) :: boolean
-  def pending?(event)
+  def pending?(proposal)
   def pending?(%__MODULE__{first_event_id: <<_::binary>>}), do: false
   def pending?(%__MODULE__{submitted_at: %DateTime{}}), do: false
-  def pending?(event), do: not event_passed?(event)
+  def pending?(proposal), do: not event_passed?(proposal)
 
   @doc "Human-readable event format"
   @spec format_string(t) :: String.t()

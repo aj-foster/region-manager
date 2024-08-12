@@ -131,6 +131,17 @@ defmodule RM.Local do
     end)
   end
 
+  @spec list_open_event_proposals(integer) :: [EventProposal.t()]
+  @spec list_open_event_proposals(integer, keyword) :: [EventProposal.t()]
+  def list_open_event_proposals(season, opts \\ []) do
+    Query.from_proposal()
+    |> Query.proposal_season(season)
+    |> where([proposal: p], is_nil(p.first_event_id))
+    |> Query.preload_assoc(:proposal, opts[:preload])
+    |> Repo.all()
+    |> Enum.sort(EventProposal)
+  end
+
   @spec fetch_event_proposal_by_id(Ecto.UUID.t()) ::
           {:ok, EventProposal.t()} | {:error, :proposal, :not_found}
   @spec fetch_event_proposal_by_id(Ecto.UUID.t(), keyword) ::
@@ -150,6 +161,33 @@ defmodule RM.Local do
   def create_event(params) do
     EventProposal.create_changeset(params)
     |> Repo.insert()
+  end
+
+  @doc """
+  Update the FIRST event records associated with event proposals
+
+  Data is given as a list of tuples containing the proposal ID and associated event ID.
+  """
+  @spec update_event_proposal_events([{Ecto.UUID.t(), Ecto.UUID.t()}]) :: :ok
+  def update_event_proposal_events(updates) do
+    {proposal_ids, first_event_ids} = Enum.unzip(updates)
+
+    Query.from_proposal()
+    |> join(
+      :inner,
+      [proposal: p],
+      temp in fragment(
+        "SELECT * FROM unnest(?::uuid[], ?::uuid[]) AS update_table(id, first_event_id)",
+        type(^proposal_ids, {:array, Ecto.UUID}),
+        type(^first_event_ids, {:array, Ecto.UUID})
+      ),
+      on: p.id == temp.id,
+      as: :temp
+    )
+    |> update([temp: t], set: [first_event_id: t.first_event_id])
+    |> Repo.update_all([])
+
+    :ok
   end
 
   @spec create_batch_submission(Region.t(), [EventProposal.t()], RM.Account.User.t()) ::

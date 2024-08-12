@@ -50,6 +50,7 @@ defmodule RM.FIRST do
   def update_events_from_ftc_events(season, api_events) do
     leagues_by_code = list_leagues_by_code(season)
     regions_by_code = list_regions_by_code()
+    open_proposals = RM.Local.list_open_event_proposals(season, preload: [:venue])
 
     event_data =
       Enum.map(api_events, &Event.from_ftc_events(&1, regions_by_code, leagues_by_code))
@@ -63,11 +64,18 @@ defmodule RM.FIRST do
         returning: true
       )
 
-    # To decide settings, we need to know (1) if related to a proposal, and (2) which league
+    Enum.reduce(events, [], fn event, proposal_updates ->
+      if proposal = Enum.find(open_proposals, &RM.Local.EventProposal.event_matches?(&1, event)) do
+        [{proposal.id, event.id} | proposal_updates]
+      else
+        proposal_updates
+      end
+    end)
+    |> RM.Local.update_event_proposal_events()
 
     event_settings_data =
       events
-      |> Repo.preload(league: :settings)
+      |> Repo.preload(:proposal, league: :settings)
       |> Enum.map(&EventSettings.default_params/1)
 
     Repo.insert_all(EventSettings, event_settings_data,

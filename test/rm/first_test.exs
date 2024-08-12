@@ -14,13 +14,7 @@ defmodule RM.FIRSTTest do
       # Event to be removed
       Factory.insert(:first_event, code: "USIDKS", season: 2023)
 
-      input =
-        File.read!("test/fixture/api_events.json")
-        |> Jason.decode!()
-        |> Map.fetch!("events")
-
-      RM.Config.get("current_season")
-      |> FIRST.update_events_from_ftc_events(input)
+      FIRST.update_events_from_ftc_events(2023, fixture_events())
 
       events = RM.Repo.all(RM.FIRST.Event)
       region_id = region.id
@@ -47,5 +41,36 @@ defmodule RM.FIRSTTest do
       })
       |> assert_no_match_in(%FIRST.Event{code: "USIDKS"})
     end
+
+    test "matches event proposals" do
+      region = Factory.insert(:region, code: "USFL")
+      Factory.insert(:first_league, region: region, code: "FLOR")
+      date = Date.new!(2023, 10, 14)
+
+      proposal =
+        Factory.insert(:event_proposal,
+          date_end: date,
+          date_start: date,
+          name: "Orlando Scrimmage",
+          region: region,
+          season: 2023,
+          type: :scrimmage,
+          venue: Factory.build(:venue, city: "Orlando", state_province: "Florida")
+        )
+
+      FIRST.update_events_from_ftc_events(2023, fixture_events())
+
+      Repo.reload!(proposal)
+      |> assert_match(%RM.Local.EventProposal{first_event_id: <<_::binary>> = event_id})
+
+      Repo.get(RM.FIRST.Event, event_id)
+      |> assert_match(%RM.FIRST.Event{code: "USFLORS"})
+    end
+  end
+
+  defp fixture_events do
+    File.read!("test/fixture/api_events.json")
+    |> Jason.decode!()
+    |> Map.fetch!("events")
   end
 end

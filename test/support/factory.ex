@@ -99,6 +99,28 @@ defmodule RM.Factory do
   #
 
   @doc false
+  def event_proposal_factory do
+    code = sequence("event", &"E#{&1}")
+    today = Date.utc_today()
+
+    %RM.Local.EventProposal{
+      contact: %RM.Local.EventProposal.Contact{
+        email: "host-#{code}@example.com",
+        name: "Host #{code}",
+        phone: "123-456-7890"
+      },
+      date_end: today,
+      date_start: today,
+      format: :traditional,
+      name: "Event #{code}",
+      region: fn -> build(:region) end,
+      season: RM.Config.get("current_season"),
+      type: :scrimmage,
+      venue: fn -> build(:venue) end
+    }
+  end
+
+  @doc false
   def event_settings_factory do
     %RM.Local.EventSettings{
       event: fn -> build(:first_event) end,
@@ -108,6 +130,37 @@ defmodule RM.Factory do
         open_days: 21,
         pool: :region
       }
+    }
+  end
+
+  @doc false
+  def league_factory do
+    code = sequence("league", &"L#{&1}")
+
+    %RM.Local.League{
+      code: code,
+      current_season: RM.Config.get("current_season"),
+      location: "Somewhere",
+      name: "League #{code}",
+      region: fn -> build(:region) end,
+      remote: false
+    }
+  end
+
+  @doc false
+  def venue_factory do
+    code = sequence("venue", &"V#{&1}")
+
+    %RM.Local.Venue{
+      address: "123 Main St.",
+      address_2: "",
+      city: "Some City",
+      country: "United States",
+      league: fn -> build(:league) end,
+      name: "Venue #{code}",
+      postal_code: "11111",
+      state_province: "New State",
+      timezone: "Etc/UTC"
     }
   end
 
