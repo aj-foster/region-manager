@@ -48,12 +48,11 @@ defmodule RM.FIRST do
   """
   @spec update_events_from_ftc_events(integer, [map]) :: [Event.t()]
   def update_events_from_ftc_events(season, api_events) do
-    # TODO: Must include region in key as well as season
-    league_id_map = list_league_ids_by_code(season)
+    leagues_by_code = list_leagues_by_code(season)
     regions_by_code = list_regions_by_code()
 
     event_data =
-      Enum.map(api_events, &Event.from_ftc_events(&1, regions_by_code, league_id_map))
+      Enum.map(api_events, &Event.from_ftc_events(&1, regions_by_code, leagues_by_code))
       |> Enum.reject(&is_nil(&1.region_id))
       |> Enum.map(&Map.put(&1, :season, season))
 
@@ -63,6 +62,8 @@ defmodule RM.FIRST do
         conflict_target: [:code, :season],
         returning: true
       )
+
+    # To decide settings, we need to know (1) if related to a proposal, and (2) which league
 
     event_settings_data =
       events
@@ -318,7 +319,9 @@ defmodule RM.FIRST do
   def list_regions_by_code do
     Region.by_code_query()
     |> Repo.all()
-    |> Map.new()
+    |> Map.new(fn {code, region} ->
+      {String.upcase(code), region}
+    end)
   end
 
   @spec fetch_region_by_abbreviation(String.t(), keyword) ::
@@ -368,11 +371,13 @@ defmodule RM.FIRST do
     end)
   end
 
-  @spec list_league_ids_by_code(integer) :: %{String.t() => Ecto.UUID.t()}
-  def list_league_ids_by_code(season) do
-    League.id_by_code_query(season)
+  @spec list_leagues_by_code(integer) :: %{{String.t(), String.t()} => League.t()}
+  def list_leagues_by_code(season) do
+    League.by_code_query(season)
     |> Repo.all()
-    |> Map.new()
+    |> Map.new(fn {{region_code, league_code}, league} ->
+      {{String.upcase(region_code), String.upcase(league_code)}, league}
+    end)
   end
 
   @spec get_league_by_code(Region.t(), String.t()) ::

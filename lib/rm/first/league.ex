@@ -92,11 +92,15 @@ defmodule RM.FIRST.League do
     }
   end
 
-  @spec id_by_code_query(integer) :: Ecto.Query.t()
-  def id_by_code_query(season) do
+  @doc """
+  Query to construct a map of leagues keyed by their region and league codes
+  """
+  @spec by_code_query(integer) :: Ecto.Query.t()
+  def by_code_query(season) do
     Query.from_league()
     |> Query.league_season(season)
-    |> select([league: l], {l.code, l.id})
+    |> Query.join_region_from_league()
+    |> select([league: l, region: r], {{r.code, l.code}, l})
   end
 
   @doc """

@@ -105,10 +105,11 @@ defmodule RM.FIRST.Event do
           "website" => website
         },
         regions_by_code,
-        league_id_map \\ %{}
+        leagues_by_code \\ %{}
       ) do
     now = DateTime.utc_now()
     region = regions_by_code[region_code]
+    league = leagues_by_code[{region_code, league_code}]
 
     %{
       code: code,
@@ -120,7 +121,7 @@ defmodule RM.FIRST.Event do
       hybrid: hybrid,
       id: id,
       inserted_at: now,
-      league_id: league_id_map[league_code],
+      league_id: league && league.id,
       live_stream_url: if(live_stream_url != "", do: live_stream_url),
       name: name,
       published: published,
