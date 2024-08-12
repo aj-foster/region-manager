@@ -17,7 +17,9 @@ defmodule RMWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images waffle favicon.ico robots.txt)
+  def static_paths do
+    ~w(apple-touch-icon.png assets fonts images waffle favicon.ico favicon.svg robots.txt)
+  end
 
   def router do
     quote do

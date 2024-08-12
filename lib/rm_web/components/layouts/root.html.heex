@@ -4,12 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <meta name="theme-color" content="rgb(249, 115, 22)" />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
     <.live_title>
       <%= if(title = assigns[:page_title],
         do: "#{title} · Region Manager",
         else: "Region Manager"
       ) %>
     </.live_title>
+
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
