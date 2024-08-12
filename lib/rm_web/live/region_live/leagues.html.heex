@@ -3,34 +3,36 @@
 <div class="mb-8">
   <.title>Leagues in <%= @region.name %></.title>
 
-  <.link_card
-    :for={league <- @visible_leagues}
-    class="flex items-center mb-4"
-    navigate={~p"/region/#{@region}/leagues/#{league}"}
-  >
-    <div class="grow">
-      <h3 class="flex font-bold gap-2 items-center">
-        <%= league.name %>
-        <.tag :if={is_nil(league.first_league)} class="bg-rose-100 border-rose-300">
-          Unpublished
-        </.tag>
-        <.tag
-          :if={is_struct(league.first_league) and not League.matches_public_data?(league)}
-          class="bg-orange-100 border-orange-300"
-        >
-          Incorrect Data
-        </.tag>
-      </h3>
-      <p class="text-sm">
-        <span :if={league.stats.league_count && league.stats.league_count > 0}>
-          <%= dumb_inflect("league", league.stats.league_count) %> &bull;
-        </span>
-        <span><%= dumb_inflect("team", league.stats.team_count) %> &bull;</span>
-        <span><%= dumb_inflect("event", league.stats.event_count) %></span>
-      </p>
-    </div>
-    <div><.icon name="hero-arrow-right" /></div>
-  </.link_card>
+  <.card>
+    <.link
+      :for={league <- @visible_leagues}
+      class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
+      navigate={~p"/region/#{@region}/leagues/#{league}"}
+    >
+      <div class="grow">
+        <h3 class="flex font-bold gap-2 items-center">
+          <%= league.name %>
+          <.tag :if={is_nil(league.first_league)} class="bg-rose-100 border-rose-300">
+            Unpublished
+          </.tag>
+          <.tag
+            :if={is_struct(league.first_league) and not League.matches_public_data?(league)}
+            class="bg-orange-100 border-orange-300"
+          >
+            Incorrect Data
+          </.tag>
+        </h3>
+        <p class="text-sm">
+          <span :if={league.stats.league_count && league.stats.league_count > 0}>
+            <%= dumb_inflect("league", league.stats.league_count) %> &bull;
+          </span>
+          <span><%= dumb_inflect("team", league.stats.team_count) %> &bull;</span>
+          <span><%= dumb_inflect("event", league.stats.event_count) %></span>
+        </p>
+      </div>
+      <div><.icon name="hero-arrow-right" /></div>
+    </.link>
+  </.card>
 </div>
 
 <div class="mb-8">
