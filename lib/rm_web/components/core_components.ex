@@ -358,6 +358,7 @@ defmodule RMWeb.CoreComponents do
   """
   attr :type, :string, default: nil
   attr :class, :string, default: nil
+  attr :style, :string, default: "primary"
   attr :rest, :global, include: ~w(disabled form name value)
 
   slot :inner_block, required: true
@@ -367,8 +368,7 @@ defmodule RMWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded bg-orange-500 hover:bg-orange-400 disabled:bg-orange-400 disabled:cursor-not-allowed transition-colors",
-        "font-semibold leading-6 py-1 px-2 text-white",
+        button_class(@style),
         @class
       ]}
       {@rest}
@@ -377,6 +377,15 @@ defmodule RMWeb.CoreComponents do
     </button>
     """
   end
+
+  @button_class "font-semibold leading-6 py-1 px-2 rounded transition-colors phx-submit-loading:opacity-75"
+  @button_primary_class "bg-orange-500 text-white active:text-white/80 disabled:bg-orange-400 disabled:cursor-not-allowed hover:bg-orange-400"
+  @button_secondary_class "bg-transparent border border-orange-500 text-orange-600 disabled:border-orange-400 disabled:cursor-not-allowed disabled:text-orange-400 hover:bg-orange-50"
+  @button_tertiary_class "bg-transparent border border-transparent disabled:cursor-not-allowed disabled:text-neutral-800 hover:text-orange-600"
+
+  defp button_class("secondary"), do: [@button_class, @button_secondary_class]
+  defp button_class("tertiary"), do: [@button_class, @button_tertiary_class]
+  defp button_class(_default), do: [@button_class, @button_primary_class]
 
   @doc """
   Renders a link that looks like a button
@@ -387,6 +396,7 @@ defmodule RMWeb.CoreComponents do
 
   """
   attr :class, :string, default: nil
+  attr :style, :string, default: "primary"
   attr :rest, :global, include: ~w(href navigate patch)
 
   slot :inner_block, required: true
@@ -395,8 +405,8 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <.link
       class={[
-        "rounded bg-orange-500 hover:bg-orange-400 transition-colors",
-        "font-semibold leading-6 py-1 px-2 text-white active:text-white/80",
+        "inline-block",
+        button_class(@style),
         @class
       ]}
       {@rest}
