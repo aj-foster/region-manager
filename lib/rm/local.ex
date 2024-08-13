@@ -363,9 +363,10 @@ defmodule RM.Local do
       for first_league <- first_leagues do
         case fetch_league_by_code(region.abbreviation, first_league.code) do
           {:ok, league} ->
-            for team <- first_league.teams do
-              LeagueAssignment.new(league, team)
-            end
+            first_league.teams
+            |> Enum.map(& &1.team_number)
+            |> list_teams_by_number()
+            |> Enum.map(fn team -> LeagueAssignment.new(league, team) end)
 
           _else ->
             []

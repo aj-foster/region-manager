@@ -123,8 +123,9 @@ defmodule RM.FIRST do
   This will refresh data for the region's "current season".
   """
   @spec refresh_leagues(Region.t()) :: {:ok, [League.t()]} | {:error, Exception.t()}
-  def refresh_leagues(region) do
-    %Region{current_season: season} = region
+  @spec refresh_leagues(Region.t(), keyword) :: {:ok, [League.t()]} | {:error, Exception.t()}
+  def refresh_leagues(region, opts \\ []) do
+    season = opts[:season] || region.current_season
 
     with {:ok, %{leagues: leagues}} <- External.FTCEvents.list_leagues(season, region) do
       leagues = update_leagues_from_ftc_events(season, leagues, delete_region: region)
@@ -134,7 +135,7 @@ defmodule RM.FIRST do
         Process.sleep(1_000)
 
         with {:ok, members} <- External.FTCEvents.list_league_members(season, region, league) do
-          update_league_assignments_from_ftc_events(league, members)
+          update_league_assignments_from_ftc_events(season, league, members)
         end
       end
 
@@ -228,14 +229,15 @@ defmodule RM.FIRST do
   @doc """
   Save team/league assignments from an FTC Events API response
   """
-  @spec update_league_assignments_from_ftc_events(League.t(), [integer]) :: [LeagueAssignment.t()]
-  def update_league_assignments_from_ftc_events(league, team_numbers) do
+  @spec update_league_assignments_from_ftc_events(integer, League.t(), [integer]) ::
+          [LeagueAssignment.t()]
+  def update_league_assignments_from_ftc_events(season, league, team_numbers) do
     Query.from_league_assignment()
     |> Query.assignment_league(league)
     |> Repo.delete_all()
 
     assignment_data =
-      list_teams_by_number(team_numbers)
+      list_teams_by_number(season, team_numbers)
       |> Enum.map(&LeagueAssignment.new(league, &1))
 
     Repo.insert_all(LeagueAssignment, assignment_data,
@@ -259,23 +261,23 @@ defmodule RM.FIRST do
   Refresh all season teams
   """
   @spec refresh_teams(Region.t()) :: {:ok, [RM.FIRST.Team.t()]} | {:error, Exception.t()}
-  def refresh_teams(region) do
-    do_refresh_teams(region, [], 1)
+  @spec refresh_teams(Region.t(), keyword) :: {:ok, [RM.FIRST.Team.t()]} | {:error, Exception.t()}
+  def refresh_teams(region, opts \\ []) do
+    season = opts[:season] || region.current_season
+    do_refresh_teams(season, region, [], 1)
   end
 
-  defp do_refresh_teams(region, team_acc, page) do
-    %Region{current_season: season} = region
-
+  defp do_refresh_teams(season, region, team_acc, page) do
     case External.FTCEvents.list_teams(season, region, page: page) do
       {:ok, %{teams: api_teams, page_current: page_current, page_total: page_total}} ->
-        teams = update_teams_from_ftc_events(region, api_teams)
+        teams = update_teams_from_ftc_events(season, region, api_teams)
 
         if page_current >= page_total do
           {:ok, teams ++ team_acc}
         else
           # This is bad. But also... good.
           Process.sleep(1_000)
-          do_refresh_teams(region, teams ++ team_acc, page + 1)
+          do_refresh_teams(season, region, teams ++ team_acc, page + 1)
         end
 
       {:error, reason} ->
@@ -283,8 +285,8 @@ defmodule RM.FIRST do
     end
   end
 
-  defp update_teams_from_ftc_events(region, api_teams) do
-    %Region{code: code, current_season: season} = region
+  defp update_teams_from_ftc_events(season, region, api_teams) do
+    %Region{code: code} = region
     regions_by_code = %{code => region}
 
     team_data =
@@ -478,10 +480,11 @@ defmodule RM.FIRST do
   # Teams
   #
 
-  @spec list_teams_by_number([integer]) :: [Team.t()]
-  @spec list_teams_by_number([integer], keyword) :: [Team.t()]
-  def list_teams_by_number(numbers, opts \\ []) do
+  @spec list_teams_by_number(integer, [integer]) :: [Team.t()]
+  @spec list_teams_by_number(integer, [integer], keyword) :: [Team.t()]
+  def list_teams_by_number(season, numbers, opts \\ []) do
     Query.from_team()
+    |> Query.team_season(season)
     |> where([team: t], t.team_number in ^numbers)
     |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.all()
