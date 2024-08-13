@@ -48,11 +48,15 @@ defmodule RM.FIRST do
   @spec update_events_from_ftc_events(integer, [map]) :: [Event.t()]
   def update_events_from_ftc_events(season, api_events) do
     leagues_by_code = list_leagues_by_code(season)
+    local_leagues_by_code = RM.Local.list_leagues_by_code()
     regions_by_code = list_regions_by_code()
     open_proposals = RM.Local.list_open_event_proposals(season, preload: [:venue])
 
     event_data =
-      Enum.map(api_events, &Event.from_ftc_events(&1, regions_by_code, leagues_by_code))
+      Enum.map(
+        api_events,
+        &Event.from_ftc_events(&1, regions_by_code, leagues_by_code, local_leagues_by_code)
+      )
       |> Enum.reject(&is_nil(&1.region_id))
       |> Enum.map(&Map.put(&1, :season, season))
 
@@ -165,9 +169,10 @@ defmodule RM.FIRST do
     # First round: Initial insertion of the records
 
     regions_by_code = list_regions_by_code()
+    local_leagues_by_code = RM.Local.list_leagues_by_code()
 
     league_data =
-      Enum.map(api_leagues, &League.from_ftc_events(&1, regions_by_code))
+      Enum.map(api_leagues, &League.from_ftc_events(&1, regions_by_code, local_leagues_by_code))
       |> Enum.map(&Map.put(&1, :season, season))
 
     leagues =
@@ -193,7 +198,10 @@ defmodule RM.FIRST do
     league_id_map = Map.new(leagues, &{&1.code, &1.id})
 
     league_data =
-      Enum.map(api_leagues, &League.from_ftc_events(&1, regions_by_code, league_id_map))
+      Enum.map(
+        api_leagues,
+        &League.from_ftc_events(&1, regions_by_code, local_leagues_by_code, league_id_map)
+      )
       |> Enum.map(&Map.put(&1, :season, season))
 
     leagues =

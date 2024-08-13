@@ -34,6 +34,7 @@ defmodule RM.FIRST.League do
         }
 
   @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
 
   schema "first_leagues" do
     field :code, :string
@@ -42,8 +43,9 @@ defmodule RM.FIRST.League do
     field :remote, :boolean
     field :season, :integer
 
-    belongs_to :parent_league, __MODULE__, type: :binary_id
-    belongs_to :region, Region, type: :binary_id
+    belongs_to :local_league, RM.Local.League
+    belongs_to :parent_league, __MODULE__
+    belongs_to :region, Region
     has_one :settings, LeagueSettings
 
     has_many :events, Event
@@ -61,8 +63,6 @@ defmodule RM.FIRST.League do
     end
 
     timestamps type: :utc_datetime_usec
-
-    field :local_league, :any, virtual: true
   end
 
   def from_ftc_events(
@@ -75,14 +75,17 @@ defmodule RM.FIRST.League do
           "remote" => remote
         },
         regions_by_code,
+        local_leagues_by_code,
         league_id_map \\ %{}
       ) do
     now = DateTime.utc_now()
     region = regions_by_code[region_code]
+    local_league = local_leagues_by_code[{region_code, code}]
 
     %{
       code: code,
       inserted_at: now,
+      local_league_id: local_league && local_league.id,
       location: location,
       name: name,
       parent_league_id: league_id_map[parent_league_code],

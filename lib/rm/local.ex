@@ -251,6 +251,15 @@ defmodule RM.Local do
   # Leagues
   #
 
+  @spec list_leagues_by_code :: %{{String.t(), String.t()} => League.t()}
+  def list_leagues_by_code do
+    League.by_code_query()
+    |> Repo.all()
+    |> Map.new(fn {{region_code, league_code}, league} ->
+      {{String.upcase(region_code), String.upcase(league_code)}, league}
+    end)
+  end
+
   @spec list_leagues_by_region(Region.t()) :: [League.t()]
   @spec list_leagues_by_region(Region.t(), keyword) :: [League.t()]
   def list_leagues_by_region(region, opts \\ []) do

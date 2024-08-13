@@ -8,12 +8,14 @@ defmodule RM.Local.League do
   (when all league data must be re-entered in the FTC Cloud Scoring system).
   """
   use Ecto.Schema
+  import Ecto.Query
 
   alias Ecto.Changeset
   alias RM.Local.EventProposal
   alias RM.Local.LeagueAssignment
   alias RM.Local.LeagueSettings
   alias RM.Local.Log
+  alias RM.Local.Query
   alias RM.Local.Venue
 
   @type t :: %__MODULE__{}
@@ -34,6 +36,7 @@ defmodule RM.Local.League do
     belongs_to :parent_league, __MODULE__
     belongs_to :region, RM.FIRST.Region
     has_one :settings, LeagueSettings
+    has_one :first_league, RM.FIRST.League
 
     has_many :events, RM.FIRST.Event
     has_many :event_proposals, EventProposal
@@ -51,8 +54,6 @@ defmodule RM.Local.League do
 
     embeds_many :log, Log
     timestamps type: :utc_datetime_usec
-
-    field :first_league, :any, virtual: true
   end
 
   #
@@ -102,6 +103,20 @@ defmodule RM.Local.League do
       region_id: region.id,
       updated_at: now
     }
+  end
+
+  #
+  # Queries
+  #
+
+  @doc """
+  Query to construct a map of leagues keyed by their region and league codes
+  """
+  @spec by_code_query :: Ecto.Query.t()
+  def by_code_query do
+    Query.from_league()
+    |> Query.join_region_from_league()
+    |> select([league: l, region: r], {{r.code, l.code}, l})
   end
 
   #

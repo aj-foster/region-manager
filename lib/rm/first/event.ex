@@ -63,6 +63,7 @@ defmodule RM.FIRST.Event do
     field :website, :string
 
     belongs_to :league, League
+    belongs_to :local_league, RM.Local.League
     belongs_to :region, Region
     has_one :proposal, EventProposal, foreign_key: :first_event_id
     has_many :registrations, EventRegistration
@@ -80,7 +81,7 @@ defmodule RM.FIRST.Event do
     field :removed_at, :utc_datetime_usec
   end
 
-  @spec from_ftc_events(map, map, map) :: map
+  @spec from_ftc_events(map, map, map, map) :: map
   def from_ftc_events(
         %{
           "address" => address,
@@ -106,11 +107,13 @@ defmodule RM.FIRST.Event do
           "website" => website
         },
         regions_by_code,
-        leagues_by_code \\ %{}
+        leagues_by_code,
+        local_leagues_by_code
       ) do
     now = DateTime.utc_now()
     region = regions_by_code[region_code]
     league = leagues_by_code[{region_code, league_code}]
+    local_league = local_leagues_by_code[{region_code, league_code}]
 
     %{
       code: code,
@@ -123,6 +126,7 @@ defmodule RM.FIRST.Event do
       id: id,
       inserted_at: now,
       league_id: league && league.id,
+      local_league_id: local_league && local_league.id,
       live_stream_url: if(live_stream_url != "", do: live_stream_url),
       name: name,
       published: published,
