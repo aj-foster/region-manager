@@ -38,4 +38,25 @@ defmodule RMWeb.ConnCase do
     RM.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
+
+  @doc """
+  Assert response returned from the API is marked with `success: true`
+
+  Returns data for further assertions
+  """
+  def assert_success(conn, code \\ 200) do
+    assert response = Phoenix.ConnTest.json_response(conn, code)
+    assert %{"success" => true, "data" => data} = response
+    data
+  end
+
+  @doc """
+  Assert response returned from the API is marked with `success: false`
+
+  Returns errors for further assertions.
+  """
+  def refute_success(response) do
+    assert %{"success" => false, "errors" => errors} = response
+    errors
+  end
 end

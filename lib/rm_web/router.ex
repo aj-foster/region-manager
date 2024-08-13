@@ -118,8 +118,8 @@ defmodule RMWeb.Router do
 
     # # Metadata
     get "/", MetaController, :index
-    get "/meta/seasons", MetaController, :seasons
     get "/meta/regions", MetaController, :regions
+    get "/meta/seasons", MetaController, :seasons
 
     # Current-season endpoints
     get "/r/:region", RegionController, :show
