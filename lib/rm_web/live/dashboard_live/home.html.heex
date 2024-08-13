@@ -1,70 +1,76 @@
 <div :if={@region_count > 0} class="mb-8">
-  <.title flush>Regions you manage</.title>
+  <.title>Regions you manage</.title>
 
-  <.link_card
-    :for={region <- @current_user.regions}
-    class="flex items-center mb-4"
-    navigate={~p"/region/#{region}"}
-  >
-    <div class="grow">
-      <h3 class="font-bold"><%= region.name %></h3>
-      <p class="text-sm">
-        <span :if={region.stats.league_count && region.stats.league_count > 0}>
-          <%= dumb_inflect("league", region.stats.league_count) %> &bull;
-        </span>
-        <span><%= dumb_inflect("team", region.stats.team_count) %> &bull;</span>
-        <span><%= dumb_inflect("event", region.stats.event_count) %></span>
-      </p>
-    </div>
-    <div><.icon name="hero-arrow-right" /></div>
-  </.link_card>
+  <.card>
+    <.link
+      :for={region <- @current_user.regions}
+      class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
+      navigate={~p"/region/#{region}"}
+    >
+      <div class="grow">
+        <h3 class="font-bold"><%= region.name %></h3>
+        <p class="text-sm">
+          <span :if={region.stats.league_count && region.stats.league_count > 0}>
+            <%= dumb_inflect("league", region.stats.league_count) %> &bull;
+          </span>
+          <span><%= dumb_inflect("team", region.stats.team_count) %> &bull;</span>
+          <span><%= dumb_inflect("event", region.stats.event_count) %></span>
+        </p>
+      </div>
+      <div><.icon name="hero-arrow-right" /></div>
+    </.link>
+  </.card>
 </div>
 
 <div :if={@league_count > 0} class="mb-8">
-  <div class="flex items-center justify-between mb-4 ml-6">
-    <.title flush>Leagues you manage</.title>
-  </div>
-  <.link_card
-    :for={league <- @current_user.leagues}
-    class="flex items-center mb-4"
-    navigate={~p"/league/#{league.region}/#{league}"}
-  >
-    <div class="grow">
-      <h3 class="font-bold"><%= league.name %></h3>
-      <p class="text-sm">
-        <span :if={league.stats.league_count && league.stats.league_count > 0}>
-          <%= dumb_inflect("league", league.stats.league_count) %> &bull;
-        </span>
-        <span><%= dumb_inflect("team", league.stats.team_count) %> &bull;</span>
-        <span><%= dumb_inflect("event", league.stats.event_count) %></span>
-      </p>
-    </div>
-    <div><.icon name="hero-arrow-right" /></div>
-  </.link_card>
+  <.title>Leagues you manage</.title>
+
+  <.card>
+    <.link
+      :for={league <- @current_user.leagues}
+      class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
+      navigate={~p"/league/#{league.region}/#{league}"}
+    >
+      <div class="grow">
+        <h3 class="font-bold"><%= league.name %></h3>
+        <p class="text-sm">
+          <span :if={league.stats.league_count && league.stats.league_count > 0}>
+            <%= dumb_inflect("league", league.stats.league_count) %> &bull;
+          </span>
+          <span><%= dumb_inflect("team", league.stats.team_count) %> &bull;</span>
+          <span><%= dumb_inflect("event", league.stats.event_count) %></span>
+        </p>
+      </div>
+      <div><.icon name="hero-arrow-right" /></div>
+    </.link>
+  </.card>
 </div>
 
 <div :if={@team_count > 0} class="mb-8">
   <.title>Teams you manage</.title>
-  <.link_card
-    :for={team <- @current_user.teams}
-    class="flex items-center mb-4"
-    navigate={~p"/team/#{team}"}
-  >
-    <div class="grow">
-      <h3>
-        <strong><%= team.number %></strong> <%= team.name %>
-        <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300 ml-2">
-          Not Event Ready
-        </.tag>
-      </h3>
-      <p class="text-sm">
-        <span><%= team.region.name %> &bull;</span>
-        <span :if={team.league}><%= team.league.name %> League</span>
-        <span :if={team.region.has_leagues and is_nil(team.league)}>No League</span>
-      </p>
-    </div>
-    <div><.icon name="hero-arrow-right" /></div>
-  </.link_card>
+
+  <.card>
+    <.link
+      :for={team <- @current_user.teams}
+      class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
+      navigate={~p"/team/#{team}"}
+    >
+      <div class="grow">
+        <h3>
+          <strong><%= team.number %></strong> <%= team.name %>
+          <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300 ml-2">
+            Not Event Ready
+          </.tag>
+        </h3>
+        <p class="text-sm">
+          <span><%= team.region.name %> &bull;</span>
+          <span :if={team.league}><%= team.league.name %> League</span>
+          <span :if={team.region.has_leagues and is_nil(team.league)}>No League</span>
+        </p>
+      </div>
+      <div><.icon name="hero-arrow-right" /></div>
+    </.link>
+  </.card>
 </div>
 
 <div :if={@region_count == 0 and @league_count == 0 and @team_count == 0} class="mb-8">
