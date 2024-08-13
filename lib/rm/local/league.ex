@@ -36,9 +36,9 @@ defmodule RM.Local.League do
     belongs_to :parent_league, __MODULE__
     belongs_to :region, RM.FIRST.Region
     has_one :settings, LeagueSettings
-    has_one :first_league, RM.FIRST.League
+    has_one :first_league, RM.FIRST.League, foreign_key: :local_league_id
 
-    has_many :events, RM.FIRST.Event
+    has_many :events, RM.FIRST.Event, foreign_key: :local_league_id
     has_many :event_proposals, EventProposal
     has_many :team_assignments, LeagueAssignment
     has_many :teams, through: [:team_assignments, :team]
