@@ -163,6 +163,13 @@ defmodule RM.Local do
     |> Repo.insert()
   end
 
+  @spec update_event(EventProposal.t(), map) ::
+          {:ok, EventProposal.t()} | {:error, Changeset.t(EventProposal.t())}
+  def update_event(proposal, params) do
+    EventProposal.update_changeset(proposal, params)
+    |> Repo.update()
+  end
+
   @doc """
   Update the FIRST event records associated with event proposals
 

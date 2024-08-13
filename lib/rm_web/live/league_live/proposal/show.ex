@@ -30,12 +30,6 @@ defmodule RMWeb.LeagueLive.Proposal.Show do
     end
   end
 
-  @impl true
-  def handle_params(_params, _uri, socket) do
-    socket
-    |> noreply()
-  end
-
   #
   # Events
   #

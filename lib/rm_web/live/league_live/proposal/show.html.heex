@@ -1,10 +1,18 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
 <div class="mb-8">
-  <.title>
-    <.link navigate={~p"/league/#{@league.region}/#{@league}/events"}>Events</.link>
-    &bull; <%= @event.name %>
-  </.title>
+  <div class="flex gap-4 items-center mb-4 ml-6">
+    <.title flush class="grow">
+      <.link navigate={~p"/league/#{@league.region}/#{@league}/events"}>Events</.link>
+      &bull; <%= @event.name %>
+    </.title>
+    <.link_button
+      :if={@assignment.permissions.events}
+      navigate={~p"/league/#{@league.region}/#{@league}/events/proposal/#{@event}/edit"}
+    >
+      Update...
+    </.link_button>
+  </div>
 
   <.card spaced>
     <.table class="mb-4">

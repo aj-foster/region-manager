@@ -1,4 +1,4 @@
-defmodule RMWeb.LeagueLive.Proposal.New do
+defmodule RMWeb.LeagueLive.Proposal.Edit do
   use RMWeb, :live_view
   import RMWeb.LeagueLive.Util
 
@@ -10,15 +10,35 @@ defmodule RMWeb.LeagueLive.Proposal.New do
 
   on_mount {RMWeb.LeagueLive.Util, :preload_league}
   on_mount {RMWeb.LeagueLive.Util, :require_league_manager}
+  on_mount {__MODULE__, :preload_proposal}
 
   @impl true
   def mount(_params, _session, socket) do
+    proposal = socket.assigns[:proposal]
+
     socket
-    |> assign(venue: nil)
+    |> assign(venue: proposal.venue)
     |> add_venue_form()
-    |> event_form()
+    |> proposal_form()
     |> load_venues()
     |> ok()
+  end
+
+  def on_mount(:preload_proposal, %{"event" => id}, _session, socket) do
+    league = socket.assigns[:league]
+
+    case RM.Local.fetch_event_proposal_by_id(id, league: league, preload: [:event, :venue]) do
+      {:ok, proposal} ->
+        {:cont, assign(socket, proposal: proposal)}
+
+      {:error, :proposal, :not_found} ->
+        socket =
+          socket
+          |> put_flash(:error, "Event proposal not found")
+          |> redirect(to: ~p"/league/#{league.region}/#{league}/events")
+
+        {:halt, socket}
+    end
   end
 
   #
@@ -40,15 +60,15 @@ defmodule RMWeb.LeagueLive.Proposal.New do
     |> noreply()
   end
 
-  def handle_event("event_change", %{"event_proposal" => params}, socket) do
+  def handle_event("proposal_change", %{"event_proposal" => params}, socket) do
     socket
-    |> event_form(params)
+    |> proposal_form(params)
     |> noreply()
   end
 
-  def handle_event("event_submit", %{"event_proposal" => params}, socket) do
+  def handle_event("proposal_submit", %{"event_proposal" => params}, socket) do
     socket
-    |> event_submit(params)
+    |> proposal_submit(params)
     |> noreply()
   end
 
@@ -100,10 +120,11 @@ defmodule RMWeb.LeagueLive.Proposal.New do
     end
   end
 
-  @spec event_form(Socket.t()) :: Socket.t()
-  @spec event_form(Socket.t(), map) :: Socket.t()
-  defp event_form(socket, params \\ %{}) do
+  @spec proposal_form(Socket.t()) :: Socket.t()
+  @spec proposal_form(Socket.t(), map) :: Socket.t()
+  defp proposal_form(socket, params \\ %{}) do
     league = socket.assigns[:league]
+    proposal = socket.assigns[:proposal]
 
     params =
       params
@@ -113,22 +134,19 @@ defmodule RMWeb.LeagueLive.Proposal.New do
       |> Map.put("season", league.region.current_season)
       |> Map.put("venue", socket.assigns[:venue])
       |> Map.put_new("registration_settings", %{"enabled" => "true"})
-      |> event_proposal_normalize_date_end()
+      |> proposal_normalize_date_end()
       |> registration_settings_normalize_pool()
       |> registration_settings_normalize_team_limit()
       |> registration_settings_normalize_waitlist_limit()
 
-    form =
-      params
-      |> RM.Local.EventProposal.create_changeset()
-      |> to_form()
-
-    assign(socket, event_form: form)
+    form = RM.Local.EventProposal.update_changeset(proposal, params) |> to_form()
+    assign(socket, proposal_form: form)
   end
 
-  @spec event_submit(Socket.t(), map) :: Socket.t()
-  def event_submit(socket, params) do
+  @spec proposal_submit(Socket.t(), map) :: Socket.t()
+  def proposal_submit(socket, params) do
     league = socket.assigns[:league]
+    proposal = socket.assigns[:proposal]
 
     params =
       params
@@ -142,19 +160,19 @@ defmodule RMWeb.LeagueLive.Proposal.New do
       |> registration_settings_normalize_team_limit()
       |> registration_settings_normalize_waitlist_limit()
 
-    case RM.Local.create_event(params) do
+    case RM.Local.update_event(proposal, params) do
       {:ok, _proposal} ->
         socket
-        |> put_flash(:info, "Event proposal created successfully")
+        |> put_flash(:info, "Event proposal updated successfully")
         |> push_navigate(to: ~p"/league/#{league.region}/#{league}/events")
 
       {:error, changeset} ->
-        assign(socket, event_form: to_form(changeset))
+        assign(socket, proposal_form: to_form(changeset))
     end
   end
 
-  @spec event_proposal_normalize_date_end(map) :: map
-  defp event_proposal_normalize_date_end(params) do
+  @spec proposal_normalize_date_end(map) :: map
+  defp proposal_normalize_date_end(params) do
     if (date_start = params["date_start"]) && params["date_end"] in ["", nil] do
       put_in(params, ["date_end"], date_start)
     else

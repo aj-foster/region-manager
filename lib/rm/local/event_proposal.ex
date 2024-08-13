@@ -45,7 +45,8 @@ defmodule RM.Local.EventProposal do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
-  @required_fields [:date_end, :date_start, :format, :name, :season, :type, :venue]
+  @required_fields [:date_end, :date_start, :format, :name, :season, :type]
+  @optional_fields [:description, :live_stream_url, :notes, :website]
 
   schema "event_proposals" do
     field :description, :string
@@ -92,18 +93,7 @@ defmodule RM.Local.EventProposal do
   @spec create_changeset(map) :: Changeset.t(t)
   def create_changeset(params) do
     %__MODULE__{}
-    |> Changeset.cast(params, [
-      :description,
-      :date_end,
-      :date_start,
-      :format,
-      :live_stream_url,
-      :name,
-      :notes,
-      :season,
-      :type,
-      :website
-    ])
+    |> Changeset.cast(params, @required_fields ++ @optional_fields)
     |> Changeset.cast_embed(:contact, with: &contact_changeset/2)
     |> Changeset.cast_embed(:registration_settings, with: &RegistrationSettings.changeset/2)
     |> Changeset.put_assoc(:league, params["league"])
@@ -118,6 +108,20 @@ defmodule RM.Local.EventProposal do
     contact
     |> Changeset.cast(params, [:email, :name, :phone])
     |> Changeset.validate_required([:email, :name, :phone])
+  end
+
+  @doc """
+  Create a changeset to update an existing event proposal
+  """
+  @spec update_changeset(t, map) :: Changeset.t(t)
+  def update_changeset(proposal, params) do
+    proposal
+    |> Changeset.cast(params, @required_fields ++ @optional_fields)
+    |> Changeset.cast_embed(:contact, with: &contact_changeset/2)
+    |> Changeset.cast_embed(:registration_settings, with: &RegistrationSettings.changeset/2)
+    |> Changeset.put_assoc(:venue, params["venue"])
+    |> Changeset.put_embed(:log, [Log.new("updated", params) | proposal.log])
+    |> Changeset.validate_required(@required_fields)
   end
 
   #
