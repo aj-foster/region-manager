@@ -77,9 +77,11 @@ defmodule RMWeb.LeagueLive.Util do
   """
   @spec load_events(Socket.t()) :: Socket.t()
   def load_events(socket) do
+    season = socket.assigns[:league].region.current_season
+
     league =
       socket.assigns[:league]
-      |> Repo.preload(:events)
+      |> Repo.preload(events: RM.FIRST.Event.season_query(season))
       |> Repo.preload(:event_proposals)
       |> Map.update!(:events, &Enum.sort(&1, RM.FIRST.Event))
       |> Map.update!(:event_proposals, &Enum.sort(&1, RM.Local.EventProposal))
@@ -88,7 +90,7 @@ defmodule RMWeb.LeagueLive.Util do
   end
 
   @doc """
-  Load events related to the current team
+  Load venues related to the current league
   """
   @spec load_venues(Socket.t()) :: Socket.t()
   def load_venues(socket) do
@@ -107,7 +109,7 @@ defmodule RMWeb.LeagueLive.Util do
   @spec refresh_league(Socket.t(), keyword) :: Socket.t()
   def refresh_league(socket, opts \\ []) do
     case socket.assigns[:league] do
-      %RM.FIRST.League{code: league_code, region: %RM.FIRST.Region{abbreviation: region_abbr}} ->
+      %RM.Local.League{code: league_code, region: %RM.FIRST.Region{abbreviation: region_abbr}} ->
         case get_league(region_abbr, league_code) do
           {:ok, league} ->
             socket

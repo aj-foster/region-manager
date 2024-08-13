@@ -1,5 +1,6 @@
 defmodule RM.FIRST.Event do
   use Ecto.Schema
+  import Ecto.Query
 
   alias RM.FIRST.League
   alias RM.FIRST.Region
@@ -168,6 +169,19 @@ defmodule RM.FIRST.Event do
   defp cast_type("15"), do: :volunteer
   defp cast_type("16"), do: :practice
   defp cast_type(_), do: :unknown
+
+  #
+  # Queries
+  #
+
+  @doc """
+  Select events from the given season
+  """
+  @spec season_query(integer) :: Ecto.Query.t()
+  def season_query(season) do
+    from(__MODULE__, as: :event)
+    |> where([event: e], e.season == ^season)
+  end
 
   #
   # Helpers

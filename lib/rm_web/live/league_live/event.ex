@@ -17,9 +17,11 @@ defmodule RMWeb.LeagueLive.Event do
 
   def on_mount(:preload_event, %{"event" => event_code}, _session, socket) do
     league = socket.assigns[:league]
+    preloads = [:league, :proposal, :region, :settings, :venue]
+    league_id = league.id
 
-    case RM.FIRST.fetch_event_by_code(league.season, event_code, preload: [:league, :region]) do
-      {:ok, event} ->
+    case RM.FIRST.fetch_event_by_code(league.region.current_season, event_code, preload: preloads) do
+      {:ok, %RM.FIRST.Event{local_league_id: ^league_id} = event} ->
         {:cont, assign(socket, event: event)}
 
       {:error, :event, :not_found} ->
@@ -56,6 +58,15 @@ defmodule RMWeb.LeagueLive.Event do
   # Helpers
   #
 
+  @spec refresh_event_settings(Socket.t()) :: Socket.t()
+  defp refresh_event_settings(socket) do
+    event =
+      socket.assigns[:event]
+      |> RM.Repo.preload(:settings, force: true)
+
+    assign(socket, event: event)
+  end
+
   @spec registration_settings_change(Socket.t(), map) :: Socket.t()
   defp registration_settings_change(socket, params) do
     event = socket.assigns[:event]
@@ -68,7 +79,7 @@ defmodule RMWeb.LeagueLive.Event do
     case RM.Local.update_event_settings(event, params) do
       {:ok, _settings} ->
         socket
-        |> refresh_league(events: true)
+        |> refresh_event_settings()
         |> registration_settings_form()
 
       {:error, changeset} ->

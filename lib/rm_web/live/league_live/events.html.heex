@@ -28,7 +28,12 @@
 
 <div class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
-    <.title flush>Proposed Events</.title>
+    <.title flush>
+      Proposed Events
+      <button phx-click={show_modal("event-proposal-info")}>
+        <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+      </button>
+    </.title>
     <.link_button
       :if={@assignment.permissions.events}
       navigate={~p"/league/#{@league.region}/#{@league}/events/new"}
@@ -153,3 +158,19 @@
     </.form>
   </.card>
 </div>
+
+<.modal id="event-proposal-info">
+  <.title class="mb-4" flush>Event Proposal Info</.title>
+
+  <p class="mb-4">
+    Region and league administrators can propose events.
+    In order for these events to become official, they must be submitted to and approved by <em>FIRST</em>.
+    This can take some time, and certain events cannot be submitted until after the season kickoff.
+  </p>
+  <p>
+    Once an event is published, <strong>Region Manager</strong>
+    will link the published data back to the original proposal.
+    Event proposals in <strong>Region Manager</strong>
+    allow administrators to provide additional information to attendees beyond what is available from <em>FIRST</em>.
+  </p>
+</.modal>
