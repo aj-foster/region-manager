@@ -14,6 +14,7 @@ defmodule RMWeb.ConnCase do
   by setting `use RMWeb.ConnCase, async: true`, although
   this option is not recommended for other databases.
   """
+  alias RM.Factory
 
   use ExUnit.CaseTemplate
 
@@ -58,5 +59,41 @@ defmodule RMWeb.ConnCase do
   def refute_success(response) do
     assert %{"success" => false, "errors" => errors} = response
     errors
+  end
+
+  @doc """
+  Create the Florida region
+  """
+  def create_region(_context) do
+    region =
+      Factory.insert(:region,
+        abbreviation: "FL",
+        code: "USFL",
+        current_season: 2024,
+        description: "Florida, USA",
+        has_leagues: true,
+        name: "Florida"
+      )
+
+    %{region: region}
+  end
+
+  @doc """
+  Create season records
+  """
+  def create_seasons(_context) do
+    Factory.insert(:season,
+      kickoff: ~D[2023-09-09],
+      name: "CENTERSTAGE",
+      year: 2023
+    )
+
+    Factory.insert(:season,
+      kickoff: ~D[2024-09-07],
+      name: "INTO THE DEEP",
+      year: 2024
+    )
+
+    :ok
   end
 end

@@ -6,7 +6,7 @@ defmodule RM.FIRSTTest do
   describe "update_events_from_ftc_events/2" do
     test "inserts, updates, and removes events" do
       region = Factory.insert(:region, code: "USFL")
-      league = Factory.insert(:first_league, region: region, code: "FLOR")
+      league = Factory.insert(:first_league, region: region, code: "FLOR", season: 2023)
 
       # Event to be updated
       Factory.insert(:first_event, code: "USFLFLORM1", season: 2023)

@@ -80,6 +80,33 @@ defmodule RM.Factory do
   end
 
   @doc false
+  def first_league_assignment_factory do
+    %RM.FIRST.LeagueAssignment{
+      league: fn -> build(:first_league) end,
+      team: fn -> build(:first_team) end
+    }
+  end
+
+  @doc false
+  def first_team_factory do
+    number = sequence("team", & &1)
+
+    %RM.FIRST.Team{
+      city: "City #{number}",
+      country: "United States",
+      display_location: "City #{number}",
+      display_team_number: to_string(number),
+      name_full: "Team #{number}",
+      name_short: "Team #{number}",
+      region: fn -> build(:region) end,
+      rookie_year: RM.Config.get("current_season"),
+      season: RM.Config.get("current_season"),
+      state_province: "Florida",
+      team_number: number
+    }
+  end
+
+  @doc false
   def region_factory do
     code = sequence("region", &"R#{&1}")
 
@@ -91,6 +118,16 @@ defmodule RM.Factory do
       has_leagues: true,
       name: "Region #{code}",
       metadata: %{code_list_teams: code}
+    }
+  end
+
+  @doc false
+  def season_factory do
+    year = sequence("season", & &1)
+
+    %RM.FIRST.Season{
+      name: "Season #{year}",
+      year: year
     }
   end
 
@@ -121,6 +158,11 @@ defmodule RM.Factory do
   end
 
   @doc false
+  def with_event_settings(event) do
+    insert(:event_settings, event: event)
+  end
+
+  @doc false
   def event_settings_factory do
     %RM.Local.EventSettings{
       event: fn -> build(:first_event) end,
@@ -148,19 +190,10 @@ defmodule RM.Factory do
   end
 
   @doc false
-  def venue_factory do
-    code = sequence("venue", &"V#{&1}")
-
-    %RM.Local.Venue{
-      address: "123 Main St.",
-      address_2: "",
-      city: "Some City",
-      country: "United States",
+  def league_assignment_factory do
+    %RM.Local.LeagueAssignment{
       league: fn -> build(:league) end,
-      name: "Venue #{code}",
-      postal_code: "11111",
-      state_province: "New State",
-      timezone: "Etc/UTC"
+      team: fn -> build(:team) end
     }
   end
 
@@ -178,6 +211,23 @@ defmodule RM.Factory do
       team_id: number,
       temporary_number: number,
       website: nil
+    }
+  end
+
+  @doc false
+  def venue_factory do
+    code = sequence("venue", &"V#{&1}")
+
+    %RM.Local.Venue{
+      address: "123 Main St.",
+      address_2: "",
+      city: "Some City",
+      country: "United States",
+      league: fn -> build(:league) end,
+      name: "Venue #{code}",
+      postal_code: "11111",
+      state_province: "New State",
+      timezone: "Etc/UTC"
     }
   end
 end

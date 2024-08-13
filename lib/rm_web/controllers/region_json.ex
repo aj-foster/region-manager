@@ -117,6 +117,23 @@ defmodule RMWeb.RegionJSON do
          code: code,
          location: location,
          name: name,
+         region: region,
+         remote: remote,
+         stats: %{event_count: event_count, league_count: league_count, team_count: team_count}
+       }) do
+    %{
+      code: code,
+      location: location,
+      name: RM.Local.League.shorten_name(name, region),
+      remote: remote,
+      stats: %{event_count: event_count, league_count: league_count, team_count: team_count}
+    }
+  end
+
+  defp league(%RM.Local.League{
+         code: code,
+         location: location,
+         name: name,
          remote: remote,
          stats: %{event_count: event_count, league_count: league_count, team_count: team_count}
        }) do
@@ -151,9 +168,33 @@ defmodule RMWeb.RegionJSON do
     }
   end
 
+  defp team(%RM.FIRST.Team{
+         city: city,
+         country: country,
+         name_short: name,
+         rookie_year: rookie_year,
+         state_province: state_province,
+         team_number: number,
+         website: website,
+         league: league
+       }) do
+    %{
+      name: name,
+      number: number,
+      rookie_year: rookie_year,
+      website: website,
+      location: %{city: city, country: country, county: nil, state_province: state_province},
+      league: team_league(league)
+    }
+  end
+
   defp team_league(nil), do: nil
 
   defp team_league(%RM.FIRST.League{code: code, location: location, name: name, remote: remote}) do
+    %{code: code, location: location, name: name, remote: remote}
+  end
+
+  defp team_league(%RM.Local.League{code: code, location: location, name: name, remote: remote}) do
     %{code: code, location: location, name: name, remote: remote}
   end
 end

@@ -151,6 +151,14 @@ defmodule RM.FIRST.Query do
     end)
   end
 
+  @doc "Load the `league` association on a team"
+  @spec join_league_from_team(query) :: query
+  def join_league_from_team(query) do
+    with_named_binding(query, :league, fn query, binding ->
+      join(query, :left, [team: t], l in assoc(t, :league), as: ^binding)
+    end)
+  end
+
   @doc "Load the `leagues` association on a region"
   @spec join_leagues_from_region(query) :: query
   def join_leagues_from_region(query) do
@@ -243,6 +251,10 @@ defmodule RM.FIRST.Query do
   With `:league` as the base:
 
     * `teams`: `teams` assigned to a league
+
+  With `:team` as the base:
+
+    * `league`: `league` assigned to a team
 
   """
   @spec preload_assoc(query, atom, [atom] | nil) :: query
@@ -341,5 +353,12 @@ defmodule RM.FIRST.Query do
     |> join_teams_from_league()
     |> preload([teams: t], teams: t)
     |> preload_assoc(:league, rest)
+  end
+
+  def preload_assoc(query, :team, [:league | rest]) do
+    query
+    |> join_league_from_team()
+    |> preload([league: l], league: l)
+    |> preload_assoc(:team, rest)
   end
 end

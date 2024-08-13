@@ -104,18 +104,6 @@ defmodule RM.Local.League do
     }
   end
 
-  @spec shorten_name(String.t(), RM.FIRST.Region.t() | nil) :: String.t()
-  defp shorten_name(league_name, nil) do
-    league_name
-    |> String.replace(~r/\s+league\s*$/i, "")
-  end
-
-  defp shorten_name(league_name, %RM.FIRST.Region{code: region_code, name: region_name}) do
-    league_name
-    |> String.replace(~r/^\s*(#{region_code}|#{region_name})\s+/i, "")
-    |> String.replace(~r/\s+league\s*$/i, "")
-  end
-
   #
   # Helpers
   #
@@ -142,6 +130,19 @@ defmodule RM.Local.League do
       name == shorten_name(first_name, region) and
       location == first_location and
       remote == first_remote
+  end
+
+  @doc "Removes region name or code from beginning, and `\"League\"` from the end"
+  @spec shorten_name(String.t(), RM.FIRST.Region.t() | nil) :: String.t()
+  def shorten_name(league_name, nil) do
+    league_name
+    |> String.replace(~r/\s+league\s*$/i, "")
+  end
+
+  def shorten_name(league_name, %RM.FIRST.Region{code: region_code, name: region_name}) do
+    league_name
+    |> String.replace(~r/^\s*(#{region_code}|#{region_name})\s+/i, "")
+    |> String.replace(~r/\s+league\s*$/i, "")
   end
 
   #

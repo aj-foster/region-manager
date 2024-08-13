@@ -22,15 +22,29 @@ defmodule RMWeb.RegionController do
   end
 
   def leagues(conn, %{"region" => abbreviation}) do
+    season = conn.assigns[:season]
+
     with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(abbreviation, preload: [:leagues]) do
-      render(conn, :leagues, leagues: region.leagues)
+      if season == region.current_season do
+        render(conn, :leagues, leagues: region.leagues)
+      else
+        leagues = RM.FIRST.list_leagues_by_region(region, season: season)
+        render(conn, :leagues, leagues: leagues)
+      end
     end
   end
 
   def teams(conn, %{"region" => abbreviation}) do
+    season = conn.assigns[:season]
+
     with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(abbreviation, preload: [:leagues]) do
-      teams = RM.Local.list_teams_by_region(region, active: true, preload: [:league])
-      render(conn, :teams, teams: teams)
+      if season == region.current_season do
+        teams = RM.Local.list_teams_by_region(region, active: true, preload: [:league])
+        render(conn, :teams, teams: teams)
+      else
+        teams = RM.FIRST.list_teams_by_region(region, preload: [:league], season: season)
+        render(conn, :teams, teams: teams)
+      end
     end
   end
 
