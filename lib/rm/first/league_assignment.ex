@@ -2,7 +2,7 @@ defmodule RM.FIRST.LeagueAssignment do
   use Ecto.Schema
 
   alias RM.FIRST.League
-  alias RM.Local.Team
+  alias RM.FIRST.Team
 
   @type t :: %__MODULE__{}
 

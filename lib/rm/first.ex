@@ -12,7 +12,6 @@ defmodule RM.FIRST do
   alias RM.FIRST.Season
   alias RM.FIRST.Team
   alias RM.FIRST.Query
-  alias RM.Local
   alias RM.Local.EventSettings
 
   alias RM.Repo
@@ -236,7 +235,7 @@ defmodule RM.FIRST do
     |> Repo.delete_all()
 
     assignment_data =
-      Local.list_teams_by_number(team_numbers)
+      list_teams_by_number(team_numbers)
       |> Enum.map(&LeagueAssignment.new(league, &1))
 
     Repo.insert_all(LeagueAssignment, assignment_data,
@@ -479,6 +478,15 @@ defmodule RM.FIRST do
   # Teams
   #
 
+  @spec list_teams_by_number([integer]) :: [Team.t()]
+  @spec list_teams_by_number([integer], keyword) :: [Team.t()]
+  def list_teams_by_number(numbers, opts \\ []) do
+    Query.from_team()
+    |> where([team: t], t.team_number in ^numbers)
+    |> Query.preload_assoc(:team, opts[:preload])
+    |> Repo.all()
+  end
+
   @doc """
   List teams for the given region
 
@@ -487,8 +495,8 @@ defmodule RM.FIRST do
     * `season`: Season to get teams for. Defaults to the region's current season.
 
   """
-  @spec list_teams_by_region(Region.t()) :: [League.t()]
-  @spec list_teams_by_region(Region.t(), keyword) :: [League.t()]
+  @spec list_teams_by_region(Region.t()) :: [Team.t()]
+  @spec list_teams_by_region(Region.t(), keyword) :: [Team.t()]
   def list_teams_by_region(region, opts \\ []) do
     Query.from_team()
     |> Query.team_region(region)

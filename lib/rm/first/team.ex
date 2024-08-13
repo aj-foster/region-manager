@@ -51,6 +51,8 @@ defmodule RM.FIRST.Team do
     field :website, :string
 
     belongs_to :region, Region
+    has_one :league_assignment, RM.FIRST.LeagueAssignment
+    has_one :league, through: [:league_assignment, :league]
 
     timestamps type: :utc_datetime_usec
 
