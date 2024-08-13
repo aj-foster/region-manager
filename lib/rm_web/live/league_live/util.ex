@@ -173,7 +173,7 @@ defmodule RMWeb.LeagueLive.Util do
            RM.Local.fetch_league_by_code(region_abbr, league_code, preload: preloads) do
       league =
         league
-        |> RM.Repo.preload(teams: RM.Local.Team.active_query(), users: [:profile])
+        |> RM.Repo.preload([:teams, users: [:profile]])
         |> Map.update!(:teams, &Enum.sort(&1, RM.Local.Team))
         |> Map.update!(:users, &Enum.sort(&1, RM.Account.User))
 

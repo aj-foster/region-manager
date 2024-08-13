@@ -1,38 +1,89 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
-<div :if={@unready_team_count > 0} class="mb-8">
-  <.title>Teams Requiring Attention (<%= @unready_team_count %>)</.title>
+<div :if={@active_teams_count > 0} class="mb-8">
+  <.title>
+    Active Teams in <%= @league.name %> League (<%= @active_teams_count %>)
+    <button phx-click={show_modal("team-active-info")}>
+      <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+    </button>
+  </.title>
 
-  <.card spaced>
-    <ul>
-      <li :for={team <- @unready_teams} class="flex gap-4 items-center mb-2">
-        <h3><strong class="tabular-nums"><%= team.number %></strong> <%= team.name %></h3>
-        <p>
-          <span :if={not team.event_ready} class="text-orange-600 text-sm">Not Event Ready</span>
+  <.card>
+    <div
+      :for={team <- @active_teams}
+      class="border-b flex items-center py-2 first:-mt-2 last:border-0 last:-mb-2"
+    >
+      <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
+      <div class="grow">
+        <h3 class="flex gap-2 items-center">
+          <strong><%= team.number %></strong>
+          <span><%= team.name %></span>
+          <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
+            Not Event Ready
+          </.tag>
+        </h3>
+        <p class="text-sm">
+          <span><%= team.location.city || "Unknown City" %> &bull;</span>
+          <span :if={team.location.county}><%= team.location.county %> County &bull;</span>
+          <span :if={team.location.postal_code}><%= team.location.postal_code %></span>
         </p>
-      </li>
-      <div></div>
-    </ul>
+      </div>
+      <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
+    </div>
   </.card>
 </div>
 
-<div class="mb-8">
-  <.title>All Teams in <%= @league.name %> (<%= @league.stats.team_count %>)</.title>
+<div :if={@inactive_teams_count > 0} class="mb-8">
+  <.title>Inactive Teams in <%= @league.name %> League (<%= @inactive_teams_count %>)</.title>
 
-  <.card spaced>
-    <ul :if={@league.stats.team_count > 0}>
-      <li :for={team <- @league.teams} class="flex gap-4 items-center mb-2">
-        <h3><strong class="tabular-nums"><%= team.number %></strong> <%= team.name %></h3>
-        <p>
-          <span :if={not team.event_ready} class="text-orange-600 text-sm">Not Event Ready</span>
-        </p>
-      </li>
-      <div></div>
-    </ul>
-
-    <p :if={@league.stats.team_count == 0} class="italic text-sm">
-      There are currently no teams assigned to this league.
-      Please ask your region's Program Delivery Partner to update this information.
-    </p>
+  <.card>
+    <.reveal id="team-inactive-reveal" title="Show Inactive Teams">
+      <div
+        :for={team <- @inactive_teams}
+        class="border-b flex items-center py-2 last:border-0 last:-mb-2"
+      >
+        <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
+        <div class="grow">
+          <h3 class="flex gap-2 items-center">
+            <strong><%= team.number %></strong>
+            <span><%= team.name %></span>
+            <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
+              Not Event Ready
+            </.tag>
+          </h3>
+          <p class="text-sm">
+            <span><%= team.location.city || "Unknown City" %> &bull;</span>
+            <span :if={team.location.county}><%= team.location.county %> County &bull;</span>
+            <span :if={team.location.postal_code}><%= team.location.postal_code %></span>
+          </p>
+        </div>
+        <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
+      </div>
+    </.reveal>
   </.card>
 </div>
+
+<.modal id="team-active-info">
+  <.title class="mb-4" flush>About Active Teams</.title>
+
+  <p class="mb-4">
+    Teams are considered <strong>active</strong> when the following conditions are met:
+  </p>
+  <ul class="list-disc mb-4 pl-8">
+    <li>
+      The team is considered <strong>active</strong>
+      by <em>FIRST</em>, meaning they have participated within the past several seasons, and
+    </li>
+    <li>
+      <p>A lead coach / mentor has either:</p>
+      <ul class="list-disc pl-8">
+        <li>
+          Have logged in to <em>FIRST</em>
+          this season and signalled an <strong>intent to return</strong>, or
+        </li>
+        <li>Have <strong>secured payment</strong> for the current season.</li>
+      </ul>
+    </li>
+  </ul>
+  <p>This information is updated when your Program Delivery Partner imports team data.</p>
+</.modal>
