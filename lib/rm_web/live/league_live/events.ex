@@ -43,8 +43,15 @@ defmodule RMWeb.LeagueLive.Events do
 
   @spec filter_events(Socket.t()) :: Socket.t()
   defp filter_events(socket) do
-    proposed_events = socket.assigns[:league].event_proposals
-    assign(socket, proposed_events: Enum.filter(proposed_events, &is_nil(&1.first_event_id)))
+    proposed_events =
+      socket.assigns[:league].event_proposals
+      |> Enum.filter(&is_nil(&1.first_event_id))
+
+    assign(
+      socket,
+      proposed_events: proposed_events,
+      proposed_events_count: length(proposed_events)
+    )
   end
 
   @spec registration_settings_change(Socket.t(), map) :: Socket.t()
