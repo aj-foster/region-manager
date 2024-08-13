@@ -59,7 +59,7 @@
   <div class="flex items-center justify-between mb-4 ml-6">
     <.title flush>Registration</.title>
     <.button
-      :if={is_nil(@registration)}
+      :if={is_nil(@registration) and @event.settings.registration.enabled}
       disabled={not @eligible}
       phx-click={show_modal("create-registration-modal")}
     >
@@ -74,7 +74,13 @@
     </.button>
   </div>
 
-  <.card>
+  <.card :if={not @event.settings.registration.enabled}>
+    <p class="text-sm">
+      Registration for this event is not available in <strong>Region Manager</strong>.
+    </p>
+  </.card>
+
+  <.card :if={@event.settings.registration.enabled}>
     <.warning :if={@registration_error} class="mb-4"><%= @registration_error %></.warning>
     <%= if @registration do %>
       <%= if @registration.rescinded do %>

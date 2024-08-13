@@ -426,6 +426,7 @@ defmodule RM.FIRST do
   def list_eligible_events_by_team(team, opts \\ []) do
     Query.from_event()
     |> Query.event_not_removed()
+    |> Query.event_season(opts[:season])
     |> Query.join_settings_from_event()
     |> filter_eligible_events_by_team(team)
     |> Query.preload_assoc(:event, opts[:preload])

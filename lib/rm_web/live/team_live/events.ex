@@ -29,7 +29,7 @@ defmodule RMWeb.TeamLive.Events do
 
     assign_async(socket, :eligible_events, fn ->
       events =
-        RM.FIRST.list_eligible_events_by_team(team)
+        RM.FIRST.list_eligible_events_by_team(team, season: team.region.current_season)
         |> Enum.reject(&(&1.id in registered_event_ids))
 
       {:ok, %{eligible_events: events}}

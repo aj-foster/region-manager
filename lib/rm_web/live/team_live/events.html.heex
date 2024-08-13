@@ -13,33 +13,35 @@
     <p class="italic text-sm">This team is not registered for any events.</p>
   </.card>
 
-  <.link_card
-    :for={registration <- @team.event_registrations}
-    class="flex items-center mb-4"
-    navigate={~p"/team/#{@team}/events/#{registration.event}"}
-  >
-    <div class="grow">
-      <h3 class="font-bold">
-        <%= registration.event.name %>
-        <.tag :if={registration.rescinded} class="bg-orange-100 border-orange-300 ml-2">
-          Rescinded
-        </.tag>
-        <.tag :if={registration.waitlisted} class="bg-orange-100 border-orange-300 ml-2">
-          Waitlist
-        </.tag>
-      </h3>
-      <p class="text-sm">
-        <span>
-          <%= format_range(registration.event.date_start, registration.event.date_end) %>
-        </span>
-        <span>&bull; <%= Event.type_name(registration.event.type) %></span>
-        <span :if={registration.event.remote or registration.event.hybrid}>
-          &bull; <%= Event.format_name(registration.event) %>
-        </span>
-      </p>
-    </div>
-    <div><.icon name="hero-arrow-right" /></div>
-  </.link_card>
+  <.card :if={length(@team.event_registrations) > 0}>
+    <.link
+      :for={registration <- @team.event_registrations}
+      class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
+      navigate={~p"/team/#{@team}/events/#{registration.event}"}
+    >
+      <div class="grow">
+        <h3 class="font-bold">
+          <%= registration.event.name %>
+          <.tag :if={registration.rescinded} class="bg-orange-100 border-orange-300 ml-2">
+            Rescinded
+          </.tag>
+          <.tag :if={registration.waitlisted} class="bg-orange-100 border-orange-300 ml-2">
+            Waitlist
+          </.tag>
+        </h3>
+        <p class="text-sm">
+          <span>
+            <%= format_range(registration.event.date_start, registration.event.date_end) %>
+          </span>
+          <span>&bull; <%= Event.type_name(registration.event.type) %></span>
+          <span :if={registration.event.remote or registration.event.hybrid}>
+            &bull; <%= Event.format_name(registration.event) %>
+          </span>
+        </p>
+      </div>
+      <div><.icon name="hero-arrow-right" /></div>
+    </.link>
+  </.card>
 </div>
 
 <div class="mb-8">
@@ -55,20 +57,22 @@
       <p class="italic text-sm">There are no available events.</p>
     </.card>
 
-    <.link_card
-      :for={event <- eligible_events}
-      class="flex items-center mb-4"
-      navigate={~p"/team/#{@team}/events/#{event}"}
-    >
-      <div class="grow">
-        <h3 class="font-bold"><%= event.name %></h3>
-        <p class="text-sm">
-          <span><%= format_range(event.date_start, event.date_end) %></span>
-          <span>&bull; <%= Event.type_name(event.type) %></span>
-          <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
-        </p>
-      </div>
-      <div><.icon name="hero-arrow-right" /></div>
-    </.link_card>
+    <.card :if={length(eligible_events) > 0}>
+      <.link
+        :for={event <- eligible_events}
+        class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
+        navigate={~p"/team/#{@team}/events/#{event}"}
+      >
+        <div class="grow">
+          <h3 class="font-bold"><%= event.name %></h3>
+          <p class="text-sm">
+            <span><%= format_range(event.date_start, event.date_end) %></span>
+            <span>&bull; <%= Event.type_name(event.type) %></span>
+            <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+          </p>
+        </div>
+        <div><.icon name="hero-arrow-right" /></div>
+      </.link>
+    </.card>
   </.async_result>
 </div>
