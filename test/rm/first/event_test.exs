@@ -10,7 +10,7 @@ defmodule RM.FIRST.EventTest do
       File.read!("test/fixture/api_events_full.json")
       |> Jason.decode!()
       |> Map.fetch!("events")
-      |> Enum.map(&Event.from_ftc_events(&1, %{"USFL" => region}))
+      |> Enum.map(&Event.from_ftc_events(&1, %{"USFL" => region}, %{}, %{}))
     end
   end
 end

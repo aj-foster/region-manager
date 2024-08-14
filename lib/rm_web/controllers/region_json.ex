@@ -57,8 +57,6 @@ defmodule RMWeb.RegionJSON do
            }
          } = event
        ) do
-    {attending, waitlist} = event_registration_attending_waitlist(event)
-
     %{
       code: code,
       date_end: date_end,
@@ -80,14 +78,43 @@ defmodule RMWeb.RegionJSON do
         website: get_in(event.proposal.venue.website),
         notes: get_in(event.proposal.venue.notes)
       },
-      registration: %{
-        open: event_registration_open(event),
-        deadline: RM.FIRST.Event.registration_deadline(event),
-        url: url(~p"/s/#{event.season}/event/#{event}/register"),
-        attending: Enum.map(attending, & &1.team.number),
-        waitlist: Enum.map(waitlist, & &1.team.number)
-      }
+      registration: event_registration(event)
     }
+  end
+
+  defp event_registration(
+         %RM.FIRST.Event{
+           settings: %RM.Local.EventSettings{
+             registration: %RM.Local.RegistrationSettings{
+               enabled: true,
+               team_limit: team_limit,
+               waitlist_limit: waitlist_limit
+             }
+           }
+         } = event
+       ) do
+    {attending, waitlist} = event_registration_attending_waitlist(event)
+
+    %{
+      open: event_registration_open(event),
+      opens_at: RM.FIRST.Event.registration_opens(event),
+      # Deprecated
+      deadline: RM.FIRST.Event.registration_deadline(event),
+      closes_at: RM.FIRST.Event.registration_deadline(event),
+      url: url(~p"/s/#{event.season}/event/#{event}/register"),
+      attending: Enum.map(attending, & &1.team.number),
+      waitlist: Enum.map(waitlist, & &1.team.number),
+      capacity: team_limit,
+      waitlist_capacity: waitlist_limit
+    }
+  end
+
+  defp event_registration(%RM.FIRST.Event{
+         settings: %RM.Local.EventSettings{
+           registration: %RM.Local.RegistrationSettings{enabled: false}
+         }
+       }) do
+    nil
   end
 
   defp event_registration_open(
@@ -151,6 +178,7 @@ defmodule RMWeb.RegionJSON do
   end
 
   defp team(%RM.Local.Team{
+         event_ready: event_ready,
          name: name,
          number: number,
          rookie_year: rookie_year,
@@ -159,12 +187,14 @@ defmodule RMWeb.RegionJSON do
          league: league
        }) do
     %{
+      event_ready: event_ready,
       name: name,
       number: number,
       rookie_year: rookie_year,
       website: website,
       location: %{city: city, country: country, county: county, state_province: state_province},
-      league: team_league(league)
+      league: team_league(league),
+      url: url(~p"/team/#{number}")
     }
   end
 
@@ -179,12 +209,14 @@ defmodule RMWeb.RegionJSON do
          league: league
        }) do
     %{
+      event_ready: nil,
       name: name,
       number: number,
       rookie_year: rookie_year,
       website: website,
       location: %{city: city, country: country, county: nil, state_province: state_province},
-      league: team_league(league)
+      league: team_league(league),
+      url: url(~p"/team/#{number}")
     }
   end
 
