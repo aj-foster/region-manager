@@ -81,7 +81,9 @@ defmodule RM.Local.Team do
         event_ready: event_ready,
         intend_to_return: intend_to_return,
         lc1_name: lc1_name,
+        lc1_ypp: lc1_ypp,
         lc2_name: lc2_name,
+        lc2_ypp: lc2_ypp,
         location_city: city,
         location_country: country,
         location_county: county,
@@ -118,9 +120,9 @@ defmodule RM.Local.Team do
         },
         notices: %{
           lc1_missing: lc1_name in ["", nil],
-          lc1_ypp: false,
+          lc1_ypp: not lc1_ypp,
           lc2_missing: lc2_name in ["", nil],
-          lc2_ypp: false,
+          lc2_ypp: not lc2_ypp,
           unsecured: !secured
         }
       },
