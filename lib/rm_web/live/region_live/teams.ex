@@ -77,6 +77,7 @@ defmodule RMWeb.RegionLive.Teams do
 
         socket
         |> assign(import_status: :done)
+        |> refresh_region()
         |> assign_teams()
         |> noreply()
 

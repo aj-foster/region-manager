@@ -33,6 +33,7 @@ defmodule RM.Local.Team do
   schema "teams" do
     field :active, :boolean
     field :event_ready, :boolean
+    field :intend_to_return, :boolean
     field :name, :string
     field :number, :integer
     field :rookie_year, :integer
@@ -98,8 +99,9 @@ defmodule RM.Local.Team do
     team
     |> Changeset.cast(
       %{
-        active: active && (intend_to_return || secured),
+        active: active && secured,
         event_ready: event_ready,
+        intend_to_return: intend_to_return,
         name: name,
         number: number,
         region_id: region_id,
