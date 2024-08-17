@@ -14,12 +14,7 @@ defmodule RMWeb.RegionLive.Teams do
   @doc false
   @impl true
   def mount(_params, _session, socket) do
-    region =
-      socket.assigns[:region]
-      |> RM.Repo.preload(teams: [:league])
-
     socket
-    |> assign(region: region)
     |> assign_first_teams()
     |> assign_teams()
     |> allow_upload(:team_data,
@@ -78,6 +73,7 @@ defmodule RMWeb.RegionLive.Teams do
         socket
         |> assign(import_status: :done)
         |> refresh_region()
+        |> assign_first_teams()
         |> assign_teams()
         |> noreply()
 
@@ -118,7 +114,10 @@ defmodule RMWeb.RegionLive.Teams do
 
   @spec assign_teams(Socket.t()) :: Socket.t()
   defp assign_teams(socket) do
-    teams = socket.assigns[:region].teams
+    teams =
+      socket.assigns[:region].teams
+      |> RM.Repo.preload(:league)
+
     {active_teams, inactive_teams} = Enum.split_with(teams, & &1.active)
 
     assign(socket,
