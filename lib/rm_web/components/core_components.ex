@@ -875,6 +875,16 @@ defmodule RMWeb.CoreComponents do
   def dumb_inflect(word, 1), do: "1 #{word}"
   def dumb_inflect(word, count) when is_integer(count), do: "#{count} #{word}s"
 
+  @doc "Create a naive pluralization of the given word with an -es pluralization"
+  @spec dumb_inflect_es(String.t(), list | integer) :: String.t()
+  def dumb_inflect_es(word, []), do: "0 #{word}es"
+  def dumb_inflect_es(word, [_]), do: "1 #{word}"
+  def dumb_inflect_es(word, list) when is_list(list), do: "#{length(list)} #{word}es"
+
+  def dumb_inflect_es(word, 0), do: "0 #{word}es"
+  def dumb_inflect_es(word, 1), do: "1 #{word}"
+  def dumb_inflect_es(word, count) when is_integer(count), do: "#{count} #{word}es"
+
   @doc "Create a naive pluralization of the given word with is/are in front"
   @spec dumb_inflect_is(String.t(), list | integer) :: String.t()
   def dumb_inflect_is(word, []), do: "are 0 #{word}s"
