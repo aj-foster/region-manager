@@ -130,26 +130,26 @@ resource "digitalocean_app" "this" {
         type  = "SECRET"
       }
 
-      # env {
-      #   key   = "SES_HOST"
-      #   value = "email-smtp.us-east-1.amazonaws.com"
-      #   scope = "RUN_TIME"
-      #   type  = "GENERAL"
-      # }
+      env {
+        key   = "SES_HOST"
+        value = "email-smtp.us-east-1.amazonaws.com"
+        scope = "RUN_TIME"
+        type  = "GENERAL"
+      }
 
-      # env {
-      #   key   = "SES_PASS"
-      #   value = module.az_ses.smtp_password
-      #   scope = "RUN_TIME"
-      #   type  = "SECRET"
-      # }
+      env {
+        key   = "SES_PASS"
+        value = module.az_ses.smtp_password
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
 
-      # env {
-      #   key   = "SES_USER"
-      #   value = module.az_ses.smtp_username
-      #   scope = "RUN_TIME"
-      #   type  = "SECRET"
-      # }
+      env {
+        key   = "SES_USER"
+        value = module.az_ses.smtp_username
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
 
       env {
         key   = "SPACES_ACCESS_ID"

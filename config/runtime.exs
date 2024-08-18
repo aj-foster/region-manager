@@ -5,6 +5,10 @@ if System.get_env("PHX_SERVER") do
 end
 
 if config_env() == :prod do
+  #
+  # DB
+  #
+
   cacerts =
     System.fetch_env!("DATABASE_CACERT")
     |> :public_key.pem_decode()
@@ -29,6 +33,33 @@ if config_env() == :prod do
       server_name_indication: :disable
     ]
 
+  #
+  # Mailer
+  #
+
+  config :rm, RM.Mailer,
+    adapter: Swoosh.Adapters.SMTP,
+    relay: System.fetch_env!("PHX_HOST"),
+    username: System.fetch_env!("SES_USER"),
+    password: System.fetch_env!("SES_PASS"),
+    hostname: System.fetch_env!(""),
+    port: 465,
+    ssl: true,
+    sockopts: [
+      verify: :verify_peer,
+      cacertfile: CAStore.file_path(),
+      depth: 3,
+      server_name_indication: :disable,
+      middlebox_comp_mode: false
+    ],
+    tls: :never,
+    auth: :always,
+    retries: 1
+
+  #
+  # Endpoint
+  #
+
   secret_key_base =
     System.get_env("SECRET_KEY_BASE") ||
       raise """
@@ -39,8 +70,6 @@ if config_env() == :prod do
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
-  config :rm, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
-
   config :rm, RMWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     http: [
@@ -49,9 +78,15 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  #
+  # External
+  #
+
   config :rm, External.FTCEvents,
     key: System.get_env("FTC_EVENTS_API_KEY"),
     user: System.get_env("FTC_EVENTS_API_USER")
+
+  config :rm, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   #
   # Dependencies

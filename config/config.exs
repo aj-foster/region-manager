@@ -29,7 +29,11 @@ config :rm, External.FTCEvents.API, client: External.FTCEvents.API.Client
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
 config :identity, notifier: Identity.Notifier.Swoosh, repo: RM.Repo, user: RM.Account.User
-config :identity, Identity.Notifier.Swoosh, from: "noreply@ftcregion.com", mailer: RM.Mailer
+
+config :identity, Identity.Notifier.Swoosh,
+  from: {"Region Manager", "no-reply@ftcregion.com"},
+  layout: RMWeb.Email,
+  mailer: RM.Mailer
 
 config :esbuild,
   version: "0.17.11",

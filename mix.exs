@@ -44,6 +44,7 @@ defmodule RM.MixProject do
       {:ex_machina, "~> 2.8", only: :test},
       {:finch, "~> 0.13"},
       {:floki, ">= 0.30.0", only: :test},
+      {:gen_smtp, "~> 1.0"},
       {:hackney, "~> 1.20"},
       {:identity, github: "aj-foster/identity", branch: "main"},
       {:jason, "~> 1.2"},
