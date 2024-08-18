@@ -1,0 +1,6 @@
+Someone recently registered a new account using this email address. If this was
+you, please use the link below to confirm your account.
+
+  <%= @url %>
+
+If you have any questions, contact your local Program Delivery Partner.

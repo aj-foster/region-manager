@@ -1,0 +1,17 @@
+<%= @title %>
+
+<%= @inner_content %>
+---
+
+You received this email because you have an account on Region Manager. You can
+adjust your email preferences, but you may also need to change your email
+address in the FIRST Dashboard and communicate the change to your FIRST Tech
+Challenge region's Program Delivery Partner.
+
+Region Manager is not affiliated with FIRST, and FIRST provides no warranty or
+support. Your information may have been provided by your Program Delivery
+Partner.
+
+Region Manager: https://ftcregion.com
+Dashboard: https://ftcregion.com/dashboard
+Account Settings: https://ftcregion.com/user/settings

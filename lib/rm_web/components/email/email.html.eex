@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html
+  dir="ltr"
+  lang="en"
+  style="box-sizing: border-box; font-size: 16px; margin: 0; padding: 0; color-scheme: light dark; supported-color-schemes: light dark;"
+  xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:o="urn:schemas-microsoft-com:office:office">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,user-scalable=yes" />
+    <meta
+      name="format-detection"
+      content="telephone=no, date=no, address=no, email=no, url=no" />
+    <!--[if !mso]><!-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--<![endif]-->
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="supported-color-schemes" content="light dark" />
+    <title><%= @title %></title>
+    <!--[if mso]>
+    <style>
+      table {border-collapse:collapse;border-spacing:0;border:none;margin:0;}
+      div, td {padding:0;}
+      div {margin:0 !important;}
+    </style>
+    <noscript>
+      <xml>
+        <o:OfficeDocumentSettings>
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+      </xml>
+    </noscript>
+    <![endif]-->
+    <style>
+      body, .bg {
+        background-color: #f1f5f9;
+        box-sizing: border-box;
+        margin: 0;
+        min-width: 100%;
+        padding: 0;
+        word-spacing: normal;
+      }
+
+      a[x-apple-data-detectors] {
+        color: inherit !important;
+        text-decoration: none !important;
+        font-size: inherit !important;
+        font-family: inherit !important;
+        font-weight: inherit !important;
+        line-height: inherit !important;
+      }
+
+      .constrain {
+        max-width: 600px;
+      }
+
+      @font-face {
+        font-family: 'Roboto';
+        font-style: normal;
+        font-weight: 400;
+        src: local('Roboto'), local('Roboto-Regular'), url(https://fonts.gstatic.com/s/roboto/v15/oMMgfZMQthOryQo9n22dcuvvDin1pK8aKteLpeZ5c0A.woff2) format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+      }
+
+      [style*="Roboto"] {
+        font-family:'Roboto', sans-serif !important;
+      }
+
+      @font-face {
+        font-family: 'Montserrat';
+        font-style: italic;
+        font-weight: 800;
+        src: url(https://fonts.gstatic.com/s/montserrat/v26/JTUFjIg1_i6t8kCHKm459Wx7xQYXK0vOoz6jqyR6WXh0oJC8MLnbtg.woff) format("woff");
+        unicode-range: U+0000-00FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+
+      [style*="Montserrat"] {
+        font-family:'Montserrat', sans-serif !important;
+        font-style: italic;
+        font-weight: 800;
+      }
+
+      @media (prefers-color-scheme:dark) {
+        body, .bg {
+          background-color: #000000 !important;
+        }
+
+        h1, h2, h3, h4, h5, h6, p, li {
+          color: #ffffff !important;
+        }
+
+        p.footer {
+          color: #dfdfdf !important;
+        }
+
+        a[x-apple-data-detectors] {
+          color: inherit !important;
+          text-decoration: none !important;
+          font-size: inherit !important;
+          font-family: inherit !important;
+          font-weight: inherit !important;
+          line-height: inherit !important;
+        }
+
+        a.plain-link {
+          color: #fb923c !important;
+        }
+
+        .foreground {
+          background-color: #201913 !important;
+        }
+      }
+    </style>
+  </head>
+  <body
+    style="background-color: #f1f5f9; box-sizing: border-box; margin: 0; min-width: 100%; padding-top: 0; padding-bottom: 1px; padding-left: 0; padding-right: 0; word-spacing: normal;">
+    <div
+      aria-label="<%= @preview %>"
+      aria-roledescription="email"
+      class="bg"
+      dir="ltr"
+      lang="en"
+      role="article"
+      style="background-color: #F6F8FA; box-sizing: border-box; font-size: medium; font-size: max(16px,1rem); margin: 0; padding: 0; vertical-align: top;">
+      <table
+        align="left"
+        border="0"
+        cellspacing="0"
+        cellpadding="0"
+        role="presentation"
+        style="border: none; border-spacing: 0; width: 100%;"
+        width="100%">
+        <!-- MAIN -->
+        <tr>
+          <td
+            align="center"
+            style="padding: 24px 0px 24px 0px;">
+
+            <!-- EXCERPT -->
+            <div
+              style="font-family:sans-serif, 'Roboto';font-size:1px;color:#f1f5f9;line-height:1px;mso-line-height-rule:exactly;display:none;max-width:0px;max-height:0px;opacity:0;overflow:hidden;mso-hide:all;">
+              <%= @preview %>
+            </div>
+            <!-- END EXCERPT -->
+
+            <div class="constrain" style="max-width:600px;">
+              <!--[if (gte mso 9)|(IE)]>
+              <table width="600" align="center" border="0" cellpadding="0" cellspacing="0" style="border-spacing:0;font-family:sans-serif, 'Montserrat';font-style:italic;font-weight:800;" >
+              <tr>
+              <td style="padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;" >
+              <![endif]-->
+
+              <table
+                align="center"
+                border="0"
+                cellpadding="0"
+                cellspacing="0"
+                role="presentation"
+                style="font-family: sans-serif, 'Roboto'; width: 100%;">
+                <tr>
+                  <td
+                    bgcolor="#f97316"
+                    style="padding-top: 0; padding-bottom: 0; padding-right: 0; padding-left: 0;">
+                    <div
+                      height="5"
+                      style="background-color: #f97316; box-sizing: border-box; font-size: 0; height: 5px; line-height: 5px; margin: 0; max-height: 5px; padding: 0; width: 100%; mso-font-width: -100%; mso-text-raise: 5px;">
+                      &nbsp;
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- HEADER -->
+                <tr>
+                  <td
+                    align="center"
+                    bgcolor="#ffffff"
+                    class="foreground"
+                    style="background-color: #ffffff; font-family:sans-serif, 'Montserrat'; font-style: italic; font-weight: 800; padding-top: 24px; padding-bottom: 24px; padding-right: 0; padding-left: 0;">
+                    <h1
+                      style="color: #000000; font-family:sans-serif, 'Montserrat'; font-style: italic; font-weight: 800; font-size: 24px; line-height: 100%; margin: 0;">
+                      REGION MANAGER
+                    </h1>
+                  </td>
+                </tr>
+                <!-- END HEADER -->
+
+                <!-- TITLE -->
+                <tr>
+                  <td
+                    bgcolor="#581C87"
+                    style="background-color: #581C87; background-image: url('https://assets.ftcregion.com/ftcregion/static/email-bg.png'); background-position: center; background-repeat: no-repeat; background-size: cover; box-sizing: border-box; font-family: sans-serif, 'Montserrat'; font-size: 28px; font-weight: 800; height: 200px; line-height: 114%; margin: 0; max-height: 200px; padding-top: 24px; padding-bottom: 24px; padding-right: 24px; padding-left: 24px; vertical-align: middle;"
+                    valign="middle">
+                    <h2
+                      style="color: #ffffff; font-family:sans-serif, 'Montserrat'; font-style: italic; font-weight: 800; font-size: 28px; font-weight: 800; line-height: 114%; margin: 0;">
+                      <%= @title %>
+                    </h2>
+                  </td>
+                </tr>
+                <!-- END TITLE -->
+
+                <!-- CONTENT -->
+                <%= @inner_content %>
+                <!-- END CONTENT -->
+
+                <!-- FOOTER -->
+                <tr>
+                  <td
+                    align="center"
+                    border="0"
+                    cellpadding="0"
+                    cellspacing="0"
+                    class="bg"
+                    style="box-sizing: border-box; font-family:sans-serif, 'Roboto'; font-size: 12px; line-height: 160%; margin: 0; padding-top: 24px; padding-bottom: 24px; padding-right: 24px; padding-left: 24px; text-align: center;">
+
+                    <p
+                      class="footer"
+                      style="color: #1c1c1c; font-family:sans-serif, 'Roboto'; font-size: 12px; line-height: 160%; margin: 0;">
+                      You received this email because you have an account on
+                      Region Manager. You can
+                      <a href="http://ftcregion.com"
+                        style="color:inherit;text-decoration:underline;">
+                        adjust your email preferences</a>, but you may also need
+                      to change your email address in the
+                      <a href="https://my.firstinspires.org/Dashboard/"
+                        style="color: inherit; text-decoration: underline;">
+                        <span style="font-style: italic;">FIRST</span>
+                        Dashboard</a> and communicate the change to your
+                      <span style="font-style: italic;">FIRST</span>
+                      Tech Challenge region's Program Delivery Partner.
+                    </p>
+
+                    <p
+                      style="font-family:sans-serif, 'Roboto'; font-size: 12px; line-height: 160%; margin: 0;">&nbsp;</p>
+
+                    <p
+                      class="footer"
+                      style="color: #1c1c1c; font-family:sans-serif, 'Roboto'; font-size: 12px; line-height: 160%; margin: 0;">
+                      Region Manager is not affiliated with
+                      <a
+                        href="https://firstinspires.org"
+                        style="color: inherit; text-decoration: underline;"
+                        target="_blank"><span
+                          style="font-style: italic;">FIRST</span></a>, and
+                      <span style="font-style: italic;">FIRST</span>
+                      provides no warranty or support. Your information may have
+                      been provided by your Program Delivery Partner.
+                    </p>
+
+                    <p
+                      style="font-family:sans-serif, 'Roboto'; font-size: 12px; line-height: 160%; margin: 0;">&nbsp;</p>
+
+                    <p
+                      class="footer"
+                      style="color: #1c1c1c; font-family:sans-serif, 'Roboto'; font-size: 12px; line-height: 160%; margin: 0;">
+                      <a href="http://ftcregion.com/"
+                        style="color:inherit;text-decoration:underline;">Region
+                        Manager</a>
+                      <span
+                        style="margin-left: 8px; margin-right: 8px;">&bull;</span>
+                      <a href="http://ftcregion.com/dashboard"
+                        style="color:inherit;text-decoration:underline;">Dashboard</a>
+                      <span
+                        style="margin-left: 8px; margin-right: 8px;">&bull;</span>
+                      <a href="http://ftcregion.com/user/settings"
+                        style="color: inherit; text-decoration: underline;">Account
+                        Settings</a>
+                    </p>
+
+                    <p
+                      style="font-family:sans-serif, 'Roboto'; font-size: 12px; line-height: 160%; margin: 0;">&nbsp;</p>
+
+                    <p
+                      class="footer"
+                      style="color: #1c1c1c; font-family:sans-serif, 'Roboto'; font-size: 12px; line-height: 160%; margin: 0;">
+                      PO Box 781291, Orlando, FL 32878 USA
+                    </p>
+                  </td>
+                </tr>
+                <!-- END FOOTER -->
+              </table>
+
+              <!--[if (gte mso 9)|(IE)]>
+              </td>
+              </tr>
+              </table>
+              <![endif]-->
+            </div>
+
+          </td>
+        </tr>
+        <!-- END MAIN -->
+      </table>
+    </div>
+  </body>
+</html>

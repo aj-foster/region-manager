@@ -39,10 +39,10 @@ if config_env() == :prod do
 
   config :rm, RM.Mailer,
     adapter: Swoosh.Adapters.SMTP,
-    relay: System.fetch_env!("PHX_HOST"),
+    relay: System.fetch_env!("SES_HOST"),
     username: System.fetch_env!("SES_USER"),
     password: System.fetch_env!("SES_PASS"),
-    hostname: System.fetch_env!(""),
+    hostname: System.fetch_env!("PHX_HOST"),
     port: 465,
     ssl: true,
     sockopts: [

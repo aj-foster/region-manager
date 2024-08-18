@@ -18,7 +18,7 @@ config :rm, RMWeb.Endpoint,
   pubsub_server: RM.PubSub,
   live_view: [signing_salt: "RApVjbt+"]
 
-config :rm, RM.Mailer, adapter: Swoosh.Adapters.Local
+config :rm, RM.Mailer, adapter: Swoosh.Adapters.Local, hostname: "rm.local"
 
 config :rm, External.FTCEvents.API, client: External.FTCEvents.API.Client
 
@@ -27,13 +27,6 @@ config :rm, External.FTCEvents.API, client: External.FTCEvents.API.Client
 #
 
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
-
-config :identity, notifier: Identity.Notifier.Swoosh, repo: RM.Repo, user: RM.Account.User
-
-config :identity, Identity.Notifier.Swoosh,
-  from: {"Region Manager", "no-reply@ftcregion.com"},
-  layout: RMWeb.Email,
-  mailer: RM.Mailer
 
 config :esbuild,
   version: "0.17.11",
@@ -45,6 +38,8 @@ config :esbuild,
   ]
 
 config :ex_aws, json_codec: Jason
+
+config :identity, notifier: RM.Mailer, repo: RM.Repo, user: RM.Account.User
 
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
