@@ -79,13 +79,13 @@ jobs:
         with:
           payload: |
             {
-              "text": "Region Manager deployed: ${{ env.COMMIT_MESSAGE }} (https://github.com/aj-foster/region-manager/commits/${{ env.COMMITS_URL }})",
+              "text": "Region Manager deployed: ${{ env.COMMIT_MESSAGE }} (https://github.com/aj-foster/region-manager/commits/${{ github.sha }})",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Region Manager* deployed: <https://github.com/aj-foster/region-manager/commits/${{ env.COMMITS_URL }}|${{ env.COMMIT_MESSAGE }}>"
+                    "text": "*Region Manager* deployed: <https://github.com/aj-foster/region-manager/commits/${{ github.sha }}|${{ env.COMMIT_MESSAGE }}>"
                   }
                 }
               ]
