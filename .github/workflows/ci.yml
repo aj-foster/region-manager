@@ -68,3 +68,28 @@ jobs:
         run: |
           docker image build -t registry.digitalocean.com/aj-foster/ftcregion:latest .
           docker image push registry.digitalocean.com/aj-foster/ftcregion:latest
+
+      - name: Get Commit Message
+        run: |
+          echo "COMMIT_MESSAGE=$(git log --oneline --format=%B -n 1 HEAD | head -n 1)" >> $GITHUB_ENV
+
+      - name: Notify Slack
+        id: slack
+        uses: slackapi/slack-github-action@v1.26
+        with:
+          payload: |
+            {
+              "text": "Region Manager deployed: ${{ env.COMMIT_MESSAGE }} (https://github.com/aj-foster/region-manager/commits/${{ env.COMMITS_URL }})",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Region Manager* deployed: <https://github.com/aj-foster/region-manager/commits/${{ env.COMMITS_URL }}|${{ env.COMMIT_MESSAGE }}>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
