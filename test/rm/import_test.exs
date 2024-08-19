@@ -20,7 +20,7 @@ defmodule RM.ImportTest do
 
       assert_match_in added, %RM.Local.Team{active: true, event_ready: true, number: 1111}
       assert_match_in added, %RM.Local.Team{active: true, event_ready: false, number: 2222}
-      assert_match_in added, %RM.Local.Team{active: true, event_ready: false, number: 3333}
+      assert_match_in added, %RM.Local.Team{active: false, event_ready: false, number: 3333}
       assert_match_in added, %RM.Local.Team{active: false, event_ready: false, number: 4444}
       assert_match_in added, %RM.Local.Team{active: false, event_ready: false, number: 5555}
 
@@ -55,7 +55,7 @@ defmodule RM.ImportTest do
     end
 
     test "updates active status across seasons", %{region: region, user: user} do
-      Factory.insert(:team, active: false, region: region, number: 3333, team_id: 103_333)
+      Factory.insert(:team, active: false, region: region, number: 1111, team_id: 101_111)
       Factory.insert(:team, active: true, region: region, number: 4444, team_id: 104_444)
       Factory.insert(:team, active: true, region: region, number: 5555, team_id: 105_555)
 
@@ -66,7 +66,7 @@ defmodule RM.ImportTest do
       assert length(imported) == 5
       assert length(updated) == 3
 
-      assert_match_in updated, {%RM.Local.Team{active: true, event_ready: false, number: 3333}, _}
+      assert_match_in updated, {%RM.Local.Team{active: true, event_ready: true, number: 1111}, _}
 
       assert_match_in updated,
                       {%RM.Local.Team{active: false, event_ready: false, number: 4444}, _}
