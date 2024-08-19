@@ -9,7 +9,7 @@ defmodule RMWeb.RegionController do
   end
 
   def events(conn, %{"region" => abbreviation}) do
-    preloads = [:proposal, :settings, :venue]
+    preloads = [:league, :local_league, :proposal, :settings, :venue]
     season = conn.assigns[:season]
 
     with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(abbreviation) do

@@ -67,6 +67,7 @@ defmodule RMWeb.RegionJSON do
       season: season,
       type: RM.FIRST.Event.type_name(type),
       website: website,
+      league: event_league(event.league || event.local_league),
       location: %{
         name: venue,
         address: address,
@@ -80,6 +81,16 @@ defmodule RMWeb.RegionJSON do
       },
       registration: event_registration(event)
     }
+  end
+
+  defp event_league(nil), do: nil
+
+  defp event_league(%RM.FIRST.League{code: code, name: name, remote: remote, location: location}) do
+    %{code: code, name: name, remote: remote, location: location}
+  end
+
+  defp event_league(%RM.Local.League{code: code, name: name, remote: remote, location: location}) do
+    %{code: code, name: name, remote: remote, location: location}
   end
 
   defp event_registration(

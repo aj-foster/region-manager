@@ -167,6 +167,14 @@ defmodule RM.FIRST.Query do
     end)
   end
 
+  @doc "Load the `local_league` association on an event"
+  @spec join_local_league_from_event(query) :: query
+  def join_local_league_from_event(query) do
+    with_named_binding(query, :local_league, fn query, binding ->
+      join(query, :left, [event: e], l in assoc(e, :local_league), as: ^binding)
+    end)
+  end
+
   @doc "Load the `proposal` association on an event"
   @spec join_proposal_from_event(query) :: query
   def join_proposal_from_event(query) do
@@ -238,6 +246,7 @@ defmodule RM.FIRST.Query do
   With `:event` as the base:
 
     * `league`: `league` associated with an event
+    * `local_league`: `local_league` associated with an event
     * `proposal`: `proposal` associated with an event
     * `region`: `region` associated with an event
     * `venue`: `venue` associated with an event's `proposal`
@@ -268,6 +277,13 @@ defmodule RM.FIRST.Query do
     query
     |> join_league_from_event()
     |> preload([league: l], league: l)
+    |> preload_assoc(:event, rest)
+  end
+
+  def preload_assoc(query, :event, [:local_league | rest]) do
+    query
+    |> join_local_league_from_event()
+    |> preload([local_league: l], local_league: l)
     |> preload_assoc(:event, rest)
   end
 
