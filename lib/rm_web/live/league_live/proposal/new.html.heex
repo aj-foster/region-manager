@@ -69,6 +69,7 @@
           wrapper="basis-1/2"
         />
         <.input
+          disabled={@event_form[:type].value in [:league_meet, :demo, :workshop]}
           field={@event_form[:format]}
           info_modal="event-format-modal"
           label="Event Format"
@@ -432,7 +433,8 @@
     </li>
     <li class="mb-4">
       <p>
-        <strong>Remote</strong>: Events that do not feature in-person matches. Instead, teams submit self-recorded scores during the event submission period. Juding interviews are conducted via video conference (if judging is part of the event).
+        <strong>Remote</strong>: Events with no in-person matches.
+        <em>This event type has been discontinued.</em>
       </p>
     </li>
   </ul>
