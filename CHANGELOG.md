@@ -3,6 +3,17 @@
 Notable changes to this project will be documented in this file.
 Because this project does not utilize tagged releases, changes will be roughly grouped by date.
 
+## 2024-08-19
+
+_Region Manager_ now has a complete workflow for proposing events:
+
+* League administrators input information about venues and events
+* Region administrators can see pending event proposals and download _Batch Create_ spreadsheets compatible with the _FIRST_ Tech Challenge cloud scoring system
+* Once events are published by _FIRST_, they are automatically linked back to the original proposal
+
+Event proposals give league administrators an opportunity to provide additional data beyond what _FIRST_ needs to publish an event.
+Meanwhile, Region administrators benefit from tracking which events have already been submitted.
+
 ## 2024-07-01
 
 _Region Manager_ now has an API located at `https://ftcregion.com/api`.
