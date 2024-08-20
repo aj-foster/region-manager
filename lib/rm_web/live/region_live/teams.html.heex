@@ -103,13 +103,16 @@
   </.card>
 </div>
 
-<div :if={@intend_to_return_teams_count > 0} class="mb-8">
-  <.title>
-    Teams Intending to Return (<%= @intend_to_return_teams_count %>)
-  </.title>
+<.title :if={@intend_to_return_teams_count > 0 or @inactive_teams_count > 0}>
+  Inactive Teams in <%= @region.name %>
+</.title>
 
+<div :if={@intend_to_return_teams_count > 0} class="mb-8">
   <.card>
-    <.reveal id="team-inactive-reveal" title="Show Inactive Teams">
+    <.reveal
+      id="team-intent-return-reveal"
+      title={"Teams Intending to Return (#{@intend_to_return_teams_count})"}
+    >
       <div
         :for={team <- @intend_to_return_teams}
         class="border-b flex items-center py-2 last:border-0 last:-mb-2"
@@ -145,10 +148,8 @@
 </div>
 
 <div :if={@inactive_teams_count > 0} class="mb-8">
-  <.title>All Inactive Teams in <%= @region.name %> (<%= @inactive_teams_count %>)</.title>
-
   <.card>
-    <.reveal id="team-inactive-reveal" title="Show Inactive Teams">
+    <.reveal id="team-inactive-reveal" title={"All Inactive Teams (#{@inactive_teams_count})"}>
       <div
         :for={team <- @inactive_teams}
         class="border-b flex items-center py-2 last:border-0 last:-mb-2"

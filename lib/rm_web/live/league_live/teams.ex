@@ -8,13 +8,16 @@ defmodule RMWeb.LeagueLive.Teams do
   def mount(_params, _session, socket) do
     league = socket.assigns[:league]
     {active_teams, inactive_teams} = Enum.split_with(league.teams, & &1.active)
+    intend_to_return = Enum.filter(inactive_teams, & &1.intend_to_return)
 
     socket
     |> assign(
       active_teams: active_teams,
       active_teams_count: length(active_teams),
       inactive_teams: inactive_teams,
-      inactive_teams_count: length(inactive_teams)
+      inactive_teams_count: length(inactive_teams),
+      intend_to_return_teams: intend_to_return,
+      intend_to_return_teams_count: length(intend_to_return)
     )
     |> ok()
   end
