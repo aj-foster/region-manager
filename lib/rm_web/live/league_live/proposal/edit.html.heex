@@ -41,6 +41,9 @@
       </.form>
       <.button phx-click={show_modal("add-venue-modal")}>Add Venue...</.button>
     </div>
+    <.error :for={msg <- Enum.map(@proposal_form[:venue].errors, &translate_error/1)}>
+      <%= msg %>
+    </.error>
   </.card>
 
   <.form
@@ -288,9 +291,12 @@
         <em>FIRST</em>
         accepts and publishes the event. Your region's Program Delivery Partner will only be notified of changes to this information once the event is publsihed.
       </p>
-      <p class="text-right">
+      <div class="flex flex-row-reverse gap-4 items-center justify-between">
         <.button type="submit">Update Proposal</.button>
-      </p>
+        <p :if={@proposal_form.errors != []} class="text-orange-600 text-sm">
+          There is an error in the submission. Please check above.
+        </p>
+      </div>
     </.card>
   </.form>
 </div>

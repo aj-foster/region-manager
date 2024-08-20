@@ -37,6 +37,9 @@
       </.form>
       <.button phx-click={show_modal("add-venue-modal")}>Add Venue...</.button>
     </div>
+    <.error :for={msg <- Enum.map(@event_form[:venue].errors, &translate_error/1)}>
+      <%= msg %>
+    </.error>
   </.card>
 
   <.form
@@ -76,7 +79,7 @@
           value="traditional"
         />
         <.input
-          disabled={IO.inspect(@event_form[:type].value) in [:league_meet, :demo, :workshop]}
+          disabled={to_string(@event_form[:type].value) in ["league_meet", "demo", "workshop"]}
           field={@event_form[:format]}
           info_modal="event-format-modal"
           label="Event Format"
@@ -284,9 +287,12 @@
         <em>FIRST</em>
         accepts and publishes the event. Your region's Program Delivery Partner will only be notified of changes to this information once the event is publsihed.
       </p>
-      <p class="text-right">
+      <div class="flex flex-row-reverse gap-4 items-center justify-between">
         <.button type="submit">Propose Event</.button>
-      </p>
+        <p :if={@event_form.errors != []} class="text-orange-600 text-sm">
+          There is an error in the submission. Please check above.
+        </p>
+      </div>
     </.card>
   </.form>
 </div>

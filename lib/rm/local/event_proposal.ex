@@ -69,7 +69,7 @@ defmodule RM.Local.EventProposal do
     belongs_to :first_event, RM.FIRST.Event
     belongs_to :league, League
     belongs_to :region, Region
-    belongs_to :venue, Venue
+    belongs_to :venue, Venue, on_replace: :nilify
 
     # Temporary: no longer used once copied to the :first_event on import / reconciliation.
     embeds_one :registration_settings, RegistrationSettings, on_replace: :update
@@ -101,6 +101,7 @@ defmodule RM.Local.EventProposal do
     |> Changeset.put_assoc(:venue, params["venue"])
     |> Changeset.put_embed(:log, [Log.new("created", params)])
     |> Changeset.validate_required(@required_fields)
+    |> Changeset.validate_required([:region, :venue])
   end
 
   @spec contact_changeset(%__MODULE__.Contact{}, map) :: Changeset.t(%__MODULE__.Contact{})
@@ -122,6 +123,7 @@ defmodule RM.Local.EventProposal do
     |> Changeset.put_assoc(:venue, params["venue"])
     |> Changeset.put_embed(:log, [Log.new("updated", params) | proposal.log])
     |> Changeset.validate_required(@required_fields)
+    |> Changeset.validate_required([:venue])
   end
 
   #
