@@ -72,7 +72,15 @@
           type="select"
           wrapper="basis-1/2"
         />
+
+        <input
+          id="event_form_format_hidden"
+          name={@proposal_form[:format].name}
+          type="hidden"
+          value="traditional"
+        />
         <.input
+          disabled={to_string(@proposal_form[:type].value) in ["league_meet", "demo", "workshop"]}
           field={@proposal_form[:format]}
           info_modal="event-format-modal"
           label="Event Format"

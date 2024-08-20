@@ -68,8 +68,15 @@
           type="select"
           wrapper="basis-1/2"
         />
+
+        <input
+          id="event_form_format_hidden"
+          name={@event_form[:format].name}
+          type="hidden"
+          value="traditional"
+        />
         <.input
-          disabled={@event_form[:type].value in [:league_meet, :demo, :workshop]}
+          disabled={IO.inspect(@event_form[:type].value) in [:league_meet, :demo, :workshop]}
           field={@event_form[:format]}
           info_modal="event-format-modal"
           label="Event Format"

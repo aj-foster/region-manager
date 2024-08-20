@@ -135,6 +135,7 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
       |> Map.put("venue", socket.assigns[:venue])
       |> Map.put_new("registration_settings", %{"enabled" => "true"})
       |> proposal_normalize_date_end()
+      |> proposal_normalize_format()
       |> registration_settings_normalize_pool()
       |> registration_settings_normalize_team_limit()
       |> registration_settings_normalize_waitlist_limit()
@@ -168,6 +169,20 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
 
       {:error, changeset} ->
         assign(socket, proposal_form: to_form(changeset))
+    end
+  end
+
+  @spec proposal_normalize_format(map) :: map
+  defp proposal_normalize_format(params) do
+    cond do
+      params["type"] in ["league_meet", "demo", "workshop"] ->
+        Map.put(params, "format", "traditional")
+
+      params["format"] in [nil, ""] ->
+        Map.put(params, "format", "traditional")
+
+      :else ->
+        params
     end
   end
 
@@ -244,12 +259,11 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
     |> Enum.map(&{&1, &1})
   end
 
-  @spec event_format_options :: [{String.t(), String.t()}]
+  @spec event_format_options :: [{label :: String.t(), value :: String.t()}]
   defp event_format_options do
     [
       {"Traditional", "traditional"},
-      {"Hybrid", "hybrid"},
-      {"Remote", "remote"}
+      {"Hybrid", "hybrid"}
     ]
   end
 
