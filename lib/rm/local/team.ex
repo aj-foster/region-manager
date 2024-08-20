@@ -14,6 +14,7 @@ defmodule RM.Local.Team do
   @required_fields [
     :active,
     :event_ready,
+    :intend_to_return,
     :name,
     :number,
     :region_id,

@@ -103,8 +103,49 @@
   </.card>
 </div>
 
+<div :if={@intend_to_return_teams_count > 0} class="mb-8">
+  <.title>
+    Teams Intending to Return (<%= @intend_to_return_teams_count %>)
+  </.title>
+
+  <.card>
+    <.reveal id="team-inactive-reveal" title="Show Inactive Teams">
+      <div
+        :for={team <- @intend_to_return_teams}
+        class="border-b flex items-center py-2 last:border-0 last:-mb-2"
+      >
+        <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
+        <div class="grow">
+          <h3 class="flex gap-2 items-center">
+            <strong><%= team.number %></strong>
+            <span><%= team.name %></span>
+            <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
+              Not Event Ready
+            </.tag>
+
+            <.tag
+              :if={@region.has_leagues and is_nil(team.league)}
+              class="bg-rose-100 border-rose-300"
+            >
+              No League
+            </.tag>
+          </h3>
+          <p class="text-sm">
+            <span><%= team.location.city || "Unknown City" %> &bull;</span>
+            <span :if={team.league}><%= team.league.name %> League</span>
+            <span :if={@region.has_leagues and is_nil(team.league)}>
+              No League
+            </span>
+          </p>
+        </div>
+        <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
+      </div>
+    </.reveal>
+  </.card>
+</div>
+
 <div :if={@inactive_teams_count > 0} class="mb-8">
-  <.title>Inactive Teams in <%= @region.name %> (<%= @inactive_teams_count %>)</.title>
+  <.title>All Inactive Teams in <%= @region.name %> (<%= @inactive_teams_count %>)</.title>
 
   <.card>
     <.reveal id="team-inactive-reveal" title="Show Inactive Teams">
