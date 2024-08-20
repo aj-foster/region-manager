@@ -21,7 +21,7 @@
 
   <.link_card class="flex items-center mb-4" navigate={~p"/region/#{@region}/events"}>
     <div class="grow">
-      <h3 class="font-bold"><%= dumb_inflect("Event", @region.stats.event_count) %></h3>
+      <h3 class="font-bold"><%= dumb_inflect("Published Event", @region.stats.event_count) %></h3>
       <p :if={@region.stats.events_imported_at} class="text-sm">
         Last refreshed <%= format_date(@region.stats.events_imported_at, :date) %>
       </p>
@@ -37,7 +37,15 @@
     navigate={~p"/region/#{@region}/leagues"}
   >
     <div class="grow">
-      <h3 class="font-bold"><%= dumb_inflect("League", @region.stats.league_count) %></h3>
+      <div class="flex gap-2 items-center">
+        <h3 class="font-bold"><%= dumb_inflect("League", @region.stats.league_count) %></h3>
+        <.tag
+          :if={@region.stats.league_count != @region.stats.published_league_count}
+          class="bg-orange-100 border-orange-300"
+        >
+          <%= @region.stats.published_league_count %> Published
+        </.tag>
+      </div>
       <p :if={@region.stats.leagues_imported_at} class="text-sm">
         Last refreshed <%= format_date(@region.stats.leagues_imported_at, :date) %>
       </p>
@@ -49,7 +57,7 @@
 
   <.link_card class="flex items-center mb-4" navigate={~p"/region/#{@region}/teams"}>
     <div class="grow">
-      <h3 class="font-bold"><%= dumb_inflect("Team", @region.stats.team_count) %></h3>
+      <h3 class="font-bold"><%= dumb_inflect("Active Team", @region.stats.team_count) %></h3>
       <p :if={@region.stats.teams_imported_at} class="text-sm">
         Last imported <%= format_date(@region.stats.teams_imported_at, :date) %>
       </p>
