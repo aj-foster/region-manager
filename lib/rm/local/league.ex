@@ -119,6 +119,68 @@ defmodule RM.Local.League do
     |> select([league: l, region: r], {{r.code, l.code}, l})
   end
 
+  @doc """
+  Query to update cached event statistics for leagues with the given IDs
+  """
+  @spec event_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
+  def event_stats_update_query(league_ids) do
+    now = DateTime.utc_now()
+
+    count_query =
+      from(__MODULE__, as: :league)
+      |> where([league: l], l.id in ^league_ids)
+      |> join(:inner, [league: l], r in assoc(l, :region), as: :region)
+      |> join(:left, [league: l, region: r], e in assoc(l, :events),
+        on: e.season == r.current_season and is_nil(e.removed_at),
+        as: :event
+      )
+      |> group_by([league: l], l.id)
+      |> select([league: l, event: e], %{id: l.id, count: count(e.id)})
+
+    from(__MODULE__, as: :league)
+    |> join(:inner, [league: l], s in subquery(count_query), on: s.id == l.id, as: :counts)
+    |> update([league: l, counts: c],
+      set: [
+        stats:
+          fragment(
+            "jsonb_set(jsonb_set(?, '{event_count}', ?::varchar::jsonb), '{events_imported_at}', ?)",
+            l.stats,
+            c.count,
+            ^now
+          )
+      ]
+    )
+  end
+
+  @doc """
+  Query to update cached team statistics for leagues with the given IDs
+  """
+  @spec team_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
+  def team_stats_update_query(league_ids) do
+    now = DateTime.utc_now()
+
+    count_query =
+      from(__MODULE__, as: :league)
+      |> where([league: l], l.id in ^league_ids)
+      |> join(:left, [league: l], t in assoc(l, :teams), on: t.active, as: :team)
+      |> group_by([league: l], l.id)
+      |> select([league: l, team: t], %{id: l.id, count: count(t.id)})
+
+    from(__MODULE__, as: :league)
+    |> join(:inner, [league: l], s in subquery(count_query), on: s.id == l.id, as: :counts)
+    |> update([league: l, counts: c],
+      set: [
+        stats:
+          fragment(
+            "jsonb_set(jsonb_set(?, '{team_count}', ?::varchar::jsonb), '{teams_imported_at}', ?)",
+            l.stats,
+            c.count,
+            ^now
+          )
+      ]
+    )
+  end
+
   #
   # Helpers
   #

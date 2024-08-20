@@ -18,6 +18,7 @@ defmodule RM.Local do
   alias RM.Local.Team
   alias RM.Local.Venue
   alias RM.Repo
+  alias RM.Util
 
   #
   # Events
@@ -375,6 +376,30 @@ defmodule RM.Local do
       RM.FIRST.update_region_league_counts(league.region_id)
       {:ok, league}
     end
+  end
+
+  @spec update_league_event_counts(Repo.struct_or_id(League.t())) :: :ok
+  @spec update_league_event_counts([Repo.struct_or_id(League.t())]) :: :ok
+  def update_league_event_counts(league_or_id_or_list) do
+    league_or_id_or_list
+    |> Util.extract_ids()
+    |> Enum.uniq()
+    |> RM.Local.League.event_stats_update_query()
+    |> Repo.update_all([])
+
+    :ok
+  end
+
+  @spec update_league_team_counts(Repo.struct_or_id(League.t())) :: :ok
+  @spec update_league_team_counts([Repo.struct_or_id(League.t())]) :: :ok
+  def update_league_team_counts(league_or_id_or_list) do
+    league_or_id_or_list
+    |> Util.extract_ids()
+    |> Enum.uniq()
+    |> RM.Local.League.team_stats_update_query()
+    |> Repo.update_all([])
+
+    :ok
   end
 
   #

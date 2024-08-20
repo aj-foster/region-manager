@@ -7,6 +7,7 @@ defmodule RM.Import do
   alias RM.Import.Upload
   alias RM.Local
   alias RM.Repo
+  alias RM.Util
 
   NimbleCSV.define(RM.Import.TeamDataParser,
     separator: "\t",
@@ -49,7 +50,7 @@ defmodule RM.Import do
 
     regions_affected =
       import_teams
-      |> Enum.map(& &1.region_id)
+      |> Util.extract_ids(:region_id)
       |> Enum.uniq()
       |> Enum.map(&allowed_regions_by_id[&1])
 
@@ -57,8 +58,13 @@ defmodule RM.Import do
     import_teams_by_id = Map.new(import_teams, fn team -> {team.team_id, team} end)
 
     {additions, updates} = diff_teams(local_teams_by_id, import_teams_by_id)
-    update_region_counts(import_teams)
     relink_coaches(import_teams, additions ++ Enum.map(updates, &elem(&1, 0)))
+
+    RM.FIRST.update_region_team_counts(regions_affected)
+
+    Repo.preload(additions ++ Enum.map(updates, &elem(&1, 0)), :league_assignment)
+    |> Enum.map(&(&1.league_assignment && &1.league_assignment.league_id))
+    |> RM.Local.update_league_team_counts()
 
     %{added: additions, updated: updates, imported: import_teams, upload: upload}
   end
@@ -123,15 +129,6 @@ defmodule RM.Import do
     |> Repo.update_all([])
 
     {additions, updates}
-  end
-
-  @spec update_region_counts([Team.t()]) :: {integer, nil}
-  defp update_region_counts(import_teams) do
-    import_teams
-    |> Enum.map(& &1.region_id)
-    |> Enum.uniq()
-    |> Region.team_stats_update_query()
-    |> Repo.update_all([])
   end
 
   @spec relink_coaches([Team.t()], [Local.Team.t()]) :: {integer, integer}

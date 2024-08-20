@@ -6,8 +6,7 @@ defmodule RM.FIRST.League do
   alias RM.FIRST.LeagueAssignment
   alias RM.FIRST.Region
   alias RM.FIRST.Query
-  alias RM.Local.EventProposal
-  alias RM.Local.LeagueSettings
+
   alias RM.Local.Team
 
   @type t :: %__MODULE__{
@@ -22,7 +21,6 @@ defmodule RM.FIRST.League do
           region: Ecto.Schema.belongs_to(Region.t()),
           region_id: Ecto.UUID.t(),
           remote: boolean,
-          settings: Ecto.Schema.has_one(LeagueSettings.t()),
           stats: %__MODULE__.Stats{
             event_count: integer,
             league_count: integer,
@@ -46,15 +44,10 @@ defmodule RM.FIRST.League do
     belongs_to :local_league, RM.Local.League
     belongs_to :parent_league, __MODULE__
     belongs_to :region, Region
-    has_one :settings, LeagueSettings
 
     has_many :events, Event
-    has_many :event_proposals, EventProposal
     has_many :team_assignments, LeagueAssignment
     has_many :teams, through: [:team_assignments, :team]
-    has_many :user_assignments, RM.Account.League
-    has_many :users, through: [:user_assignments, :user]
-    has_many :venues, RM.Local.Venue
 
     embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
       field :event_count, :integer, default: 0
@@ -109,15 +102,15 @@ defmodule RM.FIRST.League do
   @doc """
   Query to update cached event statistics for leagues with the given IDs
   """
-  @spec event_stats_update_query([Ecto.UUID.t()], integer) :: Ecto.Query.t()
-  def event_stats_update_query(league_ids, season) do
+  @spec event_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
+  def event_stats_update_query(league_ids) do
     now = DateTime.utc_now()
 
     count_query =
       from(__MODULE__, as: :league)
       |> where([league: l], l.id in ^league_ids)
       |> join(:left, [league: l], e in assoc(l, :events),
-        on: e.season == ^season and is_nil(e.removed_at),
+        on: e.season == l.season and is_nil(e.removed_at),
         as: :event
       )
       |> group_by([league: l], l.id)
