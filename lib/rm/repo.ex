@@ -9,6 +9,9 @@ defmodule RM.Repo do
     otp_app: :rm,
     adapter: Ecto.Adapters.Postgres
 
+  @typedoc "Convenience type for structs or their primary keys"
+  @type struct_or_id(t) :: t | Ecto.UUID.t()
+
   @doc """
   Migrate up to the latest version of the schema
 

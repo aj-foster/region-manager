@@ -303,9 +303,12 @@ defmodule RM.Local do
       |> Map.new(&{&1.code, &1.id})
 
     params = League.from_first_league(first_league, league_id_map)
+    changeset = Changeset.change(%League{}, params)
 
-    Changeset.change(%League{}, params)
-    |> Repo.insert()
+    with {:ok, league} <- Repo.insert(changeset) do
+      RM.FIRST.update_region_league_counts(league.region_id)
+      {:ok, league}
+    end
   end
 
   @spec create_leagues_from_first(Region.t()) :: [League.t()]
@@ -344,7 +347,7 @@ defmodule RM.Local do
       )
       |> elem(1)
 
-    # RM.FIRST.update_region_league_counts(leagues)
+    RM.FIRST.update_region_league_counts(region)
     leagues
   end
 
@@ -356,14 +359,22 @@ defmodule RM.Local do
 
   @spec hide_league(League.t()) :: {:ok, League.t()} | {:error, Changeset.t(League.t())}
   def hide_league(league) do
-    Changeset.change(league, removed_at: DateTime.utc_now())
-    |> Repo.update()
+    changeset = Changeset.change(league, removed_at: DateTime.utc_now())
+
+    with {:ok, league} <- Repo.update(changeset) do
+      RM.FIRST.update_region_league_counts(league.region_id)
+      {:ok, league}
+    end
   end
 
   @spec unhide_league(League.t()) :: {:ok, League.t()} | {:error, Changeset.t(League.t())}
   def unhide_league(league) do
-    Changeset.change(league, removed_at: nil)
-    |> Repo.update()
+    changeset = Changeset.change(league, removed_at: nil)
+
+    with {:ok, league} <- Repo.update(changeset) do
+      RM.FIRST.update_region_league_counts(league.region_id)
+      {:ok, league}
+    end
   end
 
   #

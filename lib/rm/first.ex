@@ -212,26 +212,10 @@ defmodule RM.FIRST do
       )
       |> elem(1)
 
-    update_region_league_counts(leagues, opts[:delete_region])
-    leagues
-  end
-
-  @spec update_region_league_counts([League.t()], Region.t() | [Region.t()] | nil) ::
-          {integer, nil}
-  def update_region_league_counts(leagues, region_or_regions) do
-    region_ids =
-      case region_or_regions do
-        nil -> []
-        %Region{} = region -> [region.id]
-        regions when is_list(regions) -> Enum.map(regions, & &1.id)
-      end
+    region_ids = extract_ids(leagues, :region_id) ++ extract_ids(opts[:delete_region])
+    update_region_published_league_counts(region_ids)
 
     leagues
-    |> Enum.map(& &1.region_id)
-    |> Enum.concat(region_ids)
-    |> Enum.uniq()
-    |> Region.league_stats_update_query()
-    |> Repo.update_all([])
   end
 
   @doc """
@@ -354,6 +338,30 @@ defmodule RM.FIRST do
       %Region{} = region -> {:ok, region}
       nil -> {:error, :region, :not_found}
     end
+  end
+
+  @spec update_region_league_counts(Repo.struct_or_id(Region.t())) :: :ok
+  @spec update_region_league_counts([Repo.struct_or_id(Region.t())]) :: :ok
+  def update_region_league_counts(region_or_id_or_list) do
+    region_or_id_or_list
+    |> extract_ids()
+    |> Enum.uniq()
+    |> Region.league_stats_update_query()
+    |> Repo.update_all([])
+
+    :ok
+  end
+
+  @spec update_region_published_league_counts(Repo.struct_or_id(Region.t())) :: :ok
+  @spec update_region_published_league_counts([Repo.struct_or_id(Region.t())]) :: :ok
+  def update_region_published_league_counts(region_or_id_or_list) do
+    region_or_id_or_list
+    |> extract_ids()
+    |> Enum.uniq()
+    |> Region.published_league_stats_update_query()
+    |> Repo.update_all([])
+
+    :ok
   end
 
   @spec update_region_season(Region.t(), integer) ::
@@ -520,4 +528,23 @@ defmodule RM.FIRST do
       team -> %Team{team | region: region}
     end)
   end
+
+  #
+  # Util
+  #
+
+  @spec extract_ids(struct | Ecto.UUID.t() | nil | [struct | Ecto.UUID.t()]) :: [Ecto.UUID.t()]
+  @spec extract_ids(struct | Ecto.UUID.t() | nil | [struct | Ecto.UUID.t()], atom) ::
+          [Ecto.UUID.t()]
+  defp extract_ids(data, field \\ :id)
+  defp extract_ids(nil, _field), do: []
+  defp extract_ids(data, field) when is_list(data), do: Enum.map(data, &extract_ids(&1, field))
+  defp extract_ids(data, field), do: [extract_id(data, field)]
+
+  # @spec extract_id(struct | Ecto.UUID.t() | nil) :: Ecto.UUID.t()
+  @spec extract_id(struct | Ecto.UUID.t() | nil, atom) :: Ecto.UUID.t()
+  # defp extract_id(data, field \\ :id)
+  defp extract_id(nil, _field), do: nil
+  defp extract_id(data, field) when is_struct(data), do: Map.fetch!(data, field)
+  defp extract_id(data, _field) when is_binary(data), do: data
 end
