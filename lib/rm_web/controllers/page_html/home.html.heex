@@ -1,6 +1,6 @@
 <.flash_group flash={@flash} />
 
-<header class="bg-slate-100 px-4 sm:px-6 lg:px-8">
+<header class="px-4 sm:px-6 lg:px-8">
   <div class="flex font-semibold items-center justify-between py-3 text-sm">
     <div>
       <.link :if={@current_user} navigate={~p"/dashboard"}>
@@ -16,13 +16,6 @@
     </div>
     <div class="flex items-center gap-0 md:gap-4">
       <.link
-        :if={is_nil(@current_user)}
-        class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
-        navigate={~p"/register"}
-      >
-        Register
-      </.link>
-      <.link
         :if={@current_user}
         class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
         navigate={~p"/dashboard"}
@@ -30,6 +23,13 @@
         Dashboard <span aria-hidden="true">&rarr;</span>
       </.link>
 
+      <.link
+        :if={is_nil(@current_user)}
+        class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
+        navigate={~p"/register"}
+      >
+        Register
+      </.link>
       <.link
         :if={is_nil(@current_user)}
         href={~p"/login"}
@@ -41,7 +41,7 @@
   </div>
 </header>
 
-<div class="bg-slate-100 py-20 text-center">
+<div class="py-20 text-center">
   <p class="drop-shadow-lg font-title font-semibold mb-8 text-lg xs:text-xl sm:text-2xl md:text-3xl">
     Tools for <em>FIRST<sup>®</sup></em> Tech Challenge<br /> teams, leagues, and regions.
   </p>

@@ -9,7 +9,7 @@
       </.link>
       <.link
         :if={@current_user}
-        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+        class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
         navigate={~p"/dashboard"}
       >
         Dashboard
@@ -18,7 +18,7 @@
         :if={
           @current_user && is_list(@current_user.regions) && length(@current_user.regions) == 1
         }
-        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+        class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
         navigate={~p"/region/#{List.first(@current_user.regions)}"}
       >
         <%= List.first(@current_user.regions).name %>
@@ -27,7 +27,7 @@
         :if={
           @current_user && is_list(@current_user.leagues) && length(@current_user.leagues) == 1
         }
-        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+        class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
         navigate={
           ~p"/league/#{List.first(@current_user.leagues).region}/#{List.first(@current_user.leagues)}"
         }
@@ -37,34 +37,34 @@
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
       <.link
-        :if={is_nil(@current_user)}
-        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
-        navigate={~p"/register"}
-      >
-        Register
-      </.link>
-      <.link
         :if={@current_user}
-        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+        class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
         navigate={~p"/user/settings"}
       >
         Account
-      </.link>
-
-      <.link
-        :if={is_nil(@current_user)}
-        href={~p"/login"}
-        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
-      >
-        Log In <span aria-hidden="true">&rarr;</span>
       </.link>
       <.link
         :if={@current_user}
         href={~p"/logout"}
         method="delete"
-        class="rounded-lg bg-zinc-100 px-2 py-1 transition-colors hover:bg-zinc-200/80"
+        class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
       >
         Log Out <span aria-hidden="true">&rarr;</span>
+      </.link>
+
+      <.link
+        :if={is_nil(@current_user)}
+        class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
+        navigate={~p"/register"}
+      >
+        Register
+      </.link>
+      <.link
+        :if={is_nil(@current_user)}
+        href={~p"/login"}
+        class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
+      >
+        Log In <span aria-hidden="true">&rarr;</span>
       </.link>
     </div>
   </div>
