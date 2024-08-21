@@ -27,3 +27,15 @@ resource "digitalocean_cdn" "assets" {
   certificate_name = digitalocean_certificate.assets.name
   ttl              = 604800
 }
+
+resource "digitalocean_spaces_bucket_cors_configuration" "main" {
+  bucket = digitalocean_spaces_bucket.assets.id
+  region = digitalocean_spaces_bucket.assets.region
+
+  cors_rule {
+    allowed_methods = ["GET"]
+    allowed_origins = ["https://ftcregion.com", "http://localhost:4000"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3600
+  }
+}
