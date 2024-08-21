@@ -67,6 +67,22 @@ defmodule RMWeb.LeagueLive.Util do
         </.link>
       <% end %>
 
+      <%= if @view == RMWeb.LeagueLive.Venue.Index do %>
+        <div
+          class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
+          style="background-image: linear-gradient(to bottom, white, transparent)"
+        >
+          Venues
+        </div>
+      <% else %>
+        <.link
+          class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
+          navigate={~p"/league/#{@league.region}/#{@league}/venues"}
+        >
+          Venues
+        </.link>
+      <% end %>
+
       <div class="border-b border-gray-400 grow"></div>
     </div>
     """
