@@ -1,8 +1,16 @@
+@import "_font.css";
+
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
 @import "../../deps/identity/priv/static/tailwind.css";
+
+@layer base {
+  body {
+    font-family: "Poppins", sans-serif;
+  }
+}
 
 @layer utilities {
   .grid-table {
