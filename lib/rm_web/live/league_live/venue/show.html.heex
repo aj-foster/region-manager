@@ -1,0 +1,34 @@
+<.nav class="mb-8" league={@league} view={@socket.view} />
+
+<div class="flex gap-4 items-center mb-4 ml-6">
+  <.title class="grow" flush><%= @venue.name %></.title>
+</div>
+
+<.card spaced>
+  <.table class="mb-8">
+    <:row title="Name"><%= @venue.name %></:row>
+    <:row title="Location">
+      <span :if={@venue.address} class="block"><%= @venue.address %></span>
+      <span :if={@venue.address_2} class="block"><%= @venue.address_2 %></span>
+      <span :if={@venue.city}><%= @venue.city %>,</span>
+      <span :if={@venue.state_province}><%= @venue.state_province %></span>
+      <span :if={@venue.postal_code}><%= @venue.postal_code %></span>
+      <span class="block"><%= @venue.country || "Unknown Location" %></span>
+    </:row>
+    <:row title="Timezone"><%= @venue.timezone %></:row>
+    <:row :if={@venue.website} title="Website">
+      <a href={@venue.website} class="underline" target="_blank"><%= @venue.website %></a>
+    </:row>
+    <:row :if={@venue.notes} title="Notes"><%= @venue.notes %></:row>
+  </.table>
+
+  <form id="venue-show-archived-form" phx-change="archive_change" phx-submit="archive_change">
+    <.switch
+      explanation="Archived venues are hidden from view, but can be brought back at any time. Archiving does not affect any existing event proposals."
+      id="venue-show-archived-switch"
+      label="Archive this venue?"
+      name="archived"
+      value={not is_nil(@venue.hidden_at)}
+    />
+  </form>
+</.card>

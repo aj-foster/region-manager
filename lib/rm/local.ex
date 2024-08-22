@@ -13,6 +13,7 @@ defmodule RM.Local do
   alias RM.Local.League
   alias RM.Local.LeagueAssignment
   alias RM.Local.LeagueSettings
+  alias RM.Local.Log
   alias RM.Local.RegistrationSettings
   alias RM.Local.Query
   alias RM.Local.Team
@@ -526,9 +527,41 @@ defmodule RM.Local do
   # Venues
   #
 
+  @spec fetch_venue_by_id(Ecto.UUID.t()) :: {:ok, Venue.t()} | {:error, :venue, :not_found}
+  @spec fetch_venue_by_id(Ecto.UUID.t(), keyword) ::
+          {:ok, Venue.t()} | {:error, :venue, :not_found}
+  def fetch_venue_by_id(venue_id, opts \\ []) do
+    Query.from_venue()
+    |> Query.league(opts[:league])
+    |> Query.preload_assoc(:venue, opts[:preload])
+    |> Repo.get(venue_id)
+    |> case do
+      %Venue{} = venue -> {:ok, venue}
+      nil -> {:error, :venue, :not_found}
+    end
+  end
+
   @spec create_venue(League.t(), map) :: {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
   def create_venue(league, params) do
     Venue.create_changeset(league, params)
     |> Repo.insert()
+  end
+
+  @spec update_venue_archive_status(Venue.t(), boolean) ::
+          {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
+  @spec update_venue_archive_status(Venue.t(), boolean, keyword) ::
+          {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
+  def update_venue_archive_status(venue, archived?, opts \\ []) do
+    log_params = %{by: opts[:by]}
+
+    params =
+      if archived? do
+        %{hidden_at: DateTime.utc_now(), log: [Log.new("archived", log_params) | venue.log]}
+      else
+        %{hidden_at: nil, log: [Log.new("unarchived", log_params) | venue.log]}
+      end
+
+    Changeset.change(venue, params)
+    |> Repo.update()
   end
 end

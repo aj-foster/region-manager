@@ -2,6 +2,7 @@ defmodule RM.Local.Venue do
   use Ecto.Schema
 
   alias Ecto.Changeset
+  alias RM.Local.EventProposal
   alias RM.Local.League
   alias RM.Local.Log
 
@@ -29,6 +30,7 @@ defmodule RM.Local.Venue do
     # belongs_to :map, File
 
     belongs_to :league, League
+    has_many :event_proposals, EventProposal
 
     embeds_many :log, Log
 

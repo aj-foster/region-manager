@@ -784,7 +784,7 @@ defmodule RMWeb.CoreComponents do
         <.icon class="transition-transform" id={"#{@id}-reveal-icon"} name="hero-chevron-up" />
       </div>
       <div
-        class={["overflow-hidden", if(@show, do: "h-auto", else: "h-0")]}
+        class={["-m-2 overflow-hidden p-2", if(@show, do: "h-auto", else: "h-0")]}
         id={"#{@id}-reveal-contents"}
       >
         <%= render_slot(@inner_block) %>

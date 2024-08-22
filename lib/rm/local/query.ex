@@ -8,6 +8,7 @@ defmodule RM.Local.Query do
   alias RM.Local.EventRegistration
   alias RM.Local.League
   alias RM.Local.Team
+  alias RM.Local.Venue
 
   @typedoc "Intermediate query"
   @type query :: Ecto.Query.t()
@@ -38,6 +39,12 @@ defmodule RM.Local.Query do
   @spec from_team :: query
   def from_team do
     from(Team, as: :team)
+  end
+
+  @doc "Start a query from the venues table"
+  @spec from_venue :: query
+  def from_venue do
+    from(Venue, as: :venue)
   end
 
   #
@@ -169,6 +176,14 @@ defmodule RM.Local.Query do
     end)
   end
 
+  @doc "Load the `event_proposals` association on a venue"
+  @spec join_proposals_from_venue(query) :: query
+  def join_proposals_from_venue(query) do
+    with_named_binding(query, :event_proposals, fn query, binding ->
+      join(query, :left, [venue: v], p in assoc(v, :event_proposals), as: ^binding)
+    end)
+  end
+
   @doc "Load the `region` association on a league"
   @spec join_region_from_league(query) :: query
   def join_region_from_league(query) do
@@ -246,6 +261,10 @@ defmodule RM.Local.Query do
     * `league`: `league_assignment` and `league` on a team
     * `region`: `region` on a team
     * `users`: `user_assignments` and `users` on a team
+
+  With `venue` as the base:
+
+    * `event_proposals`: `event_proposals` on a venue
 
   """
   @spec preload_assoc(query, atom, [atom] | nil) :: query
@@ -361,5 +380,14 @@ defmodule RM.Local.Query do
       users: u
     )
     |> preload_assoc(:team, rest)
+  end
+
+  # Venue
+
+  def preload_assoc(query, :venue, [:event_proposals | rest]) do
+    query
+    |> join_proposals_from_venue()
+    |> preload([event_proposals: p], event_proposals: p)
+    |> preload_assoc(:venue, rest)
   end
 end
