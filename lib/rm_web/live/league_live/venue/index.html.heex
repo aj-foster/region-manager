@@ -1,12 +1,20 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
 <div class="mb-8">
-  <.title>
-    Saved Venues
-    <button phx-click={show_modal("venue-list-info")}>
-      <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
-    </button>
-  </.title>
+  <div class="flex gap-4 items-center mb-4 ml-6">
+    <.title class="grow" flush>
+      Saved Venues
+      <button phx-click={show_modal("venue-list-info")}>
+        <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+      </button>
+    </.title>
+    <.link_button
+      :if={@assignment.permissions.events}
+      navigate={~p"/league/#{@league.region}/#{@league}/venues/new"}
+    >
+      Add...
+    </.link_button>
+  </div>
 
   <.card>
     <.link

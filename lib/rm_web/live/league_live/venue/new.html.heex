@@ -1,0 +1,15 @@
+<.nav class="mb-8" league={@league} view={@socket.view} />
+
+<.title>Add Venue</.title>
+
+<.card spaced>
+  <p class="text-sm">
+    Venues are saved separately from individual events and can be reused in the future.
+    Fields marked with <span class="text-orange-600">*</span> are required.
+    Please provide as much detail as possible.
+  </p>
+</.card>
+
+<.card>
+  <.venue_form id="add-venue-form" prompt="Add Venue" venue_form={@venue_form} />
+</.card>
