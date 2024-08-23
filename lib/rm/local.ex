@@ -528,6 +528,7 @@ defmodule RM.Local do
   def fetch_team_by_number(team_number, opts \\ []) do
     Query.from_team()
     |> where([team: t], t.number == ^team_number)
+    |> Query.region(opts[:region])
     |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.one()
     |> case do

@@ -4,6 +4,7 @@ defmodule RM.Local.Query do
   """
   import Ecto.Query
 
+  alias RM.FIRST.Region
   alias RM.Local.EventProposal
   alias RM.Local.EventRegistration
   alias RM.Local.League
@@ -86,6 +87,14 @@ defmodule RM.Local.Query do
   @doc "Filter event proposals by season"
   @spec proposal_season(query, integer) :: query
   def proposal_season(query, season), do: where(query, [proposal: p], p.season == ^season)
+
+  @doc "Filter by the associated region"
+  @spec region(query, Region.t() | nil) :: query
+  def region(query, nil), do: query
+
+  def region(query, %Region{id: region_id}) do
+    where(query, [any], any.region_id == ^region_id)
+  end
 
   @doc "Filter by the `rescinded` attribute of a registration"
   @spec rescinded(query, boolean | nil) :: query

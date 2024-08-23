@@ -5,6 +5,7 @@ defmodule RMWeb.RegionLive.Util do
   alias Phoenix.LiveView.Socket
   alias RM.Account.User
   alias RM.FIRST.Region
+  alias RMWeb.RegionLive
 
   @doc """
   Navigation component for region views
@@ -18,7 +19,7 @@ defmodule RMWeb.RegionLive.Util do
     <div class={["flex font-title italic small-caps", @class]}>
       <div class="border-b border-gray-400 w-4"></div>
 
-      <%= if @view == RMWeb.RegionLive.Show do %>
+      <%= if @view == RegionLive.Show do %>
         <div
           class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
           style="background-image: linear-gradient(to bottom, white, transparent)"
@@ -34,7 +35,7 @@ defmodule RMWeb.RegionLive.Util do
         </.link>
       <% end %>
 
-      <%= if @view == RMWeb.RegionLive.Events do %>
+      <%= if @view == RegionLive.Events do %>
         <div
           class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
           style="background-image: linear-gradient(to bottom, white, transparent)"
@@ -51,7 +52,7 @@ defmodule RMWeb.RegionLive.Util do
       <% end %>
 
       <%= if @region.has_leagues do %>
-        <%= if @view == RMWeb.RegionLive.Leagues do %>
+        <%= if @view == RegionLive.Leagues do %>
           <div
             class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
             style="background-image: linear-gradient(to bottom, white, transparent)"
@@ -68,23 +69,32 @@ defmodule RMWeb.RegionLive.Util do
         <% end %>
       <% end %>
 
-      <%= if @view == RMWeb.RegionLive.Teams do %>
-        <div
-          class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
-          style="background-image: linear-gradient(to bottom, white, transparent)"
-        >
-          Teams
-        </div>
-      <% else %>
-        <.link
-          class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
-          navigate={~p"/region/#{@region}/teams"}
-        >
-          Teams
-        </.link>
+      <%= cond do %>
+        <% @view == RegionLive.Team.Index -> %>
+          <div
+            class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
+            style="background-image: linear-gradient(to bottom, white, transparent)"
+          >
+            Teams
+          </div>
+        <% @view in [RegionLive.Team.Show] -> %>
+          <.link
+            class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
+            navigate={~p"/region/#{@region}/teams"}
+            style="background-image: linear-gradient(to bottom, white, transparent)"
+          >
+            Teams
+          </.link>
+        <% :else -> %>
+          <.link
+            class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
+            navigate={~p"/region/#{@region}/teams"}
+          >
+            Teams
+          </.link>
       <% end %>
 
-      <%!-- <%= if @view == RMWeb.RegionLive.Setup do %>
+      <%!-- <%= if @view == RegionLive.Setup do %>
         <div
           class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
           style="background-image: linear-gradient(to bottom, white, transparent)"

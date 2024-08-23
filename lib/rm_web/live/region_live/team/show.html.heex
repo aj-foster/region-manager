@@ -1,0 +1,76 @@
+<.nav class="mb-8" region={@region} view={@socket.view} />
+
+<.title><%= @team.number %> <%= @team.name %></.title>
+
+<.card spaced>
+  <.table class="mb-4">
+    <:row title="Number">
+      <%= if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)" %>
+    </:row>
+    <:row title="Name"><%= @team.name %></:row>
+    <:row title="Location">
+      <span :if={@team.location.city}><%= @team.location.city %></span>
+      <span :if={@team.location.postal_code}><%= @team.location.postal_code %></span>
+      <br />
+      <span :if={@team.location.county}><%= @team.location.county %> County,</span>
+      <span :if={@team.location.state_province}><%= @team.location.state_province %>,</span>
+      <span :if={@team.location.country}>
+        <%= @team.location.country || "Unknown Location" %>
+      </span>
+    </:row>
+    <:row title="Rookie Year"><%= @team.rookie_year %></:row>
+    <:row :if={@team.website} title="Website">
+      <a class="underline" href={@team.website} target="blank"><%= @team.website %></a>
+    </:row>
+    <:row title="Region"><%= @region.name %></:row>
+    <:row :if={@region.has_leagues} title="League">
+      <%= if @team.league, do: @team.league.name, else: "No League Assignment" %>
+    </:row>
+  </.table>
+
+  <p class="text-sm">
+    Last updated via team data import on <%= format_date(
+      @region.stats.teams_imported_at,
+      :date
+    ) %>.
+  </p>
+</.card>
+
+<.title>
+  Event Readiness
+  <.icon
+    :if={@team.event_ready}
+    class="align-text-bottom ml-2 text-emerald-600"
+    name="hero-check-circle"
+  />
+  <.icon
+    :if={not @team.event_ready}
+    class="align-text-bottom ml-2 text-orange-600"
+    name="hero-exclamation-triangle"
+  />
+</.title>
+
+<.card spaced>
+  <.table>
+    <:row title="Registration">
+      <span :if={@team.notices.unsecured} class="text-orange-600">Unsecured</span>
+      <span :if={not @team.notices.unsecured} class="text-emerald-600">Paid</span>
+    </:row>
+    <:row title="First Coach">
+      <span :if={@team.notices.lc1_missing} class="text-orange-600">Missing</span>
+      <span :if={not @team.notices.lc1_missing} class="text-emerald-600">Present</span>
+    </:row>
+    <:row title="First Coach YPP">
+      <span :if={@team.notices.lc1_ypp} class="text-orange-600">Incomplete</span>
+      <span :if={not @team.notices.lc1_ypp} class="text-emerald-600">Complete</span>
+    </:row>
+    <:row title="Second Coach">
+      <span :if={@team.notices.lc2_missing} class="text-orange-600">Missing</span>
+      <span :if={not @team.notices.lc2_missing} class="text-emerald-600">Present</span>
+    </:row>
+    <:row title="Second Coach YPP">
+      <span :if={@team.notices.lc2_ypp} class="text-orange-600">Incomplete</span>
+      <span :if={not @team.notices.lc2_ypp} class="text-emerald-600">Complete</span>
+    </:row>
+  </.table>
+</.card>

@@ -70,11 +70,11 @@
   </.title>
 
   <.card>
-    <div
+    <.link
       :for={team <- @active_teams}
-      class="border-b flex items-center py-2 first:-mt-2 last:border-0 last:-mb-2"
+      class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
+      navigate={~p"/region/#{@region}/teams/#{team}"}
     >
-      <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
       <div class="grow">
         <h3 class="flex gap-2 items-center">
           <strong><%= team.number %></strong>
@@ -98,8 +98,8 @@
           </span>
         </p>
       </div>
-      <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
-    </div>
+      <div><.icon name="hero-arrow-right" /></div>
+    </.link>
   </.card>
 </div>
 
@@ -113,11 +113,11 @@
       id="team-intent-return-reveal"
       title={"Teams Intending to Return (#{@intend_to_return_teams_count})"}
     >
-      <div
+      <.link
         :for={team <- @intend_to_return_teams}
-        class="border-b flex items-center py-2 last:border-0 last:-mb-2"
+        class="border-b flex items-center px-4 py-2 -mx-4 transition-colors hover:bg-slate-100 last:border-0 last:-mb-2"
+        navigate={~p"/region/#{@region}/teams/#{team}"}
       >
-        <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
         <div class="grow">
           <h3 class="flex gap-2 items-center">
             <strong><%= team.number %></strong>
@@ -141,8 +141,8 @@
             </span>
           </p>
         </div>
-        <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
-      </div>
+        <div><.icon name="hero-arrow-right" /></div>
+      </.link>
     </.reveal>
   </.card>
 </div>
@@ -152,9 +152,9 @@
     <.reveal id="team-inactive-reveal" title={"All Inactive Teams (#{@inactive_teams_count})"}>
       <div
         :for={team <- @inactive_teams}
-        class="border-b flex items-center py-2 last:border-0 last:-mb-2"
+        class="border-b flex items-center px-4 py-2 -mx-4 transition-colors hover:bg-slate-100 last:border-0 last:-mb-2"
+        navigate={~p"/region/#{@region}/teams/#{team}"}
       >
-        <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
         <div class="grow">
           <h3 class="flex gap-2 items-center">
             <strong><%= team.number %></strong>
@@ -178,7 +178,7 @@
             </span>
           </p>
         </div>
-        <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
+        <div><.icon name="hero-arrow-right" /></div>
       </div>
     </.reveal>
   </.card>
