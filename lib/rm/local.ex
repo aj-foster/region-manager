@@ -407,6 +407,19 @@ defmodule RM.Local do
   # League Assignments
   #
 
+  @spec create_or_update_league_assignment(League.t(), Team.t()) ::
+          {:ok, LeagueAssignment.t()} | {:error, Changeset.t(LeagueAssignment.t())}
+  def create_or_update_league_assignment(league, team) do
+    params = LeagueAssignment.new(league, team)
+
+    Changeset.change(%LeagueAssignment{}, params)
+    |> Repo.insert(
+      on_conflict: {:replace_all_except, [:id, :inserted_at]},
+      conflict_target: [:team_id],
+      returning: true
+    )
+  end
+
   @spec create_league_assignments_from_first(Region.t()) :: [LeagueAssignment.t()]
   @spec create_league_assignments_from_first(Region.t(), keyword) :: [LeagueAssignment.t()]
   def create_league_assignments_from_first(region, opts \\ []) do
@@ -428,7 +441,7 @@ defmodule RM.Local do
 
     Repo.insert_all(LeagueAssignment, List.flatten(assignment_data),
       on_conflict: {:replace_all_except, [:id, :inserted_at]},
-      conflict_target: [:league_id, :team_id],
+      conflict_target: [:team_id],
       returning: true
     )
     |> elem(1)
