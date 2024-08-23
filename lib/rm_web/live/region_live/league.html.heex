@@ -177,11 +177,26 @@
 
   <.card :for={assignment <- @league.user_assignments} class="flex items-center mb-4">
     <div class="grow">
-      <p class="font-semibold">
-        <%= if assignment.user do %>
-          <%= assignment.user.profile.name %>
-        <% else %>
-          <em>Unregistered User</em>
+      <p class="flex gap-2 items-center">
+        <span class="font-semibold">
+          <%= if assignment.user do %>
+            <%= assignment.user.profile.name %>
+          <% else %>
+            <em>Unregistered User</em>
+          <% end %>
+        </span>
+
+        <%= case assignment.permissions do %>
+          <% %{users: true} -> %>
+            <.tag class="bg-emerald-100 border-emerald-300">All Permissions</.tag>
+          <% %{events: true, contact: true} -> %>
+            <.tag class="bg-orange-100 border-orange-300">Events & Contacts</.tag>
+          <% %{events: true, contact: false} -> %>
+            <.tag class="bg-orange-100 border-orange-300">Events Only</.tag>
+          <% %{events: false, contact: true} -> %>
+            <.tag class="bg-orange-100 border-orange-300">Contacts Only</.tag>
+          <% %{events: false, contact: false} -> %>
+            <.tag class="bg-rose-100 border-rose-300">No Permissions</.tag>
         <% end %>
       </p>
       <p class="text-sm"><%= assignment.email %></p>
