@@ -77,6 +77,7 @@ defmodule RMWeb.LeagueLive.Venue.Components do
         <p class="text-right">
           <button
             class="rounded border border-orange-500 font-semibold leading-6 py-1 px-2 text-orange-500"
+            form=""
             phx-click="venue_cancel"
           >
             Cancel

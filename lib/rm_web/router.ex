@@ -50,6 +50,7 @@ defmodule RMWeb.Router do
       live "/league/:region/:league/venues", LeagueLive.Venue.Index
       live "/league/:region/:league/venues/new", LeagueLive.Venue.New
       live "/league/:region/:league/venues/:venue", LeagueLive.Venue.Show
+      live "/league/:region/:league/venues/:venue/edit", LeagueLive.Venue.Edit
 
       live "/region/:region", RegionLive.Show
       live "/region/:region/events", RegionLive.Events

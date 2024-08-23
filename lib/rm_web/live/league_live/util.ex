@@ -6,6 +6,7 @@ defmodule RMWeb.LeagueLive.Util do
   alias RM.Account.User
   alias RM.FIRST.League
   alias RM.Repo
+  alias RMWeb.LeagueLive
 
   @doc """
   Navigation component for league views
@@ -19,7 +20,7 @@ defmodule RMWeb.LeagueLive.Util do
     <div class={["flex font-title italic small-caps", @class]}>
       <div class="border-b border-gray-400 w-4"></div>
 
-      <%= if @view == RMWeb.LeagueLive.Show do %>
+      <%= if @view == LeagueLive.Show do %>
         <div
           class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
           style="background-image: linear-gradient(to bottom, white, transparent)"
@@ -35,7 +36,7 @@ defmodule RMWeb.LeagueLive.Util do
         </.link>
       <% end %>
 
-      <%= if @view == RMWeb.LeagueLive.Events do %>
+      <%= if @view == LeagueLive.Events do %>
         <div
           class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
           style="background-image: linear-gradient(to bottom, white, transparent)"
@@ -51,7 +52,7 @@ defmodule RMWeb.LeagueLive.Util do
         </.link>
       <% end %>
 
-      <%= if @view == RMWeb.LeagueLive.Teams do %>
+      <%= if @view == LeagueLive.Teams do %>
         <div
           class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
           style="background-image: linear-gradient(to bottom, white, transparent)"
@@ -68,14 +69,14 @@ defmodule RMWeb.LeagueLive.Util do
       <% end %>
 
       <%= cond do %>
-        <% @view == RMWeb.LeagueLive.Venue.Index -> %>
+        <% @view == LeagueLive.Venue.Index -> %>
           <div
             class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
             style="background-image: linear-gradient(to bottom, white, transparent)"
           >
             Venues
           </div>
-        <% @view in [RMWeb.LeagueLive.Venue.Show] -> %>
+        <% @view in [LeagueLive.Venue.Show, LeagueLive.Venue.New, LeagueLive.Venue.Edit] -> %>
           <.link
             class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
             navigate={~p"/league/#{@league.region}/#{@league}/venues"}

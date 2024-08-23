@@ -547,6 +547,12 @@ defmodule RM.Local do
     |> Repo.insert()
   end
 
+  @spec update_venue(Venue.t(), map) :: {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
+  def update_venue(venue, params) do
+    Venue.update_changeset(venue, params)
+    |> Repo.update()
+  end
+
   @spec update_venue_archive_status(Venue.t(), boolean) ::
           {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
   @spec update_venue_archive_status(Venue.t(), boolean, keyword) ::

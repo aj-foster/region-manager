@@ -1,8 +1,10 @@
-defmodule RMWeb.LeagueLive.Venue.New do
+defmodule RMWeb.LeagueLive.Venue.Edit do
   use RMWeb, :live_view
   import RMWeb.LeagueLive.Util
   import RMWeb.LeagueLive.Venue.Components
 
+  alias RM.FIRST.Event
+  alias RM.Local.EventProposal
   alias RM.Local.Venue
 
   #
@@ -11,12 +13,37 @@ defmodule RMWeb.LeagueLive.Venue.New do
 
   on_mount {RMWeb.LeagueLive.Util, :preload_league}
   on_mount {RMWeb.LeagueLive.Util, :require_league_manager}
+  on_mount {__MODULE__, :preload_venue}
 
+  @doc false
   @impl true
   def mount(_params, _session, socket) do
     socket
     |> assign_venue_form()
     |> ok()
+  end
+
+  def on_mount(:preload_venue, %{"venue" => id}, _session, socket) do
+    league = socket.assigns[:league]
+
+    case RM.Local.fetch_venue_by_id(id, league: league, preload: [:event_proposals]) do
+      {:ok, venue} ->
+        proposals =
+          venue.event_proposals
+          |> Enum.filter(&(&1.season == league.region.current_season))
+          |> Enum.sort(RM.Local.EventProposal)
+
+        {:cont,
+         assign(socket, proposals: proposals, proposal_count: length(proposals), venue: venue)}
+
+      {:error, :venue, :not_found} ->
+        socket =
+          socket
+          |> put_flash(:error, "Venue not found")
+          |> redirect(to: ~p"/league/#{league.region}/#{league}/venues")
+
+        {:halt, socket}
+    end
   end
 
   #
@@ -28,9 +55,10 @@ defmodule RMWeb.LeagueLive.Venue.New do
 
   def handle_event("venue_cancel", _params, socket) do
     league = socket.assigns[:league]
+    venue = socket.assigns[:venue]
 
     socket
-    |> push_navigate(to: ~p"/league/#{league.region}/#{league}/venues")
+    |> push_navigate(to: ~p"/league/#{league.region}/#{league}/venues/#{venue}")
     |> noreply()
   end
 
@@ -53,16 +81,9 @@ defmodule RMWeb.LeagueLive.Venue.New do
   @spec assign_venue_form(Socket.t()) :: Socket.t()
   @spec assign_venue_form(Socket.t(), map) :: Socket.t()
   defp assign_venue_form(socket, params \\ %{}) do
-    league = socket.assigns[:league]
-
-    params =
-      params
-      |> Map.put("by", socket.assigns[:current_user])
-      |> Map.put_new("country", league.region.metadata.default_country)
-      |> Map.put_new("state_province", league.region.metadata.default_state_province)
-      |> Map.put_new("timezone", socket.assigns[:timezone])
-
-    form = Venue.create_changeset(league, params) |> to_form()
+    venue = socket.assigns[:venue]
+    params = Map.put(params, "by", socket.assigns[:current_user])
+    form = Venue.update_changeset(venue, params) |> to_form()
 
     assign(socket, venue_form: form)
   end
@@ -70,12 +91,13 @@ defmodule RMWeb.LeagueLive.Venue.New do
   @spec venue_submit(Socket.t(), map) :: Socket.t()
   defp venue_submit(socket, params) do
     league = socket.assigns[:league]
+    venue = socket.assigns[:venue]
     params = Map.put(params, "by", socket.assigns[:current_user])
 
-    case RM.Local.create_venue(league, params) do
+    case RM.Local.update_venue(venue, params) do
       {:ok, _venue} ->
         socket
-        |> put_flash(:info, "Venue added successfully")
+        |> put_flash(:info, "Venue updated successfully")
         |> push_navigate(to: ~p"/league/#{league.region}/#{league}/venues")
 
       {:error, changeset} ->

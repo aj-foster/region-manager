@@ -54,6 +54,17 @@ defmodule RM.Local.Venue do
     |> Changeset.validate_required(@required_fields)
   end
 
+  @doc """
+  Create a changeset to update an existing venue
+  """
+  @spec update_changeset(t, map) :: Changeset.t(t)
+  def update_changeset(venue, params) do
+    venue
+    |> Changeset.cast(params, @required_fields ++ @optional_fields)
+    |> Changeset.put_embed(:log, [Log.new("updated", params) | venue.log])
+    |> Changeset.validate_required(@required_fields)
+  end
+
   #
   # Protocols
   #

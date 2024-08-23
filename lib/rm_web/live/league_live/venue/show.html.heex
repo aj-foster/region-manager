@@ -2,6 +2,12 @@
 
 <div class="flex gap-4 items-center mb-4 ml-6">
   <.title class="grow" flush><%= @venue.name %></.title>
+  <.link_button
+    :if={@assignment.permissions.events}
+    navigate={~p"/league/#{@league.region}/#{@league}/venues/#{@venue}/edit"}
+  >
+    Update...
+  </.link_button>
 </div>
 
 <.card spaced>
