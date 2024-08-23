@@ -12,7 +12,7 @@ defmodule RMWeb.LeagueLive.Venue.Edit do
   #
 
   on_mount {RMWeb.LeagueLive.Util, :preload_league}
-  on_mount {RMWeb.LeagueLive.Util, :require_league_manager}
+  on_mount {RMWeb.LeagueLive.Util, {:require_league_manager, :events}}
   on_mount {__MODULE__, :preload_venue}
 
   @doc false

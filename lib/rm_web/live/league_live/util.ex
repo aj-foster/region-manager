@@ -191,6 +191,23 @@ defmodule RMWeb.LeagueLive.Util do
     end
   end
 
+  def on_mount({:require_league_manager, permission}, _params, _session, socket) do
+    league = socket.assigns[:league]
+    user = socket.assigns[:current_user]
+    assignment = get_assignment(league, user)
+
+    if assignment && Map.get(assignment.permissions, permission, false) do
+      {:cont, assign(socket, assignment: assignment)}
+    else
+      socket =
+        socket
+        |> LiveView.put_flash(:error, "You do not have permission to perform this action")
+        |> LiveView.redirect(to: ~p"/dashboard")
+
+      {:halt, socket}
+    end
+  end
+
   @spec get_league(String.t(), String.t()) :: {:ok, League.t()} | {:error, :league, :not_found}
   defp get_league(region_abbr, league_code) do
     preloads = [:region, :settings]
