@@ -1,4 +1,4 @@
-defmodule RMWeb.RegionLive.Teams do
+defmodule RMWeb.RegionLive.Team.Index do
   use RMWeb, :live_view
   import RMWeb.RegionLive.Util
 
