@@ -1,7 +1,13 @@
 <div class="max-w-md mx-auto">
   <.card>
-    <.title flush>Create an account</.title>
-    <p class="mb-4 text-sm">All fields are required</p>
+    <.title class="mb-4" flush>Create an account</.title>
+    <p class="mb-4 text-sm">
+      Your account on <strong>Region Manger</strong>
+      is separate from any other account, but you should use the same email address that you use for the
+      <em>FIRST</em>
+      dashboard.
+    </p>
+    <p class="mb-4 text-sm">All fields are required.</p>
 
     <.form :let={f} for={@changeset} action={~p"/register"} as={:user}>
       <%= if @changeset.action do %>
