@@ -17,6 +17,10 @@ defmodule RMWeb.Router do
     plug :put_layout, html: {RMWeb.Layouts, :app}
   end
 
+  pipeline :identity_html do
+    plug :put_view, RMWeb.IdentityHTML
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
     plug :fetch_version
@@ -71,9 +75,14 @@ defmodule RMWeb.Router do
   scope "/" do
     pipe_through [:browser, :app_layout]
 
-    # Session
-    get "/login", Identity.Controller, :new_session, as: :identity
+    scope "/" do
+      pipe_through [:identity_html]
 
+      # Session
+      get "/login", Identity.Controller, :new_session, as: :identity
+    end
+
+    # Session
     post "/login", Identity.Controller, :create_session,
       as: :identity,
       private: %{after_login: "/dashboard"}
