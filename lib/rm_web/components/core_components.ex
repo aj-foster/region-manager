@@ -838,9 +838,12 @@ defmodule RMWeb.CoreComponents do
       <li :for={item <- @link} class={["border-b last:border-0", item[:class]]}>
         <.link
           class="flex items-center px-4 py-2 transition-colors hover:bg-slate-100"
-          navigate={@navigate}
+          navigate={item[:navigate]}
         >
-          <%= render_slot(item) %>
+          <div class="grow">
+            <%= render_slot(item) %>
+          </div>
+          <div><.icon name="hero-arrow-right" /></div>
         </.link>
       </li>
     </ul>
