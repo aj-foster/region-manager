@@ -1,58 +1,56 @@
 <.nav class="mb-8" team={@team} view={@socket.view} />
 
-<div class="mb-8">
-  <.title><%= @team.name %></.title>
+<.title><%= @team.name %></.title>
 
-  <.card>
-    <.table class="mb-4">
-      <:row title="Number">
-        <%= if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)" %>
-      </:row>
-      <:row title="Name"><%= @team.name %></:row>
-      <:row title="Location">
-        <span :if={@team.location.city}><%= @team.location.city %></span>
-        <span :if={@team.location.postal_code}><%= @team.location.postal_code %></span>
-        <br />
-        <span :if={@team.location.county}><%= @team.location.county %> County,</span>
-        <span :if={@team.location.state_province}><%= @team.location.state_province %>,</span>
-        <span :if={@team.location.country}>
-          <%= @team.location.country || "Unknown Location" %>
-        </span>
-      </:row>
-      <:row title="Rookie Year"><%= @team.rookie_year %></:row>
-      <:row :if={@team.website} title="Website">
-        <a class="underline" href={@team.website} target="blank"><%= @team.website %></a>
-      </:row>
-      <:row title="Region"><%= @team.region.name %></:row>
-      <:row :if={@team.region.has_leagues} title="League">
-        <%= if @team.league, do: @team.league.name, else: "No League Assignment" %>
-      </:row>
-      <:row title="Event Ready?">
-        <%= if @team.event_ready, do: "Yes", else: "No" %>
-        <.icon
-          :if={@team.event_ready}
-          class="align-text-bottom text-green-500"
-          name="hero-check-circle"
-        />
-        <.icon
-          :if={not @team.event_ready}
-          class="align-text-bottom text-orange-500"
-          name="hero-exclamation-triangle"
-        />
-      </:row>
-    </.table>
+<.card spaced>
+  <.table class="mb-4">
+    <:row title="Number">
+      <%= if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)" %>
+    </:row>
+    <:row title="Name"><%= @team.name %></:row>
+    <:row title="Location">
+      <span :if={@team.location.city}><%= @team.location.city %></span>
+      <span :if={@team.location.postal_code}><%= @team.location.postal_code %></span>
+      <br />
+      <span :if={@team.location.county}><%= @team.location.county %> County,</span>
+      <span :if={@team.location.state_province}><%= @team.location.state_province %>,</span>
+      <span :if={@team.location.country}>
+        <%= @team.location.country || "Unknown Location" %>
+      </span>
+    </:row>
+    <:row title="Rookie Year"><%= @team.rookie_year %></:row>
+    <:row :if={@team.website} title="Website">
+      <a class="underline" href={@team.website} target="blank"><%= @team.website %></a>
+    </:row>
+    <:row title="Region"><%= @team.region.name %></:row>
+    <:row :if={@team.region.has_leagues} title="League">
+      <%= if @team.league, do: @team.league.name, else: "No League Assignment" %>
+    </:row>
+    <:row title="Event Ready?">
+      <%= if @team.event_ready, do: "Yes", else: "No" %>
+      <.icon
+        :if={@team.event_ready}
+        class="align-text-bottom text-green-500"
+        name="hero-check-circle"
+      />
+      <.icon
+        :if={not @team.event_ready}
+        class="align-text-bottom text-orange-500"
+        name="hero-exclamation-triangle"
+      />
+    </:row>
+  </.table>
 
-    <p class="text-sm">
-      This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
-        @team.region.stats.teams_imported_at,
-        :date
-      ) %>. Please make corrections in the
-      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-        <em>FIRST</em> Dashboard.
-      </a>
-    </p>
-  </.card>
-</div>
+  <p class="text-sm">
+    This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on <%= format_date(
+      @team.region.stats.teams_imported_at,
+      :date
+    ) %>. Please make corrections in the
+    <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+      <em>FIRST</em> Dashboard.
+    </a>
+  </p>
+</.card>
 
 <div :if={requires_attention?(@team)} class="mb-8">
   <.title>Items Requiring Attention</.title>

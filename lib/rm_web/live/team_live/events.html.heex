@@ -1,78 +1,74 @@
 <.nav class="mb-8" team={@team} view={@socket.view} />
 
 <.warning :if={not @team.event_ready} class="mb-6">
-  This team is not <strong>Event Ready</strong>. Please resolve all
+  This team is not <strong>Event Ready</strong>. You may need to resolve all
   <.link class="underline" navigate={~p"/team/#{@team}"}>outstanding notices</.link>
-  before attempting to register for events.
+  before you can register for certain events.
 </.warning>
 
-<div class="mb-8">
-  <.title>Registered Events</.title>
+<.title>Registered Events</.title>
 
-  <.card :if={length(@team.event_registrations) == 0}>
-    <p class="italic text-sm">This team is not registered for any events.</p>
+<.card :if={length(@team.event_registrations) == 0} spaced>
+  <p class="italic text-sm">This team is not registered for any events.</p>
+</.card>
+
+<.card :if={length(@team.event_registrations) > 0} spaced>
+  <.link
+    :for={registration <- @team.event_registrations}
+    class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
+    navigate={~p"/team/#{@team}/events/#{registration.event}"}
+  >
+    <div class="grow">
+      <h3 class="font-bold">
+        <%= registration.event.name %>
+        <.tag :if={registration.rescinded} class="bg-orange-100 border-orange-300 ml-2">
+          Rescinded
+        </.tag>
+        <.tag :if={registration.waitlisted} class="bg-orange-100 border-orange-300 ml-2">
+          Waitlist
+        </.tag>
+      </h3>
+      <p class="text-sm">
+        <span>
+          <%= format_range(registration.event.date_start, registration.event.date_end) %>
+        </span>
+        <span>&bull; <%= Event.type_name(registration.event.type) %></span>
+        <span :if={registration.event.remote or registration.event.hybrid}>
+          &bull; <%= Event.format_name(registration.event) %>
+        </span>
+      </p>
+    </div>
+    <div><.icon name="hero-arrow-right" /></div>
+  </.link>
+</.card>
+
+<.title>Available Events</.title>
+
+<.async_result :let={eligible_events} assign={@eligible_events}>
+  <:loading>
+    <.card>
+      <p class="italic text-sm">Loading...</p>
+    </.card>
+  </:loading>
+  <.card :if={length(eligible_events) == 0}>
+    <p class="italic text-sm">There are no available events.</p>
   </.card>
 
-  <.card :if={length(@team.event_registrations) > 0}>
+  <.card :if={length(eligible_events) > 0}>
     <.link
-      :for={registration <- @team.event_registrations}
+      :for={event <- eligible_events}
       class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
-      navigate={~p"/team/#{@team}/events/#{registration.event}"}
+      navigate={~p"/team/#{@team}/events/#{event}"}
     >
       <div class="grow">
-        <h3 class="font-bold">
-          <%= registration.event.name %>
-          <.tag :if={registration.rescinded} class="bg-orange-100 border-orange-300 ml-2">
-            Rescinded
-          </.tag>
-          <.tag :if={registration.waitlisted} class="bg-orange-100 border-orange-300 ml-2">
-            Waitlist
-          </.tag>
-        </h3>
+        <h3 class="font-bold"><%= event.name %></h3>
         <p class="text-sm">
-          <span>
-            <%= format_range(registration.event.date_start, registration.event.date_end) %>
-          </span>
-          <span>&bull; <%= Event.type_name(registration.event.type) %></span>
-          <span :if={registration.event.remote or registration.event.hybrid}>
-            &bull; <%= Event.format_name(registration.event) %>
-          </span>
+          <span><%= format_range(event.date_start, event.date_end) %></span>
+          <span>&bull; <%= Event.type_name(event.type) %></span>
+          <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
         </p>
       </div>
       <div><.icon name="hero-arrow-right" /></div>
     </.link>
   </.card>
-</div>
-
-<div class="mb-8">
-  <.title>Available Events</.title>
-
-  <.async_result :let={eligible_events} assign={@eligible_events}>
-    <:loading>
-      <.card>
-        <p class="italic text-sm">Loading...</p>
-      </.card>
-    </:loading>
-    <.card :if={length(eligible_events) == 0}>
-      <p class="italic text-sm">There are no available events.</p>
-    </.card>
-
-    <.card :if={length(eligible_events) > 0}>
-      <.link
-        :for={event <- eligible_events}
-        class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
-        navigate={~p"/team/#{@team}/events/#{event}"}
-      >
-        <div class="grow">
-          <h3 class="font-bold"><%= event.name %></h3>
-          <p class="text-sm">
-            <span><%= format_range(event.date_start, event.date_end) %></span>
-            <span>&bull; <%= Event.type_name(event.type) %></span>
-            <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
-          </p>
-        </div>
-        <div><.icon name="hero-arrow-right" /></div>
-      </.link>
-    </.card>
-  </.async_result>
-</div>
+</.async_result>

@@ -1,169 +1,165 @@
 <.nav class="mb-8" region={@region} view={@socket.view} />
 
-<div class="mb-8">
-  <div class="flex items-center justify-between mb-4 ml-6">
-    <.title flush><%= @league.name %> League</.title>
-    <.button phx-click="edit_league_init">
-      <%= if @edit_league, do: "Cancel", else: "Edit..." %>
-    </.button>
-  </div>
+<div class="flex items-center justify-between mb-4 ml-6">
+  <.title flush><%= @league.name %> League</.title>
+  <.button phx-click="edit_league_init">
+    <%= if @edit_league, do: "Cancel", else: "Edit..." %>
+  </.button>
+</div>
 
-  <.information :if={is_nil(@first_league)} class="mb-4">
-    <p class="font-bold">
-      This league is not listed in public data available from <em>FIRST</em>.
-    </p>
-    <p>
-      Please copy the league into the
-      <a
-        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/"}
-        target="blank"
-      >
-        <span class="underline">Cloud Scoring System</span>
-        <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4 align-text-top" />
-      </a>
-      when available.
-    </p>
-  </.information>
+<.information :if={is_nil(@first_league)} class="mb-4">
+  <p class="font-bold">
+    This league is not listed in public data available from <em>FIRST</em>.
+  </p>
+  <p>
+    Please copy the league into the
+    <a
+      href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/"}
+      target="blank"
+    >
+      <span class="underline">Cloud Scoring System</span>
+      <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4 align-text-top" />
+    </a>
+    when available.
+  </p>
+</.information>
 
-  <.card :if={not @edit_league}>
-    <.table>
-      <:row title="Name">
-        <div class="flex gap-4 items-center">
-          <div class="grow"><%= @region.name %> <%= @league.name %> League</div>
-          <button
-            class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
-            id="copy-league-name"
-            data-copy={"#{@region.name} #{@league.name} League"}
-            phx-click={copy("#copy-league-name")}
-            title="Copy to Clipboard"
-          >
-            <.icon name="hero-document-duplicate" />
-          </button>
+<.card :if={not @edit_league} spaced>
+  <.table>
+    <:row title="Name">
+      <div class="flex gap-4 items-center">
+        <div class="grow"><%= @region.name %> <%= @league.name %> League</div>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-name"
+          data-copy={"#{@region.name} #{@league.name} League"}
+          phx-click={copy("#copy-league-name")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+    <:row title="Code">
+      <div class="flex gap-4 items-center">
+        <div class="grow">
+          <span class="font-mono text-orange-600"><%= @league.code %></span>
         </div>
-      </:row>
-      <:row title="Code">
-        <div class="flex gap-4 items-center">
-          <div class="grow">
-            <span class="font-mono text-orange-600"><%= @league.code %></span>
-          </div>
-          <button
-            class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
-            id="copy-league-code"
-            data-copy={@league.code}
-            phx-click={copy("#copy-league-code")}
-            title="Copy to Clipboard"
-          >
-            <.icon name="hero-document-duplicate" />
-          </button>
-        </div>
-      </:row>
-      <:row title="Location">
-        <div class="flex gap-4 items-center shrink">
-          <div class="min-w-0 shrink"><%= @league.location %></div>
-          <button
-            class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
-            id="copy-league-location"
-            data-copy={@league.location}
-            phx-click={copy("#copy-league-location")}
-            title="Copy to Clipboard"
-          >
-            <.icon name="hero-document-duplicate" />
-          </button>
-        </div>
-      </:row>
-      <:row title="style"><%= if(@league.remote, do: "Remote", else: "Traditional") %></:row>
-    </.table>
-  </.card>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-code"
+          data-copy={@league.code}
+          phx-click={copy("#copy-league-code")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+    <:row title="Location">
+      <div class="flex gap-4 items-center shrink">
+        <div class="min-w-0 shrink"><%= @league.location %></div>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-location"
+          data-copy={@league.location}
+          phx-click={copy("#copy-league-location")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+    <:row title="style"><%= if(@league.remote, do: "Remote", else: "Traditional") %></:row>
+  </.table>
+</.card>
 
-  <.card :if={@edit_league}>
-    <p class="mb-4 text-sm">
-      Use this form to update league information in <strong>Region Manager</strong>.
-      Afterwards, these changes must be copied to the <a
-        class="text-orange-600"
-        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/#leagues"}
-        target="blank"
-      ><span class="underline"><em>FIRST</em> Cloud Scoring System</span>
+<.card :if={@edit_league} spaced>
+  <p class="mb-4 text-sm">
+    Use this form to update league information in <strong>Region Manager</strong>.
+    Afterwards, these changes must be copied to the <a
+      class="text-orange-600"
+      href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/#leagues"}
+      target="blank"
+    ><span class="underline"><em>FIRST</em> Cloud Scoring System</span>
     <.icon
-          name="hero-arrow-top-right-on-square"
-          class="h-4 w-4 align-text-top"
-        /></a>.
+        name="hero-arrow-top-right-on-square"
+        class="h-4 w-4 align-text-top"
+      /></a>.
+  </p>
+
+  <.form for={@edit_league_form} phx-change="edit_league_change" phx-submit="edit_league_submit">
+    <.input
+      explanation={"Full name: #{@region.name} #{@edit_league_form[:name].value} League"}
+      field={@edit_league_form[:name]}
+      label="League Name"
+      required
+      wrapper="mb-4"
+    />
+
+    <.input
+      explanation="Recommended 2 characters. Max of 4 characters. Capital letters or numbers only."
+      field={@edit_league_form[:code]}
+      info_modal="league-edit-code-modal"
+      label="League Code"
+      maxlength="4"
+      pattern="[A-Z0-9]{1,4}"
+      required
+      wrapper="mb-4"
+    />
+
+    <.input
+      explanation="Cities, counties, or other geographies covered by this league"
+      field={@edit_league_form[:location]}
+      label="Location"
+      required
+      type="textarea"
+      wrapper="mb-4"
+    />
+
+    <.switch
+      explanation="Remote leagues can only have remote events"
+      field={@edit_league_form[:remote]}
+      info_modal="league-edit-style-modal"
+      label="Remote League"
+      type="checkbox"
+      wrapper="mb-4"
+    />
+
+    <p class="text-right">
+      <.button type="submit">Update League</.button>
     </p>
+  </.form>
+</.card>
 
-    <.form for={@edit_league_form} phx-change="edit_league_change" phx-submit="edit_league_submit">
-      <.input
-        explanation={"Full name: #{@region.name} #{@edit_league_form[:name].value} League"}
-        field={@edit_league_form[:name]}
-        label="League Name"
-        required
-        wrapper="mb-4"
-      />
+<.title><%= @league.name %> League</.title>
 
-      <.input
-        explanation="Recommended 2 characters. Max of 4 characters. Capital letters or numbers only."
-        field={@edit_league_form[:code]}
-        info_modal="league-edit-code-modal"
-        label="League Code"
-        maxlength="4"
-        pattern="[A-Z0-9]{1,4}"
-        required
-        wrapper="mb-4"
-      />
+<.card spaced>
+  <.table class="mb-4">
+    <:row title="Events">
+      <p :if={@league.stats.event_count == 0} class="italic text-sm">No events</p>
+      <ul :if={@league.stats.event_count > 0}>
+        <li :for={event <- @league.events}><%= event.name %></li>
+      </ul>
+    </:row>
 
-      <.input
-        explanation="Cities, counties, or other geographies covered by this league"
-        field={@edit_league_form[:location]}
-        label="Location"
-        required
-        type="textarea"
-        wrapper="mb-4"
-      />
+    <:row title="Teams">
+      <p :if={@league.stats.team_count == 0} class="italic text-sm">No teams</p>
+      <ul :if={@league.stats.team_count > 0}>
+        <li :for={team <- @league.teams}>
+          <strong><%= team.number %></strong> <%= team.name %>
+        </li>
+      </ul>
+    </:row>
+  </.table>
 
-      <.switch
-        explanation="Remote leagues can only have remote events"
-        field={@edit_league_form[:remote]}
-        info_modal="league-edit-style-modal"
-        label="Remote League"
-        type="checkbox"
-        wrapper="mb-4"
-      />
-
-      <p class="text-right">
-        <.button type="submit">Update League</.button>
-      </p>
-    </.form>
-  </.card>
-</div>
-
-<div class="mb-8">
-  <.title><%= @league.name %> League</.title>
-
-  <.card>
-    <.table class="mb-4">
-      <:row title="Events">
-        <p :if={@league.stats.event_count == 0} class="italic text-sm">No events</p>
-        <ul :if={@league.stats.event_count > 0}>
-          <li :for={event <- @league.events}><%= event.name %></li>
-        </ul>
-      </:row>
-
-      <:row title="Teams">
-        <p :if={@league.stats.team_count == 0} class="italic text-sm">No teams</p>
-        <ul :if={@league.stats.team_count > 0}>
-          <li :for={team <- @league.teams}>
-            <strong><%= team.number %></strong> <%= team.name %>
-          </li>
-        </ul>
-      </:row>
-    </.table>
-
-    <p class="text-sm">
-      Last refreshed on <%= format_date(
-        @league.region.stats.leagues_imported_at,
-        :date
-      ) %>.
-    </p>
-  </.card>
-</div>
+  <p class="text-sm">
+    Last refreshed on <%= format_date(
+      @league.region.stats.leagues_imported_at,
+      :date
+    ) %>.
+  </p>
+</.card>
 
 <div class="mb-8">
   <div class="flex items-center justify-between mb-4 ml-6">
