@@ -722,7 +722,9 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <dl class={["grid grid-table gap-x-8", @class]}>
       <%= for row <- @row do %>
-        <dt class="col-start-1 col-end-2 font-semibold small-caps"><%= row.title %></dt>
+        <dt class={["col-start-1 col-end-2 font-semibold small-caps", Map.get(row, :class)]}>
+          <%= row.title %>
+        </dt>
         <dd class={[
           "col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3 last:mb-0",
           Map.get(row, :class)

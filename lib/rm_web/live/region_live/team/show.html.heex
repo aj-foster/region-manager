@@ -74,3 +74,147 @@
     </:row>
   </.table>
 </.card>
+
+<.title>Coach Information</.title>
+
+<.card spaced>
+  <.table>
+    <:row :if={@lc1} title="First Coach">
+      <span :if={is_nil(@lc1.name)} class="text-orange-600">Missing</span>
+      <span :if={@lc1.name}><%= @lc1.name %></span>
+    </:row>
+    <:row :if={@lc1 && @lc1.email} title="Email">
+      <div class="flex gap-4 items-center">
+        <div class="grow">
+          <a class="underline" href={"mailto:#{@lc1.email}"}><%= @lc1.email %></a>
+        </div>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-name"
+          data-copy={@lc1.email}
+          phx-click={copy("#copy-league-name")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+    <:row :if={@lc1 && @lc1.email_alt} title="Alt. Email">
+      <div class="flex gap-4 items-center">
+        <div class="grow">
+          <a class="underline" href={"mailto:#{@lc1.email_alt}"}><%= @lc1.email_alt %></a>
+        </div>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-name"
+          data-copy={@lc1.email_alt}
+          phx-click={copy("#copy-league-name")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+    <:row :if={@lc1 && @lc1.phone} title="Phone">
+      <div class="flex gap-4 items-center">
+        <div class="grow">
+          <a class="underline" href={"tel:#{@lc1.phone}"}><%= @lc1.phone %></a>
+        </div>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-name"
+          data-copy={@lc1.phone}
+          phx-click={copy("#copy-league-name")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+    <:row :if={@lc1 && @lc1.phone_alt} title="Alt. Phone">
+      <div class="flex gap-4 items-center">
+        <div class="grow">
+          <a class="underline" href={"tel:#{@lc1.phone_alt}"}><%= @lc1.phone_alt %></a>
+        </div>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-name"
+          data-copy={@lc1.phone_alt}
+          phx-click={copy("#copy-league-name")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+
+    <:row :if={@lc2} class="mt-4" title="Second Coach">
+      <span :if={is_nil(@lc2.name)} class="text-orange-600">Missing</span>
+      <span :if={@lc2.name}><%= @lc2.name %></span>
+    </:row>
+    <:row :if={@lc2 && @lc2.email} title="Email">
+      <div class="flex gap-4 items-center">
+        <div class="grow">
+          <a class="underline" href={"mailto:#{@lc2.email}"}><%= @lc2.email %></a>
+        </div>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-name"
+          data-copy={@lc2.email}
+          phx-click={copy("#copy-league-name")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+    <:row :if={@lc2 && @lc2.email_alt} title="Alt. Email">
+      <div class="flex gap-4 items-center">
+        <div class="grow">
+          <a class="underline" href={"mailto:#{@lc2.email_alt}"}><%= @lc2.email_alt %></a>
+        </div>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-name"
+          data-copy={@lc2.email_alt}
+          phx-click={copy("#copy-league-name")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+    <:row :if={@lc2 && @lc2.phone} title="Phone">
+      <div class="flex gap-4 items-center">
+        <div class="grow">
+          <a class="underline" href={"tel:#{@lc2.phone}"}><%= @lc2.phone %></a>
+        </div>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-name"
+          data-copy={@lc2.phone}
+          phx-click={copy("#copy-league-name")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+    <:row :if={@lc2 && @lc2.phone_alt} title="Alt. Phone">
+      <div class="flex gap-4 items-center">
+        <div class="grow">
+          <a class="underline" href={"tel:#{@lc2.phone_alt}"}><%= @lc2.phone_alt %></a>
+        </div>
+        <button
+          class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+          id="copy-league-name"
+          data-copy={@lc2.phone_alt}
+          phx-click={copy("#copy-league-name")}
+          title="Copy to Clipboard"
+        >
+          <.icon name="hero-document-duplicate" />
+        </button>
+      </div>
+    </:row>
+  </.table>
+</.card>

@@ -19,9 +19,16 @@ defmodule RMWeb.RegionLive.Team.Show do
   def on_mount(:preload_team, %{"team" => team_number}, _session, socket) do
     region = socket.assigns[:region]
 
-    case RM.Local.fetch_team_by_number(team_number, region: region, preload: [:league]) do
+    case RM.Local.fetch_team_by_number(team_number, region: region, preload: [:league, :users]) do
       {:ok, team} ->
-        {:cont, assign(socket, team: team)}
+        IO.inspect(team)
+
+        {:cont,
+         assign(socket,
+           lc1: Enum.find(team.user_assignments, &(&1.relationship == :lc1)),
+           lc2: Enum.find(team.user_assignments, &(&1.relationship == :lc2)),
+           team: team
+         )}
 
       {:error, :team, :not_found} ->
         socket =
