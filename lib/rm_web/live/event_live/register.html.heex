@@ -120,8 +120,8 @@
       navigate={~p"/team/#{team}/events/#{@event}"}
     >
       <div class="grow">
-        <h3>
-          <strong><%= team.number %></strong> <%= team.name %>
+        <h3 class="flex items-center">
+          <span><strong><%= team.number %></strong> <%= team.name %></span>
           <.tag
             :if={@registrations[team.number] == :attending}
             class="bg-emerald-100 border-emerald-300 ml-2"

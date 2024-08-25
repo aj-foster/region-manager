@@ -86,17 +86,26 @@ defmodule RMWeb.CoreComponents do
   """
   attr :class, :string, default: nil, doc: "additional classes to apply"
   attr :flush, :boolean, default: false, doc: "when true, remove all margin"
+  attr :wrapper, :string, default: nil, doc: "additional classes to apply to the container"
+  slot :action, doc: "right-side actions (such as buttons) to include"
   slot :inner_block, required: true
 
   def title(assigns) do
     ~H"""
-    <h2 class={[
-      "font-title italic uppercase",
+    <div class={[
+      if(@action != [], do: "flex gap-4 items-center"),
       if(not @flush, do: "mb-4 ml-6"),
-      @class
+      @wrapper
     ]}>
-      <%= render_slot(@inner_block) %>
-    </h2>
+      <h2 class={[
+        "font-title italic uppercase",
+        if(@action != [], do: "grow"),
+        @class
+      ]}>
+        <%= render_slot(@inner_block) %>
+      </h2>
+      <%= render_slot(@action) %>
+    </div>
     """
   end
 

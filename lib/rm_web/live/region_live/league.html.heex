@@ -1,11 +1,13 @@
 <.nav class="mb-8" region={@region} view={@socket.view} />
 
-<div class="flex items-center justify-between mb-4 ml-6">
-  <.title flush><%= @league.name %> League</.title>
-  <.button phx-click="edit_league_init">
-    <%= if @edit_league, do: "Cancel", else: "Edit..." %>
-  </.button>
-</div>
+<.title>
+  <%= @league.name %> League
+  <:action>
+    <.button phx-click="edit_league_init">
+      <%= if @edit_league, do: "Cancel", else: "Edit..." %>
+    </.button>
+  </:action>
+</.title>
 
 <.information :if={is_nil(@first_league)} class="mb-4">
   <p class="font-bold">
@@ -162,10 +164,12 @@
 </.card>
 
 <div class="mb-8">
-  <div class="flex items-center justify-between mb-4 ml-6">
-    <.title flush>League Administrators</.title>
-    <.button phx-click={show_modal("league-add-user-modal")}>Add...</.button>
-  </div>
+  <.title>
+    League Administrators
+    <:action>
+      <.button phx-click={show_modal("league-add-user-modal")}>Add...</.button>
+    </:action>
+  </.title>
 
   <.card :if={length(@league.user_assignments) == 0}>
     <p class="italic text-sm">This league currently has no administrators assigned.</p>

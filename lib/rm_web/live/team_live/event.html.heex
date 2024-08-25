@@ -53,23 +53,25 @@
   </p>
 </.card>
 
-<div class="flex items-center justify-between mb-4 ml-6">
-  <.title flush>Registration</.title>
-  <.button
-    :if={is_nil(@registration) and @event.settings.registration.enabled}
-    disabled={not @eligible}
-    phx-click={show_modal("create-registration-modal")}
-  >
-    Register...
-  </.button>
-  <.button
-    :if={@registration}
-    disabled={@registration.rescinded}
-    phx-click={show_modal("change-registration-modal")}
-  >
-    Change...
-  </.button>
-</div>
+<.title>
+  Registration
+  <:action>
+    <.button
+      :if={is_nil(@registration) and @event.settings.registration.enabled}
+      disabled={not @eligible}
+      phx-click={show_modal("create-registration-modal")}
+    >
+      Register...
+    </.button>
+    <.button
+      :if={@registration}
+      disabled={@registration.rescinded}
+      phx-click={show_modal("change-registration-modal")}
+    >
+      Change...
+    </.button>
+  </:action>
+</.title>
 
 <.card :if={not @event.settings.registration.enabled}>
   <p class="text-sm">

@@ -1,21 +1,21 @@
 <.nav class="mb-8" region={@region} view={@socket.view} />
 
-<div class="flex items-center mb-4 ml-6">
-  <.title flush class="grow">
-    Event Proposals
-    <button phx-click={show_modal("event-proposal-info")}>
-      <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
-    </button>
-  </.title>
+<.title>
+  Event Proposals
+  <button phx-click={show_modal("event-proposal-info")}>
+    <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+  </button>
 
-  <.link_button
-    href={"https://ftc-scoring.firstinspires.org/region/#{String.upcase(@region.code)}/request/batch?cmpYear=#{@region.current_season + 1}"}
-    style="tertiary"
-    target="blank"
-  >
-    Upload <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
-  </.link_button>
-</div>
+  <:action>
+    <.link_button
+      href={"https://ftc-scoring.firstinspires.org/region/#{String.upcase(@region.code)}/request/batch?cmpYear=#{@region.current_season + 1}"}
+      style="tertiary"
+      target="blank"
+    >
+      Upload <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+    </.link_button>
+  </:action>
+</.title>
 
 <%= if @pending_proposals_count > 0 do %>
   <.information :if={@pending_proposals_count > 0} class="mb-4">
