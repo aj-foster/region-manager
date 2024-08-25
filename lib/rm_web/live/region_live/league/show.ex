@@ -1,4 +1,4 @@
-defmodule RMWeb.RegionLive.League do
+defmodule RMWeb.RegionLive.League.Show do
   use RMWeb, :live_view
   import RMWeb.RegionLive.Util
 

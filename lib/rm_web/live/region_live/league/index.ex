@@ -1,4 +1,4 @@
-defmodule RMWeb.RegionLive.Leagues do
+defmodule RMWeb.RegionLive.League.Index do
   use RMWeb, :live_view
   import RMWeb.RegionLive.Util
   require Logger
