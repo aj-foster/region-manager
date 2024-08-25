@@ -102,6 +102,16 @@ defmodule RM.Local.Query do
   def rescinded(query, true), do: where(query, [registration: r], r.rescinded)
   def rescinded(query, false), do: where(query, [registration: r], not r.rescinded)
 
+  @doc "Find teams related to the given league"
+  @spec team_league(query, League.t() | nil) :: query
+  def team_league(query, nil), do: query
+
+  def team_league(query, %League{id: league_id}) do
+    join(query, :inner, [team: t], la in assoc(t, :league_assignment),
+      on: la.league_id == ^league_id
+    )
+  end
+
   @doc "Filter by the `waitlisted` attribute of a registration"
   @spec waitlisted(query, boolean | nil) :: query
   def waitlisted(query, nil), do: query

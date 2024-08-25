@@ -1,4 +1,4 @@
-defmodule RMWeb.LeagueLive.Teams do
+defmodule RMWeb.LeagueLive.Team.Index do
   use RMWeb, :live_view
   import RMWeb.LeagueLive.Util
 
