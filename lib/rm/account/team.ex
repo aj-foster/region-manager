@@ -16,7 +16,11 @@ defmodule RM.Account.Team do
   @foreign_key_type :binary_id
 
   schema "user_teams" do
+    field :name, :string
     field :email, :string
+    field :email_alt, :string
+    field :phone, :string
+    field :phone_alt, :string
     field :relationship, Ecto.Enum, values: @relationships
     timestamps type: :utc_datetime_usec
 
@@ -35,9 +39,17 @@ defmodule RM.Account.Team do
       team_id: team_id,
       data: %RM.Import.Team.Data{
         lc1_email: lc1_email,
+        lc1_email_alt: lc1_email_alt,
+        lc1_name: lc1_name,
+        lc1_phone: lc1_phone,
+        lc1_phone_alt: lc1_phone_alt,
         lc1_ypp: lc1_ypp,
         lc1_ypp_reason: lc1_ypp_reason,
         lc2_email: lc2_email,
+        lc2_email_alt: lc2_email_alt,
+        lc2_name: lc2_name,
+        lc2_phone: lc2_phone,
+        lc2_phone_alt: lc2_phone_alt,
         lc2_ypp: lc2_ypp,
         lc2_ypp_reason: lc2_ypp_reason
       }
@@ -47,24 +59,32 @@ defmodule RM.Account.Team do
 
     [
       %__MODULE__{
-        email: lc1_email,
+        email: if(lc1_email != "", do: lc1_email),
+        email_alt: if(lc1_email_alt != "", do: lc1_email_alt),
         inserted_at: now,
+        name: if(lc1_name != "", do: lc1_name),
         notices: %__MODULE__.Notices{
           agree_to_ypp: not lc1_ypp and lc1_ypp_reason =~ "not yet agreed",
           start_ypp: not lc1_ypp and lc1_ypp_reason =~ "needs to log into"
         },
+        phone: if(lc1_phone != "", do: lc1_phone),
+        phone_alt: if(lc1_phone_alt != "", do: lc1_phone_alt),
         relationship: :lc1,
         team_id: Map.fetch!(team_id_map, team_id),
         updated_at: now,
         user_id: nil
       },
       %__MODULE__{
-        email: lc2_email,
+        email: if(lc2_email != "", do: lc2_email),
+        email_alt: if(lc2_email_alt != "", do: lc2_email_alt),
         inserted_at: now,
+        name: if(lc2_name != "", do: lc2_name),
         notices: %__MODULE__.Notices{
           agree_to_ypp: not lc2_ypp and lc2_ypp_reason =~ "not yet agreed",
           start_ypp: not lc2_ypp and lc2_ypp_reason =~ "needs to log into"
         },
+        phone: if(lc2_phone != "", do: lc2_phone),
+        phone_alt: if(lc2_phone_alt != "", do: lc2_phone_alt),
         relationship: :lc2,
         team_id: Map.fetch!(team_id_map, team_id),
         updated_at: now,
