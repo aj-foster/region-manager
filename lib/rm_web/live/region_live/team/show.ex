@@ -21,8 +21,6 @@ defmodule RMWeb.RegionLive.Team.Show do
 
     case RM.Local.fetch_team_by_number(team_number, region: region, preload: [:league, :users]) do
       {:ok, team} ->
-        IO.inspect(team)
-
         {:cont,
          assign(socket,
            lc1: Enum.find(team.user_assignments, &(&1.relationship == :lc1)),
