@@ -22,13 +22,19 @@ defmodule RMWeb.CoreComponents do
   Visual foreground for page content
   """
   attr :class, :string, default: nil, doc: "additional classes"
+  attr :padding, :boolean, default: true, doc: "whether to pad the contents of the card"
   attr :spaced, :boolean, default: false, doc: "easily add bottom margin"
   slot :inner_block, required: true
+
+  @card_class_padding_full "px-6 py-4"
+  @card_class_padding_minimal "p-2"
+  @card_class_style "bg-white border border-slate-200 rounded shadow"
 
   def card(assigns) do
     ~H"""
     <div class={[
-      "bg-white border border-slate-200 px-6 py-4 rounded shadow",
+      card_class_padding(@padding),
+      card_class_style(),
       @spaced && "mb-8",
       @class
     ]}>
@@ -36,6 +42,10 @@ defmodule RMWeb.CoreComponents do
     </div>
     """
   end
+
+  defp card_class_padding(true), do: @card_class_padding_full
+  defp card_class_padding(false), do: @card_class_padding_minimal
+  defp card_class_style, do: @card_class_style
 
   @doc """
   Visual foreground for page content that also acts as a link
@@ -765,18 +775,21 @@ defmodule RMWeb.CoreComponents do
   end
 
   @doc """
-  Expandable content with a title and toggle arrow
+  Expandable card with a title and toggle arrow
   """
+  attr :class, :string, default: nil, doc: "additional classes for the revealed container"
   attr :id, :string, required: true
   attr :show, :boolean, default: false, doc: "whether to show the content by default"
   attr :title, :string, required: true
+  attr :wrapper, :string, default: nil, doc: "additional classes for the wrapping card"
+  attr :rest, :global, include: ~w(spaced)
   slot :inner_block, required: true
 
   def reveal(assigns) do
     ~H"""
-    <div>
+    <.card class={@wrapper} padding={false} {@rest}>
       <div
-        class="cursor-pointer flex gap-4 items-center"
+        class="cursor-pointer flex gap-4 items-center px-4 py-2"
         phx-click={
           JS.toggle_class("h-0 h-auto", to: "##{@id}-reveal-contents")
           |> JS.toggle_class("rotate-180", to: "##{@id}-reveal-icon")
@@ -786,12 +799,42 @@ defmodule RMWeb.CoreComponents do
         <.icon class="transition-transform" id={"#{@id}-reveal-icon"} name="hero-chevron-up" />
       </div>
       <div
-        class={["-m-2 overflow-hidden p-2", if(@show, do: "h-auto", else: "h-0")]}
+        class={["overflow-y-hidden", @class, if(@show, do: "h-auto", else: "h-0")]}
         id={"#{@id}-reveal-contents"}
       >
         <%= render_slot(@inner_block) %>
       </div>
-    </div>
+    </.card>
+    """
+  end
+
+  attr :rest, :global
+
+  slot :item do
+    attr :class, :string, doc: "additional classes for the row contents"
+  end
+
+  slot :link do
+    attr :class, :string, doc: "additional classes for the row contents"
+    attr :navigate, :string, doc: "navigation target for the link"
+  end
+
+  def list(assigns) do
+    ~H"""
+    <ul {@rest}>
+      <li :for={item <- @item} class={["border-b last:border-0", item[:class]]}>
+        <%= render_slot(item) %>
+      </li>
+
+      <li :for={item <- @link} class={["border-b last:border-0", item[:class]]}>
+        <.link
+          class="flex items-center px-4 py-2 transition-colors hover:bg-slate-100"
+          navigate={@navigate}
+        >
+          <%= render_slot(item) %>
+        </.link>
+      </li>
+    </ul>
     """
   end
 

@@ -37,64 +37,63 @@
   Inactive Teams in <%= @league.name %> League
 </.title>
 
-<div :if={@intend_to_return_teams_count > 0} class="mb-8">
-  <.card>
-    <.reveal
-      id="team-intent-return-reveal"
-      title={"Teams Intending to Return (#{@intend_to_return_teams_count})"}
-    >
-      <div
-        :for={team <- @intend_to_return_teams}
-        class="border-b flex items-center py-2 last:border-0 last:-mb-2"
-      >
-        <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
-        <div class="grow">
-          <h3 class="flex gap-2 items-center">
-            <strong><%= team.number %></strong>
-            <span><%= team.name %></span>
-            <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
-              Not Event Ready
-            </.tag>
-          </h3>
-          <p class="text-sm">
-            <span><%= team.location.city || "Unknown City" %> &bull;</span>
-            <span :if={team.location.county}><%= team.location.county %> County &bull;</span>
-            <span :if={team.location.postal_code}><%= team.location.postal_code %></span>
-          </p>
-        </div>
-        <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
-      </div>
-    </.reveal>
-  </.card>
-</div>
+<.reveal
+  :if={@intend_to_return_teams_count > 0}
+  id="team-intent-return-reveal"
+  spaced
+  title={"Teams Intending to Return (#{@intend_to_return_teams_count})"}
+>
+  <div
+    :for={team <- @intend_to_return_teams}
+    class="border-b flex items-center py-2 last:border-0 last:-mb-2"
+  >
+    <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
+    <div class="grow">
+      <h3 class="flex gap-2 items-center">
+        <strong><%= team.number %></strong>
+        <span><%= team.name %></span>
+        <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
+          Not Event Ready
+        </.tag>
+      </h3>
+      <p class="text-sm">
+        <span><%= team.location.city || "Unknown City" %> &bull;</span>
+        <span :if={team.location.county}><%= team.location.county %> County &bull;</span>
+        <span :if={team.location.postal_code}><%= team.location.postal_code %></span>
+      </p>
+    </div>
+    <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
+  </div>
+</.reveal>
 
-<div :if={@inactive_teams_count > 0} class="mb-8">
-  <.card>
-    <.reveal id="team-inactive-reveal" title={"All Inactive Teams (#{@inactive_teams_count})"}>
-      <div
-        :for={team <- @inactive_teams}
-        class="border-b flex items-center py-2 last:border-0 last:-mb-2"
-      >
-        <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
-        <div class="grow">
-          <h3 class="flex gap-2 items-center">
-            <strong><%= team.number %></strong>
-            <span><%= team.name %></span>
-            <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
-              Not Event Ready
-            </.tag>
-          </h3>
-          <p class="text-sm">
-            <span><%= team.location.city || "Unknown City" %> &bull;</span>
-            <span :if={team.location.county}><%= team.location.county %> County &bull;</span>
-            <span :if={team.location.postal_code}><%= team.location.postal_code %></span>
-          </p>
-        </div>
-        <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
-      </div>
-    </.reveal>
-  </.card>
-</div>
+<.reveal
+  :if={@inactive_teams_count > 0}
+  id="team-inactive-reveal"
+  spaced
+  title={"All Inactive Teams (#{@inactive_teams_count})"}
+>
+  <div
+    :for={team <- @inactive_teams}
+    class="border-b flex items-center py-2 last:border-0 last:-mb-2"
+  >
+    <%!-- navigate={~p"/region/#{@region}/teams/#{team}"} --%>
+    <div class="grow">
+      <h3 class="flex gap-2 items-center">
+        <strong><%= team.number %></strong>
+        <span><%= team.name %></span>
+        <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
+          Not Event Ready
+        </.tag>
+      </h3>
+      <p class="text-sm">
+        <span><%= team.location.city || "Unknown City" %> &bull;</span>
+        <span :if={team.location.county}><%= team.location.county %> County &bull;</span>
+        <span :if={team.location.postal_code}><%= team.location.postal_code %></span>
+      </p>
+    </div>
+    <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
+  </div>
+</.reveal>
 
 <.modal id="team-active-info">
   <.title class="mb-4" flush>About Active Teams</.title>
