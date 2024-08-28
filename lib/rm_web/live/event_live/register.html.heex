@@ -65,95 +65,103 @@
 
   <.title>Event Registration</.title>
 
-  <.card spaced>
-    <.table>
-      <:row title="Registration">
-        <%= cond do %>
-          <% Event.registration_deadline_passed?(@event) -> %>
-            <span class="text-orange-600"> Closed</span>
-          <% Event.registration_opening_passed?(@event) -> %>
-            <span class="text-green-600">Open</span>
-          <% :else -> %>
-            <span class="text-orange-600">
-              Opens <%= format_date(Event.registration_opens(@event), :date) %>
-            </span>
-        <% end %>
-      </:row>
-      <:row title="Deadline">
-        <%= format_date(Event.registration_deadline(@event), :full) %>
-      </:row>
-      <:row :if={@event.settings.registration.team_limit} title="Capacity">
-        <span class="font-mono text-sm">
-          <.async_result :let={teams} assign={@registered_teams}>
-            <:loading>...</:loading>
-            <:failed>?</:failed>
-            <%= length(teams) %>
-          </.async_result>
-          / <%= @event.settings.registration.team_limit %>
-        </span>
-        filled
-      </:row>
-      <:row title="Open To">
-        <%= case @event.settings.registration.pool do %>
-          <% :all -> %>
-            All Teams
-          <% :league -> %>
-            Teams in <%= if(@event.league, do: @event.league.name <> " League", else: "league") %>
-          <% :region -> %>
-            Teams in <%= @event.region.name %>
-        <% end %>
-      </:row>
-    </.table>
-  </.card>
-
-  <.title>
-    Choose Team to Register
-    <button phx-click={show_modal("event-registration-team-list-info")}>
-      <.icon class="align-middle h-4 text-gray-700 w-4" name="hero-information-circle" />
-    </button>
-  </.title>
-
-  <%= if @current_user.teams != [] do %>
-    <.link_card
-      :for={team <- @current_user.teams}
-      class="flex items-center mb-4"
-      navigate={~p"/team/#{team}/events/#{@event}"}
-    >
-      <div class="grow">
-        <h3 class="flex items-center">
-          <span><strong><%= team.number %></strong> <%= team.name %></span>
-          <.tag
-            :if={@registrations[team.number] == :attending}
-            class="bg-emerald-100 border-emerald-300 ml-2"
-          >
-            Registered
-          </.tag>
-          <.tag
-            :if={@registrations[team.number] == :waitlisted}
-            class="bg-sky-100 border-sky-300 ml-2"
-          >
-            Waitlisted
-          </.tag>
-          <.tag
-            :if={@registrations[team.number] == :rescinded}
-            class="bg-red-100 border-red-300 ml-2"
-          >
-            Rescinded
-          </.tag>
-          <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300 ml-2">
-            Not Event Ready
-          </.tag>
-        </h3>
-        <p class="text-sm">
-          <span :if={team.league}><%= team.league.name %> League &bull;</span>
-          <span><%= team.region.name %></span>
-        </p>
-      </div>
-      <div><.icon name="hero-arrow-right" /></div>
-    </.link_card>
-  <% else %>
+  <%= if @event.settings.registration.enabled do %>
     <.card spaced>
-      <p class="italic text-sm">There are no teams associated with this account.</p>
+      <.table>
+        <:row title="Registration">
+          <%= cond do %>
+            <% Event.registration_deadline_passed?(@event) -> %>
+              <span class="text-orange-600"> Closed</span>
+            <% Event.registration_opening_passed?(@event) -> %>
+              <span class="text-green-600">Open</span>
+            <% :else -> %>
+              <span class="text-orange-600">
+                Opens <%= format_date(Event.registration_opens(@event), :date) %>
+              </span>
+          <% end %>
+        </:row>
+        <:row title="Deadline">
+          <%= format_date(Event.registration_deadline(@event), :full) %>
+        </:row>
+        <:row :if={@event.settings.registration.team_limit} title="Capacity">
+          <span class="font-mono text-sm">
+            <.async_result :let={teams} assign={@registered_teams}>
+              <:loading>...</:loading>
+              <:failed>?</:failed>
+              <%= length(teams) %>
+            </.async_result>
+            / <%= @event.settings.registration.team_limit %>
+          </span>
+          filled
+        </:row>
+        <:row title="Open To">
+          <%= case @event.settings.registration.pool do %>
+            <% :all -> %>
+              All Teams
+            <% :league -> %>
+              Teams in <%= if(@event.league, do: @event.league.name <> " League", else: "league") %>
+            <% :region -> %>
+              Teams in <%= @event.region.name %>
+          <% end %>
+        </:row>
+      </.table>
+    </.card>
+
+    <.title>
+      Choose Team to Register
+      <button phx-click={show_modal("event-registration-team-list-info")}>
+        <.icon class="align-middle h-4 text-gray-700 w-4" name="hero-information-circle" />
+      </button>
+    </.title>
+
+    <%= if @current_user.teams != [] do %>
+      <.link_card
+        :for={team <- @current_user.teams}
+        class="flex items-center mb-4"
+        navigate={~p"/team/#{team}/events/#{@event}"}
+      >
+        <div class="grow">
+          <h3 class="flex items-center">
+            <span><strong><%= team.number %></strong> <%= team.name %></span>
+            <.tag
+              :if={@registrations[team.number] == :attending}
+              class="bg-emerald-100 border-emerald-300 ml-2"
+            >
+              Registered
+            </.tag>
+            <.tag
+              :if={@registrations[team.number] == :waitlisted}
+              class="bg-sky-100 border-sky-300 ml-2"
+            >
+              Waitlisted
+            </.tag>
+            <.tag
+              :if={@registrations[team.number] == :rescinded}
+              class="bg-red-100 border-red-300 ml-2"
+            >
+              Rescinded
+            </.tag>
+            <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300 ml-2">
+              Not Event Ready
+            </.tag>
+          </h3>
+          <p class="text-sm">
+            <span :if={team.league}><%= team.league.name %> League &bull;</span>
+            <span><%= team.region.name %></span>
+          </p>
+        </div>
+        <div><.icon name="hero-arrow-right" /></div>
+      </.link_card>
+    <% else %>
+      <.card spaced>
+        <p class="italic text-sm">There are no teams associated with this account.</p>
+      </.card>
+    <% end %>
+  <% else %>
+    <.card>
+      <p class="text-sm">
+        Registration for this event is not available in <strong>Region Manager</strong>.
+      </p>
     </.card>
   <% end %>
 </div>
