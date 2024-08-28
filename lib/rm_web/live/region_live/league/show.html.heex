@@ -134,34 +134,164 @@
   </.form>
 </.card>
 
-<.title><%= @league.name %> League</.title>
+<.reveal
+  id="reveal-published-events"
+  spaced
+  title={"Published Events (#{@league.stats.event_count})"}
+>
+  <.list :if={@league.stats.event_count > 0}>
+    <%!-- TODO: Events "show" page --%>
+    <:link :for={event <- @league.events} navigate={~p"/region/#{@region}/events"}>
+      <h3 class="font-bold"><%= event.name %></h3>
+      <p class="text-sm">
+        <span><%= format_range(event.date_start, event.date_end) %></span>
+        <span>&bull; <%= RM.FIRST.Event.type_name(event.type) %></span>
+        <span :if={event.remote or event.hybrid}>
+          &bull; <%= RM.FIRST.Event.format_name(event) %>
+        </span>
+      </p>
+    </:link>
+  </.list>
 
-<.card spaced>
-  <.table class="mb-4">
-    <:row title="Events">
-      <p :if={@league.stats.event_count == 0} class="italic text-sm">No events</p>
-      <ul :if={@league.stats.event_count > 0}>
-        <li :for={event <- @league.events}><%= event.name %></li>
-      </ul>
-    </:row>
-
-    <:row title="Teams">
-      <p :if={@league.stats.team_count == 0} class="italic text-sm">No teams</p>
-      <ul :if={@league.stats.team_count > 0}>
-        <li :for={team <- @league.teams}>
-          <strong><%= team.number %></strong> <%= team.name %>
-        </li>
-      </ul>
-    </:row>
-  </.table>
-
-  <p class="text-sm">
-    Last refreshed on <%= format_date(
-      @league.region.stats.leagues_imported_at,
-      :date
-    ) %>.
+  <p :if={@league.stats.event_count == 0} class="italic p-4 text-sm">
+    There are no published events for this league.
   </p>
-</.card>
+</.reveal>
+
+<.reveal
+  id="reveal-proposed-events"
+  spaced
+  title={"Proposed Events (#{length(@league.event_proposals)})"}
+>
+  <.list :if={length(@league.event_proposals) > 0}>
+    <%!-- TODO: Events "show" page --%>
+    <:link :for={event <- @league.event_proposals} navigate={~p"/region/#{@region}/events"}>
+      <h3 class="font-bold"><%= event.name %></h3>
+      <p class="text-sm">
+        <span><%= format_range(event.date_start, event.date_end) %></span>
+        <span>&bull; <%= RM.FIRST.Event.type_name(event.type) %></span>
+        <span :if={event.format != :traditional}>
+          &bull; <%= RM.Local.EventProposal.format_string(event) %>
+        </span>
+      </p>
+    </:link>
+  </.list>
+
+  <p :if={length(@league.event_proposals) == 0} class="italic p-4 text-sm">
+    There are no proposed events for this league.
+  </p>
+</.reveal>
+
+<.reveal
+  :if={@active_teams_count > 0}
+  id="team-active-reveal"
+  spaced
+  title={"Active Teams (#{@active_teams_count})"}
+>
+  <.list>
+    <:link :for={team <- @active_teams} navigate={~p"/region/#{@region}/teams/#{team}"}>
+      <h3 class="flex gap-2 items-center">
+        <strong><%= team.number %></strong>
+        <span><%= team.name %></span>
+        <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
+          Not Event Ready
+        </.tag>
+
+        <.tag
+          :if={@region.has_leagues and is_nil(team.league)}
+          class="bg-rose-100 border-rose-300"
+        >
+          No League
+        </.tag>
+      </h3>
+      <p class="text-sm">
+        <span><%= team.location.city || "Unknown City" %> &bull;</span>
+        <span :if={team.league}><%= team.league.name %> League</span>
+        <span :if={@region.has_leagues and is_nil(team.league)}>
+          No League
+        </span>
+      </p>
+    </:link>
+  </.list>
+
+  <p :if={@active_teams_count == 0} class="italic p-4 text-sm">
+    There are no active teams for this league.
+  </p>
+</.reveal>
+
+<.reveal
+  :if={@intend_to_return_teams_count > 0}
+  id="team-intent-return-reveal"
+  spaced
+  title={"Teams Intending to Return (#{@intend_to_return_teams_count})"}
+>
+  <.list>
+    <:link :for={team <- @intend_to_return_teams} navigate={~p"/region/#{@region}/teams/#{team}"}>
+      <h3 class="flex gap-2 items-center">
+        <strong><%= team.number %></strong>
+        <span><%= team.name %></span>
+        <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
+          Not Event Ready
+        </.tag>
+
+        <.tag
+          :if={@region.has_leagues and is_nil(team.league)}
+          class="bg-rose-100 border-rose-300"
+        >
+          No League
+        </.tag>
+      </h3>
+      <p class="text-sm">
+        <span><%= team.location.city || "Unknown City" %> &bull;</span>
+        <span :if={team.league}><%= team.league.name %> League</span>
+        <span :if={@region.has_leagues and is_nil(team.league)}>
+          No League
+        </span>
+      </p>
+    </:link>
+  </.list>
+
+  <p :if={@intend_to_return_teams_count == 0} class="italic p-4 text-sm">
+    There are no inactive teams with known intent to return.
+  </p>
+</.reveal>
+
+<.reveal
+  :if={@inactive_teams_count > 0}
+  id="team-inactive-reveal"
+  spaced
+  title={"All Inactive Teams (#{@inactive_teams_count})"}
+>
+  <.list>
+    <:link :for={team <- @inactive_teams} navigate={~p"/region/#{@region}/teams/#{team}"}>
+      <h3 class="flex gap-2 items-center">
+        <strong><%= team.number %></strong>
+        <span><%= team.name %></span>
+        <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
+          Not Event Ready
+        </.tag>
+
+        <.tag
+          :if={@region.has_leagues and is_nil(team.league)}
+          class="bg-rose-100 border-rose-300"
+        >
+          No League
+        </.tag>
+      </h3>
+      <p class="text-sm">
+        <span><%= team.location.city || "Unknown City" %> &bull;</span>
+        <span :if={team.league}><%= team.league.name %> League</span>
+        <span :if={@region.has_leagues and is_nil(team.league)}>
+          No League
+        </span>
+      </p>
+    </:link>
+  </.list>
+
+  <p :if={@inactive_teams_count == 0} class="italic p-4 text-sm">
+    There are no inactive teams for this league.
+  </p>
+</.reveal>
 
 <div class="mb-8">
   <.title>

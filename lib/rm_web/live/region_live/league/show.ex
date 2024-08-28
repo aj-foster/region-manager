@@ -15,6 +15,7 @@ defmodule RMWeb.RegionLive.League.Show do
     socket
     |> assign(edit_league: false, remove_user: nil)
     |> assign_first_league()
+    |> assign_teams()
     |> add_user_form()
     |> edit_league_form()
     |> ok()
@@ -133,6 +134,27 @@ defmodule RMWeb.RegionLive.League.Show do
     assign(socket, first_league: RM.FIRST.get_league_by_code(region, league.code))
   end
 
+  @spec assign_teams(Socket.t()) :: Socket.t()
+  defp assign_teams(socket) do
+    league = socket.assigns[:league]
+
+    teams =
+      league.teams
+      |> Enum.map(fn team -> %{team | league: league} end)
+
+    {active_teams, inactive_teams} = Enum.split_with(teams, & &1.active)
+    intend_to_return = Enum.filter(inactive_teams, & &1.intend_to_return)
+
+    assign(socket,
+      active_teams: active_teams,
+      active_teams_count: length(active_teams),
+      inactive_teams: inactive_teams,
+      inactive_teams_count: length(inactive_teams),
+      intend_to_return_teams: intend_to_return,
+      intend_to_return_teams_count: length(intend_to_return)
+    )
+  end
+
   @spec edit_league_form(Socket.t()) :: Socket.t()
   @spec edit_league_form(Socket.t(), map) :: Socket.t()
   defp edit_league_form(socket, params \\ %{}) do
@@ -174,8 +196,15 @@ defmodule RMWeb.RegionLive.League.Show do
 
   @spec preload_league_associations(RM.Local.League.t()) :: RM.Local.League.t()
   defp preload_league_associations(league) do
+    season = league.region.current_season
+
     league
-    |> RM.Repo.preload([:events, :teams, users: [:profile]])
+    |> RM.Repo.preload([
+      :teams,
+      events: RM.FIRST.Event.season_query(season),
+      event_proposals: RM.Local.EventProposal.season_query(season),
+      users: [:profile]
+    ])
     |> Map.update!(:events, &Enum.sort(&1, RM.FIRST.Event))
     |> Map.update!(:teams, &Enum.sort(&1, RM.Local.Team))
   end

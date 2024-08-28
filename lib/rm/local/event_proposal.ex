@@ -130,6 +130,15 @@ defmodule RM.Local.EventProposal do
   # Queries
   #
 
+  @doc """
+  Select proposals from the given season
+  """
+  @spec season_query(integer) :: Ecto.Query.t()
+  def season_query(season) do
+    from(__MODULE__, as: :event)
+    |> where([event: e], e.season == ^season)
+  end
+
   @doc "Query to update the provided proposals' submitted_at field to the current time"
   @spec update_submitted_at_query([t]) :: Ecto.Query.t()
   def update_submitted_at_query(proposals) do
