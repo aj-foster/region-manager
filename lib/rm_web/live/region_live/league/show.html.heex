@@ -75,7 +75,7 @@
     <:row title="Style"><%= if(@league.remote, do: "Remote", else: "Traditional") %></:row>
     <:row title="Teams">
       <.link
-        download={"#{@league.code}-#{@league.code}-teams.txt"}
+        download={"#{@region.code}-#{@league.code}-teams.txt"}
         href={
           {:data, "text/plain;charset=utf-8,#{Enum.map_join(@active_teams, "%20", & &1.number)}"}
         }
