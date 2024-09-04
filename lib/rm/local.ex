@@ -505,6 +505,17 @@ defmodule RM.Local do
     |> Repo.all()
   end
 
+  @spec list_teams_by_league(League.t()) :: [Team.t()]
+  @spec list_teams_by_league(League.t(), keyword) :: [Team.t()]
+  def list_teams_by_league(league, opts \\ []) do
+    Query.from_team()
+    |> Query.active_team(opts[:active])
+    |> Query.team_league(league)
+    |> Query.preload_assoc(:team, opts[:preload])
+    |> Repo.all()
+    |> Enum.sort(Team)
+  end
+
   @spec list_teams_by_region(Region.t()) :: [Team.t()]
   @spec list_teams_by_region(Region.t(), keyword) :: [Team.t()]
   def list_teams_by_region(region, opts \\ []) do

@@ -27,7 +27,7 @@
 </.information>
 
 <.card :if={not @edit_league} spaced>
-  <.table>
+  <.table class="mb-4">
     <:row title="Name">
       <div class="flex gap-4 items-center">
         <div class="grow"><%= @region.name %> <%= @league.name %> League</div>
@@ -72,8 +72,43 @@
         </button>
       </div>
     </:row>
-    <:row title="style"><%= if(@league.remote, do: "Remote", else: "Traditional") %></:row>
+    <:row title="Style"><%= if(@league.remote, do: "Remote", else: "Traditional") %></:row>
+    <:row title="Teams">
+      <.link
+        download={"#{@league.code}-#{@league.code}-teams.txt"}
+        href={
+          {:data, "text/plain;charset=utf-8,#{Enum.map_join(@active_teams, "%20", & &1.number)}"}
+        }
+        style="tertiary"
+      >
+        <span class="underline">Download Team List</span>
+        <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-down-tray" />
+      </.link>
+      <button phx-click={show_modal("league-team-download-modal")}>
+        <.icon class="bottom-0.5 h-4 relative text-gray-700 w-4" name="hero-information-circle" />
+      </button>
+    </:row>
   </.table>
+
+  <p class="flex flex-col gap-4 items-start justify-end text-sm sm:flex-row">
+    <.link_button
+      href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/#{@league.code}/teams/"}
+      style="tertiary"
+      target="_blank"
+    >
+      Upload Teams
+      <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+    </.link_button>
+
+    <.link_button
+      href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/#{@league.code}/"}
+      style="tertiary"
+      target="_blank"
+    >
+      View League
+      <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+    </.link_button>
+  </p>
 </.card>
 
 <.card :if={@edit_league} spaced>
@@ -419,6 +454,20 @@
       Child leagues must match the style of their parent league.
     </p>
   </div>
+</.modal>
+
+<.modal id="league-team-download-modal">
+  <.title class="mb-4" flush>About Team Download</.title>
+
+  <p class="mb-4">
+    The Cloud Scoring System provides an interface for bulk-adding teams to leagues using a file upload.
+    Use the team list downloaded from <strong>Region Manager</strong>
+    to quickly copy league assignments.
+  </p>
+
+  <p>
+    Only active teams are included, so this process may need to be repeated after new team data is imported.
+  </p>
 </.modal>
 
 <.modal id="league-add-user-modal">

@@ -416,7 +416,7 @@ defmodule RMWeb.CoreComponents do
   """
   attr :class, :string, default: nil
   attr :style, :string, default: "primary"
-  attr :rest, :global, include: ~w(href navigate patch)
+  attr :rest, :global, include: ~w(download href navigate patch)
 
   slot :inner_block, required: true
 
@@ -532,7 +532,7 @@ defmodule RMWeb.CoreComponents do
         <%= @label %>
         <span :if={@field_is_required} class="text-orange-500"> *</span>
         <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
-          <.icon class="align-text-bottom h-4 text-gray-700 w-4" name="hero-information-circle" />
+          <.icon class="align-text-top h-4 text-gray-700 w-4" name="hero-information-circle" />
         </button>
       </.label>
       <div :if={@explanation} class="text-gray-700 text-sm"><%= @explanation %></div>
@@ -560,7 +560,7 @@ defmodule RMWeb.CoreComponents do
         <%= @label %>
         <span :if={@field_is_required} class="text-orange-500"> *</span>
         <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
-          <.icon class="align-text-bottom h-4 text-gray-700 w-4" name="hero-information-circle" />
+          <.icon class="align-text-top h-4 text-gray-700 w-4" name="hero-information-circle" />
         </button>
       </.label>
       <div :if={@explanation} class="text-gray-700 text-sm"><%= @explanation %></div>
@@ -590,7 +590,7 @@ defmodule RMWeb.CoreComponents do
         <%= @label %>
         <span :if={@field_is_required} class="text-orange-500"> *</span>
         <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
-          <.icon class="align-text-bottom h-4 text-gray-700 w-4" name="hero-information-circle" />
+          <.icon class="align-text-top h-4 text-gray-700 w-4" name="hero-information-circle" />
         </button>
       </.label>
       <div :if={@explanation} class="text-gray-700 text-sm"><%= @explanation %></div>
