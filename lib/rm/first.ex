@@ -411,10 +411,8 @@ defmodule RM.FIRST do
     end)
   end
 
-  @spec get_league_by_code(Region.t(), String.t()) ::
-          {:ok, League.t()} | {:error, :league, :not_found}
-  @spec get_league_by_code(Region.t(), String.t(), keyword) ::
-          {:ok, League.t()} | {:error, :league, :not_found}
+  @spec get_league_by_code(Region.t(), String.t()) :: League.t() | nil
+  @spec get_league_by_code(Region.t(), String.t(), keyword) :: League.t() | nil
   def get_league_by_code(region, code, opts \\ []) do
     Query.from_league()
     |> Query.league_code(code)

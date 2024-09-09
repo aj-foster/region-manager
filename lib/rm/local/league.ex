@@ -185,10 +185,13 @@ defmodule RM.Local.League do
   # Helpers
   #
 
-  @spec matches_public_data?(t) :: boolean
-  def matches_public_data?(%__MODULE__{first_league: nil}), do: false
+  @doc """
+  Report differences between the FIRST record for the current season and this league's saved data
+  """
+  @spec compare_with_first(t) :: :unpublished | :match | {:different, [atom]}
+  def compare_with_first(%__MODULE__{first_league: nil}), do: :unpublished
 
-  def matches_public_data?(league) do
+  def compare_with_first(league) do
     %RM.Local.League{
       code: code,
       name: name,
@@ -203,10 +206,34 @@ defmodule RM.Local.League do
       }
     } = league
 
-    code == first_code and
-      name == shorten_name(first_name, region) and
-      location == first_location and
-      remote == first_remote
+    differences =
+      Enum.reject(
+        [
+          unless(code == first_code, do: :code),
+          unless(name == shorten_name(first_name, region), do: :name),
+          unless(location == first_location, do: :location),
+          unless(remote == first_remote, do: :remote)
+        ],
+        &is_nil/1
+      )
+
+    if differences == [] do
+      :match
+    else
+      {:different, differences}
+    end
+  end
+
+  @doc """
+  Report whether the FIRST record for the current season matches this league's saved data
+  """
+  @spec matches_public_data?(t) :: boolean
+  def matches_public_data?(league) do
+    case compare_with_first(league) do
+      :unpublished -> false
+      :match -> true
+      {:different, _} -> false
+    end
   end
 
   @doc "Removes region name or code from beginning, and `\"League\"` from the end"

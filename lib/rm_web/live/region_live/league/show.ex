@@ -2,6 +2,8 @@ defmodule RMWeb.RegionLive.League.Show do
   use RMWeb, :live_view
   import RMWeb.RegionLive.Util
 
+  alias RM.Local.League
+
   #
   # Lifecycle
   #
@@ -131,7 +133,22 @@ defmodule RMWeb.RegionLive.League.Show do
     region = socket.assigns[:region]
     league = socket.assigns[:league]
 
-    assign(socket, first_league: RM.FIRST.get_league_by_code(region, league.code))
+    first_league = RM.FIRST.get_league_by_code(region, league.code)
+    league = %{league | first_league: first_league}
+
+    {first_matches?, first_differences} =
+      case League.compare_with_first(league) do
+        :unpublished -> {false, []}
+        :match -> {true, []}
+        {:different, differences} -> {false, differences}
+      end
+
+    assign(socket,
+      first_differences: first_differences,
+      first_league: first_league,
+      first_matches: first_matches?,
+      league: league
+    )
   end
 
   @spec assign_teams(Socket.t()) :: Socket.t()

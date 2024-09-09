@@ -26,6 +26,24 @@
   </p>
 </.information>
 
+<.information :if={is_struct(@first_league) and not @first_matches} class="mb-4">
+  <p class="font-bold">
+    This league has data that does not match <em>FIRST</em>.
+  </p>
+  <p>
+    The following fields differ: <%= Enum.map_join(@first_differences, ", ", &to_string/1) %>.
+    Please reconcile this data with the
+    <a
+      href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/"}
+      target="blank"
+    >
+      <span class="underline">Cloud Scoring System</span>
+      <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4 align-text-top" />
+    </a>
+    when available.
+  </p>
+</.information>
+
 <.card :if={not @edit_league} spaced>
   <.table class="mb-4">
     <:row title="Name">
@@ -96,8 +114,7 @@
       style="tertiary"
       target="_blank"
     >
-      Upload Teams
-      <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+      Upload Teams <.icon class="bottom-0.5 relative" name="hero-cloud-arrow-up" />
     </.link_button>
 
     <.link_button
@@ -105,8 +122,7 @@
       style="tertiary"
       target="_blank"
     >
-      View League
-      <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+      View League <.icon class="bottom-0.5 relative" name="hero-cloud-arrow-up" />
     </.link_button>
   </p>
 </.card>
