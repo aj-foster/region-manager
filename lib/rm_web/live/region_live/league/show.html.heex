@@ -28,19 +28,20 @@
 
 <.information :if={is_struct(@first_league) and not @first_matches} class="mb-4">
   <p class="font-bold">
-    This league has data that does not match <em>FIRST</em>.
-  </p>
-  <p>
-    The following fields differ: <%= Enum.map_join(@first_differences, ", ", &to_string/1) %>.
-    Please reconcile this data with the
-    <a
+    This league has data that does not match the <a
       href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/"}
       target="blank"
     >
       <span class="underline">Cloud Scoring System</span>
-      <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4 align-text-top" />
-    </a>
-    when available.
+      <.icon
+        name="hero-arrow-top-right-on-square"
+        class="h-4 w-4 align-text-top"
+      />
+    </a>.
+  </p>
+  <p>
+    The following fields differ: <%= Enum.map_join(@first_differences, ", ", &to_string/1) %>.
+    Please reconcile this data when available.
   </p>
 </.information>
 
