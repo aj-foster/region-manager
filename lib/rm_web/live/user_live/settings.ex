@@ -80,7 +80,7 @@ defmodule RMWeb.UserLive.Settings do
   @spec add_email(Socket.t(), map) :: Socket.t()
   defp add_email(socket, %{"email" => %{"email" => email, "password" => password}}) do
     user = socket.assigns[:current_user]
-    token_url = fn token -> ~p"/user/email/#{token}" end
+    token_url = fn token -> url(~p"/user/email/#{token}") end
 
     case Identity.create_email_with_password(user, email, password, token_url: token_url) do
       :ok ->
@@ -123,7 +123,7 @@ defmodule RMWeb.UserLive.Settings do
   @spec resend_email(Socket.t()) :: Socket.t()
   defp resend_email(socket) do
     email = socket.assigns[:resend_email_param]
-    token_url = fn token -> ~p"/user/email/#{token}" end
+    token_url = fn token -> url(~p"/user/email/#{token}") end
 
     case Identity.regenerate_email(email, token_url: token_url) do
       :ok ->
