@@ -128,6 +128,10 @@ defmodule RMWeb.RegionJSON do
     nil
   end
 
+  defp event_registration(%RM.FIRST.Event{settings: nil}) do
+    nil
+  end
+
   defp event_registration_open(
          %RM.FIRST.Event{
            settings: %RM.Local.EventSettings{
