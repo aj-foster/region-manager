@@ -81,7 +81,7 @@ defmodule RM.FIRST do
 
     event_settings_data =
       events
-      |> Repo.preload(:proposal, league: :settings)
+      |> Repo.preload([:proposal, local_league: :settings])
       |> Enum.map(&EventSettings.default_params/1)
 
     Repo.insert_all(EventSettings, event_settings_data,

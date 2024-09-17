@@ -160,6 +160,7 @@ defmodule RM.Factory do
   @doc false
   def with_event_settings(event) do
     insert(:event_settings, event: event)
+    event
   end
 
   @doc false
@@ -190,10 +191,29 @@ defmodule RM.Factory do
   end
 
   @doc false
+  def with_league_settings(league, overrides \\ []) do
+    insert(:league_settings, [league: league] ++ overrides)
+    league
+  end
+
+  @doc false
   def league_assignment_factory do
     %RM.Local.LeagueAssignment{
       league: fn -> build(:league) end,
       team: fn -> build(:team) end
+    }
+  end
+
+  @doc false
+  def league_settings_factory do
+    %RM.Local.LeagueSettings{
+      league: fn -> build(:league) end,
+      registration: %RM.Local.RegistrationSettings{
+        enabled: true,
+        deadline_days: 7,
+        open_days: 21,
+        pool: :league
+      }
     }
   end
 

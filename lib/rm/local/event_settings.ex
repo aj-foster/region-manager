@@ -31,30 +31,45 @@ defmodule RM.Local.EventSettings do
   """
   @spec default_params(Event.t()) :: map
   def default_params(event) do
-    event = Repo.preload(event, league: :settings)
+    event = Repo.preload(event, [:proposal, local_league: :settings])
 
     deadline_days =
-      if event.league && event.league.settings do
-        event.league.settings.registration.deadline_days
-      else
-        7
+      cond do
+        event.proposal ->
+          event.proposal.registration_settings.deadline_days
+
+        event.local_league && event.local_league.settings ->
+          event.local_league.settings.registration.deadline_days
+
+        :else ->
+          7
       end
 
     open_days =
-      if event.league && event.league.settings do
-        event.league.settings.registration.open_days
-      else
-        21
+      cond do
+        event.proposal ->
+          event.proposal.registration_settings.open_days
+
+        event.local_league && event.local_league.settings ->
+          event.local_league.settings.registration.open_days
+
+        :else ->
+          21
       end
 
     enabled =
-      if event.league && event.league.settings do
-        event.league.settings.registration.enabled
-      else
-        true
+      cond do
+        event.proposal ->
+          event.proposal.registration_settings.enabled
+
+        event.local_league && event.local_league.settings ->
+          event.local_league.settings.registration.enabled
+
+        :else ->
+          true
       end
 
-    pool = if event.league, do: :league, else: :region
+    pool = if event.local_league, do: :league, else: :region
 
     %{
       event_id: event.id,
