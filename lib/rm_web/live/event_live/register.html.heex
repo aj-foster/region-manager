@@ -65,7 +65,7 @@
 
   <.title>Event Registration</.title>
 
-  <%= if @event.settings.registration.enabled do %>
+  <%= if @event.settings && @event.settings.registration.enabled do %>
     <.card spaced>
       <.table>
         <:row title="Registration">
