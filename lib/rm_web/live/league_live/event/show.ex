@@ -17,7 +17,7 @@ defmodule RMWeb.LeagueLive.Event.Show do
 
   def on_mount(:preload_event, %{"event" => event_code}, _session, socket) do
     league = socket.assigns[:league]
-    preloads = [:league, :proposal, :region, :settings, :venue]
+    preloads = [:league, :local_league, :proposal, :region, :settings, :venue]
     league_id = league.id
 
     case RM.FIRST.fetch_event_by_code(league.region.current_season, event_code, preload: preloads) do
@@ -123,5 +123,21 @@ defmodule RMWeb.LeagueLive.Event.Show do
 
   defp registration_settings_normalize_waitlist_limit(params) do
     put_in(params, ["registration", "waitlist_limit"], nil)
+  end
+
+  #
+  # Template Helpers
+  #
+
+  @spec event_league(RM.FIRST.Event.t()) :: String.t()
+  defp event_league(%RM.FIRST.Event{
+         league: %RM.FIRST.League{},
+         local_league: %RM.Local.League{name: name}
+       }) do
+    name
+  end
+
+  defp event_league(%RM.FIRST.Event{local_league: %RM.Local.League{name: name}}) do
+    "#{name} (Unofficial)"
   end
 end

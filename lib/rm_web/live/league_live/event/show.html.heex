@@ -31,7 +31,7 @@
       </:row>
       <:row title="Region"><%= @event.region.name %></:row>
       <:row :if={@event.region.has_leagues} title="League">
-        <%= if @event.league, do: @event.league.name, else: "No League Assignment" %>
+        <%= event_league(@event) %>
       </:row>
     </.table>
 
