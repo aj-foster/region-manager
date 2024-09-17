@@ -1,12 +1,12 @@
-defmodule RMWeb.LeagueLive.Event do
+defmodule RMWeb.LeagueLive.Event.Index do
   use RMWeb, :live_view
   import RMWeb.LeagueLive.Util
 
   alias RM.FIRST.Event
+  alias RM.Local.EventProposal
 
   on_mount {RMWeb.LeagueLive.Util, :preload_league}
   on_mount {RMWeb.LeagueLive.Util, :require_league_manager}
-  on_mount {__MODULE__, :preload_event}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -15,28 +15,11 @@ defmodule RMWeb.LeagueLive.Event do
     |> ok()
   end
 
-  def on_mount(:preload_event, %{"event" => event_code}, _session, socket) do
-    league = socket.assigns[:league]
-    preloads = [:league, :proposal, :region, :settings, :venue]
-    league_id = league.id
-
-    case RM.FIRST.fetch_event_by_code(league.region.current_season, event_code, preload: preloads) do
-      {:ok, %RM.FIRST.Event{local_league_id: ^league_id} = event} ->
-        {:cont, assign(socket, event: event)}
-
-      {:error, :event, :not_found} ->
-        socket =
-          socket
-          |> put_flash(:error, "Event not found")
-          |> redirect(to: ~p"/dashboard")
-
-        {:halt, socket}
-    end
-  end
-
   @impl true
   def handle_params(_params, _uri, socket) do
     socket
+    |> load_events()
+    |> filter_events()
     |> registration_settings_form()
     |> noreply()
   end
@@ -48,7 +31,7 @@ defmodule RMWeb.LeagueLive.Event do
   @impl true
   def handle_event(event, unsigned_params, socket)
 
-  def handle_event("registration_settings_change", %{"event_settings" => params}, socket) do
+  def handle_event("registration_settings_change", %{"league_settings" => params}, socket) do
     socket
     |> registration_settings_change(params)
     |> noreply()
@@ -58,28 +41,32 @@ defmodule RMWeb.LeagueLive.Event do
   # Helpers
   #
 
-  @spec refresh_event_settings(Socket.t()) :: Socket.t()
-  defp refresh_event_settings(socket) do
-    event =
-      socket.assigns[:event]
-      |> RM.Repo.preload(:settings, force: true)
+  @spec filter_events(Socket.t()) :: Socket.t()
+  defp filter_events(socket) do
+    proposed_events =
+      socket.assigns[:league].event_proposals
+      |> Enum.filter(&is_nil(&1.first_event_id))
 
-    assign(socket, event: event)
+    assign(
+      socket,
+      proposed_events: proposed_events,
+      proposed_events_count: length(proposed_events)
+    )
   end
 
   @spec registration_settings_change(Socket.t(), map) :: Socket.t()
   defp registration_settings_change(socket, params) do
-    event = socket.assigns[:event]
+    league = socket.assigns[:league]
 
     params =
       params
       |> registration_settings_normalize_team_limit()
       |> registration_settings_normalize_waitlist_limit()
 
-    case RM.Local.update_event_settings(event, params) do
+    case RM.Local.update_league_settings(league, params) do
       {:ok, _settings} ->
         socket
-        |> refresh_event_settings()
+        |> refresh_league(events: true)
         |> registration_settings_form()
 
       {:error, changeset} ->
@@ -89,8 +76,8 @@ defmodule RMWeb.LeagueLive.Event do
 
   @spec registration_settings_form(Socket.t()) :: Socket.t()
   defp registration_settings_form(socket) do
-    event = socket.assigns[:event]
-    form = RM.Local.change_event_settings(event) |> to_form()
+    league = socket.assigns[:league]
+    form = RM.Local.change_league_settings(league) |> to_form()
 
     assign(socket, registration_settings_form: form)
   end
