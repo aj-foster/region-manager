@@ -37,4 +37,66 @@ defmodule RMWeb.RegionLive.Team.Show do
         {:halt, socket}
     end
   end
+
+  #
+  # Events
+  #
+
+  @doc false
+  @impl true
+  def handle_event(event, unsigned_params, socket)
+
+  def handle_event("league_change", %{"league" => league_id}, socket) do
+    socket
+    |> league_change(league_id)
+    |> noreply()
+  end
+
+  #
+  # Helpers
+  #
+
+  @spec league_change(Socket.t(), Ecto.UUID.t()) :: Socket.t()
+  defp league_change(socket, league_id_or_empty) do
+    region = socket.assigns[:region]
+    team = socket.assigns[:team]
+    league_or_nil = Enum.find(region.leagues, &(&1.id == league_id_or_empty))
+
+    if league_or_nil do
+      case RM.Local.create_or_update_league_assignment(league_or_nil, team) do
+        {:ok, _assignment} ->
+          team = RM.Repo.preload(team, :league, force: true)
+
+          socket
+          |> assign(team: team)
+          |> put_flash(:info, "League assignment updated successfully")
+          |> push_js("#league-assignment-change-modal", "data-cancel")
+
+        {:error, _changeset} ->
+          socket
+          |> put_flash(:error, "An error occurred while updating league assignment")
+          |> push_js("#league-assignment-change-modal", "data-cancel")
+      end
+    else
+      RM.Local.remove_league_assignment(team)
+      team = RM.Repo.preload(team, :league, force: true)
+
+      socket
+      |> assign(team: team)
+      |> put_flash(:info, "League assignment removed successfully")
+      |> push_js("#league-assignment-change-modal", "data-cancel")
+    end
+  end
+
+  #
+  # Template Helpers
+  #
+
+  @spec league_options(RM.FIRST.Region.t()) :: [{String.t(), String.t()}]
+  defp league_options(region) do
+    Enum.map(region.leagues, fn league ->
+      {league.name, league.id}
+    end)
+    |> List.insert_at(0, {"No League Assignment", ""})
+  end
 end

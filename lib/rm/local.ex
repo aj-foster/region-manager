@@ -447,6 +447,15 @@ defmodule RM.Local do
     |> elem(1)
   end
 
+  @spec remove_league_assignment(Team.t()) :: :ok
+  def remove_league_assignment(team) do
+    from(LeagueAssignment, as: :assignment)
+    |> where([assignment: a], a.team_id == ^team.id)
+    |> Repo.delete_all()
+
+    :ok
+  end
+
   #
   # League Settings
   #

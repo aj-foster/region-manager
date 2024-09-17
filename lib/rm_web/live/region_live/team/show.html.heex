@@ -25,6 +25,12 @@
     <:row title="Region"><%= @region.name %></:row>
     <:row :if={@region.has_leagues} title="League">
       <%= if @team.league, do: @team.league.name, else: "No League Assignment" %>
+      <button
+        class="ml-2 text-sm underline"
+        phx-click={show_modal("league-assignment-change-modal")}
+      >
+        Change
+      </button>
     </:row>
   </.table>
 
@@ -218,3 +224,35 @@
     </:row>
   </.table>
 </.card>
+
+<.modal id="league-assignment-change-modal">
+  <.title class="mb-4" flush>Change League Assignment</.title>
+  <p class="mb-4">
+    Use the following to change the league assignment for this team. Afterwards, this change must be copied to the <.link
+      href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/#leagues"}
+      style="tertiary"
+      target="_blank"
+    >
+      <span class="underline">Cloud Scoring System</span> <.icon
+        class="bottom-0.5 relative"
+        name="hero-arrow-top-right-on-square"
+      />
+    </.link>.
+  </p>
+
+  <form phx-submit="league_change">
+    <.input
+      id="league-assignment-change-input"
+      label="League"
+      name="league"
+      options={league_options(@region)}
+      type="select"
+      value={if(@team.league, do: @team.league.id, else: "")}
+      wrapper="mb-4"
+    />
+
+    <p class="text-right">
+      <.button type="submit">Change Assignment</.button>
+    </p>
+  </form>
+</.modal>
