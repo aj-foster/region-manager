@@ -67,14 +67,17 @@ defmodule RM.FIRST do
         returning: true
       )
 
-    Enum.reduce(events, [], fn event, proposal_updates ->
-      if proposal = Enum.find(open_proposals, &RM.Local.EventProposal.event_matches?(&1, event)) do
-        [{proposal.id, event.id} | proposal_updates]
-      else
-        proposal_updates
-      end
-    end)
-    |> RM.Local.update_event_proposal_events()
+    proposal_event_pairs =
+      Enum.reduce(events, [], fn event, proposal_updates ->
+        if proposal = Enum.find(open_proposals, &RM.Local.EventProposal.event_matches?(&1, event)) do
+          [{proposal.id, event.id} | proposal_updates]
+        else
+          proposal_updates
+        end
+      end)
+
+    RM.Local.update_event_proposal_events(proposal_event_pairs)
+    update_event_leagues_from_proposals(proposal_event_pairs)
 
     event_settings_data =
       events
@@ -517,6 +520,37 @@ defmodule RM.FIRST do
       %Event{} = event -> {:ok, event}
       nil -> {:error, :event, :not_found}
     end
+  end
+
+  @doc """
+  Update the FIRST event records with leagues from event proposals
+
+  Data is given as a list of tuples containing the proposal ID and associated event ID.
+  """
+  @spec update_event_leagues_from_proposals([{Ecto.UUID.t(), Ecto.UUID.t()}]) :: :ok
+  def update_event_leagues_from_proposals(updates) do
+    {proposal_ids, first_event_ids} = Enum.unzip(updates)
+
+    Query.from_event()
+    |> join(
+      :inner,
+      [event: e],
+      temp in fragment(
+        "SELECT * FROM unnest(?::uuid[], ?::uuid[]) AS update_table(proposal_id, first_event_id)",
+        type(^proposal_ids, {:array, Ecto.UUID}),
+        type(^first_event_ids, {:array, Ecto.UUID})
+      ),
+      on: e.id == temp.first_event_id,
+      as: :temp
+    )
+    |> join(:inner, [temp: t], p in RM.Local.EventProposal,
+      on: p.id == t.proposal_id,
+      as: :proposal
+    )
+    |> update([proposal: p], set: [local_league_id: p.league_id])
+    |> Repo.update_all([])
+
+    :ok
   end
 
   #
