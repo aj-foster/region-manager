@@ -92,7 +92,12 @@ defmodule RM.Local.EventProposal do
   """
   @spec create_changeset(map) :: Changeset.t(t)
   def create_changeset(params) do
-    %__MODULE__{}
+    registration_settings =
+      if league = params["league"] do
+        league.settings.registration
+      end
+
+    %__MODULE__{registration_settings: registration_settings}
     |> Changeset.cast(params, @required_fields ++ @optional_fields)
     |> Changeset.cast_embed(:contact, with: &contact_changeset/2)
     |> Changeset.cast_embed(:registration_settings, with: &RegistrationSettings.changeset/2)
