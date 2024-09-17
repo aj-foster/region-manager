@@ -61,7 +61,7 @@ defmodule RMWeb.RegionLive.Events do
   @impl true
   def handle_async(name, async_fun_result, socket)
 
-  def handle_async(:refresh_events, {:ok, _events}, socket) do
+  def handle_async(:refresh_events, {:ok, {:ok, _events}}, socket) do
     socket
     |> assign(refresh_events: AsyncResult.ok(true))
     |> refresh_region()
@@ -71,11 +71,12 @@ defmodule RMWeb.RegionLive.Events do
     |> noreply()
   end
 
-  def handle_async(:refresh_events, {:error, reason}, socket) do
+  def handle_async(:refresh_events, {:ok, {:error, reason}}, socket) do
     Logger.error("Error while refreshing events: #{inspect(reason)}")
 
     socket
     |> assign(refresh_events: AsyncResult.ok(false))
+    |> put_flash(:error, "An error occurred while refreshing events. Please try again later.")
     |> noreply()
   end
 

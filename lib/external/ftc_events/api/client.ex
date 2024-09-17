@@ -22,6 +22,9 @@ defmodule External.FTCEvents.API.Client do
       {:ok, %Req.Response{status: 200, body: %{"eventCount" => count, "events" => events}}} ->
         {:ok, %{count: count, events: events}}
 
+      {:ok, %Req.Response{status: code}} ->
+        {:error, RuntimeError.exception("Received #{code} from FTC Events API")}
+
       {:error, error} ->
         {:error, error}
     end
@@ -45,6 +48,9 @@ defmodule External.FTCEvents.API.Client do
       {:ok, %Req.Response{status: 200, body: %{"leagueCount" => count, "leagues" => leagues}}} ->
         {:ok, %{count: count, leagues: leagues}}
 
+      {:ok, %Req.Response{status: code}} ->
+        {:error, RuntimeError.exception("Received #{code} from FTC Events API")}
+
       {:error, error} ->
         {:error, error}
     end
@@ -60,6 +66,9 @@ defmodule External.FTCEvents.API.Client do
     |> case do
       {:ok, %Req.Response{status: 200, body: %{"members" => members}}} ->
         {:ok, members}
+
+      {:ok, %Req.Response{status: code}} ->
+        {:error, RuntimeError.exception("Received #{code} from FTC Events API")}
 
       {:error, error} ->
         {:error, error}
@@ -97,6 +106,9 @@ defmodule External.FTCEvents.API.Client do
            page_current: page_current,
            page_total: page_total
          }}
+
+      {:ok, %Req.Response{status: code}} ->
+        {:error, RuntimeError.exception("Received #{code} from FTC Events API")}
 
       {:error, error} ->
         {:error, error}

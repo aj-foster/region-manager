@@ -58,7 +58,7 @@ defmodule RMWeb.RegionLive.League.Index do
   @impl true
   def handle_async(name, async_fun_result, socket)
 
-  def handle_async(:refresh_leagues, {:ok, _leagues}, socket) do
+  def handle_async(:refresh_leagues, {:ok, {:ok, _leagues}}, socket) do
     socket
     |> assign(refresh_leagues: AsyncResult.ok(true))
     |> refresh_region()
@@ -68,11 +68,12 @@ defmodule RMWeb.RegionLive.League.Index do
     |> noreply()
   end
 
-  def handle_async(:refresh_leagues, {:error, reason}, socket) do
+  def handle_async(:refresh_leagues, {:ok, {:error, reason}}, socket) do
     Logger.error("Error while refreshing leagues: #{inspect(reason)}")
 
     socket
     |> assign(refresh_leagues: AsyncResult.ok(false))
+    |> put_flash(:error, "An error occurred while refreshing leagues. Please try again later.")
     |> noreply()
   end
 
