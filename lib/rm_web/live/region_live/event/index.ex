@@ -1,4 +1,4 @@
-defmodule RMWeb.RegionLive.Events do
+defmodule RMWeb.RegionLive.Event.Index do
   use RMWeb, :live_view
   import RMWeb.RegionLive.Util
   require Logger
