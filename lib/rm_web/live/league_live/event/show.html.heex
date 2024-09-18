@@ -57,11 +57,11 @@
   <h3 class="font-semibold mb-2">Event Details</h3>
   <.table class="mb-8">
     <:row title="Name"><%= @event.proposal.name %></:row>
-    <:row title="Type"><%= RM.FIRST.Event.type_name(@event.proposal.type) %></:row>
-    <:row title="Format"><%= String.capitalize(to_string(@event.proposal.format)) %></:row>
     <:row title="Date">
       <%= format_range(@event.proposal.date_start, @event.proposal.date_end) %>
     </:row>
+    <:row title="Type"><%= RM.FIRST.Event.type_name(@event.proposal.type) %></:row>
+    <:row title="Format"><%= String.capitalize(to_string(@event.proposal.format)) %></:row>
   </.table>
 
   <h3 class="font-semibold mb-2">Venue Details</h3>

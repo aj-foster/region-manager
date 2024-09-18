@@ -17,9 +17,9 @@
 <.card spaced>
   <.table class="mb-4">
     <:row title="Name"><%= @event.name %></:row>
+    <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
     <:row title="Type"><%= RM.FIRST.Event.type_name(@event.type) %></:row>
     <:row title="Format"><%= String.capitalize(to_string(@event.format)) %></:row>
-    <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
   </.table>
 
   <p class="text-sm">
