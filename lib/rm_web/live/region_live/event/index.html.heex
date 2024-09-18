@@ -131,26 +131,26 @@
 
 <.title>Past Events in <%= @region.name %></.title>
 
-<.card :if={@past_events_count == 0} spaced>
-  <p class="italic text-sm">There are no past events for this season.</p>
-</.card>
-
-<.card :if={@past_events_count > 0} spaced>
-  <div
-    :for={event <- @past_events}
-    class="border-b flex items-center py-2 first:-mt-2 last:border-0 last:-mb-2"
-  >
-    <div class="grow">
+<.reveal
+  id="events-past-published-reveal"
+  spaced
+  title={"Past Published Events (#{@past_events_count})"}
+>
+  <.list :if={@past_events_count > 0}>
+    <:item :for={event <- @past_events} class="px-4 py-2">
       <h3 class="font-bold"><%= event.name %></h3>
       <p class="text-sm">
         <span><%= format_range(event.date_start, event.date_end) %></span>
         <span>&bull; <%= Event.type_name(event.type) %></span>
         <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
       </p>
-    </div>
-    <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
-  </div>
-</.card>
+    </:item>
+  </.list>
+
+  <p :if={@past_events_count == 0} class="italic px-4 py-2 text-center text-sm">
+    There are no past events for this season.
+  </p>
+</.reveal>
 
 <.title>Sync with FIRST</.title>
 
