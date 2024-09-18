@@ -64,7 +64,7 @@ defmodule RM.Local do
 
   def verify_eligibility(
         %Event{
-          league_id: event_league_id,
+          local_league_id: event_league_id,
           settings: %EventSettings{registration: %RegistrationSettings{pool: :league}}
         },
         %Team{league: %League{id: team_league_id}}
