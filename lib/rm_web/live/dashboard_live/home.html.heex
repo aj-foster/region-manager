@@ -74,7 +74,7 @@
       <div class="grow">
         <h3>
           <strong><%= team.number %></strong> <%= team.name %>
-          <.tag :if={not team.event_ready} class="bg-rose-100 border-rose-300 ml-2">
+          <.tag :if={not team.active} class="bg-rose-100 border-rose-300 ml-2">
             Inactive
           </.tag>
           <.tag
