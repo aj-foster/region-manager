@@ -483,15 +483,18 @@ defmodule RM.FIRST do
   @spec filter_eligible_events_by_team(Query.query(), RM.Local.Team.t()) :: Query.query()
   defp filter_eligible_events_by_team(
          query,
-         %RM.Local.Team{league: %League{id: league_id}} = team
+         %RM.Local.Team{league: %RM.Local.League{id: league_id}} = team
        ) do
     %RM.Local.Team{region_id: region_id} = team
 
-    query
-    |> filter_eligible_events_by_team(%RM.Local.Team{region_id: region_id})
-    |> or_where(
+    where(
+      query,
       [event: e, settings: s],
-      e.league_id == ^league_id and fragment("?->>'pool' = 'league'", s.registration)
+      fragment("?->>'pool' = 'all'", s.registration) or
+        (fragment("?->>'pool' = 'region'", s.registration) and e.region_id == ^region_id) or
+        (fragment("?->>'pool' = 'league'", s.registration) and
+           (e.local_league_id == ^league_id or
+              (is_nil(e.local_league_id) and e.region_id == ^region_id)))
     )
   end
 
@@ -501,7 +504,8 @@ defmodule RM.FIRST do
     where(
       query,
       [event: e, settings: s],
-      e.region_id == ^region_id and fragment("?->>'pool' = 'region'", s.registration)
+      fragment("?->>'pool' = 'all'", s.registration) or
+        (fragment("?->>'pool' = 'region'", s.registration) and e.region_id == ^region_id)
     )
   end
 

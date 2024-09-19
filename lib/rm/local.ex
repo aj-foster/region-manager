@@ -64,6 +64,17 @@ defmodule RM.Local do
 
   def verify_eligibility(
         %Event{
+          local_league_id: nil,
+          region_id: event_region_id,
+          settings: %EventSettings{registration: %RegistrationSettings{pool: :league}}
+        },
+        %Team{region_id: team_region_id}
+      )
+      when event_region_id != team_region_id,
+      do: {:error, :out_of_scope}
+
+  def verify_eligibility(
+        %Event{
           local_league_id: event_league_id,
           settings: %EventSettings{registration: %RegistrationSettings{pool: :league}}
         },
