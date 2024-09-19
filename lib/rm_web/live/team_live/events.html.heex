@@ -50,11 +50,11 @@
       <p class="italic text-sm">Loading...</p>
     </.card>
   </:loading>
-  <.card :if={length(eligible_events) == 0}>
+  <.card :if={length(eligible_events) == 0} spaced>
     <p class="italic text-sm">There are no available events.</p>
   </.card>
 
-  <.card :if={length(eligible_events) > 0}>
+  <.card :if={length(eligible_events) > 0} spaced>
     <.link
       :for={event <- eligible_events}
       class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
@@ -71,4 +71,25 @@
       <div><.icon name="hero-arrow-right" /></div>
     </.link>
   </.card>
+</.async_result>
+
+<.async_result :let={past_events} assign={@past_events}>
+  <.title>Past Events</.title>
+
+  <.reveal id="events-past-published-reveal" spaced title={"Past Events (#{length(past_events)})"}>
+    <.list :if={past_events != []}>
+      <:item :for={event <- past_events} class="px-4 py-2">
+        <h3 class="font-bold"><%= event.name %></h3>
+        <p class="text-sm">
+          <span><%= format_range(event.date_start, event.date_end) %></span>
+          <span>&bull; <%= Event.type_name(event.type) %></span>
+          <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+        </p>
+      </:item>
+    </.list>
+
+    <p :if={past_events == []} class="italic px-4 py-2 text-center text-sm">
+      There are no past events for this season.
+    </p>
+  </.reveal>
 </.async_result>
