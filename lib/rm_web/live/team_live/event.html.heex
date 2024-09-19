@@ -58,7 +58,10 @@
   <:action>
     <.button
       :if={is_nil(@registration) and @event.settings.registration.enabled}
-      disabled={not @eligible}
+      disabled={
+        not @eligible or Event.registration_deadline_passed?(@event) or
+          not Event.registration_opening_passed?(@event)
+      }
       phx-click={show_modal("create-registration-modal")}
     >
       Register...
