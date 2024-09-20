@@ -88,6 +88,7 @@ defmodule RMWeb.Router do
       as: :identity,
       private: %{after_login: "/dashboard"}
 
+    get "/register/post", RMWeb.IdentityController, :after_create_user
     get "/login/2fa", Identity.Controller, :pending_2fa, as: :identity
 
     post "/login/2fa", Identity.Controller, :validate_2fa,

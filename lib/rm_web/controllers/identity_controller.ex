@@ -21,11 +21,16 @@ defmodule RMWeb.IdentityController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "A link to confirm your email has been sent to your address.")
-        |> Identity.Plug.log_in_and_redirect_user(user)
+        |> Identity.Plug.log_in_and_redirect_user(user, to: ~p"/register/post")
 
       {:error, changeset} ->
         render(conn, "new_user.html", changeset: changeset)
     end
+  end
+
+  @spec after_create_user(Conn.t(), Conn.params()) :: Conn.t()
+  def after_create_user(conn, _params) do
+    render(conn, "after_create_user.html")
   end
 
   @spec confirm_email(Conn.t(), Conn.params()) :: Conn.t()
