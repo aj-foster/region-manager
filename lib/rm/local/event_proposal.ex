@@ -108,6 +108,7 @@ defmodule RM.Local.EventProposal do
     |> Changeset.validate_required(@required_fields)
     |> Changeset.validate_required([:region, :venue])
     |> validate_dates()
+    |> validate_name()
   end
 
   @doc """
@@ -124,6 +125,7 @@ defmodule RM.Local.EventProposal do
     |> Changeset.validate_required(@required_fields)
     |> Changeset.validate_required([:venue])
     |> validate_dates()
+    |> validate_name()
   end
 
   @spec contact_changeset(%__MODULE__.Contact{}, map) :: Changeset.t(%__MODULE__.Contact{})
@@ -147,6 +149,23 @@ defmodule RM.Local.EventProposal do
 
       Date.diff(date_end, date_start) > 7 ->
         Changeset.add_error(changeset, :date_start, "cannot be more than 7 days before end date")
+
+      :else ->
+        changeset
+    end
+  end
+
+  @spec validate_name(Changeset.t(t)) :: Changeset.t(t)
+  defp validate_name(changeset) do
+    name = Changeset.get_field(changeset, :name) |> IO.inspect()
+    type = Changeset.get_field(changeset, :type) |> IO.inspect()
+
+    cond do
+      is_nil(name) or is_nil(type) ->
+        changeset
+
+      Regex.match?(~r/championship/i, name) |> IO.inspect() and type == :league_tournament ->
+        Changeset.add_error(changeset, :name, "cannot have the word \"Championship\"")
 
       :else ->
         changeset

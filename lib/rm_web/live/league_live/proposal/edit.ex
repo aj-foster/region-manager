@@ -162,10 +162,10 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
       |> registration_settings_normalize_waitlist_limit()
 
     case RM.Local.update_event(proposal, params) do
-      {:ok, _proposal} ->
+      {:ok, proposal} ->
         socket
         |> put_flash(:info, "Event proposal updated successfully")
-        |> push_navigate(to: ~p"/league/#{league.region}/#{league}/events")
+        |> push_navigate(to: ~p"/league/#{league.region}/#{league}/events/proposal/#{proposal}")
 
       {:error, changeset} ->
         assign(socket, proposal_form: to_form(changeset))
