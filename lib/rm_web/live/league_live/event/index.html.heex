@@ -64,13 +64,16 @@
   </p>
 </.card>
 
-<.title>Registration Settings</.title>
+<.title>
+  Default Registration Settings
+  <button phx-click={show_modal("registration-settings-info")}>
+    <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+  </button>
+</.title>
 
 <.card spaced>
   <p class="mb-4 text-sm">
-    The following settings affect how teams register for events in this league.
-    League events will adopt these settings at the time they are first imported.
-    Individual events may then change their settings if necessary.
+    Changes made here do not affect existing proposals or published events.
   </p>
 
   <.form for={@registration_settings_form} phx-change="registration_settings_change">
@@ -170,4 +173,26 @@
     Event proposals in <strong>Region Manager</strong>
     allow administrators to provide additional information to attendees beyond what is available from <em>FIRST</em>.
   </p>
+</.modal>
+
+<.modal id="registration-settings-info">
+  <.title class="mb-4" flush>About Registration Settings</.title>
+
+  <p class="mb-4">
+    When enabled, teams can register for events in <strong>Region Manager</strong>.
+  </p>
+  <p class="mb-4">
+    These <em>default registration settings</em>
+    will be copied to all new event proposals. Individual proposals and published events can customize their registration settings if necessary.
+    Published league events that do not have corresponding event proposals will copy these settings the first time they are imported from <em>FIRST</em>.
+  </p>
+  <p class="mb-4">
+    The following settings are available:
+  </p>
+  <ul class="list-disc pl-8">
+    <li>Enable or disable registration for events</li>
+    <li>Restrict the period of time when teams can register</li>
+    <li>Restrict the number of teams that can register</li>
+    <li>Allow teams to register for a waitlist</li>
+  </ul>
 </.modal>
