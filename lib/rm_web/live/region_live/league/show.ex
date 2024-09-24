@@ -223,7 +223,9 @@ defmodule RMWeb.RegionLive.League.Show do
       users: [:profile]
     ])
     |> Map.update!(:events, &Enum.sort(&1, RM.FIRST.Event))
+    |> Map.update!(:event_proposals, &Enum.sort(&1, RM.Local.EventProposal))
     |> Map.update!(:teams, &Enum.sort(&1, RM.Local.Team))
+    |> Map.update!(:user_assignments, &Enum.sort(&1, RM.Account.League))
   end
 
   @spec remove_user_init(Socket.t(), Ecto.UUID.t()) :: Socket.t()
