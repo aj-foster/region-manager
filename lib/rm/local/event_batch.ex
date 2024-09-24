@@ -229,12 +229,11 @@ defmodule RM.Local.EventBatch do
   @spec league(EventProposal.t()) :: String.t()
   defp league(%EventProposal{league: nil}), do: ""
 
-  defp league(%EventProposal{league: league, region: region, type: type})
+  defp league(%EventProposal{league: league, type: type})
        when type in [:league_meet, :league_tournament] do
-    %Region{name: region_name} = region
     %League{code: code, name: name} = league
 
-    "[#{code}] #{region_name} #{name} League"
+    "[#{code}] #{name}"
   end
 
   defp league(_proposal), do: ""
