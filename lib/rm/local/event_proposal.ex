@@ -107,13 +107,7 @@ defmodule RM.Local.EventProposal do
     |> Changeset.put_embed(:log, [Log.new("created", params)])
     |> Changeset.validate_required(@required_fields)
     |> Changeset.validate_required([:region, :venue])
-  end
-
-  @spec contact_changeset(%__MODULE__.Contact{}, map) :: Changeset.t(%__MODULE__.Contact{})
-  defp contact_changeset(contact, params) do
-    contact
-    |> Changeset.cast(params, [:email, :name, :phone])
-    |> Changeset.validate_required([:email, :name, :phone])
+    |> validate_dates()
   end
 
   @doc """
@@ -129,6 +123,34 @@ defmodule RM.Local.EventProposal do
     |> Changeset.put_embed(:log, [Log.new("updated", params) | proposal.log])
     |> Changeset.validate_required(@required_fields)
     |> Changeset.validate_required([:venue])
+    |> validate_dates()
+  end
+
+  @spec contact_changeset(%__MODULE__.Contact{}, map) :: Changeset.t(%__MODULE__.Contact{})
+  defp contact_changeset(contact, params) do
+    contact
+    |> Changeset.cast(params, [:email, :name, :phone])
+    |> Changeset.validate_required([:email, :name, :phone])
+  end
+
+  @spec validate_dates(Changeset.t(t)) :: Changeset.t(t)
+  defp validate_dates(changeset) do
+    date_start = Changeset.get_field(changeset, :date_start)
+    date_end = Changeset.get_field(changeset, :date_end)
+
+    cond do
+      is_nil(date_end) or is_nil(date_start) ->
+        changeset
+
+      Date.before?(date_end, date_start) ->
+        Changeset.add_error(changeset, :date_end, "cannot be before start date")
+
+      Date.diff(date_end, date_start) > 7 ->
+        Changeset.add_error(changeset, :date_start, "cannot be more than 7 days before end date")
+
+      :else ->
+        changeset
+    end
   end
 
   #
