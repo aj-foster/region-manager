@@ -112,21 +112,17 @@
   <p class="italic text-sm">There are no upcoming events scheduled for this season.</p>
 </.card>
 
-<.card :if={@upcoming_events_count > 0} spaced>
-  <div
-    :for={event <- @upcoming_events}
-    class="border-b flex items-center py-2 first:-mt-2 last:border-0 last:-mb-2"
-  >
-    <div class="grow">
+<.card padding={false} spaced>
+  <.list :if={@upcoming_events_count > 0}>
+    <:link :for={event <- @upcoming_events} navigate={~p"/region/#{@region}/events/#{event}"}>
       <h3 class="font-bold"><%= event.name %></h3>
       <p class="text-sm">
         <span><%= format_range(event.date_start, event.date_end) %></span>
         <span>&bull; <%= Event.type_name(event.type) %></span>
         <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
       </p>
-    </div>
-    <%!-- <div><.icon name="hero-arrow-right" /></div> --%>
-  </div>
+    </:link>
+  </.list>
 </.card>
 
 <.title>Past Events in <%= @region.name %></.title>

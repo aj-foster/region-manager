@@ -192,8 +192,7 @@
   title={"Published Events (#{@league.stats.event_count})"}
 >
   <.list :if={@league.stats.event_count > 0}>
-    <%!-- TODO: Events "show" page --%>
-    <:link :for={event <- @league.events} navigate={~p"/region/#{@region}/events"}>
+    <:link :for={event <- @league.events} navigate={~p"/region/#{@region}/events/#{event}"}>
       <h3 class="font-bold"><%= event.name %></h3>
       <p class="text-sm">
         <span><%= format_range(event.date_start, event.date_end) %></span>
@@ -216,8 +215,9 @@
   title={"Proposed Events (#{length(@league.event_proposals)})"}
 >
   <.list :if={length(@league.event_proposals) > 0}>
-    <%!-- TODO: Events "show" page --%>
-    <:link :for={event <- @league.event_proposals} navigate={~p"/region/#{@region}/events"}>
+    <%!-- TODO: Proposals "show" page --%>
+    <:item :for={event <- @league.event_proposals} class="px-4 py-2">
+      <%!-- navigate={~p"/region/#{@region}/events"} --%>
       <h3 class="font-bold"><%= event.name %></h3>
       <p class="text-sm">
         <span><%= format_range(event.date_start, event.date_end) %></span>
@@ -226,7 +226,7 @@
           &bull; <%= RM.Local.EventProposal.format_string(event) %>
         </span>
       </p>
-    </:link>
+    </:item>
   </.list>
 
   <p :if={length(@league.event_proposals) == 0} class="italic p-4 text-sm">
