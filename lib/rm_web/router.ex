@@ -89,7 +89,6 @@ defmodule RMWeb.Router do
       as: :identity,
       private: %{after_login: "/dashboard"}
 
-    get "/register/post", RMWeb.IdentityController, :after_create_user
     get "/login/2fa", Identity.Controller, :pending_2fa, as: :identity
 
     post "/login/2fa", Identity.Controller, :validate_2fa,
@@ -115,6 +114,8 @@ defmodule RMWeb.Router do
     # User Registration
     get "/register", RMWeb.IdentityController, :new_user, as: :identity
     post "/register", RMWeb.IdentityController, :create_user, as: :identity
+    get "/register/post", RMWeb.IdentityController, :after_create_user
+    get "/register/error", RMWeb.IdentityController, :deny_create_user
 
     # User Settings
     get "/user/password", Identity.Controller, :edit_password, as: :identity

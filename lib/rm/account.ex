@@ -70,6 +70,24 @@ defmodule RM.Account do
     end
   end
 
+  @doc """
+  Check if the given email address is known to Region Manager
+
+  This check was added due to a large number of fake sign-ups that sent confirmation emails to
+  unsuspecting accounts.
+  """
+  @spec known_email?(nil) :: false
+  @spec known_email?(String.t()) :: boolean
+  def known_email?(nil), do: false
+
+  def known_email?(email) do
+    email
+    |> RM.Account.Email.by_email_query()
+    |> Repo.one()
+    |> is_nil()
+    |> Kernel.not()
+  end
+
   #
   # League Users
   #
