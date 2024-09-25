@@ -101,6 +101,9 @@ defmodule RM.Account do
     changeset = League.create_changeset(league, params)
 
     with {:ok, assignment} <- Repo.insert(changeset) do
+      RM.Account.Email.new(assignment.email)
+      |> Repo.insert(on_conflict: :nothing, conflict_target: [:email])
+
       League.user_update_by_email_query(assignment.email)
       |> Repo.update_all([])
 

@@ -148,6 +148,17 @@ defmodule RM.Import do
         returning: [:id]
       )
 
+    email_addresses =
+      user_teams
+      |> Enum.map(& &1.email)
+      |> Enum.reject(&is_nil/1)
+      |> Account.Email.new()
+
+    Repo.insert_all(Account.Email, email_addresses,
+      on_conflict: :nothing,
+      conflict_target: [:email]
+    )
+
     {coaches_linked_count, _nil} =
       coaches
       |> Enum.map(& &1.id)

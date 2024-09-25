@@ -83,5 +83,17 @@ defmodule RM.ImportTest do
       Repo.reload!(team)
       |> assert_match(%RM.Local.Team{active: false, number: 6666, team_id: 106_666})
     end
+
+    test "adds coach email addresses to list of known addresses", %{user: user} do
+      Import.import_from_team_info_tableau_export(user, @fixture_import)
+
+      Repo.all(RM.Account.Email)
+      |> assert_match_in(%{email: "aaronson@example.com"})
+
+      Import.import_from_team_info_tableau_export(user, @fixture_import)
+
+      Repo.all(RM.Account.Email)
+      |> assert_match_in(%{email: "aaronson@example.com"})
+    end
   end
 end

@@ -2,6 +2,8 @@ defmodule RM.Repo.Migrations.CreateRmEmails do
   use Ecto.Migration
 
   def change do
+    execute "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", "SELECT 1"
+
     create_if_not_exists table(:rm_emails, primary_key: false) do
       add :id, :uuid, primary_key: true
 
