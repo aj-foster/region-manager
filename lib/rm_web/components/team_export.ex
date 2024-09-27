@@ -111,8 +111,8 @@ defmodule RMWeb.Components.TeamExport do
     "missing-contacts",
     "secured-date"
   ]
-  @fields_nn ["name", "number", "school", "school-type"]
-  @fields_nns ["name", "number"]
+  @fields_nn ["name", "number"]
+  @fields_nns ["name", "number", "school", "school-type"]
   @fields_coach_information [
     "lc1-name",
     "lc1-email",

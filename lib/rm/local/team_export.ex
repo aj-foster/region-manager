@@ -5,6 +5,12 @@ defmodule RM.Local.TeamExport do
   The exported data may have varying fields depending on context (for example, list of teams
   registered for an event may have registration time).
   """
+  use Waffle.Definition
+  require Logger
+
+  #
+  # Export
+  #
 
   @spec export(map) :: {:ok, url :: String.t()} | {:error, message :: String.t()}
   def export(params) do
@@ -115,11 +121,22 @@ defmodule RM.Local.TeamExport do
     fields = Enum.filter(@fields_in_order, &(&1 in params["fields"]))
     headers = Enum.map(fields, &Map.get(@headers, &1))
     body = Enum.map(params["teams"], &export_csv_team(fields, &1))
-    file = RM.Local.TeamExport.CSV.dump_to_iodata([headers | body])
 
-    File.write!("export.csv", file)
+    file_io = RM.Local.TeamExport.CSV.dump_to_iodata([headers | body])
+    file_bin = IO.iodata_to_binary(file_io)
 
-    {:ok, ""}
+    scope = %{date: Date.utc_today()}
+    hash = :crypto.hash(:md5, file_io) |> Base.encode16(case: :lower) |> String.slice(0, 6)
+    filename = "rm-teams-#{hash}.csv"
+
+    case store({%{filename: filename, binary: file_bin}, scope}) do
+      {:ok, filename} ->
+        {:ok, url({filename, scope}, signed: true)}
+
+      {:error, reason} ->
+        Logger.error("Error while storing team export: #{inspect(reason)}")
+        {:error, "An error occurred while storing the export"}
+    end
   end
 
   @spec export_csv_team([String.t()], {RM.Local.Team.t(), RM.Import.Team.t()}) :: [String.t()]
@@ -214,4 +231,15 @@ defmodule RM.Local.TeamExport do
 
   @spec export_xlsx(map) :: {:ok, url :: String.t()} | {:error, message :: String.t()}
   defp export_xlsx(_params), do: {:ok, ""}
+
+  #
+  # Waffle Callbacks
+  #
+
+  @versions [:original]
+
+  @doc false
+  def storage_dir(_version, {_, %{date: date}}) do
+    "exports/#{Date.to_string(date)}/"
+  end
 end
