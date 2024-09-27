@@ -271,7 +271,7 @@ defmodule RM.FIRST do
 
     {_count, teams} =
       Repo.insert_all(Team, team_data,
-        on_conflict: {:replace_all_except, [:inserted_at]},
+        on_conflict: {:replace_all_except, [:id, :inserted_at]},
         conflict_target: [:team_number, :season],
         returning: true
       )
