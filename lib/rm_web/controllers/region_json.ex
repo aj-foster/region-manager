@@ -112,7 +112,7 @@ defmodule RMWeb.RegionJSON do
       # Deprecated
       deadline: RM.FIRST.Event.registration_deadline(event),
       closes_at: RM.FIRST.Event.registration_deadline(event),
-      url: url(~p"/s/#{event.season}/event/#{event}/register"),
+      url: url(~p"/s/#{event.season}/events/#{event}/register"),
       attending: Enum.map(attending, & &1.team.number),
       waitlist: Enum.map(waitlist, & &1.team.number),
       capacity: team_limit,
