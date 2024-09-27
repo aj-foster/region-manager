@@ -14,6 +14,7 @@ RUN addgroup erlang && \
 
 ADD export/*.tar.gz /srv/
 RUN chown -R erlang:erlang /srv
+ENV PATH="$PATH:/srv/bin"
 
 USER erlang
 ENTRYPOINT [ "/srv/bin/server" ]
