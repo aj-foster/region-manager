@@ -1,0 +1,64 @@
+<.title><%= @season %>–<%= @season + 1 %> Events in <%= @region.name %></.title>
+
+<div :if={@region.has_leagues} class="flex font-title italic mb-8 small-caps">
+  <div class="border-b border-gray-400 w-4"></div>
+
+  <%= if @sort == "upcoming" do %>
+    <div
+      class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
+      style="background-image: linear-gradient(to bottom, white, transparent)"
+    >
+      By Date
+    </div>
+  <% else %>
+    <.link_button
+      class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
+      phx-click="sort_upcoming"
+      style="plain"
+    >
+      By Date
+    </.link_button>
+  <% end %>
+
+  <%= if @sort == "league" do %>
+    <div
+      class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
+      style="background-image: linear-gradient(to bottom, white, transparent)"
+    >
+      By League
+    </div>
+  <% else %>
+    <.link_button
+      class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
+      phx-click="sort_league"
+      style="plain"
+    >
+      By League
+    </.link_button>
+  <% end %>
+
+  <div class="border-b border-gray-400 grow"></div>
+</div>
+
+<div :for={{{_priority, title}, events} <- @grouped_events}>
+  <.title><%= title %></.title>
+
+  <.card padding={false} spaced>
+    <.list>
+      <:item :for={event <- events} class="px-4 py-2">
+        <h3 class="font-bold"><%= event.name %></h3>
+        <p class="text-sm">
+          <span><%= format_range(event.date_start, event.date_end) %></span>
+          <span>&bull; <%= RM.FIRST.Event.type_name(event.type) %></span>
+          <span :if={event.remote or event.hybrid}>
+            &bull; <%= RM.FIRST.Event.format_name(event) %>
+          </span>
+        </p>
+      </:item>
+    </.list>
+  </.card>
+</div>
+
+<.card :if={@grouped_events == []} spaced>
+  <p class="italic text-sm">There are no events to display.</p>
+</.card>

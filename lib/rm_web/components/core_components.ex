@@ -404,6 +404,7 @@ defmodule RMWeb.CoreComponents do
 
   defp button_class("secondary"), do: [@button_class, @button_secondary_class]
   defp button_class("tertiary"), do: [@button_class, @button_tertiary_class]
+  defp button_class("plain"), do: []
   defp button_class(_default), do: [@button_class, @button_primary_class]
 
   @doc """

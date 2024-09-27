@@ -35,6 +35,11 @@ defmodule RMWeb.Router do
 
     get "/", PageController, :home
 
+    live_session :ambiguous,
+      on_mount: [{Identity.LiveView, :fetch_identity}, {RMWeb.Live.Util, :preload_user}] do
+      live "/s/:season/r/:region/events", EventLive.Index
+    end
+
     live_session :authenticated,
       on_mount: [
         {Identity.LiveView, {:redirect_if_unauthenticated, to: "/login"}},

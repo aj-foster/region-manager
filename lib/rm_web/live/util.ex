@@ -238,7 +238,7 @@ defmodule RMWeb.Live.Util do
         {:cont, assign(socket, current_user: get_user(user_id))}
 
       nil ->
-        {:cont, socket}
+        {:cont, assign(socket, current_user: nil)}
     end
   end
 
