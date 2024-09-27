@@ -700,6 +700,45 @@ defmodule RMWeb.CoreComponents do
   defp switch_class_fg, do: @switch_class_fg
 
   @doc """
+  Provides a radio group input for a given form field.
+
+  ## Examples
+
+      <.radio_group field={@form[:tip]}>
+        <:radio value="0">No Tip</:radio>
+        <:radio value="10">10%</:radio>
+        <:radio value="20">20%</:radio>
+      </.radio_group>
+  """
+  attr :class, :string, default: nil, doc: "additional classes for the wrapper"
+  attr :field, Phoenix.HTML.FormField, required: true
+
+  slot :radio, required: true do
+    attr :value, :string, required: true
+  end
+
+  slot :inner_block
+
+  def radio_group(assigns) do
+    ~H"""
+    <div class={@class}>
+      <%= render_slot(@inner_block) %>
+      <div :for={{%{value: value} = rad, idx} <- Enum.with_index(@radio)}>
+        <input
+          type="radio"
+          name={@field.name}
+          id={"#{@field.id}-#{idx}"}
+          value={value}
+          checked={to_string(@field.value) == to_string(value)}
+          class="rounded-lg focus:ring-0"
+        />
+        <label class="ml-2" for={"#{@field.id}-#{idx}"}><%= render_slot(rad) %></label>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
   Renders a label.
   """
   attr :for, :string, default: nil

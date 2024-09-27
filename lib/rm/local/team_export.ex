@@ -122,7 +122,7 @@ defmodule RM.Local.TeamExport do
     {:ok, ""}
   end
 
-  @spec export_csv_team([String.t()], RM.Local.Team.t()) :: [String.t()]
+  @spec export_csv_team([String.t()], {RM.Local.Team.t(), RM.Import.Team.t()}) :: [String.t()]
   defp export_csv_team(fields, {team, import_team}) do
     %RM.Local.Team{
       event_ready: event_ready?,

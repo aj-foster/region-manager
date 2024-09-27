@@ -6,9 +6,9 @@ defmodule RMWeb.Components.TeamExport do
   #
 
   @impl true
-  def mount(socket) do
+  def update(assigns, socket) do
     socket
-    |> assign(custom_fields: false)
+    |> assign(assigns)
     |> assign_form()
     |> ok()
   end
@@ -26,8 +26,9 @@ defmodule RMWeb.Components.TeamExport do
     |> noreply()
   end
 
-  def handle_event("export", _params, socket) do
+  def handle_event("export", params, socket) do
     socket
+    |> export_teams(params)
     |> noreply()
   end
 
@@ -37,14 +38,144 @@ defmodule RMWeb.Components.TeamExport do
 
   @spec assign_form(Socket.t(), map) :: Socket.t()
   defp assign_form(socket, params \\ %{}) do
+    include = if length(socket.assigns[:teams]) > 1, do: "0", else: "_all"
+
     form =
       Map.merge(
-        %{"format" => "csv", "include" => "_all", "field" => "all", "fields" => []},
+        %{"format" => "csv", "include" => include, "field" => "all", "fields" => []},
         params
       )
       |> to_form()
 
     assign(socket, form: form)
+  end
+
+  @spec export_teams(Socket.t(), map) :: Socket.t()
+  defp export_teams(socket, params) do
+    params =
+      Map.merge(params, %{
+        "fields" => select_fields(socket, params),
+        "teams" => select_teams(socket, params)
+      })
+
+    case RM.Local.TeamExport.export(params) do
+      {:ok, url} ->
+        socket
+        |> push_event("window-open", %{url: url})
+        |> put_flash(
+          :info,
+          "Export generated successfully. If a download doesn't start immediately, please allow popups."
+        )
+        |> push_js("#team-export-modal", "data-cancel")
+
+      {:error, reason} ->
+        socket
+        |> put_flash(:error, "An error occurred while generating export: #{reason}")
+        |> push_js("#team-export-modal", "data-cancel")
+    end
+  end
+
+  @fields_all [
+    "name",
+    "number",
+    "rookie-status",
+    "rookie-year",
+    "school",
+    "school-type",
+    "sponsors",
+    "sponsors-type",
+    "website",
+    "country",
+    "state-province",
+    "city",
+    "county",
+    "postal-code",
+    "region",
+    "league",
+    "lc1-name",
+    "lc1-email",
+    "lc1-email-alt",
+    "lc1-phone",
+    "lc1-phone-alt",
+    "lc1-ypp-status",
+    "lc2-name",
+    "lc2-email",
+    "lc2-email-alt",
+    "lc2-phone",
+    "lc2-phone-alt",
+    "lc2-ypp-status",
+    "admin-name",
+    "admin-email",
+    "admin-phone",
+    "event-ready",
+    "missing-contacts",
+    "secured-date"
+  ]
+  @fields_nn ["name", "number", "school", "school-type"]
+  @fields_nns ["name", "number"]
+  @fields_coach_information [
+    "lc1-name",
+    "lc1-email",
+    "lc1-email-alt",
+    "lc1-phone",
+    "lc1-phone-alt",
+    "lc1-ypp-status",
+    "lc2-name",
+    "lc2-email",
+    "lc2-email-alt",
+    "lc2-phone",
+    "lc2-phone-alt",
+    "lc2-ypp-status",
+    "admin-name",
+    "admin-email",
+    "admin-phone"
+  ]
+
+  @spec select_fields(Socket.t(), map) :: [String.t()]
+  defp select_fields(socket, params) do
+    pii? = socket.assigns[:pii]
+
+    case params["field"] do
+      "all" ->
+        if pii? do
+          @fields_all
+        else
+          @fields_all -- @fields_coach_information
+        end
+
+      "nn" ->
+        @fields_nn
+
+      "nns" ->
+        @fields_nns
+
+      "coaches" ->
+        if pii? do
+          @fields_nn ++ @fields_coach_information
+        else
+          @fields_nn
+        end
+
+      "custom" ->
+        if pii? do
+          params["fields"]
+        else
+          params["fields"] -- @fields_coach_information
+        end
+    end
+  end
+
+  @spec select_teams(Socket.t(), map) :: [RM.Local.Team.t()]
+  defp select_teams(socket, params) do
+    index =
+      case Integer.parse(params["include"]) do
+        {x, ""} -> x
+        _else -> 0
+      end
+
+    socket.assigns[:teams]
+    |> Enum.at(index)
+    |> elem(2)
   end
 
   #
@@ -61,7 +192,7 @@ defmodule RMWeb.Components.TeamExport do
   def render(assigns) do
     ~H"""
     <div>
-      <.modal id="team-export-modal" show>
+      <.modal id="team-export-modal">
         <.title flush class="mb-4">Export <%= @context %> Teams</.title>
 
         <.form
@@ -71,86 +202,58 @@ defmodule RMWeb.Components.TeamExport do
           phx-submit="export"
           phx-target={@myself}
         >
-          <div id="team-export-format-inputs" phx-update="ignore">
+          <input name={@form[:format].name} type="hidden" value="csv" />
+          <%!-- <div class="mb-4" id="team-export-format-inputs">
             <h3 class="font-semibold mb-2">Format</h3>
 
-            <div>
-              <input checked id="export-format-csv" name="format" type="radio" value="csv" />
-              <label class="ml-2" for="export-format-csv">CSV (comma-separated values)</label>
-            </div>
-            <div class="mb-4">
-              <input id="export-format-xlsx" name="format" type="radio" value="xlsx" />
-              <label class="ml-2" for="export-format-xlsx">XLSX (Microsoft Excel)</label>
-            </div>
-          </div>
+            <.radio_group field={@form[:format]}>
+              <:radio value="csv">CSV (comma-separated values)</:radio>
+              <:radio value="xlsx">XLSX (Microsoft Excel)</:radio>
+            </.radio_group>
+          </div> --%>
 
-          <div
-            :if={length(@teams) > 1}
-            class="mb-4"
-            id="team-export-include-inputs"
-            phx-update="ignore"
-          >
+          <div :if={length(@teams) > 1} class="mb-4" id="team-export-include-inputs">
             <h3 class="font-semibold mb-2">Teams to Include</h3>
 
-            <div :for={{{label, count, _teams}, index} <- Enum.with_index(@teams)}>
-              <input
-                checked={index == 0}
-                id={"export-include-#{index}"}
-                name="include"
-                type="radio"
-                value={index}
-              />
-              <label class="ml-2" for={"export-include-#{index}"}>
+            <.radio_group field={@form[:include]}>
+              <:radio :for={{{label, count, _teams}, index} <- Enum.with_index(@teams)} value={index}>
                 <%= label %> (<%= dumb_inflect("team", count) %>)
-              </label>
-            </div>
+              </:radio>
+            </.radio_group>
           </div>
 
-          <input
-            :if={length(@teams) == 1}
-            id="export-include-all"
-            name="include"
-            type="hidden"
-            value="_all"
-          />
+          <input :if={length(@teams) == 1} field={@form[:include]} type="hidden" value="_all" />
 
-          <div id="team-export-field-inputs" phx-update="ignore">
+          <div class="mb-4" id="team-export-field-inputs">
             <h3 class="font-semibold mb-2">Fields to Include</h3>
 
-            <div>
-              <input checked id="export-field-all" name="field" type="radio" value="all" />
-              <label class="ml-2" for="export-field-all">All fields</label>
-            </div>
-            <div>
-              <input id="export-field-nn" name="field" type="radio" value="nn" />
-              <label class="ml-2" for="export-field-nn">Name &amp; number</label>
-            </div>
-            <div>
-              <input id="export-field-nns" name="field" type="radio" value="nns" />
-              <label class="ml-2" for="export-field-nns">Name, number, &amp; school</label>
-            </div>
-            <div :if={@pii}>
-              <input id="export-field-coaches" name="field" type="radio" value="coaches" />
-              <label class="ml-2" for="export-field-coaches">Coach information</label>
-            </div>
-            <div class="mb-4">
-              <input id="export-field-custom" name="field" type="radio" value="custom" />
-              <label class="ml-2" for="export-field-custom">Custom...</label>
-            </div>
+            <.radio_group field={@form[:field]}>
+              <:radio value="all">All fields</:radio>
+              <:radio value="nn">Name &amp; number</:radio>
+              <:radio value="nns">Name, number, &amp; school or organization</:radio>
+              <:radio value="coaches">Coach information</:radio>
+              <:radio value="custom">Custom...</:radio>
+            </.radio_group>
           </div>
 
-          <div :if={@custom_fields} class="mb-4">
+          <div :if={@form[:field].value == "custom"} class="mb-4">
             <h3 class="font-semibold mb-2">Field List</h3>
 
             <div class="grid grid-cols-2 gap-x-8 gap-y-4">
               <div class="">
                 <div>
-                  <input checked id="export-fields-name" name="fields[]" type="checkbox" value="name" />
+                  <input
+                    checked={"name" in @form[:fields].value}
+                    id="export-fields-name"
+                    name="fields[]"
+                    type="checkbox"
+                    value="name"
+                  />
                   <label class="ml-2" for="export-fields-name">Name</label>
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"number" in @form[:fields].value}
                     id="export-fields-number"
                     name="fields[]"
                     type="checkbox"
@@ -160,7 +263,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"rookie-status" in @form[:fields].value}
                     id="export-fields-rookie-status"
                     name="fields[]"
                     type="checkbox"
@@ -170,7 +273,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"rookie-year" in @form[:fields].value}
                     id="export-fields-rookie-year"
                     name="fields[]"
                     type="checkbox"
@@ -180,7 +283,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"school" in @form[:fields].value}
                     id="export-fields-school"
                     name="fields[]"
                     type="checkbox"
@@ -190,7 +293,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"school-type" in @form[:fields].value}
                     id="export-fields-school-type"
                     name="fields[]"
                     type="checkbox"
@@ -200,7 +303,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"sponsors" in @form[:fields].value}
                     id="export-fields-sponsors"
                     name="fields[]"
                     type="checkbox"
@@ -210,7 +313,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"sponsors-type" in @form[:fields].value}
                     id="export-fields-sponsors-type"
                     name="fields[]"
                     type="checkbox"
@@ -220,7 +323,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"website" in @form[:fields].value}
                     id="export-fields-website"
                     name="fields[]"
                     type="checkbox"
@@ -233,7 +336,7 @@ defmodule RMWeb.Components.TeamExport do
               <div class="">
                 <div>
                   <input
-                    checked
+                    checked={"country" in @form[:fields].value}
                     id="export-fields-country"
                     name="fields[]"
                     type="checkbox"
@@ -243,7 +346,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"state-province" in @form[:fields].value}
                     id="export-fields-state-province"
                     name="fields[]"
                     type="checkbox"
@@ -252,12 +355,18 @@ defmodule RMWeb.Components.TeamExport do
                   <label class="ml-2" for="export-fields-state-province">State / Province</label>
                 </div>
                 <div>
-                  <input checked id="export-fields-city" name="fields[]" type="checkbox" value="city" />
+                  <input
+                    checked={"city" in @form[:fields].value}
+                    id="export-fields-city"
+                    name="fields[]"
+                    type="checkbox"
+                    value="city"
+                  />
                   <label class="ml-2" for="export-fields-city">City</label>
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"county" in @form[:fields].value}
                     id="export-fields-county"
                     name="fields[]"
                     type="checkbox"
@@ -267,7 +376,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"postal-code" in @form[:fields].value}
                     id="export-fields-postal-code"
                     name="fields[]"
                     type="checkbox"
@@ -277,7 +386,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"region" in @form[:fields].value}
                     id="export-fields-region"
                     name="fields[]"
                     type="checkbox"
@@ -287,7 +396,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"league" in @form[:fields].value}
                     id="export-fields-league"
                     name="fields[]"
                     type="checkbox"
@@ -300,7 +409,7 @@ defmodule RMWeb.Components.TeamExport do
               <div :if={@pii} class="">
                 <div>
                   <input
-                    checked
+                    checked={"lc1-name" in @form[:fields].value}
                     id="export-fields-lc1-name"
                     name="fields[]"
                     type="checkbox"
@@ -310,7 +419,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"lc1-email" in @form[:fields].value}
                     id="export-fields-lc1-email"
                     name="fields[]"
                     type="checkbox"
@@ -320,7 +429,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"lc1-email-alt" in @form[:fields].value}
                     id="export-fields-lc1-email-alt"
                     name="fields[]"
                     type="checkbox"
@@ -330,7 +439,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"lc1-phone" in @form[:fields].value}
                     id="export-fields-lc1-phone"
                     name="fields[]"
                     type="checkbox"
@@ -340,7 +449,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"lc1-phone-alt" in @form[:fields].value}
                     id="export-fields-lc1-phone-alt"
                     name="fields[]"
                     type="checkbox"
@@ -350,7 +459,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"lc1-ypp-status" in @form[:fields].value}
                     id="export-fields-lc1-ypp-status"
                     name="fields[]"
                     type="checkbox"
@@ -363,7 +472,7 @@ defmodule RMWeb.Components.TeamExport do
               <div :if={@pii} class="">
                 <div>
                   <input
-                    checked
+                    checked={"lc2-name" in @form[:fields].value}
                     id="export-fields-lc2-name"
                     name="fields[]"
                     type="checkbox"
@@ -373,7 +482,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"lc2-email" in @form[:fields].value}
                     id="export-fields-lc2-email"
                     name="fields[]"
                     type="checkbox"
@@ -383,7 +492,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"lc2-email-alt" in @form[:fields].value}
                     id="export-fields-lc2-email-alt"
                     name="fields[]"
                     type="checkbox"
@@ -393,7 +502,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"lc2-phone" in @form[:fields].value}
                     id="export-fields-lc2-phone"
                     name="fields[]"
                     type="checkbox"
@@ -403,7 +512,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"lc2-phone-alt" in @form[:fields].value}
                     id="export-fields-lc2-phone-alt"
                     name="fields[]"
                     type="checkbox"
@@ -413,7 +522,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"lc2-ypp-status" in @form[:fields].value}
                     id="export-fields-lc2-ypp-status"
                     name="fields[]"
                     type="checkbox"
@@ -426,7 +535,7 @@ defmodule RMWeb.Components.TeamExport do
               <div :if={@pii} class="">
                 <div>
                   <input
-                    checked
+                    checked={"admin-name" in @form[:fields].value}
                     id="export-fields-admin-name"
                     name="fields[]"
                     type="checkbox"
@@ -436,7 +545,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"admin-email" in @form[:fields].value}
                     id="export-fields-admin-email"
                     name="fields[]"
                     type="checkbox"
@@ -446,7 +555,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"admin-phone" in @form[:fields].value}
                     id="export-fields-admin-phone"
                     name="fields[]"
                     type="checkbox"
@@ -459,7 +568,7 @@ defmodule RMWeb.Components.TeamExport do
               <div class="">
                 <div>
                   <input
-                    checked
+                    checked={"event-ready" in @form[:fields].value}
                     id="export-fields-event-ready"
                     name="fields[]"
                     type="checkbox"
@@ -469,7 +578,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"missing-contacts" in @form[:fields].value}
                     id="export-fields-missing-contacts"
                     name="fields[]"
                     type="checkbox"
@@ -479,7 +588,7 @@ defmodule RMWeb.Components.TeamExport do
                 </div>
                 <div>
                   <input
-                    checked
+                    checked={"secured-date" in @form[:fields].value}
                     id="export-fields-secured-date"
                     name="fields[]"
                     type="checkbox"

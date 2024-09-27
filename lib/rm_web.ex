@@ -70,6 +70,9 @@ defmodule RMWeb do
   def live_component do
     quote do
       use Phoenix.LiveComponent
+      import RMWeb.Live.Util
+
+      alias Phoenix.LiveView.Socket
 
       unquote(html_helpers())
     end
