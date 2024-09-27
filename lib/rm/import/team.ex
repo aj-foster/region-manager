@@ -1,5 +1,6 @@
 defmodule RM.Import.Team do
   use Ecto.Schema
+  import Ecto.Query
 
   @typedoc "Imported team record"
   @type t :: %__MODULE__{}
@@ -187,4 +188,28 @@ defmodule RM.Import.Team do
   """
   @spec put_upload(%__MODULE__{}, Ecto.UUID.t()) :: %__MODULE__{}
   def put_upload(team, upload_id), do: %__MODULE__{team | upload_id: upload_id}
+
+  #
+  # Queries
+  #
+
+  @doc """
+  List the latest import record for each team with one of the given team IDs
+  """
+  @spec latest_by_team_id_query([integer]) :: Ecto.Query.t()
+  def latest_by_team_id_query(team_ids) do
+    subquery =
+      from(__MODULE__, as: :import)
+      |> where([import: i], i.team_id in ^team_ids)
+      |> select([import: i], %{team_id: i.team_id, imported_at: max(i.imported_at)})
+      |> group_by([import: i], i.team_id)
+
+    from(__MODULE__, as: :import)
+    |> join(
+      :inner,
+      [import: i],
+      s in subquery(subquery),
+      on: i.team_id == s.team_id and i.imported_at == s.imported_at
+    )
+  end
 end
