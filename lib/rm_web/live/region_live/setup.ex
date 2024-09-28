@@ -37,7 +37,7 @@ defmodule RMWeb.RegionLive.Setup do
 
   @spec assign_current_season(Socket.t()) :: Socket.t()
   defp assign_current_season(socket) do
-    current_season = RM.Config.get("current_season")
+    current_season = RM.System.current_season()
     region = socket.assigns[:region]
 
     assign(socket,

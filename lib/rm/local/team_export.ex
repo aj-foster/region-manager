@@ -195,7 +195,7 @@ defmodule RM.Local.TeamExport do
       "missing-contacts" => missing_contacts,
       "secured-date" => if(secured_date, do: Date.to_string(secured_date)),
       "rookie-status" =>
-        if(rookie_year == RM.Config.get("current_season"), do: "Rookie", else: "Veteran"),
+        if(rookie_year == RM.System.current_season(), do: "Rookie", else: "Veteran"),
       "rookie-year" => to_string(rookie_year),
       "school" => school || "",
       "school-type" => school_type || "",

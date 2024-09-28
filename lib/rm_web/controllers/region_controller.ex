@@ -56,11 +56,11 @@ defmodule RMWeb.RegionController do
   defp assign_season(%Plug.Conn{path_params: %{"season" => season}} = conn, _opts) do
     case Integer.parse(season) do
       {season, ""} -> assign(conn, :season, season)
-      :error -> assign(conn, :season, RM.Config.get("current_season"))
+      :error -> assign(conn, :season, RM.System.current_season())
     end
   end
 
   defp assign_season(conn, _opts) do
-    assign(conn, :season, RM.Config.get("current_season"))
+    assign(conn, :season, RM.System.current_season())
   end
 end

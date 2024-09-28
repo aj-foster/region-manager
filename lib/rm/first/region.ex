@@ -49,7 +49,7 @@ defmodule RM.FIRST.Region do
   schema "first_regions" do
     field :abbreviation, :string
     field :code, :string
-    field :current_season, :integer, autogenerate: {RM.Config, :get, ["current_season"]}
+    field :current_season, :integer, autogenerate: {RM.System, :current_season, []}
     field :description, :string
     field :has_leagues, :boolean, default: false
     field :name, :string

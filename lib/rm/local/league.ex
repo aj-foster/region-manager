@@ -27,7 +27,7 @@ defmodule RM.Local.League do
 
   schema "leagues" do
     field :code, :string
-    field :current_season, :integer, autogenerate: {RM.Config, :get, ["current_season"]}
+    field :current_season, :integer, autogenerate: {RM.System, :current_season, []}
     field :location, :string
     field :name, :string
     field :remote, :boolean

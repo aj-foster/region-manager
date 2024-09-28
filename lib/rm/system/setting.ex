@@ -1,8 +1,8 @@
-defmodule RM.Config.Setting do
+defmodule RM.System.Setting do
   @moduledoc """
   Key-value global configuration record
 
-  See `RM.Config` for more information.
+  See `RM.System.Config` for more information.
 
   Values in these records are serialized using `:erlang.term_to_binary/1` and
   `:erlang.binary_to_term/2` with the `:safe` option. This means that values cannot create new

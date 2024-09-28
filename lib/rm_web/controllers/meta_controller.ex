@@ -7,7 +7,7 @@ defmodule RMWeb.MetaController do
 
   def seasons(conn, _params) do
     seasons = RM.FIRST.list_seasons()
-    current = RM.Config.get("current_season")
+    current = RM.System.current_season()
     render(conn, :seasons, seasons: seasons, current: current)
   end
 

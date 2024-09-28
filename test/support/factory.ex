@@ -61,7 +61,7 @@ defmodule RM.Factory do
       published: false,
       region: fn -> build(:region) end,
       remote: false,
-      season: RM.Config.get("current_season"),
+      season: RM.System.current_season(),
       type: :scrimmage
     }
   end
@@ -75,7 +75,7 @@ defmodule RM.Factory do
       name: "League #{code}",
       region: fn -> build(:region) end,
       remote: false,
-      season: RM.Config.get("current_season")
+      season: RM.System.current_season()
     }
   end
 
@@ -99,8 +99,8 @@ defmodule RM.Factory do
       name_full: "Team #{number}",
       name_short: "Team #{number}",
       region: fn -> build(:region) end,
-      rookie_year: RM.Config.get("current_season"),
-      season: RM.Config.get("current_season"),
+      rookie_year: RM.System.current_season(),
+      season: RM.System.current_season(),
       state_province: "Florida",
       team_number: number
     }
@@ -113,7 +113,7 @@ defmodule RM.Factory do
     %RM.FIRST.Region{
       abbreviation: code,
       code: code,
-      current_season: RM.Config.get("current_season"),
+      current_season: RM.System.current_season(),
       description: "Region #{code}",
       has_leagues: true,
       name: "Region #{code}",
@@ -151,7 +151,7 @@ defmodule RM.Factory do
       format: :traditional,
       name: "Event #{code}",
       region: fn -> build(:region) end,
-      season: RM.Config.get("current_season"),
+      season: RM.System.current_season(),
       type: :scrimmage,
       venue: fn -> build(:venue) end
     }
@@ -182,7 +182,7 @@ defmodule RM.Factory do
 
     %RM.Local.League{
       code: code,
-      current_season: RM.Config.get("current_season"),
+      current_season: RM.System.current_season(),
       location: "Somewhere",
       name: "League #{code}",
       region: fn -> build(:region) end,
@@ -227,7 +227,7 @@ defmodule RM.Factory do
       name: "Team #{number}",
       number: number,
       region: fn -> build(:region) end,
-      rookie_year: RM.Config.get("current_season"),
+      rookie_year: RM.System.current_season(),
       team_id: number,
       temporary_number: number,
       website: nil

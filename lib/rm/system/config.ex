@@ -1,4 +1,4 @@
-defmodule RM.Config do
+defmodule RM.System.Config do
   @moduledoc """
   Provides fast-lookup configuration for global app settings
 
@@ -14,7 +14,7 @@ defmodule RM.Config do
 
       children = [
         RM.Repo,
-        RM.Config,
+        RM.System.Config,
         # ...
       ]
 
@@ -37,7 +37,7 @@ defmodule RM.Config do
   use GenServer
   require Logger
 
-  alias RM.Config.Setting
+  alias RM.System.Setting
   alias RM.Repo
 
   # Format:
