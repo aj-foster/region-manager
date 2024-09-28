@@ -13,7 +13,7 @@ defmodule RMWeb.EventLive.Show do
   def mount(%{"region" => region_abbr, "event" => event_code}, _session, socket) do
     socket
     |> assign_event(region_abbr, event_code)
-    |> assign_registered_teams()
+    |> assign_event_metadata()
     |> ok()
   end
 
@@ -42,7 +42,7 @@ defmodule RMWeb.EventLive.Show do
     with {:ok, %{id: region_id} = region} <- RM.FIRST.fetch_region_by_abbreviation(region_abbr),
          {:ok, %RM.FIRST.Event{region_id: ^region_id} = event} <-
            RM.FIRST.fetch_event_by_code(season, event_code, preload: preloads) do
-      event = RM.Repo.preload(event, proposal: [:league]) |> Map.put(:region, region)
+      event = RM.Repo.preload(event, registrations: :team) |> Map.put(:region, region)
       assign(socket, event: event, region: region)
     else
       {:error, :region, :not_found} ->
@@ -57,17 +57,24 @@ defmodule RMWeb.EventLive.Show do
     end
   end
 
-  @spec assign_registered_teams(Socket.t()) :: Socket.t()
-  defp assign_registered_teams(socket) do
+  @spec assign_event_metadata(Socket.t()) :: Socket.t()
+  defp assign_event_metadata(socket) do
     event = socket.assigns[:event]
 
-    assign_async(socket, :registered_teams, fn ->
-      teams =
-        RM.Local.list_registered_teams_by_event(event, rescinded: false, waitlisted: false)
+    assign(socket,
+      registered_teams:
+        Enum.filter(event.registrations, &(not &1.waitlisted and not &1.rescinded))
         |> Enum.map(& &1.team)
-
-      {:ok, %{registered_teams: teams}}
-    end)
+        |> Enum.sort(RM.Local.Team),
+      registration_enabled: get_in(event.settings.registration.enabled),
+      registrations:
+        (get_in(event.registrations) || [])
+        |> Map.new(fn
+          %{team: team, rescinded: true} -> {team.number, :rescinded}
+          %{team: team, waitlisted: true} -> {team.number, :waitlisted}
+          %{team: team} -> {team.number, :attending}
+        end)
+    )
   end
 
   #
