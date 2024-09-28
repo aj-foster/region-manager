@@ -88,7 +88,7 @@
 
 <.modal id="user-settings-resend-email-modal">
   <h3 class="font-bold mb-4">Resend Confirmation Email</h3>
-  <p class="mb-4 text-sm">
+  <p class="mb-4">
     Are you sure you want to resend a confirmation email for <strong><%= @resend_email_param && @resend_email_param.email %></strong>?
     After submitting, a new confirmation email will be sent, and any previous confirmation emails will no longer work.
   </p>
@@ -97,7 +97,7 @@
 
 <.modal id="user-settings-delete-email-modal">
   <h3 class="font-bold mb-4">Remove Email</h3>
-  <p class="mb-4 text-sm">
+  <p class="mb-4">
     Are you sure you want to remove <strong><%= @delete_email_param %></strong>?
     If this email address is associated with a team in the <a
       class="underline"

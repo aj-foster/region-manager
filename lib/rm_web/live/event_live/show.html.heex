@@ -134,7 +134,11 @@
 
     <.card :if={@current_user.teams != []} spaced padding={false}>
       <.list>
-        <:link :for={team <- @current_user.teams} navigate={~p"/team/#{team}/events/#{@event}"}>
+        <:link
+          :for={team <- @current_user.teams}
+          :if={team.active}
+          navigate={~p"/team/#{team}/events/#{@event}"}
+        >
           <h3 class="flex items-center">
             <span><strong><%= team.number %></strong> <%= team.name %></span>
             <.tag
