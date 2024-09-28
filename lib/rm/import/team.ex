@@ -42,11 +42,13 @@ defmodule RM.Import.Team do
       field :location_county, :string
       field :location_postal_code, :string
       field :location_state_province, :string
+      field :missing_contacts, :string
       field :name, :string
       field :number, :integer
       field :profile_id, :integer
       field :rookie_year, :integer
       field :secured, :boolean
+      field :secured_date, :date
       field :sponsors, :string
       field :sponsor_types, :string
       field :team_id, :integer
@@ -80,11 +82,13 @@ defmodule RM.Import.Team do
       "LC2 Phone Alternate" => lc2_phone_alt,
       "LC2 YPP Screening Requirements Met" => lc2_ypp,
       "LC2 YPP Screening Requirements Details" => lc2_ypp_reason,
+      "Missing Contacts" => missing_contacts,
       "Ready to Register for Events" => event_ready_str,
       "Ready to Register for Events Outstanding Issues" => event_ready_issues,
       "Region Name" => region,
       "School Youth Organizations" => youth_orgs,
       "School Youth Organizations Types" => youth_org_types,
+      "Secured Date" => secured_date,
       "Secured Status" => secured_status,
       "Sponsors" => sponsors,
       "Sponsor Types" => sponsor_types,
@@ -137,11 +141,13 @@ defmodule RM.Import.Team do
         location_county: location_county,
         location_postal_code: location_postal_code,
         location_state_province: location_state_province,
+        missing_contacts: missing_contacts,
         name: name,
         number: number,
         profile_id: profile_id,
         rookie_year: rookie_year,
         secured: secured_status == "Secured",
+        secured_date: if(secured_date != "", do: parse_date(secured_date)),
         sponsors: sponsors,
         sponsor_types: sponsor_types,
         temporary_number: if(temporary_number != "", do: String.to_integer(temporary_number)),
@@ -152,7 +158,22 @@ defmodule RM.Import.Team do
     }
   end
 
+  @date_re ~r"(?<month>\d+)/(?<day>\d+)/(?<year>\d+)"
   @datetime_re ~r"(?<month>\d+)/(?<day>\d+)/(?<year>\d+)\s+(?<hour>\d+):(?<minute>\d+):(?<second>\d+)\s(?<ampm>AM|PM)"
+
+  defp parse_date(datetime_str) do
+    %{
+      "month" => month,
+      "day" => day,
+      "year" => year
+    } = Regex.named_captures(@date_re, datetime_str)
+
+    month = String.to_integer(month)
+    day = String.to_integer(day)
+    year = String.to_integer(year)
+
+    Date.new!(year, month, day)
+  end
 
   defp parse_datetime(datetime_str) do
     %{
