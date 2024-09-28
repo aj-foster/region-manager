@@ -5,6 +5,11 @@
   <button phx-click={show_modal("team-active-info")}>
     <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
   </button>
+  <:action>
+    <.button phx-click={show_modal("team-export-modal")} style="tertiary" target="blank">
+      Export <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-down-tray" />
+    </.button>
+  </:action>
 </.title>
 
 <.card :if={@active_teams_count > 0} padding={false} spaced>
@@ -104,3 +109,15 @@
   </p>
   <p>This information is updated when your Program Delivery Partner imports team data.</p>
 </.modal>
+
+<.live_component
+  context={@league.name}
+  id="team-export"
+  module={RMWeb.Components.TeamExport}
+  pii={@assignment.permissions.contact}
+  teams={[
+    {"Active", @active_teams_count, @active_teams},
+    {"Active and Intending to Return", @active_teams_count + @intend_to_return_teams_count,
+     Enum.sort(@active_teams ++ @intend_to_return_teams, RM.Local.Team)}
+  ]}
+/>
