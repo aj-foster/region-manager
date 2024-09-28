@@ -774,6 +774,7 @@ defmodule RMWeb.CoreComponents do
 
   slot :row do
     attr :class, :string, doc: "additional classes for the row contents"
+    attr :info, :string, doc: "ID of a modal for additional information"
     attr :title, :string, required: true, doc: "row header"
   end
 
@@ -783,6 +784,12 @@ defmodule RMWeb.CoreComponents do
       <%= for row <- @row do %>
         <dt class={["col-start-1 col-end-2 font-semibold small-caps", Map.get(row, :class)]}>
           <%= row.title %>
+          <button :if={info = Map.get(row, :info)} phx-click={show_modal(info)}>
+            <.icon
+              class="bottom h-4 ml-1 relative text-gray-600 w-4"
+              name="hero-question-mark-circle"
+            />
+          </button>
         </dt>
         <dd class={[
           "col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3 last:mb-0",

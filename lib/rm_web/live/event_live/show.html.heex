@@ -1,0 +1,200 @@
+<.title>
+  <.link navigate={~p"/s/#{@season}/r/#{@region}/events"}>Events</.link> &bull; <%= @event.name %>
+</.title>
+
+<.card spaced>
+  <.table class="mb-4">
+    <:row title="Name"><%= @event.name %></:row>
+    <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
+    <:row :if={@event.proposal} title="Timezone"><%= @event.proposal.venue.timezone %></:row>
+    <:row title="Type" info="event-type-modal"><%= Event.type_name(@event.type) %></:row>
+    <:row title="Format" info="event-format-modal"><%= Event.format_name(@event) %></:row>
+  </.table>
+  <p class="text-right">
+    <.link_button
+      :if={@current_user && @current_user.teams != []}
+      navigate={~p"/s/#{@season}/events/#{@event}/register"}
+    >
+      Register
+    </.link_button>
+  </p>
+</.card>
+
+<.title>Venue Information</.title>
+
+<.card spaced>
+  <.table>
+    <:row :if={@event.location.venue} title="Name"><%= @event.location.venue %></:row>
+    <:row title="Address">
+      <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
+      <span :if={@event.location.city}><%= @event.location.city %>,</span>
+      <span :if={@event.location.state_province}><%= @event.location.state_province %>,</span>
+      <span>
+        <%= @event.location.country || "Unknown Location" %>
+      </span>
+    </:row>
+    <:row :if={@event.proposal && @event.proposal.venue.notes} title="Notes">
+      <%= @event.proposal.venue.notes %>
+    </:row>
+    <:row :if={@event.proposal && @event.proposal.venue.website} title="Website">
+      <a class="underline" href={@event.proposal.venue.website} target="blank">
+        <%= @event.proposal.venue.website %>
+      </a>
+    </:row>
+  </.table>
+</.card>
+
+<.title>Additional Information</.title>
+
+<.card spaced>
+  <.table>
+    <:row :if={@event.proposal && @event.proposal.description} title="Description">
+      <%= @event.proposal.description %>
+    </:row>
+
+    <:row
+      :if={website = (@event.proposal && @event.proposal.website) || @event.website}
+      title="Website"
+    >
+      <a class="underline" href={website} target="blank">
+        <%= website %>
+      </a>
+    </:row>
+    <:row
+      :if={url = (@event.proposal && @event.proposal.live_stream_url) || @event.live_stream_url}
+      title="Live Stream"
+    >
+      <a class="underline" href={url} target="blank">
+        <%= url %>
+      </a>
+    </:row>
+
+    <:row title="Region" info="event-region-modal"><%= @event.region.name %></:row>
+    <:row :if={@event.region.has_leagues} title="League" info="event-league-modal">
+      <%= event_league(@event) %>
+    </:row>
+  </.table>
+</.card>
+
+<.modal id="event-type-modal">
+  <.title class="mb-4" flush>About Event Types</.title>
+  <p class="mb-4">
+    <em>FIRST</em> Tech Challenge has several different types of events throughout the season:
+  </p>
+  <ul>
+    <li class="mb-4">
+      <p>
+        <strong>Kickoff</strong>: At kickoff events, teams gather to watch the announcement of the new
+        <em>FIRST</em>
+        Tech Challenge game for the season.
+        After this event, it's game on — teams start building new robots to meet this season's unique challenge.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Scrimmage</strong>: Often early in the season, scrimmage events allow teams to test their robot designs without affecting their league rankings. These events are often shorter and informal, and they do not include judging.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>League Meet</strong>: For <em>FIRST</em>
+        Tech Challenge regions that have leagues, league meets allow teams to accumulate a league ranking throughout the season. These events feature scheduled matches, but no judging. Teams may attend multiple league meets throughout a season.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>League Tournament</strong>: This is the capstone event for league teams. Using league rankings accumulated throughout the season, teams compete in qualification and elimination matches, and also present their work to judges. Winning teams may advance to their region's championship.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Qualifier</strong>: For <em>FIRST</em>
+        Tech Challenge regions that do not have leagues, qualifiers are the most common event for teams. Teams compete in qualification and elimination matches, and present their work to judges. Winning teams may advance to their region's championship.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Regional Championship</strong>: For <em>FIRST</em>
+        Tech Challenge regions (often defined as states, provinces, or countries), this event is the final event of the season. Teams compete in qualification and elimination maches, and present their work to judges. Winning teams may advance to the
+        <em>FIRST</em>
+        Championship.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong><em>FIRST</em> Championship</strong>: This is the final event of the regular season. The
+        <em>FIRST</em>
+        Championship gathers the best teams from every region for multiple days of qualification matches, elimination matches, and judging.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Off-Season</strong>: Similar to scrimmages, off-season events allow teams to play matches in an informal setting. These events typically occur after the championship, and may even feature modified game rules.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Workshop</strong>: Unlike tournaments, workshops do not involve robot match play. They may be focused on knowledge-sharing among teams or formal instruction.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Demo / Exhibition</strong>: These events are focused on sharing <em>FIRST</em>
+        and <em>FIRST</em>
+        Tech Challenge with the public or targeted audience. Teams should be given specific expectations regarding what to bring and what to do.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Volunteer</strong>: Volunteer training days are focused on recruiting and training volunteers, and generally don't include teams.
+      </p>
+    </li>
+  </ul>
+</.modal>
+
+<.modal id="event-format-modal">
+  <.title class="mb-4" flush>About Event Formats</.title>
+  <p class="mb-4">
+    <em>FIRST</em>
+    Tech Challenge has <strong>traditional</strong>
+    and <strong>hybrid</strong>
+    events.
+  </p>
+  <ul>
+    <li class="mb-4">
+      <p>
+        <strong>Traditional</strong>: These are in-person events with scheduled matches and in-person judge interviews (if judging is part of the event).
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Hybrid</strong>: These events feature in-person scheduled matches, but teams participate in judging interviews conducted via video conference.
+      </p>
+    </li>
+  </ul>
+</.modal>
+
+<.modal id="event-region-modal">
+  <.title class="mb-4" flush>About Regions</.title>
+  <p>
+    <em>FIRST</em>
+    Tech Challenge divides teams into <em>Regions</em>, which often correspond to states, provinces, or countries.
+    Teams belong to a "home region" and may advance to new levels of competition within their region.
+    Winners from regional championships may attend the <em>FIRST</em>
+    Championship.
+  </p>
+</.modal>
+
+<.modal id="event-league-modal">
+  <.title class="mb-4" flush>About Leagues</.title>
+  <p class="mb-4">
+    Some <em>FIRST</em>
+    Tech Challenge regions further divide teams into <em>Leagues</em>, which often correspond to geographic regions.
+    Teams in a league compete against one another in multiple events throughout the season, culminating in a League Tournament.
+    Winners from this event may advance to the regional championship.
+  </p>
+  <p>
+    Only League Meet and League Tournament events are officially associated with leagues.
+    Other events (such as scrimmages) may be planned by leagues for league teams, but only belong to those leagues in an unofficial capacity.
+  </p>
+</.modal>
