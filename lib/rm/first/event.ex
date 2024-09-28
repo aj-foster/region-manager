@@ -228,6 +228,12 @@ defmodule RM.FIRST.Event do
     )
   end
 
+  @doc "Whether registration is currently open"
+  @spec registration_open?(t) :: boolean
+  def registration_open?(event) do
+    registration_opening_passed?(event) and not registration_deadline_passed?(event)
+  end
+
   @doc "Start of registration, in the event's local timezone"
   @spec registration_opens(t) :: DateTime.t()
   def registration_opens(event) do

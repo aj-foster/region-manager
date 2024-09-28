@@ -13,6 +13,7 @@ defmodule RMWeb.EventLive.Show do
   def mount(%{"region" => region_abbr, "event" => event_code}, _session, socket) do
     socket
     |> assign_event(region_abbr, event_code)
+    |> assign_registered_teams()
     |> ok()
   end
 
@@ -54,6 +55,19 @@ defmodule RMWeb.EventLive.Show do
         |> put_flash(:error, "Event not found")
         |> redirect(to: ~p"/dashboard")
     end
+  end
+
+  @spec assign_registered_teams(Socket.t()) :: Socket.t()
+  defp assign_registered_teams(socket) do
+    event = socket.assigns[:event]
+
+    assign_async(socket, :registered_teams, fn ->
+      teams =
+        RM.Local.list_registered_teams_by_event(event, rescinded: false, waitlisted: false)
+        |> Enum.map(& &1.team)
+
+      {:ok, %{registered_teams: teams}}
+    end)
   end
 
   #

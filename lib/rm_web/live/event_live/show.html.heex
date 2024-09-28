@@ -3,21 +3,13 @@
 </.title>
 
 <.card spaced>
-  <.table class="mb-4">
+  <.table>
     <:row title="Name"><%= @event.name %></:row>
     <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
     <:row :if={@event.proposal} title="Timezone"><%= @event.proposal.venue.timezone %></:row>
     <:row title="Type" info="event-type-modal"><%= Event.type_name(@event.type) %></:row>
     <:row title="Format" info="event-format-modal"><%= Event.format_name(@event) %></:row>
   </.table>
-  <p class="text-right">
-    <.link_button
-      :if={@current_user && @current_user.teams != []}
-      navigate={~p"/s/#{@season}/events/#{@event}/register"}
-    >
-      Register
-    </.link_button>
-  </p>
 </.card>
 
 <.title>Venue Information</.title>
@@ -75,6 +67,79 @@
     </:row>
   </.table>
 </.card>
+
+<.title>
+  Event Registration
+  <:action :if={
+    @event.settings && @event.settings.registration.enabled && @season == @region.current_season
+  }>
+    <.button
+      disabled={not Event.registration_open?(@event)}
+      phx-click={show_modal("event-registration-modal")}
+    >
+      Register Team...
+    </.button>
+  </:action>
+</.title>
+
+<%= if @event.settings && @event.settings.registration.enabled do %>
+  <.card spaced>
+    <.table>
+      <:row title="Registration">
+        <%= cond do %>
+          <% Event.registration_deadline_passed?(@event) -> %>
+            <span class="text-orange-600">
+              Closed on <%= format_date(Event.registration_deadline(@event), :date) %>
+            </span>
+          <% Event.registration_opening_passed?(@event) -> %>
+            <span class="text-green-600">Open</span>
+          <% :else -> %>
+            <span class="text-orange-600">
+              Opens on <%= format_date(Event.registration_opens(@event), :date) %>
+            </span>
+        <% end %>
+      </:row>
+      <:row :if={not Event.registration_deadline_passed?(@event)} title="Deadline">
+        <%= format_date(Event.registration_deadline(@event), :full) %>
+      </:row>
+      <:row :if={@event.settings.registration.team_limit} title="Capacity">
+        <span class="font-mono text-sm">
+          <.async_result :let={teams} assign={@registered_teams}>
+            <:loading>...</:loading>
+            <:failed>?</:failed>
+            <%= length(teams) %>
+          </.async_result>
+          / <%= @event.settings.registration.team_limit %>
+        </span>
+        filled
+      </:row>
+      <:row title="Available For">
+        <%= case @event.settings.registration.pool do %>
+          <% :all -> %>
+            All Teams
+          <% :league -> %>
+            Teams in <%= if(@event.league, do: @event.league.name <> " League", else: "league") %>
+          <% :region -> %>
+            Teams in <%= @event.region.name %>
+        <% end %>
+      </:row>
+      <:row title="Registered Teams">
+        <.async_result :let={teams} assign={@registered_teams}>
+          <:loading>
+            <p class="italic text-sm">Loading...</p>
+          </:loading>
+          <:failed>
+            <p class="text-sm">An error occurred while loading teams.</p>
+          </:failed>
+          <ul :if={length(teams) > 0}>
+            <li :for={team <- teams}><strong><%= team.number %></strong> <%= team.name %></li>
+          </ul>
+          <p :if={length(teams) == 0} class="italic">None</p>
+        </.async_result>
+      </:row>
+    </.table>
+  </.card>
+<% end %>
 
 <.modal id="event-type-modal">
   <.title class="mb-4" flush>About Event Types</.title>
