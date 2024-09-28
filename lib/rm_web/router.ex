@@ -47,6 +47,7 @@ defmodule RMWeb.Router do
         {RMWeb.Live.Util, :preload_user}
       ] do
       live "/dashboard", DashboardLive.Home
+      live "/feedback", DashboardLive.Feedback
 
       live "/league/:region/:league", LeagueLive.Show
       live "/league/:region/:league/events", LeagueLive.Event.Index

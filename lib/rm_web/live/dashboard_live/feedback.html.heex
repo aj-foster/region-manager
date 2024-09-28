@@ -1,0 +1,51 @@
+<.title>Send Feedback About Region Manager</.title>
+
+<.card spaced>
+  <p class="mb-4">
+    Thanks for using <strong>Region Manager</strong>!
+    You can use this form to leave feedback on the application.
+    This includes:
+  </p>
+  <ul class="list-disc pl-8 text-sm">
+    <li class="mb-2">
+      Issues you're having, including errors you encounter or pages that don't look right
+    </li>
+    <li class="mb-2">
+      Ideas for improvement, including ways to reduce confusion and make your life easier
+    </li>
+    <li class="mb-4">Or anything else related to the application itself.</li>
+  </ul>
+  <p class="mb-4">
+    Please remember that <strong>Region Manager</strong>
+    relies on information published by <em>FIRST</em>
+    and imported by your region's Program Delivery Partner.
+    If something doesn't look right, it may need to be updated elsewhere.
+  </p>
+  <p class="mb-4">
+    Finally, please remember that there's a real human on the other side of this form, and they need as much detail as possible to help.
+  </p>
+
+  <.form for={@form} phx-change="feedback_change" phx-submit="feedback_submit">
+    <.input
+      field={@form[:category]}
+      label="Category"
+      options={category_options()}
+      type="select"
+      wrapper="mb-4"
+    />
+    <.input
+      field={@form[:message]}
+      label="Details"
+      phx-debounce="blur"
+      type="textarea"
+      wrapper="mb-4"
+    />
+    <p class="mb-4 text-sm">
+      Your browser and OS will be recorded as: <%= @parsed_user_agent %>.
+      Please make corrections to this information in the message above.
+    </p>
+    <p class="text-right">
+      <.button type="submit">Submit Feedback</.button>
+    </p>
+  </.form>
+</.card>
