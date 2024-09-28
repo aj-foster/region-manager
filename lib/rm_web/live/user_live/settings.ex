@@ -2,6 +2,8 @@ defmodule RMWeb.UserLive.Settings do
   use RMWeb, :live_view
   require Logger
 
+  alias RM.Account
+
   #
   # Lifecycle
   #
@@ -98,7 +100,7 @@ defmodule RMWeb.UserLive.Settings do
   defp delete_email(socket, email) do
     user = socket.assigns[:current_user]
 
-    case Identity.delete_email(user, email) do
+    case Account.delete_email(user, email) do
       :ok ->
         socket
         |> push_js("#user-settings-delete-email-modal", "data-cancel")

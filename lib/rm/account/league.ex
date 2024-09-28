@@ -91,6 +91,18 @@ defmodule RM.Account.League do
     |> update([user_league: ul, email: e], set: [user_id: e.user_id])
   end
 
+  @doc """
+  Create a query to remove the `user_id` fields of league assignments with the given email address
+
+  The resulting query should be passed to `RM.Repo.update_all/3`.
+  """
+  @spec user_remove_by_email_query(String.t()) :: Ecto.Query.t()
+  def user_remove_by_email_query(email) do
+    from(__MODULE__, as: :user_league)
+    |> where([user_league: ul], ul.email == ^email)
+    |> update(set: [user_id: nil])
+  end
+
   #
   # Protocols
   #

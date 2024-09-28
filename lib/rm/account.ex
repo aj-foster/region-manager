@@ -71,6 +71,22 @@ defmodule RM.Account do
   end
 
   @doc """
+  Remove an email address and unlink coaches with that email
+  """
+  @spec delete_email(User.t(), String.t()) :: :ok | {:error, :only_email | :not_found}
+  def delete_email(user, email) do
+    with :ok <- Identity.delete_email(user, email) do
+      League.user_remove_by_email_query(email)
+      |> Repo.update_all([])
+
+      Team.user_remove_by_email_query(email)
+      |> Repo.update_all([])
+
+      :ok
+    end
+  end
+
+  @doc """
   Check if the given email address is known to Region Manager
 
   This check was added due to a large number of fake sign-ups that sent confirmation emails to

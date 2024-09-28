@@ -124,4 +124,16 @@ defmodule RM.Account.Team do
     )
     |> update([user_team: ut, email: e], set: [user_id: e.user_id])
   end
+
+  @doc """
+  Create a query to remove the `user_id` fields of team assignments with the given email address
+
+  The resulting query should be passed to `RM.Repo.update_all/3`.
+  """
+  @spec user_remove_by_email_query(String.t()) :: Ecto.Query.t()
+  def user_remove_by_email_query(email) do
+    from(__MODULE__, as: :user_team)
+    |> where([user_team: ut], ut.email == ^email)
+    |> update(set: [user_id: nil])
+  end
 end
