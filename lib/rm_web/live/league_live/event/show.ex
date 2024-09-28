@@ -11,7 +11,9 @@ defmodule RMWeb.LeagueLive.Event.Show do
   @impl true
   def mount(_params, _session, socket) do
     socket
-    |> assign(registration_settings_form: nil)
+    |> assign_event_metadata()
+    |> assign(edit_registration: false, registration_settings_form: nil)
+    |> registration_settings_form()
     |> ok()
   end
 
@@ -34,19 +36,19 @@ defmodule RMWeb.LeagueLive.Event.Show do
     end
   end
 
-  @impl true
-  def handle_params(_params, _uri, socket) do
-    socket
-    |> registration_settings_form()
-    |> noreply()
-  end
-
   #
   # Events
   #
 
   @impl true
   def handle_event(event, unsigned_params, socket)
+
+  def handle_event("edit_registration_init", _params, socket) do
+    socket
+    |> assign(edit_registration: not socket.assigns[:edit_registration])
+    |> registration_settings_form()
+    |> noreply()
+  end
 
   def handle_event("registration_settings_change", %{"event_settings" => params}, socket) do
     socket
@@ -57,6 +59,31 @@ defmodule RMWeb.LeagueLive.Event.Show do
   #
   # Helpers
   #
+
+  @spec assign_event_metadata(Socket.t()) :: Socket.t()
+  defp assign_event_metadata(socket) do
+    event =
+      socket.assigns[:event]
+      |> RM.Repo.preload(registrations: :team)
+
+    registered_teams =
+      Enum.filter(event.registrations, &(not &1.waitlisted and not &1.rescinded))
+      |> Enum.map(& &1.team)
+      |> Enum.sort(RM.Local.Team)
+
+    assign(socket,
+      registered_teams: registered_teams,
+      registered_teams_count: length(registered_teams),
+      registration_enabled: get_in(event.settings.registration.enabled),
+      registrations:
+        (get_in(event.registrations) || [])
+        |> Map.new(fn
+          %{team: team, rescinded: true} -> {team.number, :rescinded}
+          %{team: team, waitlisted: true} -> {team.number, :waitlisted}
+          %{team: team} -> {team.number, :attending}
+        end)
+    )
+  end
 
   @spec refresh_event_settings(Socket.t()) :: Socket.t()
   defp refresh_event_settings(socket) do

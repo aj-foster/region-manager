@@ -222,7 +222,13 @@ defmodule RMWeb.Components.TeamExport do
             </.radio_group>
           </div>
 
-          <input :if={length(@teams) == 1} field={@form[:include]} type="hidden" value="_all" />
+          <input
+            :if={length(@teams) == 1}
+            id={@form[:include].id}
+            name={@form[:include].name}
+            type="hidden"
+            value="_all"
+          />
 
           <div class="mb-4" id="team-export-field-inputs">
             <h3 class="font-semibold mb-2">Fields to Include</h3>
