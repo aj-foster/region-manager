@@ -3,6 +3,9 @@ defmodule RMWeb.Components.Registration do
 
   alias RM.FIRST.Event
 
+  @doc """
+  Show the current registration settings for an event
+  """
   attr :event, RM.FIRST.Event, required: true, doc: "event to display"
   attr :teams, :list, required: true, doc: "list of registered teams"
 

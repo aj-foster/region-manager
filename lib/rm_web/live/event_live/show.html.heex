@@ -12,7 +12,14 @@
   </.table>
 </.card>
 
-<.title>Venue Information</.title>
+<.title>
+  Venue Information
+  <:action>
+    <.link_button navigate={map_link(@event)} style="tertiary" target="blank">
+      Map <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+    </.link_button>
+  </:action>
+</.title>
 
 <.card spaced>
   <.table>
