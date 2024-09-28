@@ -463,6 +463,10 @@ defmodule RM.FIRST do
     |> Query.preload_assoc(:event, opts[:preload])
     |> Repo.all()
     |> Enum.filter(&is_nil(&1.division_code))
+    |> Enum.map(fn
+      %Event{region: %Region{}} = event -> event
+      event -> %Event{event | region: region}
+    end)
     |> Enum.sort(Event)
   end
 

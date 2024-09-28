@@ -45,6 +45,7 @@ defmodule RMWeb.RegionJSON do
            date_timezone: timezone,
            live_stream_url: live_stream_url,
            name: name,
+           region: region,
            season: season,
            type: type,
            website: website,
@@ -79,7 +80,8 @@ defmodule RMWeb.RegionJSON do
         website: get_in(event.proposal.venue.website),
         notes: get_in(event.proposal.venue.notes)
       },
-      registration: event_registration(event)
+      registration: event_registration(event),
+      url: url(~p"/s/#{event.season}/r/#{region}/events/#{event}")
     }
   end
 
@@ -95,6 +97,7 @@ defmodule RMWeb.RegionJSON do
 
   defp event_registration(
          %RM.FIRST.Event{
+           region: region,
            settings: %RM.Local.EventSettings{
              registration: %RM.Local.RegistrationSettings{
                enabled: true,
@@ -109,10 +112,8 @@ defmodule RMWeb.RegionJSON do
     %{
       open: event_registration_open(event),
       opens_at: RM.FIRST.Event.registration_opens(event),
-      # Deprecated
-      deadline: RM.FIRST.Event.registration_deadline(event),
       closes_at: RM.FIRST.Event.registration_deadline(event),
-      url: url(~p"/s/#{event.season}/events/#{event}/register"),
+      url: url(~p"/s/#{event.season}/r/#{region}/events/#{event}"),
       attending: Enum.map(attending, & &1.team.number),
       waitlist: Enum.map(waitlist, & &1.team.number),
       capacity: team_limit,
