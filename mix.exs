@@ -65,6 +65,7 @@ defmodule RM.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:tzdata, "~> 1.1"},
+      {:ua_parser, github: "beam-community/ua_parser", override: true},
       {:waffle, "~> 1.1"},
       {:waffle_ecto, "~> 0.0.12"}
     ]
