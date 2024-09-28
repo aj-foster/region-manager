@@ -47,6 +47,13 @@
   <button phx-click={show_modal("event-proposal-info")}>
     <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
   </button>
+  <:action :if={@event.proposal}>
+    <.link_button navigate={
+      ~p"/league/#{@league.region}/#{@league}/events/proposal/#{@event.proposal}/edit"
+    }>
+      Update
+    </.link_button>
+  </:action>
 </.title>
 
 <.card :if={is_nil(@event.proposal)} spaced>
