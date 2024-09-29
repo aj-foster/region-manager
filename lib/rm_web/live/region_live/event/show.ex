@@ -49,6 +49,13 @@ defmodule RMWeb.RegionLive.Event.Show do
   @impl true
   def handle_event(event, unsigned_params, socket)
 
+  def handle_event("event_virtual_toggle", _params, socket) do
+    socket
+    |> event_virtual_toggle()
+    |> push_js("#event-virtual-modal", "data-cancel")
+    |> noreply()
+  end
+
   def handle_event("registration_settings_change", %{"event_settings" => params}, socket) do
     socket
     |> registration_settings_change(params)
@@ -58,6 +65,24 @@ defmodule RMWeb.RegionLive.Event.Show do
   #
   # Helpers
   #
+
+  @spec event_virtual_toggle(Socket.t()) :: Socket.t()
+  defp event_virtual_toggle(socket) do
+    event = socket.assigns[:event]
+    params = %{virtual: not event.settings.virtual}
+
+    case RM.Local.update_event_settings(event, params) do
+      {:ok, settings} ->
+        event = %{event | settings: settings}
+
+        socket
+        |> assign(event: event)
+        |> put_flash(:info, "Event modified successfully")
+
+      {:error, _changeset} ->
+        put_flash(socket, :error, "Error while changing virtual status, please try again")
+    end
+  end
 
   @spec refresh_event_settings(Socket.t()) :: Socket.t()
   defp refresh_event_settings(socket) do

@@ -133,14 +133,14 @@
   title={"Past Published Events (#{@past_events_count})"}
 >
   <.list :if={@past_events_count > 0}>
-    <:item :for={event <- @past_events} class="px-4 py-2">
+    <:link :for={event <- @past_events} navigate={~p"/region/#{@region}/events/#{event}"}>
       <h3 class="font-bold"><%= event.name %></h3>
       <p class="text-sm">
         <span><%= format_range(event.date_start, event.date_end) %></span>
         <span>&bull; <%= Event.type_name(event.type) %></span>
         <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
       </p>
-    </:item>
+    </:link>
   </.list>
 
   <p :if={@past_events_count == 0} class="italic px-4 py-2 text-center text-sm">
