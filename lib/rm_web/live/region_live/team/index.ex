@@ -14,6 +14,8 @@ defmodule RMWeb.RegionLive.Team.Index do
   @doc false
   @impl true
   def mount(_params, _session, socket) do
+    region = socket.assigns[:region]
+
     socket
     |> assign_first_teams()
     |> assign_teams()
@@ -25,7 +27,8 @@ defmodule RMWeb.RegionLive.Team.Index do
     )
     |> assign(
       import_errors: [],
-      import_status: :none
+      import_status: :none,
+      page_title: "#{region.name} Teams"
     )
     |> ok()
   end

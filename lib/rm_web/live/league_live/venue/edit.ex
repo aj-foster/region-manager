@@ -34,7 +34,12 @@ defmodule RMWeb.LeagueLive.Venue.Edit do
           |> Enum.sort(RM.Local.EventProposal)
 
         {:cont,
-         assign(socket, proposals: proposals, proposal_count: length(proposals), venue: venue)}
+         assign(socket,
+           proposals: proposals,
+           proposal_count: length(proposals),
+           venue: venue,
+           page_title: "Update Venue"
+         )}
 
       {:error, :venue, :not_found} ->
         socket =

@@ -12,6 +12,7 @@ defmodule RMWeb.LeagueLive.Team.Index do
 
     socket
     |> assign(
+      page_title: "#{league.name} Teams",
       active_teams: active_teams,
       active_teams_count: length(active_teams),
       inactive_teams: inactive_teams,

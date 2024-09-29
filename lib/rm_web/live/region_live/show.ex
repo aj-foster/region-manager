@@ -15,7 +15,8 @@ defmodule RMWeb.RegionLive.Show do
       current_season: current_season,
       needs_setup: region.current_season < current_season,
       unready_teams: unready_teams,
-      unready_team_count: length(unready_teams)
+      unready_team_count: length(unready_teams),
+      page_title: "#{region.name} Overview"
     )
     |> ok()
   end

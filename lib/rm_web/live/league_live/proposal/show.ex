@@ -18,7 +18,7 @@ defmodule RMWeb.LeagueLive.Proposal.Show do
 
     case RM.Local.fetch_event_proposal_by_id(id, league: league, preload: [:event, :venue]) do
       {:ok, event} ->
-        {:cont, assign(socket, event: event)}
+        {:cont, assign(socket, event: event, page_title: event.name)}
 
       {:error, :proposal, :not_found} ->
         socket =

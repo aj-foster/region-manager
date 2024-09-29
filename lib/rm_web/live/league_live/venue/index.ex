@@ -30,6 +30,7 @@ defmodule RMWeb.LeagueLive.Venue.Index do
     {active_venues, archived_venues} = Enum.split_with(league.venues, &is_nil(&1.hidden_at))
 
     assign(socket,
+      page_title: "#{league.name} Venues",
       active_venues: Enum.sort_by(active_venues, & &1.name),
       active_venue_count: length(active_venues),
       archived_venues: Enum.sort_by(archived_venues, & &1.name),

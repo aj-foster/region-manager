@@ -66,11 +66,13 @@ defmodule RMWeb.EventLive.Index do
 
     case RM.FIRST.fetch_region_by_abbreviation(region_abbr) do
       {:ok, region} ->
+        page_title = "#{region.name} Events #{season}–#{season + 1}"
+
         events =
           RM.FIRST.list_events_by_region(region, season: season, preload: preloads)
           |> RM.Repo.preload(registrations: [:team])
 
-        assign(socket, events: events, region: region)
+        assign(socket, events: events, region: region, page_title: page_title)
 
       {:error, :region, :not_found} ->
         socket

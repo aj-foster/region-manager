@@ -6,7 +6,11 @@ defmodule RMWeb.TeamLive.Show do
   on_mount {RMWeb.TeamLive.Util, :require_team_manager}
 
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    team = socket.assigns[:team]
+
+    socket
+    |> assign(page_title: "Team #{team.number} Overview")
+    |> ok()
   end
 
   #

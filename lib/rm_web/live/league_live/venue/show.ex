@@ -22,7 +22,7 @@ defmodule RMWeb.LeagueLive.Venue.Show do
 
     case RM.Local.fetch_venue_by_id(id, league: league, preload: [:event_proposals]) do
       {:ok, venue} ->
-        {:cont, assign(socket, venue: venue)}
+        {:cont, assign(socket, venue: venue, page_title: venue.name)}
 
       {:error, :venue, :not_found} ->
         socket =

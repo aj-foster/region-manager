@@ -9,6 +9,7 @@ defmodule RMWeb.TeamLive.Events do
 
   def mount(_params, _session, socket) do
     socket
+    |> assign(page_title: "Event List")
     |> ok()
   end
 

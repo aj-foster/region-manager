@@ -43,7 +43,7 @@ defmodule RMWeb.EventLive.Show do
          {:ok, %RM.FIRST.Event{region_id: ^region_id} = event} <-
            RM.FIRST.fetch_event_by_code(season, event_code, preload: preloads) do
       event = RM.Repo.preload(event, registrations: :team) |> Map.put(:region, region)
-      assign(socket, event: event, region: region)
+      assign(socket, event: event, region: region, page_title: "#{event.name} • RM")
     else
       {:error, :region, :not_found} ->
         socket
@@ -93,25 +93,5 @@ defmodule RMWeb.EventLive.Show do
 
   defp event_league(%RM.FIRST.Event{local_league: %RM.Local.League{name: name}}) do
     "#{name} (Unofficial)"
-  end
-
-  @spec map_link(RM.FIRST.Event.t()) :: String.t()
-  defp map_link(event) do
-    %RM.FIRST.Event{
-      location: %RM.FIRST.Event.Location{
-        address: address,
-        city: city,
-        country: country,
-        state_province: state_province,
-        venue: venue
-      }
-    } = event
-
-    query =
-      [venue, address, city, state_province, country]
-      |> Enum.reject(&(&1 in ["", nil]))
-      |> Enum.join(", ")
-
-    "https://www.google.com/maps/search/?api=1&#{URI.encode_query(query: query)}"
   end
 end

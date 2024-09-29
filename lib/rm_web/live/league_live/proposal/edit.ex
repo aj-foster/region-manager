@@ -17,7 +17,7 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
     proposal = socket.assigns[:proposal]
 
     socket
-    |> assign(venue: proposal.venue)
+    |> assign(venue: proposal.venue, page_title: "Update Event Proposal")
     |> add_venue_form()
     |> proposal_form()
     |> load_venues()

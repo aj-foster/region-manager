@@ -131,7 +131,7 @@ defmodule RMWeb.LeagueLive.Util do
       |> Map.update!(:events, &Enum.sort(&1, RM.FIRST.Event))
       |> Map.update!(:event_proposals, &Enum.sort(&1, RM.Local.EventProposal))
 
-    assign(socket, league: league)
+    assign(socket, league: league, page_title: "#{league.name} Events")
   end
 
   @doc """

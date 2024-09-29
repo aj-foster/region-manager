@@ -7,6 +7,7 @@ defmodule RMWeb.DashboardLive.Home do
 
     socket
     |> assign(
+      page_title: "Dashboard",
       league_count: length(current_user.leagues),
       region_count: length(current_user.regions),
       team_count: length(current_user.teams),

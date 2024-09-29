@@ -16,6 +16,7 @@ defmodule RMWeb.LeagueLive.Venue.New do
   def mount(_params, _session, socket) do
     socket
     |> assign_venue_form()
+    |> assign(page_title: "Create Venue")
     |> ok()
   end
 

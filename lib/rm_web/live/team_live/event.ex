@@ -24,7 +24,7 @@ defmodule RMWeb.TeamLive.Event do
 
     case RM.FIRST.fetch_event_by_code(season, event_code, preload: [:league, :region, :settings]) do
       {:ok, event} ->
-        {:cont, assign(socket, event: event)}
+        {:cont, assign(socket, event: event, page_title: event.name)}
 
       {:error, :event, :not_found} ->
         socket =

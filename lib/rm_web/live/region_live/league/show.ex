@@ -29,7 +29,7 @@ defmodule RMWeb.RegionLive.League.Show do
     case RM.Local.fetch_league_by_code(region.abbreviation, league_code, preload: [:region]) do
       {:ok, league} ->
         league = preload_league_associations(league)
-        {:cont, assign(socket, league: league)}
+        {:cont, assign(socket, league: league, page_title: "#{league.name} League")}
 
       {:error, :league, :not_found} ->
         socket =

@@ -20,7 +20,8 @@ defmodule RMWeb.UserLive.Settings do
       delete_email_param: nil,
       resend_email_param: nil,
       email_count: length(user.emails),
-      email_confirmed_count: Enum.count(user.emails, fn e -> not is_nil(e.confirmed_at) end)
+      email_confirmed_count: Enum.count(user.emails, fn e -> not is_nil(e.confirmed_at) end),
+      page_title: "Account Settings"
     )
     |> ok()
   end

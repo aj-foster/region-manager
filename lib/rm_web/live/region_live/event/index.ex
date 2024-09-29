@@ -19,12 +19,14 @@ defmodule RMWeb.RegionLive.Event.Index do
   @doc false
   @impl true
   def mount(_params, _session, socket) do
+    region = socket.assigns[:region]
+
     socket
     |> assign_batches()
     |> assign_events()
     |> assign_proposals()
     |> assign_refresh_disabled()
-    |> assign(refresh_events: AsyncResult.ok(nil))
+    |> assign(refresh_events: AsyncResult.ok(nil), page_title: "#{region.name} Events")
     |> ok()
   end
 

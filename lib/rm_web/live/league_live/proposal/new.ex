@@ -14,7 +14,7 @@ defmodule RMWeb.LeagueLive.Proposal.New do
   @impl true
   def mount(params, _session, socket) do
     socket
-    |> assign(venue: nil)
+    |> assign(venue: nil, page_title: "Propose Event")
     |> assign_retroactive_event(params)
     |> add_venue_form()
     |> event_form()

@@ -23,7 +23,7 @@ defmodule RMWeb.RegionLive.Event.Show do
     case RM.FIRST.fetch_event_by_code(region.current_season, event_code, preload: preloads) do
       {:ok, %RM.FIRST.Event{region_id: ^region_id} = event} ->
         event = RM.Repo.preload(event, proposal: [:league])
-        {:cont, assign(socket, event: event)}
+        {:cont, assign(socket, event: event, page_title: event.name)}
 
       {:error, :event, :not_found} ->
         socket =

@@ -17,11 +17,13 @@ defmodule RMWeb.RegionLive.League.Index do
   @doc false
   @impl true
   def mount(_params, _session, socket) do
+    region = socket.assigns[:region]
+
     socket
     |> assign_first_leagues()
     |> assign_leagues()
     |> assign_refresh_disabled()
-    |> assign(refresh_leagues: AsyncResult.ok(nil))
+    |> assign(refresh_leagues: AsyncResult.ok(nil), page_title: "#{region.name} Leagues")
     |> ok()
   end
 

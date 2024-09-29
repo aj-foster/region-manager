@@ -6,6 +6,10 @@ defmodule RMWeb.LeagueLive.Show do
   on_mount {RMWeb.LeagueLive.Util, :require_league_manager}
 
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    league = socket.assigns[:league]
+
+    socket
+    |> assign(page_title: league.name)
+    |> ok()
   end
 end

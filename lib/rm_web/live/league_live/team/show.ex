@@ -25,7 +25,8 @@ defmodule RMWeb.LeagueLive.Team.Show do
          assign(socket,
            lc1: Enum.find(team.user_assignments, &(&1.relationship == :lc1)),
            lc2: Enum.find(team.user_assignments, &(&1.relationship == :lc2)),
-           team: team
+           team: team,
+           page_title: "Team #{team.number} • #{league.name}"
          )}
 
       {:error, :team, :not_found} ->
