@@ -157,19 +157,72 @@ defmodule RM.Local.EventProposal do
 
   @spec validate_name(Changeset.t(t)) :: Changeset.t(t)
   defp validate_name(changeset) do
-    name = Changeset.get_field(changeset, :name) |> IO.inspect()
-    type = Changeset.get_field(changeset, :type) |> IO.inspect()
+    name = Changeset.get_field(changeset, :name)
+    type = Changeset.get_field(changeset, :type)
 
     cond do
       is_nil(name) or is_nil(type) ->
         changeset
 
-      Regex.match?(~r/championship/i, name) |> IO.inspect() and type == :league_tournament ->
+      Regex.match?(~r/championship/i, name) and type == :league_tournament ->
         Changeset.add_error(changeset, :name, "cannot have the word \"Championship\"")
 
       :else ->
         changeset
     end
+  end
+
+  @doc """
+  Create a changeset based on an existing (published) event
+  """
+  @spec retroactive_changeset(RM.FIRST.Event.t(), map) :: Changeset.t(t)
+  def retroactive_changeset(event, params) do
+    %RM.FIRST.Event{
+      date_end: date_end,
+      date_start: date_start,
+      hybrid: hybrid,
+      live_stream_url: live_stream_url,
+      local_league: league,
+      name: name,
+      region: region,
+      remote: remote,
+      season: season,
+      settings: %RM.Local.EventSettings{registration: registration_settings},
+      type: type,
+      website: website
+    } = event
+
+    format =
+      cond do
+        remote -> :remote
+        hybrid -> :hybrid
+        :else -> :traditional
+      end
+
+    %__MODULE__{registration_settings: registration_settings}
+    |> Changeset.change(
+      date_end: date_end,
+      date_start: date_start,
+      format: format,
+      live_stream_url: live_stream_url,
+      name: name,
+      season: season,
+      submitted_at: DateTime.utc_now(),
+      type: type,
+      website: website
+    )
+    |> Changeset.put_assoc(:first_event, event)
+    |> Changeset.cast(params, @required_fields ++ @optional_fields)
+    |> Changeset.cast_embed(:contact, with: &contact_changeset/2)
+    |> Changeset.cast_embed(:registration_settings, with: &RegistrationSettings.changeset/2)
+    |> Changeset.put_assoc(:league, league)
+    |> Changeset.put_assoc(:region, region)
+    |> Changeset.put_assoc(:venue, params["venue"])
+    |> Changeset.put_embed(:log, [Log.new("created", params)])
+    |> Changeset.validate_required(@required_fields)
+    |> Changeset.validate_required([:region, :venue])
+    |> validate_dates()
+    |> validate_name()
   end
 
   #
