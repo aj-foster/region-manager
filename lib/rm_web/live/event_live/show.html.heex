@@ -12,36 +12,7 @@
   </.table>
 </.card>
 
-<.title>
-  Venue Information
-  <:action>
-    <.link_button navigate={map_link(@event)} style="tertiary" target="blank">
-      Map <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
-    </.link_button>
-  </:action>
-</.title>
-
-<.card spaced>
-  <.table>
-    <:row :if={@event.location.venue} title="Name"><%= @event.location.venue %></:row>
-    <:row title="Address">
-      <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
-      <span :if={@event.location.city}><%= @event.location.city %>,</span>
-      <span :if={@event.location.state_province}><%= @event.location.state_province %>,</span>
-      <span>
-        <%= @event.location.country || "Unknown Location" %>
-      </span>
-    </:row>
-    <:row :if={@event.proposal && @event.proposal.venue.notes} title="Notes">
-      <%= @event.proposal.venue.notes %>
-    </:row>
-    <:row :if={@event.proposal && @event.proposal.venue.website} title="Website">
-      <a class="underline" href={@event.proposal.venue.website} target="blank">
-        <%= @event.proposal.venue.website %>
-      </a>
-    </:row>
-  </.table>
-</.card>
+<RMWeb.Components.Event.unified_venue event={@event} />
 
 <.title>Additional Information</.title>
 
