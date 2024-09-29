@@ -72,7 +72,6 @@ defmodule RM.Local.Venue do
   def retroactive_changeset(event, league, params) do
     %RM.FIRST.Event{
       date_timezone: timezone,
-      local_league: league,
       location: %RM.FIRST.Event.Location{
         address: address,
         city: city,

@@ -12,9 +12,10 @@ defmodule RMWeb.LeagueLive.Proposal.New do
   on_mount {RMWeb.LeagueLive.Util, :require_league_manager}
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     socket
     |> assign(venue: nil)
+    |> assign_retroactive_event(params)
     |> add_venue_form()
     |> event_form()
     |> load_venues()
@@ -77,7 +78,14 @@ defmodule RMWeb.LeagueLive.Proposal.New do
       )
       |> Map.put_new("timezone", socket.assigns[:timezone])
 
-    form = Venue.create_changeset(league, params) |> to_form()
+    form =
+      if event = socket.assigns[:event] do
+        Venue.retroactive_changeset(event, league, params)
+        |> to_form()
+      else
+        Venue.create_changeset(league, params)
+        |> to_form()
+      end
 
     assign(socket, add_venue_form: form)
   end
@@ -87,7 +95,12 @@ defmodule RMWeb.LeagueLive.Proposal.New do
     league = socket.assigns[:league]
     params = Map.put(params, "by", socket.assigns[:current_user])
 
-    case RM.Local.create_venue(league, params) do
+    if event = socket.assigns[:event] do
+      RM.Local.create_venue_from_event(event, league, params)
+    else
+      RM.Local.create_venue(league, params)
+    end
+    |> case do
       {:ok, venue} ->
         socket
         |> push_js("#add-venue-modal", "data-cancel")
@@ -99,6 +112,16 @@ defmodule RMWeb.LeagueLive.Proposal.New do
         assign(socket, add_venue_form: to_form(changeset))
     end
   end
+
+  @spec assign_retroactive_event(Socket.t(), map) :: Socket.t()
+  defp assign_retroactive_event(socket, %{"event" => event_id}) do
+    case RM.FIRST.fetch_event_by_id(event_id, preload: [:local_league, :region, :settings]) do
+      {:ok, event} -> assign(socket, event: event)
+      {:error, :event, :not_found} -> assign(socket, event: nil)
+    end
+  end
+
+  defp assign_retroactive_event(socket, _params), do: assign(socket, event: nil)
 
   @spec event_form(Socket.t()) :: Socket.t()
   @spec event_form(Socket.t(), map) :: Socket.t()
@@ -120,9 +143,13 @@ defmodule RMWeb.LeagueLive.Proposal.New do
       |> registration_settings_normalize_waitlist_limit()
 
     form =
-      params
-      |> RM.Local.EventProposal.create_changeset()
-      |> to_form()
+      if event = socket.assigns[:event] do
+        RM.Local.EventProposal.retroactive_changeset(event, params)
+        |> to_form()
+      else
+        RM.Local.EventProposal.create_changeset(params)
+        |> to_form()
+      end
 
     assign(socket, event_form: form)
   end
@@ -143,14 +170,26 @@ defmodule RMWeb.LeagueLive.Proposal.New do
       |> registration_settings_normalize_team_limit()
       |> registration_settings_normalize_waitlist_limit()
 
-    case RM.Local.create_event(params) do
-      {:ok, _proposal} ->
-        socket
-        |> put_flash(:info, "Event proposal created successfully")
-        |> push_navigate(to: ~p"/league/#{league.region}/#{league}/events")
+    if event = socket.assigns[:event] do
+      case RM.Local.create_proposal_from_event(event, params) do
+        {:ok, _proposal} ->
+          socket
+          |> put_flash(:info, "Event proposal created successfully")
+          |> push_navigate(to: ~p"/league/#{league.region}/#{league}/events/#{event}")
 
-      {:error, changeset} ->
-        assign(socket, event_form: to_form(changeset))
+        {:error, changeset} ->
+          assign(socket, event_form: to_form(changeset))
+      end
+    else
+      case RM.Local.create_event(params) do
+        {:ok, _proposal} ->
+          socket
+          |> put_flash(:info, "Event proposal created successfully")
+          |> push_navigate(to: ~p"/league/#{league.region}/#{league}/events")
+
+        {:error, changeset} ->
+          assign(socket, event_form: to_form(changeset))
+      end
     end
   end
 

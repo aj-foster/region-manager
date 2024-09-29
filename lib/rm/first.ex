@@ -530,6 +530,20 @@ defmodule RM.FIRST do
     end
   end
 
+  @spec fetch_event_by_id(Ecto.UUID.t()) :: {:ok, Event.t()} | {:error, :event, :not_found}
+  @spec fetch_event_by_id(Ecto.UUID.t(), keyword) ::
+          {:ok, Event.t()} | {:error, :event, :not_found}
+  def fetch_event_by_id(event_id, opts \\ []) do
+    Query.from_event()
+    |> Query.event_not_removed()
+    |> Query.preload_assoc(:event, opts[:preload])
+    |> Repo.get(event_id)
+    |> case do
+      %Event{} = event -> {:ok, event}
+      nil -> {:error, :event, :not_found}
+    end
+  end
+
   @doc """
   Update the FIRST event records with leagues from event proposals
 
