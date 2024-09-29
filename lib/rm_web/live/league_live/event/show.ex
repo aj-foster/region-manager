@@ -50,6 +50,16 @@ defmodule RMWeb.LeagueLive.Event.Show do
     |> noreply()
   end
 
+  def handle_event("event_virtual_toggle", _params, socket) do
+    socket = push_js(socket, "#event-virtual-modal", "data-cancel")
+
+    with :ok <- require_permission(socket, :events) do
+      socket
+      |> event_virtual_toggle()
+      |> noreply()
+    end
+  end
+
   def handle_event("registration_settings_change", %{"event_settings" => params}, socket) do
     socket
     |> registration_settings_change(params)
@@ -83,6 +93,24 @@ defmodule RMWeb.LeagueLive.Event.Show do
           %{team: team} -> {team.number, :attending}
         end)
     )
+  end
+
+  @spec event_virtual_toggle(Socket.t()) :: Socket.t()
+  defp event_virtual_toggle(socket) do
+    event = socket.assigns[:event]
+    params = %{virtual: not event.settings.virtual}
+
+    case RM.Local.update_event_settings(event, params) do
+      {:ok, settings} ->
+        event = %{event | settings: settings}
+
+        socket
+        |> assign(event: event)
+        |> put_flash(:info, "Event modified successfully")
+
+      {:error, _changeset} ->
+        put_flash(socket, :error, "Error while changing virtual status, please try again")
+    end
   end
 
   @spec refresh_event_settings(Socket.t()) :: Socket.t()

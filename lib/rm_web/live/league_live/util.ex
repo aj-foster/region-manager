@@ -1,5 +1,6 @@
 defmodule RMWeb.LeagueLive.Util do
   use RMWeb, :html
+  import RMWeb.Live.Util
 
   alias Phoenix.LiveView
   alias Phoenix.LiveView.Socket
@@ -166,6 +167,20 @@ defmodule RMWeb.LeagueLive.Util do
 
       nil ->
         socket
+    end
+  end
+
+  @doc """
+  Require certain permission to continue; otherwise see a flash error
+  """
+  @spec require_permission(Socket.t(), atom) :: :ok | {:noreply, Socket.t()}
+  def require_permission(socket, permission) do
+    if Map.get(socket.assigns[:assignment].permissions, permission, false) do
+      :ok
+    else
+      socket
+      |> LiveView.put_flash(:error, "You are not authorized to perform this action")
+      |> noreply()
     end
   end
 

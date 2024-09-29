@@ -12,13 +12,28 @@
     <:row title="Type"><%= Event.type_name(@event.type) %></:row>
     <:row title="Format"><%= Event.format_name(@event) %></:row>
     <:row title="Location">
-      <span :if={@event.location.venue} class="block"><%= @event.location.venue %></span>
-      <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
-      <span :if={@event.location.city}><%= @event.location.city %>,</span>
-      <span :if={@event.location.state_province}><%= @event.location.state_province %>,</span>
-      <span>
-        <%= @event.location.country || "Unknown Location" %>
-      </span>
+      <div :if={not @event.settings.virtual}>
+        <span :if={@event.location.venue} class="block"><%= @event.location.venue %></span>
+        <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
+        <span :if={@event.location.city}><%= @event.location.city %>,</span>
+        <span :if={@event.location.state_province}><%= @event.location.state_province %>,</span>
+        <span>
+          <%= @event.location.country || "Unknown Location" %>
+        </span>
+      </div>
+      <div :if={@event.settings.virtual} class="italic">Virtual Event</div>
+      <div :if={@assignment.permissions.events}>
+        <button
+          class="text-orange-600 text-sm underline"
+          phx-click={show_modal("event-virtual-modal")}
+        >
+          <%= if @event.settings.virtual do %>
+            Unhide Address
+          <% else %>
+            Hide Address
+          <% end %>
+        </button>
+      </div>
     </:row>
     <:row :if={@event.website} title="Website">
       <a class="underline" href={@event.website} target="blank"><%= @event.website %></a>
@@ -267,6 +282,21 @@
     </.inputs_for>
   </.form>
 </.card>
+
+<.modal :if={@assignment.permissions.events} id="event-virtual-modal">
+  <.title class="mb-4" flush>Hide Event Address</.title>
+
+  <p class="mb-4">
+    If this event is virtual (meaning nobody besides event staff should show up at this address), you can hide the address from public view.
+  </p>
+  <p class="mb-4">
+    The address is currently <strong :if={@event.settings.virtual}>hidden</strong>
+    <strong :if={not @event.settings.virtual}>visible</strong>.
+  </p>
+  <p class="text-right">
+    <.button phx-click="event_virtual_toggle">Change Visibility</.button>
+  </p>
+</.modal>
 
 <.modal id="event-proposal-info">
   <.title class="mb-4" flush>Event Proposal Info</.title>

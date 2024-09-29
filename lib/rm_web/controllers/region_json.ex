@@ -91,7 +91,8 @@ defmodule RMWeb.RegionJSON do
         notes: get_in(event.proposal.venue.notes)
       },
       registration: event_registration(event),
-      url: url(~p"/s/#{event.season}/r/#{region}/events/#{event}")
+      url: url(~p"/s/#{event.season}/r/#{region}/events/#{event}"),
+      virtual: event_virtual(event)
     }
   end
 
@@ -125,6 +126,13 @@ defmodule RMWeb.RegionJSON do
   defp event_website(%RM.FIRST.Event{website: website}) do
     website
   end
+
+  @spec event_virtual(RM.FIRST.Event.t()) :: boolean
+  defp event_virtual(%RM.FIRST.Event{settings: %RM.Local.EventSettings{virtual: virtual}}) do
+    virtual
+  end
+
+  defp event_virtual(_event), do: false
 
   @spec event_league(nil) :: nil
   @spec event_league(RM.FIRST.League.t()) :: map

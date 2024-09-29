@@ -14,13 +14,14 @@ defmodule RM.Local.EventSettings do
           registration: RegistrationSettings.t()
         }
 
-  @required_fields [:event_id]
+  @required_fields [:event_id, :virtual]
   @optional_fields []
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
   schema "event_settings" do
+    field :virtual, :boolean
     embeds_one :registration, RegistrationSettings, on_replace: :update
 
     belongs_to :event, Event
@@ -73,6 +74,7 @@ defmodule RM.Local.EventSettings do
 
     %{
       event_id: event.id,
+      virtual: false,
       registration: %RegistrationSettings{
         deadline_days: deadline_days,
         enabled: enabled,
