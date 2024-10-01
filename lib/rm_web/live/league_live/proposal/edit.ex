@@ -2,6 +2,8 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
   use RMWeb, :live_view
   import RMWeb.LeagueLive.Util
 
+  alias Phoenix.LiveView.UploadConfig
+  alias Phoenix.LiveView.UploadEntry
   alias RM.Local.Venue
 
   #
@@ -17,17 +19,27 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
     proposal = socket.assigns[:proposal]
 
     socket
-    |> assign(venue: proposal.venue, page_title: "Update Event Proposal")
+    |> assign(
+      venue: proposal.venue,
+      page_title: "Update Event Proposal"
+    )
     |> add_venue_form()
     |> proposal_form()
     |> load_venues()
+    |> allow_upload(:attachment,
+      accept: ["application/pdf"],
+      auto_upload: true,
+      max_entries: 4,
+      max_file_size: 10 * 1024 * 1024
+    )
     |> ok()
   end
 
   def on_mount(:preload_proposal, %{"event" => id}, _session, socket) do
     league = socket.assigns[:league]
+    preloads = [:attachments, :event, :venue]
 
-    case RM.Local.fetch_event_proposal_by_id(id, league: league, preload: [:event, :venue]) do
+    case RM.Local.fetch_event_proposal_by_id(id, league: league, preload: preloads) do
       {:ok, proposal} ->
         {:cont, assign(socket, proposal: proposal)}
 
@@ -60,6 +72,12 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
     |> noreply()
   end
 
+  def handle_event("attachment_remove", %{"attachment" => attachment_id}, socket) do
+    socket
+    |> attachment_remove(attachment_id)
+    |> noreply()
+  end
+
   def handle_event("proposal_change", %{"event_proposal" => params}, socket) do
     socket
     |> proposal_form(params)
@@ -69,6 +87,12 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
   def handle_event("proposal_submit", %{"event_proposal" => params}, socket) do
     socket
     |> proposal_submit(params)
+    |> noreply()
+  end
+
+  def handle_event("upload_cancel", %{"ref" => ref}, socket) do
+    socket
+    |> cancel_upload(:attachment, ref)
     |> noreply()
   end
 
@@ -120,6 +144,24 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
     end
   end
 
+  @spec attachment_remove(Socket.t(), Ecto.UUID.t()) :: Socket.t()
+  defp attachment_remove(socket, attachment_id) do
+    proposal = socket.assigns[:proposal]
+
+    if attachment = Enum.find(proposal.attachments, &(&1.id == attachment_id)) do
+      case RM.Local.delete_attachment(attachment) do
+        {:ok, _attachment} ->
+          proposal = RM.Repo.preload(proposal, :attachments, force: true)
+          assign(socket, proposal: proposal)
+
+        {:error, _changeset} ->
+          put_flash(socket, :error, "An error occurred while removing attachment")
+      end
+    else
+      put_flash(socket, :error, "Attachment not found; please refresh and try again")
+    end
+  end
+
   @spec proposal_form(Socket.t()) :: Socket.t()
   @spec proposal_form(Socket.t(), map) :: Socket.t()
   defp proposal_form(socket, params \\ %{}) do
@@ -163,6 +205,18 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
 
     case RM.Local.update_event(proposal, params) do
       {:ok, proposal} ->
+        consume_uploaded_entries(socket, :attachment, fn %{path: path},
+                                                         %UploadEntry{client_name: name} ->
+          params = %{
+            "name" => name,
+            "path" => path,
+            "type" => "program",
+            "user" => socket.assigns[:current_user]
+          }
+
+          RM.Local.create_or_update_attachment(proposal, params)
+        end)
+
         socket
         |> put_flash(:info, "Event proposal updated successfully")
         |> push_navigate(to: ~p"/league/#{league.region}/#{league}/events/proposal/#{proposal}")
@@ -302,6 +356,18 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
   defp timezone_options(country_name) do
     RM.Util.Time.zones_for_country(country_name)
   end
+
+  @spec upload_error?(%{attachment: %UploadConfig{}}) :: boolean
+  defp upload_error?(uploads) do
+    upload_errors(uploads.attachment) != [] or
+      Enum.any?(uploads.attachment.entries, &(not &1.valid?))
+  end
+
+  @spec upload_error_to_string(atom) :: String.t()
+  defp upload_error_to_string(:too_large), do: "Provided file is too large"
+  defp upload_error_to_string(:not_accepted), do: "Please select a .pdf file"
+  defp upload_error_to_string(:external_client_failure), do: "Something went terribly wrong"
+  defp upload_error_to_string(:too_many_files), do: "Please select up to 4 files at once"
 
   @spec venue_options([Venue.t()]) :: [{String.t(), Ecto.UUID.t()}]
   defp venue_options(venues) do

@@ -57,6 +57,7 @@
     for={@proposal_form}
     id="event-proposal-form"
     phx-change="proposal_change"
+    phx-drop-target={@uploads.attachment.ref}
     phx-submit="proposal_submit"
   >
     <.title>Event Details</.title>
@@ -167,6 +168,78 @@
         type="textarea"
         wrapper="mb-8"
       />
+
+      <h3 class="font-semibold text-sm text-zinc-800">Program and Attachments</h3>
+      <p class="mb-2 text-gray-700 text-sm">
+        Files uploaded here will be publicly accessible; do not include personal information.
+      </p>
+      <label
+        class="bg-slate-100 block border-2 border-slate-300 cursor-pointer mb-8 py-8 rounded transition-colors data-[drag=active]:bg-slate-200"
+        id="program-upload-label"
+        phx-hook="DragDropStyle"
+      >
+        <div
+          :if={upload_errors(@uploads.attachment) == []}
+          class="font-semibold text-center text-gray-600"
+        >
+          <p class="mb-1"><.icon class="h-8 w-8" name="hero-document-arrow-up" /></p>
+          <p>Drag file or click to upload (.pdf)</p>
+        </div>
+        <div
+          :if={upload_errors(@uploads.attachment) != []}
+          class="font-semibold text-center text-rose-600"
+        >
+          <p class="mb-1"><.icon class="h-8 w-8" name="hero-exclamation-triangle" /></p>
+          <p>
+            <span :for={error <- upload_errors(@uploads.attachment)}>
+              <%= upload_error_to_string(error) %>
+            </span>
+          </p>
+        </div>
+
+        <.live_file_input class="hidden" upload={@uploads.attachment} />
+      </label>
+
+      <ul class="mb-8">
+        <li :for={attachment <- @proposal.attachments} class="flex gap-2 items-center mb-2">
+          <.icon class="h-4 w-4" name="hero-document" />
+          <span class="text-sm"><%= attachment.name %></span>
+          <button
+            aria-label="remove"
+            form=""
+            phx-click="attachment_remove"
+            phx-value-attachment={attachment.id}
+            type="button"
+          >
+            <.icon class="bottom-0.5 h-4 relative text-red-600 w-4" name="hero-trash" />
+          </button>
+        </li>
+        <li :for={entry <- @uploads.attachment.entries} class="flex gap-2 items-center mb-2">
+          <.icon
+            class="h-4 w-4"
+            name={if entry.done?, do: "hero-document-plus", else: "hero-document-arrow-up"}
+          />
+          <span class="text-sm"><%= entry.client_name %></span>
+          <button
+            aria-label="cancel"
+            form=""
+            phx-click="upload_cancel"
+            phx-value-ref={entry.ref}
+            type="button"
+          >
+            <.icon class="bottom-0.5 h-4 relative text-red-600 w-4" name="hero-trash" />
+          </button>
+          <progress :if={not entry.done? and entry.valid?} value={entry.progress} max="100">
+            <%= entry.progress %>%
+          </progress>
+          <span
+            :for={error <- upload_errors(@uploads.attachment, entry)}
+            class="text-red-600 text-sm"
+          >
+            <%= upload_error_to_string(error) %>
+          </span>
+        </li>
+      </ul>
 
       <div class="flex gap-4 mb-8">
         <.input
@@ -301,7 +374,9 @@
         accepts and publishes the event. Your region's Program Delivery Partner will only be notified of changes to this information once the event is publsihed.
       </p>
       <div class="flex flex-row-reverse gap-4 items-center justify-between">
-        <.button type="submit">Update Proposal</.button>
+        <.button disabled={upload_error?(@uploads)} type="submit">
+          Update Proposal
+        </.button>
         <p :if={@proposal_form.errors != []} class="text-orange-600 text-sm">
           There is an error in the submission. Please check above.
         </p>

@@ -137,6 +137,14 @@ defmodule RM.Local.Query do
   # Joins
   #
 
+  @doc "Load the `attachments` association on an event proposal"
+  @spec join_attachments_from_proposal(query) :: query
+  def join_attachments_from_proposal(query) do
+    with_named_binding(query, :attachments, fn query, binding ->
+      join(query, :left, [proposal: p], e in assoc(p, :attachments), as: ^binding)
+    end)
+  end
+
   @doc "Load the `first_event` association on an event proposal"
   @spec join_event_from_proposal(query) :: query
   def join_event_from_proposal(query) do
@@ -265,6 +273,7 @@ defmodule RM.Local.Query do
 
   With `proposal` as the base:
 
+    * `attachments`: `attachments` on an event proposal
     * `event`: `first_event` on an event proposal
     * `league`: `league` on an event proposal
     * `region`: `region` on an event proposal
@@ -330,6 +339,13 @@ defmodule RM.Local.Query do
   end
 
   # Event Proposal
+
+  def preload_assoc(query, :proposal, [:attachments | rest]) do
+    query
+    |> join_attachments_from_proposal()
+    |> preload([attachments: a], attachments: a)
+    |> preload_assoc(:proposal, rest)
+  end
 
   def preload_assoc(query, :proposal, [:event | rest]) do
     query

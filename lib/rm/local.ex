@@ -7,6 +7,7 @@ defmodule RM.Local do
   alias Ecto.Changeset
   alias RM.FIRST.Event
   alias RM.FIRST.Region
+  alias RM.Local.EventAttachment
   alias RM.Local.EventProposal
   alias RM.Local.EventRegistration
   alias RM.Local.EventSettings
@@ -188,6 +189,19 @@ defmodule RM.Local do
   def update_event(proposal, params) do
     EventProposal.update_changeset(proposal, params)
     |> Repo.update()
+  end
+
+  @spec create_or_update_attachment(EventProposal.t(), map) ::
+          {:ok, EventAttachment.t()} | {:error, Changeset.t(EventAttachment.t())}
+  def create_or_update_attachment(proposal, params) do
+    EventAttachment.new(proposal, params)
+    |> Repo.insert(on_conflict: :replace_all, conflict_target: [:proposal_id, :name])
+  end
+
+  @spec delete_attachment(EventAttachment.t()) ::
+          {:ok, EventAttachment.t()} | {:error, Changeset.t(EventAttachment.t())}
+  def delete_attachment(attachment) do
+    Repo.delete(attachment)
   end
 
   @doc """
