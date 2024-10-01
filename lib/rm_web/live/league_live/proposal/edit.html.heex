@@ -203,7 +203,13 @@
       <ul class="mb-8">
         <li :for={attachment <- @proposal.attachments} class="flex gap-2 items-center mb-2">
           <.icon class="h-4 w-4" name="hero-document" />
-          <span class="text-sm"><%= attachment.name %></span>
+          <a
+            class="text-sm underline"
+            href={RM.Local.EventAttachment.url(attachment)}
+            target="_blank"
+          >
+            <%= attachment.name %>
+          </a>
           <button
             aria-label="remove"
             form=""
@@ -215,10 +221,7 @@
           </button>
         </li>
         <li :for={entry <- @uploads.attachment.entries} class="flex gap-2 items-center mb-2">
-          <.icon
-            class="h-4 w-4"
-            name={if entry.done?, do: "hero-document-plus", else: "hero-document-arrow-up"}
-          />
+          <.icon class="h-4 w-4" name="hero-cloud-arrow-up" />
           <span class="text-sm"><%= entry.client_name %></span>
           <button
             aria-label="cancel"

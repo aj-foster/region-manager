@@ -73,4 +73,9 @@ defmodule RM.Local.EventAttachment do
     |> String.replace(~r/-+/, "-")
     |> String.trim("-")
   end
+
+  @spec url(t) :: String.t()
+  def url(attachment) do
+    EventFile.url({attachment.file, attachment})
+  end
 end

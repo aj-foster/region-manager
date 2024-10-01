@@ -22,6 +22,21 @@
       <%= @event.proposal.description %>
     </:row>
 
+    <:row :if={@event.proposal && @event.proposal.attachments != []} title="Attachments">
+      <ul>
+        <li :for={attachment <- @event.proposal.attachments} class="flex gap-2 items-center mb-2">
+          <.icon class="h-4 w-4" name="hero-document" />
+          <a
+            class="text-sm underline"
+            href={RM.Local.EventAttachment.url(attachment)}
+            target="_blank"
+          >
+            <%= attachment.name %>
+          </a>
+        </li>
+      </ul>
+    </:row>
+
     <:row
       :if={website = (@event.proposal && @event.proposal.website) || @event.website}
       title="Website"

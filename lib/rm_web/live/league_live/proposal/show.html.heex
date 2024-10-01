@@ -69,6 +69,20 @@
 <.card>
   <.table>
     <:row :if={@event.description} title="Description"><%= @event.description %></:row>
+    <:row :if={@event.attachments != []} title="Attachments">
+      <ul>
+        <li :for={attachment <- @event.attachments} class="flex gap-2 items-center mb-2">
+          <.icon class="h-4 w-4" name="hero-document" />
+          <a
+            class="text-sm underline"
+            href={RM.Local.EventAttachment.url(attachment)}
+            target="_blank"
+          >
+            <%= attachment.name %>
+          </a>
+        </li>
+      </ul>
+    </:row>
     <:row :if={@event.website} title="Website">
       <a class="underline" href={@event.website} target="blank"><%= @event.website %></a>
     </:row>

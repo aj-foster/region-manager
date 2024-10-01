@@ -15,8 +15,9 @@ defmodule RMWeb.LeagueLive.Proposal.Show do
 
   def on_mount(:preload_proposal, %{"event" => id}, _session, socket) do
     league = socket.assigns[:league]
+    preloads = [:attachments, :event, :venue]
 
-    case RM.Local.fetch_event_proposal_by_id(id, league: league, preload: [:event, :venue]) do
+    case RM.Local.fetch_event_proposal_by_id(id, league: league, preload: preloads) do
       {:ok, event} ->
         {:cont, assign(socket, event: event, page_title: event.name)}
 

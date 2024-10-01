@@ -68,6 +68,7 @@ defmodule RMWeb.RegionJSON do
          } = event
        ) do
     %{
+      attachments: event_attachments(event),
       code: code,
       date_end: date_end,
       date_start: date_start,
@@ -95,6 +96,15 @@ defmodule RMWeb.RegionJSON do
       virtual: event_virtual(event)
     }
   end
+
+  @spec event_attachments(RM.FIRST.Event.t()) :: [%{name: String.t(), url: String.t()}]
+  defp event_attachments(%RM.FIRST.Event{
+         proposal: %RM.Local.EventProposal{attachments: attachments}
+       }) do
+    Enum.map(attachments, &%{name: &1.name, url: RM.Local.EventAttachment.url(&1)})
+  end
+
+  defp event_attachments(_event), do: []
 
   @spec event_description(RM.FIRST.Event.t()) :: String.t() | nil
   defp event_description(%RM.FIRST.Event{

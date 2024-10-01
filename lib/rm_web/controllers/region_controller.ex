@@ -15,7 +15,7 @@ defmodule RMWeb.RegionController do
     with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(abbreviation) do
       events =
         RM.FIRST.list_events_by_region(region, season: season, preload: preloads)
-        |> RM.Repo.preload(registrations: [:team])
+        |> RM.Repo.preload(proposal: [:attachments], registrations: [:team])
 
       render(conn, :events, events: events)
     end
