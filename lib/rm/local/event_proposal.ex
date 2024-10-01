@@ -4,6 +4,7 @@ defmodule RM.Local.EventProposal do
 
   alias Ecto.Changeset
   alias RM.FIRST.Region
+  alias RM.Local.EventAttachment
   alias RM.Local.League
   alias RM.Local.Log
   alias RM.Local.Query
@@ -66,6 +67,7 @@ defmodule RM.Local.EventProposal do
     field :submitted_at, :utc_datetime_usec
     field :removed_at, :utc_datetime_usec
 
+    has_many :attachments, EventAttachment, foreign_key: :proposal_id
     belongs_to :first_event, RM.FIRST.Event
     belongs_to :league, League
     belongs_to :region, Region
@@ -79,8 +81,6 @@ defmodule RM.Local.EventProposal do
       field :name, :string
       field :phone, :string
     end
-
-    # has_many :attachments, File, join_through: :event_attachments
   end
 
   #
