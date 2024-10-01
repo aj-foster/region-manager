@@ -190,6 +190,7 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
   def proposal_submit(socket, params) do
     league = socket.assigns[:league]
     proposal = socket.assigns[:proposal]
+    first_event = proposal.first_event
 
     params =
       params
@@ -217,9 +218,16 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
           RM.Local.create_or_update_attachment(proposal, params)
         end)
 
+        url =
+          if first_event do
+            ~p"/league/#{league.region}/#{league}/events/#{first_event}"
+          else
+            ~p"/league/#{league.region}/#{league}/events/proposal/#{proposal}"
+          end
+
         socket
         |> put_flash(:info, "Event proposal updated successfully")
-        |> push_navigate(to: ~p"/league/#{league.region}/#{league}/events/proposal/#{proposal}")
+        |> push_navigate(to: url)
 
       {:error, changeset} ->
         assign(socket, proposal_form: to_form(changeset))
