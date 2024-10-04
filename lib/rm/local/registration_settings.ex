@@ -14,11 +14,12 @@ defmodule RM.Local.RegistrationSettings do
           pool: pool,
           team_limit: integer | nil,
           waitlist_deadline_days: integer | nil,
-          waitlist_limit: integer | nil
+          waitlist_limit: integer | nil,
+          waitlist_pool: pool | nil
         }
 
   @required_fields [:deadline_days, :enabled, :open_days, :pool]
-  @optional_fields [:team_limit, :waitlist_deadline_days, :waitlist_limit]
+  @optional_fields [:team_limit, :waitlist_deadline_days, :waitlist_limit, :waitlist_pool]
 
   @primary_key false
 
@@ -30,6 +31,7 @@ defmodule RM.Local.RegistrationSettings do
     field :team_limit, :integer
     field :waitlist_deadline_days, :integer
     field :waitlist_limit, :integer
+    field :waitlist_pool, Ecto.Enum, values: @pools
   end
 
   @doc """
@@ -42,6 +44,7 @@ defmodule RM.Local.RegistrationSettings do
     |> Changeset.cast(params, @required_fields ++ @optional_fields)
     |> Changeset.validate_required(@required_fields)
     |> validate_open_before_deadline()
+    |> validate_cascading_pool()
   end
 
   @spec validate_open_before_deadline(Changeset.t(%__MODULE__{})) :: Changeset.t(%__MODULE__{})
@@ -54,6 +57,23 @@ defmodule RM.Local.RegistrationSettings do
         Changeset.add_error(changeset, :open_days, "must allow at least two days to register")
       else
         changeset
+      end
+    else
+      changeset
+    end
+  end
+
+  @spec validate_cascading_pool(Changeset.t(%__MODULE__{})) :: Changeset.t(%__MODULE__{})
+  defp validate_cascading_pool(changeset) do
+    if waitlist_pool = Changeset.get_field(changeset, :waitlist_pool) do
+      pool = Changeset.get_field(changeset, :pool)
+      message = "waitlist eligibility must be at least as broad as priority registration"
+
+      case {pool, waitlist_pool} do
+        {:all, :region} -> Changeset.add_error(changeset, :waitlist_pool, message)
+        {:all, :league} -> Changeset.add_error(changeset, :waitlist_pool, message)
+        {:region, :league} -> Changeset.add_error(changeset, :waitlist_pool, message)
+        _else -> changeset
       end
     else
       changeset
