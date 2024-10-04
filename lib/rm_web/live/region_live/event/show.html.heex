@@ -152,9 +152,28 @@
   </.table>
 </.card>
 
-<.title>Registration Settings</.title>
+<.title>
+  Team Registration
+  <:action>
+    <.button
+      :if={not @edit_registration}
+      phx-click={show_modal("team-export-modal")}
+      style="tertiary"
+      target="blank"
+    >
+      Export <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-down-tray" />
+    </.button>
+    <.button phx-click="edit_registration_init">
+      <%= if @edit_registration, do: "Done", else: "Edit..." %>
+    </.button>
+  </:action>
+</.title>
 
-<.card spaced>
+<.card :if={not @edit_registration} spaced>
+  <RMWeb.Components.Registration.show event={@event} teams={@registered_teams} />
+</.card>
+
+<.card :if={@edit_registration} spaced>
   <p class="mb-4 text-sm">
     The following settings affect how teams register for this event.
     Default values are chosen based on the league settings at the time an event is first imported.
@@ -289,3 +308,16 @@
     allow administrators to provide additional information to attendees beyond what is available from <em>FIRST</em>.
   </p>
 </.modal>
+
+<.live_component
+  context="Registered"
+  id="team-export"
+  module={RMWeb.Components.TeamExport}
+  pii
+  teams={
+    [
+      {"Registered", @registered_teams_count, @registered_teams}
+      # TODO: Waitlist teams
+    ]
+  }
+/>
