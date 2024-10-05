@@ -18,6 +18,24 @@ defmodule RMWeb.EventLive.Show do
   end
 
   #
+  # Events
+  #
+
+  @impl true
+  def handle_event(event, unsigned_params, socket)
+
+  def handle_event("venue_virtual_toggle", _params, socket) do
+    socket = push_js(socket, "#venue-virtual-modal", "data-cancel")
+    event = socket.assigns[:event]
+
+    with :ok <- require_noreply(socket, :venue_virtual_toggle, event) do
+      socket
+      |> venue_virtual_toggle()
+      |> noreply()
+    end
+  end
+
+  #
   # Helpers
   #
 
@@ -65,6 +83,24 @@ defmodule RMWeb.EventLive.Show do
           %{team: team} -> {team.number, :attending}
         end)
     )
+  end
+
+  @spec venue_virtual_toggle(Socket.t()) :: Socket.t()
+  defp venue_virtual_toggle(socket) do
+    event = socket.assigns[:event]
+    params = %{virtual: not event.settings.virtual}
+
+    case RM.Local.update_event_settings(event, params) do
+      {:ok, settings} ->
+        event = %{event | settings: settings}
+
+        socket
+        |> assign(event: event)
+        |> put_flash(:info, "Event modified successfully")
+
+      {:error, _changeset} ->
+        put_flash(socket, :error, "Error while changing virtual status, please try again")
+    end
   end
 
   #

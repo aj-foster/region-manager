@@ -3,7 +3,15 @@ defmodule RMWeb.Components.Event do
 
   @doc """
   Venue information, incorporating both event and proposal data
+
+  If the `editable` attribute is `true`, the calling view must handle an event
+  `venue_virtual_toggle` by updating the event's settings to change the visibility of the venue
+  address. The handler should check the same conditions that determine `editable`.
   """
+  attr :editable, :boolean,
+    default: false,
+    doc: "whether the current user can toggle address visibility"
+
   attr :event, RM.FIRST.Event, required: true, doc: "event with proposal and settings preloaded"
 
   def unified_venue(assigns) do
@@ -23,16 +31,31 @@ defmodule RMWeb.Components.Event do
       <.table>
         <:row :if={@event.location.venue} title="Name"><%= @event.location.venue %></:row>
         <:row title="Address">
-          <%= if @event.settings.virtual do %>
+          <div :if={@event.settings.virtual}>
             <span class="italic">Virtual Event</span>
-          <% else %>
+          </div>
+
+          <div :if={not @event.settings.virtual}>
             <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
             <span :if={@event.location.city}><%= @event.location.city %>,</span>
             <span :if={@event.location.state_province}>
               <%= @event.location.state_province %><span :if={@postal_code}> <%= @postal_code %></span>,
             </span>
             <span><%= @event.location.country || "Unknown Location" %></span>
-          <% end %>
+          </div>
+
+          <div :if={@editable}>
+            <button
+              class="text-orange-600 text-sm underline"
+              phx-click={show_modal("venue-virtual-modal")}
+            >
+              <%= if @event.settings.virtual do %>
+                Unhide Address
+              <% else %>
+                Hide Address
+              <% end %>
+            </button>
+          </div>
         </:row>
         <:row :if={@event.proposal && @event.proposal.venue.notes} title="Notes">
           <%= @event.proposal.venue.notes %>
@@ -44,6 +67,21 @@ defmodule RMWeb.Components.Event do
         </:row>
       </.table>
     </.card>
+
+    <.modal :if={@editable} id="venue-virtual-modal">
+      <.title class="mb-4" flush>Hide Venue Address</.title>
+
+      <p class="mb-4">
+        If this event is virtual (meaning nobody besides event staff should show up at this address), you can hide the address from public view.
+      </p>
+      <p class="mb-4">
+        The address is currently <strong :if={@event.settings.virtual}>hidden</strong>
+        <strong :if={not @event.settings.virtual}>visible</strong>.
+      </p>
+      <p class="text-right">
+        <.button phx-click="venue_virtual_toggle">Change Visibility</.button>
+      </p>
+    </.modal>
     """
   end
 

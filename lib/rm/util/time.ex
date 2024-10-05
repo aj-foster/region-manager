@@ -182,10 +182,10 @@ defmodule RM.Util.Time do
 
   # Nice, unofficial names for timezones. Assigned to group names.
   @tz_affordances %{
-    "America/New_York" => "Eastern",
-    "America/Chicago" => "Central",
-    "America/Denver" => "Mountain",
-    "America/Los_Angeles" => "Pacific",
+    "America/New_York" => "Eastern US",
+    "America/Chicago" => "Central US",
+    "America/Denver" => "Mountain US",
+    "America/Los_Angeles" => "Pacific US",
     "WET" => "WET",
     "CET" => "CET",
     "EET" => "EET"
@@ -235,6 +235,14 @@ defmodule RM.Util.Time do
     |> Enum.group_by(& &1.periods, & &1.name)
     |> Map.values()
     |> Enum.reject(&(length(&1) < 2))
+  end
+
+  @doc """
+  Returns a "nice" name of the timezone if one is available
+  """
+  @spec zone_nice_name(String.t()) :: String.t()
+  def zone_nice_name(timezone) do
+    Map.get(@tz_affordances, timezone, timezone)
   end
 
   #

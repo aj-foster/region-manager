@@ -6,13 +6,18 @@
   <.table>
     <:row title="Name"><%= @event.name %></:row>
     <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
-    <:row :if={@event.proposal} title="Timezone"><%= @event.proposal.venue.timezone %></:row>
+    <:row :if={@event.proposal} title="Timezone">
+      <%= RM.Util.Time.zone_nice_name(@event.proposal.venue.timezone) %>
+    </:row>
     <:row title="Type" info="event-type-modal"><%= Event.type_name(@event.type) %></:row>
     <:row title="Format" info="event-format-modal"><%= Event.format_name(@event) %></:row>
   </.table>
 </.card>
 
-<RMWeb.Components.Event.unified_venue event={@event} />
+<RMWeb.Components.Event.unified_venue
+  editable={can?(@current_user, :venue_virtual_toggle, @event)}
+  event={@event}
+/>
 
 <.title>Additional Information</.title>
 
