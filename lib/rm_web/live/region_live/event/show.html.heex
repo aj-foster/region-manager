@@ -156,7 +156,7 @@
   Team Registration
   <:action>
     <.button
-      :if={not @edit_registration}
+      :if={not @edit_registration and @event.settings.registration.enabled}
       phx-click={show_modal("team-export-modal")}
       style="tertiary"
       target="blank"
@@ -169,9 +169,11 @@
   </:action>
 </.title>
 
-<.card :if={not @edit_registration} spaced>
-  <RMWeb.Components.Registration.show event={@event} teams={@registered_teams} />
-</.card>
+<RMWeb.Components.Registration.show
+  :if={not @edit_registration}
+  event={@event}
+  teams={@registered_teams}
+/>
 
 <.card :if={@edit_registration} spaced>
   <p class="mb-4 text-sm">
