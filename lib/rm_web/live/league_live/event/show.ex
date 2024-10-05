@@ -196,4 +196,28 @@ defmodule RMWeb.LeagueLive.Event.Show do
   defp event_league(%RM.FIRST.Event{local_league: %RM.Local.League{name: name}}) do
     "#{name} (Unofficial)"
   end
+
+  @spec registration_pool_options(RM.FIRST.Event.t()) :: [{String.t(), String.t()}]
+  defp registration_pool_options(%RM.FIRST.Event{league: %_{} = league, region: region}) do
+    [
+      {"Teams in #{league.name} League", "league"},
+      {"Teams in #{region.name}", "region"},
+      {"Any Team", "all"}
+    ]
+  end
+
+  defp registration_pool_options(%RM.FIRST.Event{local_league: %_{} = league, region: region}) do
+    [
+      {"Teams in #{league.name} League", "league"},
+      {"Teams in #{region.name}", "region"},
+      {"Any Team", "all"}
+    ]
+  end
+
+  defp registration_pool_options(%RM.FIRST.Event{region: region}) do
+    [
+      {"Teams in #{region.name}", "region"},
+      {"Any Team", "all"}
+    ]
+  end
 end

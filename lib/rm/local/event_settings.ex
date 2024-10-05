@@ -79,7 +79,8 @@ defmodule RM.Local.EventSettings do
         deadline_days: deadline_days,
         enabled: enabled,
         open_days: open_days,
-        pool: pool
+        pool: pool,
+        waitlist_pool: pool
       }
     }
   end
