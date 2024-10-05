@@ -92,7 +92,7 @@ defmodule RMWeb.RegionJSON do
         notes: get_in(event.proposal.venue.notes)
       },
       registration: event_registration(event),
-      url: url(~p"/s/#{event.season}/r/#{region}/events/#{event}"),
+      url: url(~p"/s/#{event.season}/r/#{region}/e/#{event}"),
       virtual: event_virtual(event)
     }
   end
@@ -176,7 +176,7 @@ defmodule RMWeb.RegionJSON do
       open: event_registration_open(event),
       opens_at: RM.FIRST.Event.registration_opens(event),
       closes_at: RM.FIRST.Event.registration_deadline(event),
-      url: url(~p"/s/#{event.season}/r/#{region}/events/#{event}"),
+      url: url(~p"/s/#{event.season}/r/#{region}/e/#{event}"),
       attending: Enum.map(attending, & &1.team.number),
       waitlist: Enum.map(waitlist, & &1.team.number),
       capacity: team_limit,

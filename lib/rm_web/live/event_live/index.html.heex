@@ -45,7 +45,7 @@
 
   <.card padding={false} spaced>
     <.list>
-      <:link :for={event <- events} navigate={~p"/s/#{@season}/r/#{@region}/events/#{event}"}>
+      <:link :for={event <- events} navigate={~p"/s/#{@season}/r/#{@region}/e/#{event}"}>
         <h3 class="font-bold"><%= event.name %></h3>
         <p class="text-sm">
           <span><%= format_range(event.date_start, event.date_end) %></span>
