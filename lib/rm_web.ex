@@ -97,6 +97,8 @@ defmodule RMWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import RMWeb.CoreComponents
+      # Authorization helpers
+      import RM.Account.Auth, only: [can?: 2, can?: 3]
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

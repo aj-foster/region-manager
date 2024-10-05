@@ -215,6 +215,24 @@ defmodule RMWeb.Live.Util do
     Enum.sort_by(teams, & &1.number)
   end
 
+  @doc """
+  Requires that the current user can perform the given `action` on (optional) `data`, and otherwise
+  returns a socket with flash error
+  """
+  @spec require_noreply(LiveView.Socket.t(), atom) :: :ok | LiveView.Socket.t()
+  @spec require_noreply(LiveView.Socket.t(), atom, term) :: :ok | LiveView.Socket.t()
+  def require_noreply(socket, action, data \\ nil) do
+    user = socket.assigns[:current_user]
+
+    if RM.Account.Auth.can?(user, action, data) do
+      :ok
+    else
+      socket
+      |> LiveView.put_flash(:error, "You are not authorized to perform this action")
+      |> noreply()
+    end
+  end
+
   #
   # Hooks
   #
