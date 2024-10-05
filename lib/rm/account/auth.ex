@@ -24,12 +24,12 @@ defmodule RM.Account.Auth do
 
   def can?(%User{} = user, :registration_settings_update, %Event{} = event) do
     event.region_id in region_ids(user) or
-      (present?(event.local_league_id) and event.local_league_id in league_ids_with_event(user))
+      (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
   end
 
   def can?(%User{} = user, :venue_virtual_toggle, %Event{} = event) do
     event.region_id in region_ids(user) or
-      (present?(event.local_league_id) and event.local_league_id in league_ids_with_event(user))
+      (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
   end
 
   # Default: deny the action.
@@ -42,10 +42,10 @@ defmodule RM.Account.Auth do
   # @spec league_ids(User.t()) :: [Ecto.UUID.t()]
   # defp league_ids(user), do: Enum.map(user.leagues, & &1.id)
 
-  @spec league_ids_with_event(User.t()) :: [Ecto.UUID.t()]
-  defp league_ids_with_event(user) do
+  @spec league_ids_with_events(User.t()) :: [Ecto.UUID.t()]
+  defp league_ids_with_events(user) do
     user.league_assignments
-    |> Enum.filter(& &1.permissions.event)
+    |> Enum.filter(& &1.permissions.events)
     |> Enum.map(& &1.league_id)
   end
 
