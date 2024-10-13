@@ -18,4 +18,14 @@ defmodule RM.FIRST.Season do
 
     timestamps type: :utc_datetime_usec
   end
+
+  #
+  # Protocols
+  #
+
+  defimpl Phoenix.Param do
+    def to_param(%RM.FIRST.Season{year: year}) do
+      to_string(year)
+    end
+  end
 end
