@@ -442,14 +442,21 @@ defmodule RM.Local do
   @spec create_or_update_league_assignment(League.t(), Team.t()) ::
           {:ok, LeagueAssignment.t()} | {:error, Changeset.t(LeagueAssignment.t())}
   def create_or_update_league_assignment(league, team) do
+    team = Repo.preload(team, :league_assignment)
     params = LeagueAssignment.new(league, team)
 
-    Changeset.change(%LeagueAssignment{}, params)
-    |> Repo.insert(
-      on_conflict: {:replace_all_except, [:id, :inserted_at]},
-      conflict_target: [:team_id],
-      returning: true
-    )
+    with {:ok, assignment} <-
+           Changeset.change(%LeagueAssignment{}, params)
+           |> Repo.insert(
+             on_conflict: {:replace_all_except, [:id, :inserted_at]},
+             conflict_target: [:team_id],
+             returning: true
+           ) do
+      [league.id, team.league_assignment && team.league_assignment.league_id]
+      |> update_league_team_counts()
+
+      {:ok, assignment}
+    end
   end
 
   @spec create_league_assignments_from_first(Region.t()) :: [LeagueAssignment.t()]
