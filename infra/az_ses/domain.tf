@@ -38,3 +38,15 @@ resource "digitalocean_record" "dkim" {
   type   = "CNAME"
   value  = "${element(aws_ses_domain_dkim.this.dkim_tokens, count.index)}.dkim.amazonses.com."
 }
+
+#
+# DMARC
+#
+
+resource "digitalocean_record" "dmarc" {
+  domain = var.domain
+  name   = "_dmarc"
+  ttl    = 3600
+  type   = "TXT"
+  value  = "v=DMARC1; p=none; ruf=mailto:${var.email}; fo=1"
+}
