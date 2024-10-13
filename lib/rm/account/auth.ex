@@ -4,6 +4,7 @@ defmodule RM.Account.Auth do
   """
   alias RM.Account.User
   alias RM.FIRST.Event
+  alias RM.Local.EventProposal
 
   @doc """
   Returns whether the given `user` can perform the given `action`
@@ -18,15 +19,35 @@ defmodule RM.Account.Auth do
   @spec can?(User.t() | nil, atom, term) :: boolean
   def can?(user, action, data \\ nil)
 
+  # Create a new event proposal
   def can?(%User{} = user, :proposal_create, _data) do
-    length(user.regions) > 1 or length(user.leagues) > 1
+    length(user.regions) > 1 or length(league_ids_with_events(user)) > 1
   end
 
+  # See the original event proposal for a published event
+  def can?(%User{} = user, :proposal_show, %Event{} = event) do
+    event.region_id in region_ids(user) or
+      (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
+  end
+
+  # See an unpublished event proposal
+  def can?(%User{} = user, :proposal_show, %EventProposal{first_event_id: nil} = proposal) do
+    proposal.region_id in region_ids(user) or
+      (present?(proposal.league_id) and proposal.league_id in league_ids_with_events(user))
+  end
+
+  # See the original event proposal for a published event
+  def can?(%User{} = user, :proposal_show, %EventProposal{first_event: event}) do
+    can?(%User{} = user, :proposal_show, event)
+  end
+
+  # Update registration settings for a published event
   def can?(%User{} = user, :registration_settings_update, %Event{} = event) do
     event.region_id in region_ids(user) or
       (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
   end
 
+  # Change whether the venue address is visible for a published event
   def can?(%User{} = user, :venue_virtual_toggle, %Event{} = event) do
     event.region_id in region_ids(user) or
       (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
