@@ -154,17 +154,33 @@ defmodule RM.Local.League do
 
   @doc """
   Query to update cached team statistics for leagues with the given IDs
+
+  ## Options
+
+    * `import`: When `true`, update the `teams_imported_at` timestamp to the current time.
+      Defaults to `false`.
+
   """
   @spec team_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
-  def team_stats_update_query(league_ids) do
-    now = DateTime.utc_now()
-
+  @spec team_stats_update_query([Ecto.UUID.t()], keyword) :: Ecto.Query.t()
+  def team_stats_update_query(league_ids, opts \\ []) do
     count_query =
       from(__MODULE__, as: :league)
       |> where([league: l], l.id in ^league_ids)
       |> join(:left, [league: l], t in assoc(l, :teams), on: t.active, as: :team)
       |> group_by([league: l], l.id)
       |> select([league: l, team: t], %{id: l.id, count: count(t.id)})
+
+    if opts[:import] do
+      team_stats_update_count_and_time(count_query)
+    else
+      team_status_update_count_only(count_query)
+    end
+  end
+
+  @spec team_stats_update_count_and_time(Ecto.Query.t()) :: Ecto.Query.t()
+  defp team_stats_update_count_and_time(count_query) do
+    now = DateTime.utc_now()
 
     from(__MODULE__, as: :league)
     |> join(:inner, [league: l], s in subquery(count_query), on: s.id == l.id, as: :counts)
@@ -176,6 +192,22 @@ defmodule RM.Local.League do
             l.stats,
             c.count,
             ^now
+          )
+      ]
+    )
+  end
+
+  @spec team_status_update_count_only(Ecto.Query.t()) :: Ecto.Query.t()
+  defp team_status_update_count_only(count_query) do
+    from(__MODULE__, as: :league)
+    |> join(:inner, [league: l], s in subquery(count_query), on: s.id == l.id, as: :counts)
+    |> update([league: l, counts: c],
+      set: [
+        stats:
+          fragment(
+            "jsonb_set(?, '{team_count}', ?::varchar::jsonb)",
+            l.stats,
+            c.count
           )
       ]
     )

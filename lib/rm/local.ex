@@ -424,12 +424,14 @@ defmodule RM.Local do
   end
 
   @spec update_league_team_counts(Repo.struct_or_id(League.t())) :: :ok
+  @spec update_league_team_counts(Repo.struct_or_id(League.t()), keyword) :: :ok
   @spec update_league_team_counts([Repo.struct_or_id(League.t())]) :: :ok
-  def update_league_team_counts(league_or_id_or_list) do
+  @spec update_league_team_counts([Repo.struct_or_id(League.t())], keyword) :: :ok
+  def update_league_team_counts(league_or_id_or_list, opts \\ []) do
     league_or_id_or_list
     |> Util.extract_ids()
     |> Enum.uniq()
-    |> RM.Local.League.team_stats_update_query()
+    |> RM.Local.League.team_stats_update_query(opts)
     |> Repo.update_all([])
 
     :ok

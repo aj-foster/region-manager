@@ -64,7 +64,7 @@ defmodule RM.Import do
 
     Repo.preload(additions ++ Enum.map(updates, &elem(&1, 0)), :league_assignment)
     |> Enum.map(&(&1.league_assignment && &1.league_assignment.league_id))
-    |> RM.Local.update_league_team_counts()
+    |> RM.Local.update_league_team_counts(import: true)
 
     %{added: additions, updated: updates, imported: import_teams, upload: upload}
   end
