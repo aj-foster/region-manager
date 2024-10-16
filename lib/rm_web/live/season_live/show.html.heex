@@ -1,0 +1,32 @@
+<.title><%= @season.name %></.title>
+
+<.card :if={@regions_count > 0} padding={false} spaced>
+  <.list>
+    <:link :for={region <- @regions} navigate={~p"/s/#{@season}/r/#{region}"}>
+      <h3 class="font-semibold"><%= region.name %></h3>
+      <p class="text-sm"><%= region.description %></p>
+    </:link>
+  </.list>
+</.card>
+
+<.card :if={@regions_count == 0} spaced>
+  <p class="italic text-sm">There is no region data currently available.</p>
+</.card>
+
+<.card spaced>
+  <p class="text-sm">
+    <strong>Region Manager</strong>
+    tracks data for <em>FIRST</em>
+    Tech Challenge regions when the region's Program Delivery Partner has imported team data.
+    For information about other regions, see the publicly-available
+    <a
+      href="https://ftc-events.firstinspires.org/"
+      class="text-orange-600 transition-colors hover:text-orange-400"
+      target="_blank"
+    >
+      <span class="underline">FTC Events</span>
+      <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+    </a>
+    page.
+  </p>
+</.card>

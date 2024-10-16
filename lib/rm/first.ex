@@ -290,6 +290,16 @@ defmodule RM.FIRST do
     |> Repo.all()
   end
 
+  @spec fetch_season_by_year(pos_integer) :: {:ok, Season.t()} | {:error, :season, :not_found}
+  def fetch_season_by_year(year) do
+    Query.from_season()
+    |> Repo.get_by(year: year)
+    |> case do
+      %Season{} = season -> {:ok, season}
+      nil -> {:error, :season, :not_found}
+    end
+  end
+
   #
   # Regions
   #
