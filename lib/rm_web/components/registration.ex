@@ -32,12 +32,6 @@ defmodule RMWeb.Components.Registration do
         <:row :if={not Event.registration_deadline_passed?(@event)} title="Deadline">
           <%= format_date(Event.registration_deadline(@event), :full) %>
         </:row>
-        <:row :if={@event.settings.registration.team_limit} title="Capacity">
-          <span class="font-mono text-sm">
-            <%= @teams_count %> / <%= @event.settings.registration.team_limit %>
-          </span>
-          filled
-        </:row>
         <:row title="Available For">
           <%= case @event.settings.registration.pool do %>
             <% :all -> %>
@@ -47,6 +41,15 @@ defmodule RMWeb.Components.Registration do
             <% :region -> %>
               Teams in <%= @event.region.name %>
           <% end %>
+        </:row>
+        <:row :if={@event.settings.registration.team_limit} title="Capacity">
+          <span class="font-mono text-sm">
+            <%= @teams_count %> / <%= @event.settings.registration.team_limit %>
+          </span>
+          filled
+        </:row>
+        <:row :if={is_nil(@event.settings.registration.team_limit)} title="Registered Count">
+          <%= dumb_inflect("team", @teams_count) %>
         </:row>
         <:row title="Registered Teams">
           <ul :if={@teams_count > 0}>

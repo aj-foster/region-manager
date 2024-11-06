@@ -95,12 +95,6 @@
       <:row :if={not Event.registration_deadline_passed?(@event)} title="Deadline">
         <%= format_date(Event.registration_deadline(@event), :full) %>
       </:row>
-      <:row :if={@event.settings.registration.team_limit} title="Capacity">
-        <span class="font-mono text-sm">
-          <%= length(@registered_teams) %> / <%= @event.settings.registration.team_limit %>
-        </span>
-        filled
-      </:row>
       <:row title="Available For">
         <%= case @event.settings.registration.pool do %>
           <% :all -> %>
@@ -110,6 +104,15 @@
           <% :region -> %>
             Teams in <%= @event.region.name %>
         <% end %>
+      </:row>
+      <:row :if={@event.settings.registration.team_limit} title="Capacity">
+        <span class="font-mono text-sm">
+          <%= length(@registered_teams) %> / <%= @event.settings.registration.team_limit %>
+        </span>
+        filled
+      </:row>
+      <:row :if={is_nil(@event.settings.registration.team_limit)} title="Count">
+        <%= dumb_inflect("team", @registered_teams) %>
       </:row>
       <:row title="Registered Teams">
         <ul :if={length(@registered_teams) > 0}>
