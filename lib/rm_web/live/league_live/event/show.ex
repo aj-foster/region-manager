@@ -220,4 +220,21 @@ defmodule RMWeb.LeagueLive.Event.Show do
       {"Any Team", "all"}
     ]
   end
+
+  @spec safe_subtract_date(Date.t(), integer | String.t()) :: String.t()
+  defp safe_subtract_date(date, days_to_subtract) do
+    case days_to_subtract do
+      x when is_integer(x) ->
+        Date.add(date, -1 * x) |> format_date(:date)
+
+      x when is_binary(x) ->
+        case Integer.parse(x) do
+          {x, ""} -> Date.add(date, -1 * x) |> format_date(:date)
+          _else -> "(?)"
+        end
+
+      _else ->
+        "(?)"
+    end
+  end
 end

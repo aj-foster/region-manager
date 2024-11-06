@@ -231,7 +231,7 @@
         />
 
         <.input
-          explanation={"Registration will open at 00:01 local time on #{format_date(Date.add(@event.date_start, -1 * f[:open_days].value), :date)}."}
+          explanation={"Registration will open at 00:01 local time on #{safe_subtract_date(@event.date_start, f[:open_days].value)}."}
           field={f[:open_days]}
           label={"How many days before #{format_date(@event.date_start, :date)} should registration open?"}
           max="90"
@@ -242,7 +242,7 @@
         />
 
         <.input
-          explanation={"Registration will close at 23:59 local time on #{format_date(Date.add(@event.date_start, -1 * f[:deadline_days].value), :date)}."}
+          explanation={"Registration will close at 23:59 local time on #{safe_subtract_date(@event.date_start, f[:deadline_days].value)}."}
           field={f[:deadline_days]}
           label={"How many days before #{format_date(@event.date_start, :date)} should registration close?"}
           max="60"
