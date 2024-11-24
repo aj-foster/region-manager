@@ -1,4 +1,4 @@
-defmodule RMWeb.RegionLive.Show do
+defmodule RMWeb.RegionLive.Overview do
   use RMWeb, :live_view
   import RMWeb.RegionLive.Util
 
