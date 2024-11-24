@@ -39,6 +39,7 @@ defmodule RMWeb.Router do
       on_mount: [{Identity.LiveView, :fetch_identity}, {RMWeb.Live.Util, :preload_user}] do
       live "/seasons", SeasonLive.Index
       live "/s/:season", SeasonLive.Show
+      live "/s/:season/r/:region", RegionLive.Show
       live "/s/:season/r/:region/events", EventLive.Index
       live "/s/:season/r/:region/e/:event", EventLive.Show
     end
