@@ -1,6 +1,15 @@
-<.title><%= @season %>–<%= @season + 1 %> Events in <%= @region.name %></.title>
+<.title>
+  <%= @season %>–<%= @season + 1 %> Events in <%= events_page_title(
+    @local_league,
+    @first_league,
+    @region
+  ) %>
+</.title>
 
-<div :if={@region.has_leagues} class="flex font-title italic mb-8 small-caps">
+<div
+  :if={@region.has_leagues and is_nil(@local_league) and is_nil(@first_league)}
+  class="flex font-title italic mb-8 small-caps"
+>
   <div class="border-b border-gray-400 w-4"></div>
 
   <%= if @sort == "upcoming" do %>
@@ -41,7 +50,7 @@
 </div>
 
 <div :for={{{_priority, title}, events} <- @grouped_events}>
-  <.title><%= title %></.title>
+  <.title :if={@event_group_count > 1}><%= title %></.title>
 
   <.card padding={false} spaced>
     <.list>
