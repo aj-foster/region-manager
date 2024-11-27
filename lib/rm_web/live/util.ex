@@ -7,6 +7,8 @@ defmodule RMWeb.Live.Util do
   alias Phoenix.LiveView.JS
   alias Phoenix.LiveView.Socket
   alias RM.Account
+  alias RM.FIRST
+  alias RM.Local
 
   @doc """
   Copy data to the browser's clipboard
@@ -249,6 +251,61 @@ defmodule RMWeb.Live.Util do
   @doc false
   @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
   def on_mount(name, params, session, socket)
+
+  def on_mount(:check_league, %{"league" => league_code}, _session, socket) do
+    region = socket.assigns[:region]
+    season = socket.assigns[:season]
+
+    first_league = FIRST.get_league_by_code(region, league_code, season: season)
+    local_league = Local.get_league_by_code(region, league_code)
+
+    socket = assign(socket, first_league: first_league, local_league: local_league)
+
+    if is_nil(first_league) and is_nil(local_league) do
+      socket =
+        socket
+        |> LiveView.put_flash(:error, "League not found")
+        |> LiveView.redirect(to: ~p"/")
+
+      {:halt, socket}
+    else
+      {:cont, socket}
+    end
+  end
+
+  def on_mount(:check_region, %{"region" => region_abbr}, _session, socket) do
+    case FIRST.fetch_region_by_abbreviation(region_abbr) do
+      {:ok, region} ->
+        {:cont, assign(socket, region: region)}
+
+      {:error, :region, :not_found} ->
+        socket =
+          socket
+          |> LiveView.put_flash(:error, "Region not found")
+          |> LiveView.redirect(to: ~p"/")
+
+        {:halt, socket}
+    end
+  end
+
+  def on_mount(:check_season, %{"season" => season_str}, _session, socket) do
+    case Integer.parse(season_str) do
+      {season, ""} ->
+        {:cont, assign(socket, season: season)}
+
+      _else ->
+        socket =
+          socket
+          |> LiveView.put_flash(:error, "Invalid season in the URL")
+          |> LiveView.redirect(to: ~p"/")
+
+        {:halt, socket}
+    end
+  end
+
+  def on_mount(:check_league, _params, _session, socket), do: {:cont, socket}
+  def on_mount(:check_region, _params, _session, socket), do: {:cont, socket}
+  def on_mount(:check_season, _params, _session, socket), do: {:cont, socket}
 
   def on_mount(:preload_user, _params, _session, socket) do
     case socket.assigns[:current_user] do
