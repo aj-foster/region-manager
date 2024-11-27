@@ -42,6 +42,8 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region", RegionLive.Show
       live "/s/:season/r/:region/events", EventLive.Index
       live "/s/:season/r/:region/e/:event", EventLive.Show
+      live "/s/:season/r/:region/l/:league/events", EventLive.Index
+      live "/s/:season/r/:region/l/:league/e/:event", EventLive.Show
     end
 
     live_session :authenticated,
