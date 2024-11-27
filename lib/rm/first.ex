@@ -424,13 +424,24 @@ defmodule RM.FIRST do
     end)
   end
 
+  @spec fetch_league_by_code(Region.t(), String.t()) ::
+          {:ok, League.t()} | {:error, :league, :not_found}
+  @spec fetch_league_by_code(Region.t(), String.t(), keyword) ::
+          {:ok, League.t()} | {:error, :league, :not_found}
+  def fetch_league_by_code(region, code, opts \\ []) do
+    case get_league_by_code(region, code, opts) do
+      %League{} = event -> {:ok, event}
+      nil -> {:error, :league, :not_found}
+    end
+  end
+
   @spec get_league_by_code(Region.t(), String.t()) :: League.t() | nil
   @spec get_league_by_code(Region.t(), String.t(), keyword) :: League.t() | nil
   def get_league_by_code(region, code, opts \\ []) do
     Query.from_league()
     |> Query.league_code(code)
     |> Query.league_region(region)
-    |> Query.league_season(region.current_season)
+    |> Query.league_season(opts[:season] || region.current_season)
     |> Query.preload_assoc(:league, opts[:preload])
     |> Repo.one()
   end
@@ -468,6 +479,7 @@ defmodule RM.FIRST do
   def list_events_by_region(region, opts \\ []) do
     Query.from_event()
     |> Query.event_region(region)
+    |> Query.event_league(opts[:league], opts[:local_league])
     |> Query.event_season(opts[:season] || region.current_season)
     |> Query.event_not_removed()
     |> Query.preload_assoc(:event, opts[:preload])

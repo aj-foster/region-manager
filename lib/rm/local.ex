@@ -329,6 +329,16 @@ defmodule RM.Local do
     end
   end
 
+  @spec get_league_by_code(Region.t(), String.t()) :: League.t() | nil
+  @spec get_league_by_code(Region.t(), String.t(), keyword) :: League.t() | nil
+  def get_league_by_code(region, league_code, opts \\ []) do
+    Query.from_league()
+    |> Query.league_code(league_code)
+    |> Query.league_region(region)
+    |> Query.preload_assoc(:league, opts[:preload])
+    |> Repo.one()
+  end
+
   @spec create_league_from_first(RM.FIRST.League.t()) ::
           {:ok, League.t()} | {:error, Changeset.t(League.t())}
   def create_league_from_first(first_league) do

@@ -70,6 +70,22 @@ defmodule RM.FIRST.Query do
     where(query, [event: e], e.code == ^code)
   end
 
+  @doc "Filter events by related league"
+  @spec event_league(query, League.t() | nil, RM.Local.League.t() | nil) :: query
+  def event_league(query, nil, nil), do: query
+
+  def event_league(query, %League{id: league_id}, %RM.Local.League{id: local_league_id}) do
+    where(query, [event: e], e.league_id == ^league_id or e.local_league_id == ^local_league_id)
+  end
+
+  def event_league(query, %League{id: league_id}, _local_league) do
+    where(query, [event: e], e.league_id == ^league_id)
+  end
+
+  def event_league(query, _league, %RM.Local.League{id: local_league_id}) do
+    where(query, [event: e], e.local_league_id == ^local_league_id)
+  end
+
   @doc "Filter out events that have been removed"
   @spec event_not_removed(query) :: query
   def event_not_removed(query), do: where(query, [event: e], is_nil(e.removed_at))
