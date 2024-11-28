@@ -80,7 +80,13 @@ defmodule RMWeb.EventLive.Index do
       )
       |> RM.Repo.preload(registrations: [:team])
 
-    page_title = "#{region.name} Events #{season}–#{season + 1}"
+    page_title =
+      cond do
+        local_league -> "#{local_league.name} Events #{season}–#{season + 1}"
+        first_league -> "#{first_league.name} Events #{season}–#{season + 1}"
+        :else -> "#{region.name} Events #{season}–#{season + 1}"
+      end
+
     assign(socket, events: events, page_title: page_title)
   end
 
