@@ -25,12 +25,12 @@ defmodule RMWeb.SeasonLive.Show do
 
     case RM.FIRST.fetch_season_by_year(season_year) do
       {:ok, season} ->
-        assign(socket, season: season)
+        assign(socket, page_title: "#{season.year}–#{season.year + 1} Regions", season: season)
 
       {:error, :season, :not_found} ->
         socket
         |> put_flash(:error, "Season #{season_year} is not available in Region Manager")
-        |> redirect(to: ~p"/s")
+        |> redirect(to: ~p"/seasons")
     end
   end
 
