@@ -128,7 +128,8 @@ defmodule RMWeb.Components.TeamExport do
     "lc2-ypp-status",
     "admin-name",
     "admin-email",
-    "admin-phone"
+    "admin-phone",
+    "postal-code"
   ]
 
   @spec select_fields(Socket.t(), map) :: [String.t()]
@@ -237,7 +238,7 @@ defmodule RMWeb.Components.TeamExport do
               <:radio value="all">All fields</:radio>
               <:radio value="nn">Name &amp; number</:radio>
               <:radio value="nns">Name, number, &amp; school or organization</:radio>
-              <:radio value="coaches">Coach information</:radio>
+              <:radio :if={@pii} value="coaches">Coach information</:radio>
               <:radio value="custom">Custom...</:radio>
             </.radio_group>
           </div>
@@ -380,7 +381,7 @@ defmodule RMWeb.Components.TeamExport do
                   />
                   <label class="ml-2" for="export-fields-county">County</label>
                 </div>
-                <div>
+                <div :if={@pii}>
                   <input
                     checked={"postal-code" in @form[:fields].value}
                     id="export-fields-postal-code"
