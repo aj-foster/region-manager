@@ -1,1 +1,32 @@
-Placeholder
+<.breadcrumbs class="mb-4" season={@season} region={@region} />
+
+<.top_nav class="mb-8">
+  <.nav_item
+    current={@socket.view}
+    navigate={~p"/s/#{@season}/r/#{@region}"}
+    target={RMWeb.RegionLive.Show}
+  >
+    Overview
+  </.nav_item>
+  <.nav_item
+    current={@socket.view}
+    navigate={~p"/s/#{@season}/r/#{@region}/events"}
+    target={RMWeb.EventLive.Index}
+  >
+    Events
+  </.nav_item>
+</.top_nav>
+
+<.title>Overview of the <%= @region.name %> Region</.title>
+
+<.link_card class="flex items-center mb-4" navigate={~p"/s/#{@season}/r/#{@region}/events"}>
+  <div class="grow">
+    <h3 class="font-bold"><%= dumb_inflect("Published Event", @region.stats.event_count) %></h3>
+    <p :if={@region.stats.events_imported_at} class="text-sm">
+      Last refreshed <%= format_date(@region.stats.events_imported_at, :date) %>
+    </p>
+  </div>
+  <div>
+    <.icon name="hero-arrow-right" />
+  </div>
+</.link_card>
