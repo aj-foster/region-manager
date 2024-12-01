@@ -62,7 +62,7 @@ config :rm, Oban,
   repo: RM.Repo
 
 config :tailwind,
-  version: "3.3.2",
+  version: "3.4.15",
   default: [
     args: ~w(
       --config=tailwind.config.js
