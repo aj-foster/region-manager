@@ -36,7 +36,13 @@ defmodule RMWeb.Router do
     get "/", PageController, :home
 
     live_session :ambiguous,
-      on_mount: [{Identity.LiveView, :fetch_identity}, {RMWeb.Live.Util, :preload_user}] do
+      on_mount: [
+        {Identity.LiveView, :fetch_identity},
+        {RMWeb.Live.Util, :preload_user},
+        {RMWeb.Live.Util, :check_season},
+        {RMWeb.Live.Util, :check_region},
+        {RMWeb.Live.Util, :check_league}
+      ] do
       live "/seasons", SeasonLive.Index
       live "/s/:season", SeasonLive.Show
       live "/s/:season/r/:region", RegionLive.Show
