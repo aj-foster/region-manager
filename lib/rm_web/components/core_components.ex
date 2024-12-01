@@ -178,24 +178,25 @@ defmodule RMWeb.CoreComponents do
   attr :events, :boolean, default: false, doc: "whether viewing an event listing"
   attr :league, :any, default: nil, doc: "current league struct (local or FIRST), if any"
   attr :region, RM.FIRST.Region, default: nil, doc: "current region, if any"
+  attr :registration, :boolean, default: false, doc: "whether viewing an event registration page"
   attr :season, :integer, default: nil, doc: "current season, if any"
 
   def breadcrumbs(assigns) do
     ~H"""
     <div class={["font-normal font-title italic ml-5 text-gray-500", @class]}>
-      <span :if={@season}>
+      <span :if={@season} class="whitespace-nowrap">
         <.link class="mx-1" navigate={~p"/s/#{@season}"}><%= @season %>-<%= @season + 1 %></.link> ⟩
       </span>
-      <span :if={@region}>
+      <span :if={@region} class="whitespace-nowrap">
         <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}"}><%= @region.name %></.link> ⟩
       </span>
-      <span :if={@league}>
+      <span :if={@league} class="whitespace-nowrap">
         <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}>
           <%= @league.name %>
         </.link>
         ⟩
       </span>
-      <span :if={@events}>
+      <span :if={@events} class="whitespace-nowrap">
         <.link :if={is_nil(@league)} class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/events"}>
           Events
         </.link>
@@ -208,18 +209,7 @@ defmodule RMWeb.CoreComponents do
         </.link>
         ⟩
       </span>
-      <span :if={@event}>
-        <.link :if={is_nil(@league)} class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/events"}>
-          Events
-        </.link>
-        <.link
-          :if={@league}
-          class="mx-1"
-          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/events"}
-        >
-          Events
-        </.link>
-        ⟩
+      <span :if={@event} class="whitespace-nowrap">
         <.link
           :if={is_nil(@league)}
           class="mx-1"
@@ -233,6 +223,23 @@ defmodule RMWeb.CoreComponents do
           navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}"}
         >
           <%= @event.name %>
+        </.link>
+        ⟩
+      </span>
+      <span :if={@events && @registration} class="whitespace-nowrap">
+        <.link
+          :if={is_nil(@league)}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/e/#{@event}/registration"}
+        >
+          Registration
+        </.link>
+        <.link
+          :if={@league}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}/registration"}
+        >
+          Registration
         </.link>
         ⟩
       </span>

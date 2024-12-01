@@ -1,4 +1,4 @@
-defmodule RMWeb.EventLive.Show do
+defmodule RMWeb.EventLive.Registration do
   use RMWeb, :live_view
 
   alias RM.FIRST.Event
@@ -12,25 +12,8 @@ defmodule RMWeb.EventLive.Show do
     socket
     |> assign_event(event_code)
     |> assign_event_metadata()
+    |> assign_teams()
     |> ok()
-  end
-
-  #
-  # Events
-  #
-
-  @impl true
-  def handle_event(event, unsigned_params, socket)
-
-  def handle_event("venue_virtual_toggle", _params, socket) do
-    socket = push_js(socket, "#venue-virtual-modal", "data-cancel")
-    event = socket.assigns[:event]
-
-    with :ok <- require_noreply(socket, :venue_virtual_toggle, event) do
-      socket
-      |> venue_virtual_toggle()
-      |> noreply()
-    end
   end
 
   #
@@ -47,7 +30,10 @@ defmodule RMWeb.EventLive.Show do
       {:ok, event} ->
         if event.region_id == region.id do
           event =
-            RM.Repo.preload(event, proposal: :attachments, registrations: :team)
+            RM.Repo.preload(event,
+              proposal: :attachments,
+              registrations: [team: [:league, :region]]
+            )
             |> Map.put(:region, region)
 
           assign(socket, event: event, page_title: event.name)
@@ -68,11 +54,14 @@ defmodule RMWeb.EventLive.Show do
   defp assign_event_metadata(socket) do
     event = socket.assigns[:event]
 
+    registered_teams =
+      Enum.filter(event.registrations, &(not &1.waitlisted and not &1.rescinded))
+      |> Enum.map(& &1.team)
+      |> Enum.sort(RM.Local.Team)
+
     assign(socket,
-      registered_teams:
-        Enum.filter(event.registrations, &(not &1.waitlisted and not &1.rescinded))
-        |> Enum.map(& &1.team)
-        |> Enum.sort(RM.Local.Team),
+      registered_teams: registered_teams,
+      registered_teams_count: length(registered_teams),
       registration_enabled: get_in(event.settings.registration.enabled),
       registrations:
         (get_in(event.registrations) || [])
@@ -84,39 +73,36 @@ defmodule RMWeb.EventLive.Show do
     )
   end
 
-  @spec venue_virtual_toggle(Socket.t()) :: Socket.t()
-  defp venue_virtual_toggle(socket) do
+  @spec assign_teams(Socket.t()) :: Socket.t()
+  defp assign_teams(socket) do
     event = socket.assigns[:event]
-    params = %{virtual: not event.settings.virtual}
+    user = socket.assigns[:current_user]
+    registrations = socket.assigns[:registrations]
 
-    case RM.Local.update_event_settings(event, params) do
-      {:ok, settings} ->
-        event = %{event | settings: settings}
+    if user do
+      teams =
+        user.teams
+        |> Enum.filter(& &1.active)
+        |> Enum.map(&%{team: &1})
+        |> Enum.map(fn %{team: team} = info ->
+          case RM.Local.verify_eligibility(event, team) do
+            :ok ->
+              Map.merge(info, %{eligible?: true, event_ready?: team.event_ready})
 
-        socket
-        |> assign(event: event)
-        |> put_flash(:info, "Event modified successfully")
+            {:error, reason} ->
+              Map.merge(info, %{eligible?: false, reason: reason})
+          end
+        end)
+        |> Enum.map(fn %{team: team} = info ->
+          case registrations[team.number] do
+            nil -> Map.merge(info, %{status: :unregistered})
+            status -> Map.merge(info, %{status: status})
+          end
+        end)
 
-      {:error, _changeset} ->
-        put_flash(socket, :error, "Error while changing virtual status, please try again")
+      assign(socket, teams: teams, teams_count: length(teams))
+    else
+      assign(socket, teams: [], teams_count: 0)
     end
-  end
-
-  #
-  # Template Helpers
-  #
-
-  @spec event_league(RM.FIRST.Event.t()) :: String.t()
-  defp event_league(%RM.FIRST.Event{local_league: nil}), do: "None"
-
-  defp event_league(%RM.FIRST.Event{
-         league: %RM.FIRST.League{},
-         local_league: %RM.Local.League{name: name}
-       }) do
-    name
-  end
-
-  defp event_league(%RM.FIRST.Event{local_league: %RM.Local.League{name: name}}) do
-    "#{name} (Unofficial)"
   end
 end

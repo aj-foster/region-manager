@@ -1,0 +1,226 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  events
+  event={@event}
+  registration
+/>
+
+<.top_nav class="mb-8">
+  <.nav_item
+    current={@socket.view}
+    navigate={
+      if @local_league || @first_league,
+        do: ~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/e/#{@event}",
+        else: ~p"/s/#{@season}/r/#{@region}/e/#{@event}"
+    }
+    target={RMWeb.EventLive.Show}
+  >
+    Overview
+  </.nav_item>
+  <.nav_item
+    current={@socket.view}
+    navigate={
+      if @local_league || @first_league,
+        do:
+          ~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/e/#{@event}/registration",
+        else: ~p"/s/#{@season}/r/#{@region}/e/#{@event}/registration"
+    }
+    target={RMWeb.EventLive.Registration}
+  >
+    Registration
+  </.nav_item>
+</.top_nav>
+
+<.title>Registration for <%= @event.name %></.title>
+
+<%= if @registration_enabled do %>
+  <.card spaced>
+    <.table>
+      <:row title="Registration">
+        <%= cond do %>
+          <% Event.registration_deadline_passed?(@event) -> %>
+            <span class="text-orange-600">
+              Closed on <%= format_date(Event.registration_deadline(@event), :date) %>
+            </span>
+          <% Event.registration_opening_passed?(@event) -> %>
+            <span class="text-green-600">Open</span>
+          <% :else -> %>
+            <span class="text-orange-600">
+              Opens on <%= format_date(Event.registration_opens(@event), :date) %>
+            </span>
+        <% end %>
+      </:row>
+      <:row :if={not Event.registration_deadline_passed?(@event)} title="Deadline">
+        <%= format_date(Event.registration_deadline(@event), :full) %>
+      </:row>
+      <:row title="Available For">
+        <%= case @event.settings.registration.pool do %>
+          <% :all -> %>
+            All Teams
+          <% :league -> %>
+            Teams in <%= if(@event.league, do: @event.league.name <> " League", else: "league") %>
+          <% :region -> %>
+            Teams in <%= @event.region.name %>
+        <% end %>
+      </:row>
+      <:row :if={@event.settings.registration.team_limit} title="Capacity">
+        <span class="font-mono text-sm">
+          <%= length(@registered_teams) %> / <%= @event.settings.registration.team_limit %>
+        </span>
+        filled
+      </:row>
+    </.table>
+  </.card>
+
+  <.title>Your Team Registration Status</.title>
+
+  <%= if @current_user do %>
+    <.card :if={@teams == []} spaced>
+      <p class="italic text-sm">
+        There are no teams associated with this account.
+        <button
+          class="italic text-orange-600 underline"
+          phx-click={show_modal("event-registration-team-list-info")}
+        >
+          Why?
+        </button>
+      </p>
+    </.card>
+
+    <.card :if={@teams != []} padding={false} spaced>
+      <form id="event-registration-submission-form" phx-submit="event_registration_submit">
+        <.list>
+          <:item :for={%{team: team} = info <- @teams} class="px-4 py-2 relative">
+            <input
+              id={"event-registration-include-#{team.number}-hidden"}
+              name={"event-registration-include[#{team.number}]"}
+              type="hidden"
+              value="false"
+            />
+            <input
+              class="absolute left-8 opacity-0 peer"
+              disabled={not info.eligible? or info.status != :unregistered}
+              id={"event-registration-include-#{team.number}"}
+              name={"event-registration-include[#{team.number}]"}
+              type="checkbox"
+              value="true"
+            />
+
+            <label
+              class="flex items-center group"
+              for={"event-registration-include-#{team.number}"}
+            >
+              <div class="bg-slate-300 flex h-5 items-center rounded-sm w-5 peer-checked:group-[]:bg-emerald-200 peer-disabled:group-[]:bg-slate-100 peer-disabled:group-[]:cursor-not-allowed">
+                <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
+              </div>
+              <div class="grow min-w-0 ml-4 text-ellipsis whitespace-nowrap">
+                <h3 class="gap-1 flex items-center">
+                  <span><strong><%= team.number %></strong> <%= team.name %></span>
+                  <%= cond do %>
+                    <% info.status == :rescinded -> %>
+                      <.tag class="bg-red-100 border-red-300 ml-2">Rescinded</.tag>
+                    <% info.status == :waitlisted -> %>
+                      <.tag class="bg-sky-100 border-sky-300 ml-2">Waitlisted</.tag>
+                    <% info.status == :attending -> %>
+                      <.tag class="bg-emerald-100 border-emerald-300 ml-2">Registered</.tag>
+                    <% not info.eligible? -> %>
+                      <.tag class="bg-red-100 border-red-300 ml-2">Not Eligible</.tag>
+                    <% :else -> %>
+                      <.tag class="bg-gray-100 border-gray-300 ml-2">Unregistered</.tag>
+                  <% end %>
+
+                  <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300 ml-2">
+                    Not Event Ready
+                  </.tag>
+                </h3>
+                <p class="text-sm">
+                  <span :if={team.league}><%= team.league.name %> League &bull;</span>
+                  <span><%= team.region.name %></span>
+                </p>
+              </div>
+            </label>
+          </:item>
+        </.list>
+      </form>
+    </.card>
+  <% else %>
+    <.card :if={is_nil(@current_user)} spaced>
+      <p class="italic text-sm">
+        Please <.link
+          class="text-orange-600 underline"
+          navigate={~p"/login?after_login=#{@lvu_uri.path}"}
+        >
+      log in to see registration status</.link>.
+      </p>
+    </.card>
+  <% end %>
+
+  <.title>
+    Registered Teams (<%= @registered_teams_count %>)
+    <:action>
+      <.button phx-click={show_modal("team-export-modal")} style="tertiary" target="blank">
+        Export <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-down-tray" />
+      </.button>
+    </:action>
+  </.title>
+
+  <.card :if={@registered_teams_count > 0} padding={false} spaced>
+    <.list>
+      <:item :for={team <- @registered_teams} class="px-4 py-2">
+        <p>
+          <strong><%= team.number %></strong>
+          <%= team.name %>
+        </p>
+        <p class="text-sm">
+          <span :if={team.league}><%= team.league.name %> League &bull;</span>
+          <span><%= team.region.name %></span>
+        </p>
+      </:item>
+    </.list>
+  </.card>
+<% else %>
+  <.card spaced>
+    <p class="text-sm">
+      Registration for this event is not available in <strong>Region Manager</strong>.
+    </p>
+  </.card>
+<% end %>
+
+<.modal id="event-registration-team-list-info">
+  <.title flush class="mb-4">About Team List</.title>
+  <p class="my-4">
+    If not all of your teams are listed, it could mean:
+  </p>
+  <ul class="list-disc mb-4 pl-8">
+    <li class="mb-4">
+      Your account may not have the same email address as you use in the <a
+        class="underline"
+        href="https://my.firstinspires.org/Dashboard/"
+        target="blank"
+      ><em>FIRST®</em> Dashboard</a>.
+      Ensure you register <strong>and confirm</strong>
+      this address in your <.link class="underline" navigate={~p"/user/settings"}>settings</.link>.
+    </li>
+    <li class="mb-4">
+      Your region's <em>Program Delivery Partner</em>
+      may not have imported team data since your team finished registering with <em>FIRST</em>
+      or since coaching information was updated. Contact them to check on the status of your team.
+    </li>
+  </ul>
+</.modal>
+
+<.live_component
+  context="Registered"
+  id="team-export"
+  module={RMWeb.Components.TeamExport}
+  pii={can?(@current_user, :team_pii_show, @event)}
+  teams={
+    [
+      {"Registered", @registered_teams_count, @registered_teams}
+      # TODO: Waitlist teams
+    ]
+  }
+/>
