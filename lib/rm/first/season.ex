@@ -13,6 +13,7 @@ defmodule RM.FIRST.Season do
 
   schema "first_seasons" do
     field :kickoff, :date
+    field :logo_url, :string
     field :name, :string
     field :year, :integer
 

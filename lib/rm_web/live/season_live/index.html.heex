@@ -3,11 +3,18 @@
 <.card :if={@seasons_count > 0} padding={false} spaced>
   <.list>
     <:link :for={season <- @seasons} navigate={~p"/s/#{season}"}>
-      <p class="font-semibold"><%= season.name %></p>
-      <p class="text-sm">
-        <%= season.year %>–<%= season.year + 1 %>
-        <span :if={@current_season == season.year}>&bull; Active Season</span>
-      </p>
+      <div class="flex items-center gap-4">
+        <div :if={season.logo_url} class="max-w-10">
+          <img src={season.logo_url} alt="Season Logo" />
+        </div>
+        <div>
+          <p class="font-semibold"><%= season.name %></p>
+          <p class="text-sm">
+            <%= season.year %>–<%= season.year + 1 %>
+            <span :if={@current_season == season.year}>&bull; Active Season</span>
+          </p>
+        </div>
+      </div>
     </:link>
   </.list>
 </.card>
