@@ -82,9 +82,9 @@ defmodule RMWeb.EventLive.Index do
 
     page_title =
       cond do
-        local_league -> "#{local_league.name} Events #{season}–#{season + 1}"
-        first_league -> "#{first_league.name} Events #{season}–#{season + 1}"
-        :else -> "#{region.name} Events #{season}–#{season + 1}"
+        local_league -> "#{local_league.name} Events in #{season}–#{season + 1}"
+        first_league -> "#{first_league.name} Events in #{season}–#{season + 1}"
+        :else -> "#{region.name} Events in #{season}–#{season + 1}"
       end
 
     assign(socket, events: events, page_title: page_title)
@@ -93,14 +93,13 @@ defmodule RMWeb.EventLive.Index do
   @spec group_by_league(Socket.t()) :: Socket.t()
   defp group_by_league(socket) do
     events = socket.assigns[:events]
-    region = socket.assigns[:region]
 
     grouped_events =
       Enum.group_by(events, fn event ->
         cond do
           event.local_league -> {1, event.local_league.name <> " League"}
           event.league -> {1, event.league.name <> " League"}
-          :else -> {0, region.name}
+          :else -> {0, ""}
         end
       end)
       |> Enum.map(fn {key, event_list} ->
@@ -124,7 +123,7 @@ defmodule RMWeb.EventLive.Index do
         if RM.FIRST.Event.event_passed?(event) do
           {1, "Past Events"}
         else
-          {0, "Upcoming Events"}
+          {0, ""}
         end
       end)
       |> Enum.map(fn {key, event_list} ->

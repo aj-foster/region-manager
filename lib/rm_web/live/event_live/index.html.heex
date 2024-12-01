@@ -1,52 +1,68 @@
-<.title>
-  <%= @season %>–<%= @season + 1 %> Events in <%= events_page_title(
-    @local_league,
-    @first_league,
-    @region
-  ) %>
-</.title>
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+/>
 
-<div
-  :if={@region.has_leagues and is_nil(@local_league) and is_nil(@first_league)}
-  class="flex font-title italic mb-8 small-caps"
->
-  <div class="border-b border-gray-400 w-4"></div>
+<.top_nav :if={is_nil(@local_league) and is_nil(@first_league)} class="mb-8">
+  <.nav_item
+    current={@socket.view}
+    navigate={~p"/s/#{@season}/r/#{@region}"}
+    target={RMWeb.RegionLive.Show}
+  >
+    Overview
+  </.nav_item>
+  <.nav_item
+    current={@socket.view}
+    navigate={~p"/s/#{@season}/r/#{@region}/events"}
+    target={RMWeb.EventLive.Index}
+  >
+    Events
+  </.nav_item>
+</.top_nav>
 
-  <%= if @sort == "upcoming" do %>
-    <div
-      class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
-      style="background-image: linear-gradient(to bottom, white, transparent)"
-    >
-      By Date
-    </div>
-  <% else %>
-    <.link_button
-      class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
-      phx-click="sort_upcoming"
-      style="plain"
-    >
-      By Date
-    </.link_button>
-  <% end %>
+<div class="flex flex-wrap gap-4 items-center justify-between mb-4 pl-6">
+  <.title flush>
+    Events in <%= events_page_title(
+      @local_league,
+      @first_league,
+      @region
+    ) %>
+  </.title>
 
-  <%= if @sort == "league" do %>
-    <div
-      class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
-      style="background-image: linear-gradient(to bottom, white, transparent)"
-    >
-      By League
-    </div>
-  <% else %>
-    <.link_button
-      class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
-      phx-click="sort_league"
-      style="plain"
-    >
-      By League
-    </.link_button>
-  <% end %>
+  <div
+    :if={@region.has_leagues and is_nil(@local_league) and is_nil(@first_league)}
+    class="bg-gray-800/5 h-10 inline-flex max-w-72 p-1 rounded-lg text-sm w-full"
+  >
+    <%= if @sort == "upcoming" do %>
+      <div class="bg-white flex flex-1 items-center justify-center rounded-md px-4 shadow-sm whitespace-nowrap">
+        By Date
+      </div>
+    <% else %>
+      <.link_button
+        class="flex flex-1 items-center justify-center px-4 rounded-md whitespace-nowrap"
+        phx-click="sort_upcoming"
+        style="plain"
+      >
+        By Date
+      </.link_button>
+    <% end %>
 
-  <div class="border-b border-gray-400 grow"></div>
+    <%= if @sort == "league" do %>
+      <div class="bg-white flex flex-1 items-center justify-center rounded-md px-4 shadow-sm whitespace-nowrap">
+        By League
+      </div>
+    <% else %>
+      <.link_button
+        class="flex flex-1 items-center justify-center px-4 rounded-md whitespace-nowrap"
+        phx-click="sort_league"
+        style="plain"
+      >
+        By League
+      </.link_button>
+    <% end %>
+  </div>
 </div>
 
 <div :for={{{_priority, title}, events} <- @grouped_events}>

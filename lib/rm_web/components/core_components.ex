@@ -15,6 +15,7 @@ defmodule RMWeb.CoreComponents do
   Icons are provided by [heroicons](https://heroicons.com). See `icon/1` for usage.
   """
   use Phoenix.Component
+  use RMWeb, :verified_routes
 
   alias Phoenix.LiveView.JS
 
@@ -166,6 +167,90 @@ defmodule RMWeb.CoreComponents do
         <%= render_slot(@inner_block) %>
       </div>
     </div>
+    """
+  end
+
+  @doc """
+  Links to higher level pages
+  """
+  attr :class, :string, default: nil, doc: "additional classes to apply"
+  attr :league, :any, default: nil, doc: "current league struct (local or FIRST), if any"
+  attr :region, RM.FIRST.Region, default: nil, doc: "current region, if any"
+  attr :season, :integer, default: nil, doc: "current season, if any"
+
+  def breadcrumbs(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:season, fn -> nil end)
+      |> assign_new(:region, fn -> nil end)
+      |> assign_new(:league, fn -> nil end)
+
+    ~H"""
+    <div class={["font-normal font-title italic ml-5 text-gray-500", @class]}>
+      <span :if={@season}>
+        <a class="mx-1" href={~p"/s/#{@season}"}><%= @season %>-<%= @season + 1 %></a> ⟩
+      </span>
+      <span :if={@region}>
+        <a class="mx-1" href={~p"/s/#{@season}/r/#{@region}"}><%= @region.name %></a> ⟩
+      </span>
+      <span :if={@league}>
+        <a class="mx-1" href={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}><%= @league.name %></a> ⟩
+      </span>
+    </div>
+    """
+  end
+
+  @doc """
+  Top-level navigation
+  """
+  attr :class, :string, default: nil, doc: "additional classes to apply"
+  slot :inner_block, required: true
+
+  def top_nav(assigns) do
+    ~H"""
+    <div class={["flex font-title italic small-caps", @class]}>
+      <div class="border-b border-gray-400 w-4"></div>
+      <%= render_slot(@inner_block) %>
+      <div class="border-b border-gray-400 grow"></div>
+    </div>
+    """
+  end
+
+  @doc """
+  Navigation tab item
+  """
+  attr :children, :list, default: [], doc: "LiveView modules where this link is active + enabled"
+  attr :current, :atom, required: true, doc: "`@socket.view`"
+  attr :navigate, :string, required: true, doc: "link destination"
+  attr :target, :atom, default: nil, doc: "LiveView module where this link is disabled"
+  slot :inner_block, required: true
+
+  def nav_item(assigns) do
+    ~H"""
+    <%= cond do %>
+      <% @current == @target -> %>
+        <div
+          class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
+          style="background-image: linear-gradient(to bottom, white, transparent)"
+        >
+          <%= render_slot(@inner_block) %>
+        </div>
+      <% @current in @children -> %>
+        <.link
+          class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
+          style="background-image: linear-gradient(to bottom, white, transparent)"
+          navigate={@navigate}
+        >
+          <%= render_slot(@inner_block) %>
+        </.link>
+      <% :else -> %>
+        <.link
+          class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
+          navigate={@navigate}
+        >
+          <%= render_slot(@inner_block) %>
+        </.link>
+    <% end %>
     """
   end
 
