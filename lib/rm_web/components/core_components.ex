@@ -174,27 +174,67 @@ defmodule RMWeb.CoreComponents do
   Links to higher level pages
   """
   attr :class, :string, default: nil, doc: "additional classes to apply"
+  attr :event, RM.FIRST.Event, default: nil, doc: "current event, if any"
+  attr :events, :boolean, default: false, doc: "whether viewing an event listing"
   attr :league, :any, default: nil, doc: "current league struct (local or FIRST), if any"
   attr :region, RM.FIRST.Region, default: nil, doc: "current region, if any"
   attr :season, :integer, default: nil, doc: "current season, if any"
 
   def breadcrumbs(assigns) do
-    assigns =
-      assigns
-      |> assign_new(:season, fn -> nil end)
-      |> assign_new(:region, fn -> nil end)
-      |> assign_new(:league, fn -> nil end)
-
     ~H"""
     <div class={["font-normal font-title italic ml-5 text-gray-500", @class]}>
       <span :if={@season}>
-        <a class="mx-1" href={~p"/s/#{@season}"}><%= @season %>-<%= @season + 1 %></a> ⟩
+        <.link class="mx-1" navigate={~p"/s/#{@season}"}><%= @season %>-<%= @season + 1 %></.link> ⟩
       </span>
       <span :if={@region}>
-        <a class="mx-1" href={~p"/s/#{@season}/r/#{@region}"}><%= @region.name %></a> ⟩
+        <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}"}><%= @region.name %></.link> ⟩
       </span>
       <span :if={@league}>
-        <a class="mx-1" href={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}><%= @league.name %></a> ⟩
+        <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}>
+          <%= @league.name %>
+        </.link>
+        ⟩
+      </span>
+      <span :if={@events}>
+        <.link :if={is_nil(@league)} class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/events"}>
+          Events
+        </.link>
+        <.link
+          :if={@league}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/events"}
+        >
+          Events
+        </.link>
+        ⟩
+      </span>
+      <span :if={@event}>
+        <.link :if={is_nil(@league)} class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/events"}>
+          Events
+        </.link>
+        <.link
+          :if={@league}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/events"}
+        >
+          Events
+        </.link>
+        ⟩
+        <.link
+          :if={is_nil(@league)}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/e/#{@event}"}
+        >
+          <%= @event.name %>
+        </.link>
+        <.link
+          :if={@league}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}"}
+        >
+          <%= @event.name %>
+        </.link>
+        ⟩
       </span>
     </div>
     """

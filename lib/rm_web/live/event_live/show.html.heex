@@ -1,6 +1,12 @@
-<.title>
-  <.link navigate={~p"/s/#{@season}/r/#{@region}/events"}>Events</.link> &bull; <%= @event.name %>
-</.title>
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  event={@event}
+/>
+
+<.title><%= @event.name %></.title>
 
 <.card spaced>
   <.table>

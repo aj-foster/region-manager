@@ -303,9 +303,11 @@ defmodule RMWeb.Live.Util do
     end
   end
 
-  def on_mount(:check_league, _params, _session, socket), do: {:cont, socket}
-  def on_mount(:check_region, _params, _session, socket), do: {:cont, socket}
-  def on_mount(:check_season, _params, _session, socket), do: {:cont, socket}
+  def on_mount(:check_league, _params, _session, socket),
+    do: {:cont, assign(socket, local_league: nil, first_league: nil)}
+
+  def on_mount(:check_region, _params, _session, socket), do: {:cont, assign(socket, region: nil)}
+  def on_mount(:check_season, _params, _session, socket), do: {:cont, assign(socket, season: nil)}
 
   def on_mount(:preload_user, _params, _session, socket) do
     case socket.assigns[:current_user] do

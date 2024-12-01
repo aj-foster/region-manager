@@ -3,6 +3,7 @@
   season={@season}
   region={@region}
   league={@local_league || @first_league}
+  events
 />
 
 <.top_nav :if={is_nil(@local_league) and is_nil(@first_league)} class="mb-8">
