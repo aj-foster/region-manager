@@ -17,6 +17,25 @@ defmodule RMWeb.EventLive.Registration do
   end
 
   #
+  # Events
+  #
+
+  @impl true
+  def handle_event(event, unsigned_params, socket)
+
+  def handle_event("team_registration_submit", _params, socket) do
+    socket
+    |> register_teams()
+    |> noreply()
+  end
+
+  def handle_event("team_select_change", %{"team-registration-select" => params}, socket) do
+    socket
+    |> select_teams(params)
+    |> noreply()
+  end
+
+  #
   # Helpers
   #
 
@@ -100,9 +119,60 @@ defmodule RMWeb.EventLive.Registration do
           end
         end)
 
-      assign(socket, teams: teams, teams_count: length(teams))
+      assign(socket, selected: [], selected_count: 0, teams: teams, teams_count: length(teams))
     else
-      assign(socket, teams: [], teams_count: 0)
+      assign(socket, selected: [], selected_count: 0, teams: [], teams_count: 0)
     end
+  end
+
+  @spec refresh_registrations(Socket.t()) :: Socket.t()
+  defp refresh_registrations(socket) do
+    event =
+      socket.assigns[:event]
+      |> RM.Repo.preload([registrations: [team: [:league, :region]]], force: true)
+
+    socket
+    |> assign(event: event)
+    |> assign_event_metadata()
+    |> assign_teams()
+  end
+
+  @spec register_teams(Socket.t()) :: Socket.t()
+  defp register_teams(socket) do
+    event = socket.assigns[:event]
+    teams = Enum.map(socket.assigns[:selected], & &1.team)
+    user = socket.assigns[:current_user]
+
+    registrations =
+      RM.Local.create_event_registrations(event, teams, %{by: user, waitlisted: false})
+
+    if length(registrations) == length(teams) do
+      put_flash(socket, :info, "#{dumb_inflect("team", registrations)} registered successfully")
+    else
+      put_flash(socket, :error, "Not all teams were successfully registered; please try again")
+    end
+    |> refresh_registrations()
+    |> push_js("#team-registration-confirm", "data-cancel")
+  end
+
+  @spec select_teams(Socket.t(), map) :: Socket.t()
+  defp select_teams(socket, params) do
+    team_numbers =
+      params
+      |> Enum.filter(fn {_team_number, value} -> value in ["true", true] end)
+      |> Enum.map(fn {team_number, _value} ->
+        case Integer.parse(team_number) do
+          {number, ""} -> number
+          :error -> nil
+        end
+      end)
+
+    selected_teams =
+      socket.assigns[:teams]
+      |> Enum.filter(& &1.eligible?)
+      |> Enum.filter(&(&1.status == :unregistered))
+      |> Enum.filter(&(&1.team.number in team_numbers))
+
+    assign(socket, selected: selected_teams, selected_count: length(selected_teams))
   end
 end

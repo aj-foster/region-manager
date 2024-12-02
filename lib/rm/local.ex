@@ -281,6 +281,14 @@ defmodule RM.Local do
     |> Repo.insert()
   end
 
+  @spec create_event_registrations(Event.t(), [Team.t()], map) :: [EventRegistration.t()]
+  def create_event_registrations(event, teams, params) do
+    to_insert = Enum.map(teams, &EventRegistration.create_params(event, &1, params))
+    {_count, registrations} = Repo.insert_all(EventRegistration, to_insert, returning: true)
+
+    registrations
+  end
+
   @spec rescind_event_registration(EventRegistration.t(), map) ::
           {:ok, EventRegistration.t()} | {:error, Changeset.t(EventRegistration.t())}
   def rescind_event_registration(registration, params) do

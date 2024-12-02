@@ -39,6 +39,19 @@ defmodule RM.Local.EventRegistration do
     |> Changeset.put_embed(:log, [Log.new("created", params)])
   end
 
+  @doc "Create a map containing params for `insert_all`"
+  @spec create_params(Event.t(), Team.t(), map) :: map
+  def create_params(event, team, params) do
+    now = DateTime.utc_now()
+
+    create_changeset(event, team, params)
+    |> Changeset.apply_changes()
+    |> Map.take([:rescinded, :waitlisted, :event_id, :team_id, :log])
+    |> Map.put(:id, Ecto.UUID.generate())
+    |> Map.put(:inserted_at, now)
+    |> Map.put(:updated_at, now)
+  end
+
   @doc "Create a changeset for rescinding an event registration"
   @spec rescind_changeset(t, map) :: Changeset.t(t)
   def rescind_changeset(registration, params) do

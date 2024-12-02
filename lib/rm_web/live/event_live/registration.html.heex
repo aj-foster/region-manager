@@ -91,28 +91,26 @@
     </.card>
 
     <.card :if={@teams != []} padding={false} spaced>
-      <form id="event-registration-submission-form" phx-submit="event_registration_submit">
+      <form id="team-registration-select-form" phx-change="team_select_change">
         <.list>
           <:item :for={%{team: team} = info <- @teams} class="px-4 py-2 relative">
             <input
-              id={"event-registration-include-#{team.number}-hidden"}
-              name={"event-registration-include[#{team.number}]"}
+              id={"team-registration-select-#{team.number}-hidden"}
+              name={"team-registration-select[#{team.number}]"}
               type="hidden"
               value="false"
             />
             <input
+              checked={@teams_count == 1}
               class="absolute left-8 opacity-0 peer"
               disabled={not info.eligible? or info.status != :unregistered}
-              id={"event-registration-include-#{team.number}"}
-              name={"event-registration-include[#{team.number}]"}
+              id={"team-registration-select-#{team.number}"}
+              name={"team-registration-select[#{team.number}]"}
               type="checkbox"
               value="true"
             />
 
-            <label
-              class="flex items-center group"
-              for={"event-registration-include-#{team.number}"}
-            >
+            <label class="flex items-center group" for={"team-registration-select-#{team.number}"}>
               <div class="bg-slate-300 flex h-5 items-center rounded-sm w-5 peer-checked:group-[]:bg-emerald-200 peer-disabled:group-[]:bg-slate-100 peer-disabled:group-[]:cursor-not-allowed">
                 <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
               </div>
@@ -145,6 +143,14 @@
           </:item>
         </.list>
       </form>
+      <p class="px-4 py-2 text-right">
+        <.button
+          disabled={@selected_count == 0}
+          phx-click={show_modal("team-registration-confirm")}
+        >
+          Register <%= dumb_inflect("Team", @selected_count) %>...
+        </.button>
+      </p>
     </.card>
   <% else %>
     <.card :if={is_nil(@current_user)} spaced>
@@ -210,6 +216,30 @@
       or since coaching information was updated. Contact them to check on the status of your team.
     </li>
   </ul>
+</.modal>
+
+<.modal id="team-registration-confirm">
+  <.title flush class="mb-4">Confirm Registration</.title>
+  <p class="mb-4">
+    Please register for events when you are reasonably certain that your team will attend. If your ability to attend changes, please contact the event host as soon as possible.
+  </p>
+  <p class="mb-4">
+    You are about to register the following teams for <%= @event.name %> on <%= format_range(
+      @event.date_start,
+      @event.date_end
+    ) %>:
+  </p>
+  <.list class="-mx-4 mb-4">
+    <:item :for={%{team: team} <- @selected} class="px-4 py-2">
+      <h3>
+        <strong><%= team.number %></strong>
+        <%= team.name %>
+      </h3>
+    </:item>
+  </.list>
+  <p class="text-right">
+    <.button phx-click="team_registration_submit">Confirm Registration</.button>
+  </p>
 </.modal>
 
 <.live_component
