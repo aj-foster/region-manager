@@ -1,5 +1,6 @@
 defmodule RMWeb.EventLive.Registration do
   use RMWeb, :live_view
+  require Logger
 
   alias RM.FIRST.Event
 
@@ -13,6 +14,7 @@ defmodule RMWeb.EventLive.Registration do
     |> assign_event(event_code)
     |> assign_event_metadata()
     |> assign_teams()
+    |> assign(edit_registration: nil)
     |> ok()
   end
 
@@ -23,9 +25,25 @@ defmodule RMWeb.EventLive.Registration do
   @impl true
   def handle_event(event, unsigned_params, socket)
 
+  def handle_event("edit_registration_init", %{"team" => team_number_str}, socket) do
+    socket
+    |> edit_registration_init(team_number_str)
+    |> noreply()
+  end
+
+  def handle_event("rescind_submit", _params, socket) do
+    socket
+    |> push_js("#team-registration-change", "data-cancel")
+    |> rescind_submit()
+    |> refresh_registrations()
+    |> noreply()
+  end
+
   def handle_event("team_registration_submit", _params, socket) do
     socket
+    |> push_js("#team-registration-confirm", "data-cancel")
     |> register_teams()
+    |> refresh_registrations()
     |> noreply()
   end
 
@@ -125,6 +143,23 @@ defmodule RMWeb.EventLive.Registration do
     end
   end
 
+  @spec edit_registration_init(Socket.t(), String.t()) :: Socket.t()
+  defp edit_registration_init(socket, team_number_str) do
+    registrations = socket.assigns[:event].registrations
+    teams = socket.assigns[:teams]
+
+    with {number, ""} <- Integer.parse(team_number_str),
+         %{team: %RM.Local.Team{id: team_id}} <- Enum.find(teams, &(&1.team.number == number)),
+         %RM.Local.EventRegistration{} = r <- Enum.find(registrations, &(&1.team.id == team_id)) do
+      socket
+      |> assign(edit_registration: r)
+      |> push_js("#team-registration-change", "data-show")
+    else
+      _ ->
+        put_flash(socket, :error, "An error occurred while changing registration")
+    end
+  end
+
   @spec refresh_registrations(Socket.t()) :: Socket.t()
   defp refresh_registrations(socket) do
     event =
@@ -151,8 +186,21 @@ defmodule RMWeb.EventLive.Registration do
     else
       put_flash(socket, :error, "Not all teams were successfully registered; please try again")
     end
-    |> refresh_registrations()
-    |> push_js("#team-registration-confirm", "data-cancel")
+  end
+
+  @spec rescind_submit(Socket.t()) :: Socket.t()
+  defp rescind_submit(socket) do
+    registration = socket.assigns[:edit_registration]
+    user = socket.assigns[:current_user]
+
+    case RM.Local.rescind_event_registration(registration, %{by: user}) do
+      {:ok, _registration} ->
+        put_flash(socket, :info, "Registration rescinded")
+
+      {:error, changeset} ->
+        Logger.error("Failed to rescind registration for event: #{inspect(changeset)}")
+        put_flash(socket, :error, "An error occurred; please contact support")
+    end
   end
 
   @spec select_teams(Socket.t(), map) :: Socket.t()

@@ -102,7 +102,10 @@
       </p>
       <form id="team-registration-select-form" phx-change="team_select_change">
         <.list>
-          <:item :for={%{team: team} = info <- @teams} class="px-4 py-2 relative">
+          <:item
+            :for={%{team: team} = info <- @teams}
+            class="flex items-center px-4 py-2 relative"
+          >
             <input
               id={"team-registration-select-#{team.number}-hidden"}
               name={"team-registration-select[#{team.number}]"}
@@ -119,7 +122,10 @@
               value="true"
             />
 
-            <label class="flex items-center group" for={"team-registration-select-#{team.number}"}>
+            <label
+              class="flex grow items-center group"
+              for={"team-registration-select-#{team.number}"}
+            >
               <div class="bg-slate-300 flex h-5 items-center rounded w-5 peer-checked:group-[]:bg-emerald-300 peer-disabled:group-[]:bg-slate-100 peer-disabled:group-[]:cursor-not-allowed">
                 <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
               </div>
@@ -149,6 +155,17 @@
                 </p>
               </div>
             </label>
+            <div>
+              <.button
+                :if={info.status in [:attending, :waitlisted]}
+                form=""
+                phx-click="edit_registration_init"
+                phx-value-team={team.number}
+                style="tertiary"
+              >
+                <.icon name="hero-pencil-square" />
+              </.button>
+            </div>
           </:item>
         </.list>
       </form>
@@ -254,6 +271,33 @@
   </p>
   <p class="text-right">
     <.button phx-click="team_registration_submit">Confirm Registration</.button>
+  </p>
+</.modal>
+
+<.modal id="team-registration-change">
+  <.title class="mb-4" flush>
+    Change Registration
+  </.title>
+  <p class="mb-4">You are changing the registration for this event:</p>
+  <p class="mb-4 pl-6">
+    <%= @event.name %><br />
+    <%= format_range(@event.date_start, @event.date_end) %>
+  </p>
+  <p class="mb-4">
+    For the following team:
+  </p>
+  <p class="mb-4 pl-6">
+    <strong><%= @edit_registration && @edit_registration.team.number %></strong>
+    <%= @edit_registration && @edit_registration.team.name %>
+  </p>
+  <p class="mb-4">
+    If your team is no longer able to attend, you can rescind your registration.
+    Please also <strong>contact the event host</strong>
+    directly to inform them of your change in plans.
+  </p>
+  <p class="mb-4">You cannot renew a registration once rescinded.</p>
+  <p class="text-right">
+    <.button phx-click="rescind_submit">Rescind Registration</.button>
   </p>
 </.modal>
 
