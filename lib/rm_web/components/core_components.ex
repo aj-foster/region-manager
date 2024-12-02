@@ -530,7 +530,7 @@ defmodule RMWeb.CoreComponents do
   end
 
   @button_class "font-semibold leading-6 py-1 px-2 rounded transition-colors phx-submit-loading:opacity-75"
-  @button_primary_class "bg-orange-500 text-white active:text-white/80 disabled:bg-orange-400 disabled:cursor-not-allowed hover:bg-orange-400"
+  @button_primary_class "bg-orange-500 text-white active:text-white/80 disabled:bg-orange-300 disabled:cursor-not-allowed hover:bg-orange-400"
   @button_secondary_class "bg-transparent border border-orange-500 text-orange-600 disabled:border-orange-400 disabled:cursor-not-allowed disabled:text-orange-400 hover:bg-orange-50"
   @button_tertiary_class "bg-transparent border border-transparent disabled:cursor-not-allowed disabled:text-neutral-800 hover:text-orange-600"
 

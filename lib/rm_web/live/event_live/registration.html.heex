@@ -91,6 +91,15 @@
     </.card>
 
     <.card :if={@teams != []} padding={false} spaced>
+      <p class="mb-4 mx-4 mt-2 text-sm">
+        Select teams below to register.
+        <button
+          class="italic text-orange-600 underline"
+          phx-click={show_modal("event-registration-team-list-info")}
+        >
+          Where are my teams?
+        </button>
+      </p>
       <form id="team-registration-select-form" phx-change="team_select_change">
         <.list>
           <:item :for={%{team: team} = info <- @teams} class="px-4 py-2 relative">
@@ -111,7 +120,7 @@
             />
 
             <label class="flex items-center group" for={"team-registration-select-#{team.number}"}>
-              <div class="bg-slate-300 flex h-5 items-center rounded-sm w-5 peer-checked:group-[]:bg-emerald-200 peer-disabled:group-[]:bg-slate-100 peer-disabled:group-[]:cursor-not-allowed">
+              <div class="bg-slate-300 flex h-5 items-center rounded w-5 peer-checked:group-[]:bg-emerald-300 peer-disabled:group-[]:bg-slate-100 peer-disabled:group-[]:cursor-not-allowed">
                 <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
               </div>
               <div class="grow min-w-0 ml-4 text-ellipsis whitespace-nowrap">
@@ -206,9 +215,12 @@
         class="underline"
         href="https://my.firstinspires.org/Dashboard/"
         target="blank"
-      ><em>FIRST®</em> Dashboard</a>.
+      ><em>FIRST</em> Dashboard</a>.
       Ensure you register <strong>and confirm</strong>
       this address in your <.link class="underline" navigate={~p"/user/settings"}>settings</.link>.
+    </li>
+    <li class="mb-4">
+      You have not yet paid this season's registration fee with <em>FIRST®</em>.
     </li>
     <li class="mb-4">
       Your region's <em>Program Delivery Partner</em>
@@ -220,16 +232,15 @@
 
 <.modal id="team-registration-confirm">
   <.title flush class="mb-4">Confirm Registration</.title>
-  <p class="mb-4">
-    Please register for events when you are reasonably certain that your team will attend. If your ability to attend changes, please contact the event host as soon as possible.
+  <p class="mb-4">You are about to register for this event:</p>
+  <p class="mb-4 pl-6">
+    <%= @event.name %><br />
+    <%= format_range(@event.date_start, @event.date_end) %>
   </p>
   <p class="mb-4">
-    You are about to register the following teams for <%= @event.name %> on <%= format_range(
-      @event.date_start,
-      @event.date_end
-    ) %>:
+    For the following teams:
   </p>
-  <.list class="-mx-4 mb-4">
+  <.list class="-mx-4 mb-4 pl-6">
     <:item :for={%{team: team} <- @selected} class="px-4 py-2">
       <h3>
         <strong><%= team.number %></strong>
@@ -237,6 +248,10 @@
       </h3>
     </:item>
   </.list>
+  <p class="mb-4">
+    Please register for events when you are reasonably certain that your team will attend.
+    If your ability to attend changes, contact the event host as soon as possible and rescind your registration here in <strong>Region Manager</strong>.
+  </p>
   <p class="text-right">
     <.button phx-click="team_registration_submit">Confirm Registration</.button>
   </p>
