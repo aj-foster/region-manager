@@ -23,6 +23,23 @@
   </.nav_item>
 </.top_nav>
 
+<.top_nav :if={@local_league || @first_league} class="mb-8">
+  <.nav_item
+    current={@socket.view}
+    navigate={~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}"}
+    target={RMWeb.LeagueLive.Show}
+  >
+    Overview
+  </.nav_item>
+  <.nav_item
+    current={@socket.view}
+    navigate={~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/events"}
+    target={RMWeb.EventLive.Index}
+  >
+    Events
+  </.nav_item>
+</.top_nav>
+
 <div class="flex flex-wrap gap-4 items-center justify-between mb-4 pl-6">
   <.title flush>
     Events in <%= events_page_title(

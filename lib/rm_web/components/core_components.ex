@@ -193,7 +193,7 @@ defmodule RMWeb.CoreComponents do
       </span>
       <span :if={@league} class="whitespace-nowrap">
         <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}>
-          <%= @league.name %>
+          <%= RM.Local.League.shorten_name(@league.name, @region) %>
         </.link>
         ⟩
       </span>
@@ -1207,5 +1207,16 @@ defmodule RMWeb.CoreComponents do
 
   def format_range(start, finish) do
     format_date(start, :date) <> " – " <> format_date(finish, :date)
+  end
+
+  @doc """
+  Add "League" to the end of a league name if it is missing
+  """
+  @spec format_league_name(String.t()) :: String.t()
+  def format_league_name(league_name) do
+    if String.match?(league_name, ~r/league\s*/i) do
+      league_name
+    else
+    end
   end
 end

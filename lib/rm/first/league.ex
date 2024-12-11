@@ -51,6 +51,7 @@ defmodule RM.FIRST.League do
 
     embeds_one :stats, Stats, on_replace: :delete, primary_key: false do
       field :event_count, :integer, default: 0
+      field :events_imported_at, :utc_datetime_usec
       field :league_count, :integer, default: 0
       field :team_count, :integer, default: 0
     end
