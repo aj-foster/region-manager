@@ -640,9 +640,11 @@ defmodule RMWeb.CoreComponents do
   slot :inner_block
 
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+    errors = if Phoenix.Component.used_input?(field), do: field.errors, else: []
+
     assigns
     |> assign(field: nil, id: assigns.id || field.id)
-    |> assign(:errors, Enum.map(field.errors, &translate_error(&1)))
+    |> assign(:errors, Enum.map(errors, &translate_error(&1)))
     |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
     |> assign_new(:value, fn -> field.value end)
     |> input()
@@ -655,7 +657,7 @@ defmodule RMWeb.CoreComponents do
       end)
 
     ~H"""
-    <div class={@wrapper} phx-feedback-for={@name}>
+    <div class={@wrapper}>
       <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
         <input type="hidden" name={@name} value="false" />
         <input
@@ -678,7 +680,7 @@ defmodule RMWeb.CoreComponents do
     assigns = assign_new(assigns, :field_is_required, fn -> assigns.rest[:required] == true end)
 
     ~H"""
-    <div class={@wrapper} phx-feedback-for={@name}>
+    <div class={@wrapper}>
       <.label :if={@label} for={@id}>
         <%= @label %>
         <span :if={@field_is_required} class="text-orange-500"> *</span>
@@ -706,7 +708,7 @@ defmodule RMWeb.CoreComponents do
     assigns = assign_new(assigns, :field_is_required, fn -> assigns.rest[:required] == true end)
 
     ~H"""
-    <div class={@wrapper} phx-feedback-for={@name}>
+    <div class={@wrapper}>
       <.label for={@id}>
         <%= @label %>
         <span :if={@field_is_required} class="text-orange-500"> *</span>
@@ -719,8 +721,7 @@ defmodule RMWeb.CoreComponents do
         id={@id}
         name={@name}
         class={[
-          "block mt-2 w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          "block mt-2 w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6 min-h-[6rem]",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-orange-500 focus:border-orange-500"
         ]}
@@ -736,7 +737,7 @@ defmodule RMWeb.CoreComponents do
     assigns = assign_new(assigns, :field_is_required, fn -> assigns.rest[:required] == true end)
 
     ~H"""
-    <div class={@wrapper} phx-feedback-for={@name}>
+    <div class={@wrapper}>
       <.label for={@id}>
         <%= @label %>
         <span :if={@field_is_required} class="text-orange-500"> *</span>
@@ -752,7 +753,6 @@ defmodule RMWeb.CoreComponents do
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
           "block mt-2 w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-orange-500 focus:border-orange-500"
         ]}
@@ -802,7 +802,7 @@ defmodule RMWeb.CoreComponents do
       |> assign_new(:field_is_required, fn -> assigns.rest[:required] == true end)
 
     ~H"""
-    <div class={["group", @wrapper]} phx-feedback-for={@name}>
+    <div class={["group", @wrapper]}>
       <label class="flex items-start gap-2 relative text-sm">
         <input type="hidden" name={@name} value="false" />
         <div class="relative">
@@ -910,7 +910,7 @@ defmodule RMWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="ml-4 mt-2 flex gap-2 text-sm leading-6 text-orange-600 phx-no-feedback:hidden">
+    <p class="ml-4 mt-2 flex gap-2 text-sm leading-6 text-orange-600">
       <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none bg-orange-500" />
       <%= render_slot(@inner_block) %>
     </p>
