@@ -88,7 +88,14 @@
 
   <.card padding={false} spaced>
     <.list>
-      <:link :for={event <- events} navigate={~p"/s/#{@season}/r/#{@region}/e/#{event}"}>
+      <:link
+        :for={event <- events}
+        navigate={
+          if @local_league || @first_league,
+            do: ~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/e/#{event}",
+            else: ~p"/s/#{@season}/r/#{@region}/e/#{event}"
+        }
+      >
         <h3 class="font-bold"><%= event.name %></h3>
         <p class="text-sm">
           <span><%= format_range(event.date_start, event.date_end) %></span>
