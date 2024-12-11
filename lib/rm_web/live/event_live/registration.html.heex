@@ -206,7 +206,12 @@
   <.title>
     Registered Teams (<%= @registered_teams_count %>)
     <:action>
-      <.button phx-click={show_modal("team-export-modal")} style="tertiary" target="blank">
+      <.button
+        :if={@current_user}
+        phx-click={show_modal("team-export-modal")}
+        style="tertiary"
+        target="blank"
+      >
         Export <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-down-tray" />
       </.button>
     </:action>
@@ -315,6 +320,7 @@
 </.modal>
 
 <.live_component
+  :if={@current_user}
   context="Registered"
   id="team-export"
   module={RMWeb.Components.TeamExport}
