@@ -175,6 +175,7 @@ defmodule RMWeb.CoreComponents do
   """
   attr :class, :string, default: nil, doc: "additional classes to apply"
   attr :event, RM.FIRST.Event, default: nil, doc: "current event, if any"
+  attr :event_settings, :boolean, default: false, doc: "whether viewing an event settings page"
   attr :events, :boolean, default: false, doc: "whether viewing an event listing"
   attr :league, :any, default: nil, doc: "current league struct (local or FIRST), if any"
   attr :region, RM.FIRST.Region, default: nil, doc: "current region, if any"
@@ -185,7 +186,7 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <div class={["font-normal font-title italic ml-5 text-gray-500", @class]}>
       <span :if={@season} class="whitespace-nowrap">
-        <.link class="mx-1" navigate={~p"/s/#{@season}"}><%= @season %>-<%= @season + 1 %></.link> ⟩
+        <.link class="mx-1" navigate={~p"/s/#{@season}"}><%= @season %>–<%= @season + 1 %></.link> ⟩
       </span>
       <span :if={@region} class="whitespace-nowrap">
         <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}"}><%= @region.name %></.link> ⟩
@@ -196,7 +197,7 @@ defmodule RMWeb.CoreComponents do
         </.link>
         ⟩
       </span>
-      <span :if={@events} class="whitespace-nowrap">
+      <span :if={@events || @event} class="whitespace-nowrap">
         <.link :if={is_nil(@league)} class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/events"}>
           Events
         </.link>
@@ -226,7 +227,7 @@ defmodule RMWeb.CoreComponents do
         </.link>
         ⟩
       </span>
-      <span :if={@events && @registration} class="whitespace-nowrap">
+      <span :if={@event && @registration} class="whitespace-nowrap">
         <.link
           :if={is_nil(@league)}
           class="mx-1"
@@ -240,6 +241,23 @@ defmodule RMWeb.CoreComponents do
           navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}/registration"}
         >
           Registration
+        </.link>
+        ⟩
+      </span>
+      <span :if={@event && @event_settings} class="whitespace-nowrap">
+        <.link
+          :if={is_nil(@league)}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/e/#{@event}/settings"}
+        >
+          Settings
+        </.link>
+        <.link
+          :if={@league}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}/settings"}
+        >
+          Settings
         </.link>
         ⟩
       </span>

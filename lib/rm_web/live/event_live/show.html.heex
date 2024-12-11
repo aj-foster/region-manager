@@ -31,6 +31,19 @@
   >
     Registration
   </.nav_item>
+  <.nav_item
+    :if={can?(@current_user, :registration_settings_update, @event)}
+    current={@socket.view}
+    navigate={
+      if @local_league || @first_league,
+        do:
+          ~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/e/#{@event}/settings",
+        else: ~p"/s/#{@season}/r/#{@region}/e/#{@event}/settings"
+    }
+    target={RMWeb.EventLive.Settings}
+  >
+    Settings
+  </.nav_item>
 </.top_nav>
 
 <.title><%= @event.name %></.title>
