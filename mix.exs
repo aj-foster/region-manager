@@ -38,7 +38,8 @@ defmodule RM.MixProject do
       {:ecto_sql, "~> 3.10"},
       {:elixlsx, "~> 0.6.0"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
-      {:eqrcode, "~> 0.1.10"},
+      # identity wants ~> 0.1.0
+      {:eqrcode, "~> 0.2.0", override: true},
       {:ex_aws, "~> 2.5"},
       {:ex_aws_s3, "~> 2.5"},
       {:ex_machina, "~> 2.8", only: :test},
