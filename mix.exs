@@ -38,8 +38,7 @@ defmodule RM.MixProject do
       {:ecto_sql, "~> 3.10"},
       {:elixlsx, "~> 0.6.0"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
-      # identity wants ~> 0.1.0
-      {:eqrcode, "~> 0.2.0", override: true},
+      {:eqrcode, "~> 0.2.0"},
       {:ex_aws, "~> 2.5"},
       {:ex_aws_s3, "~> 2.5"},
       {:ex_machina, "~> 2.8", only: :test},
@@ -57,8 +56,7 @@ defmodule RM.MixProject do
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_dashboard, "~> 0.8.2"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      # identity wants ~> 0.17
-      {:phoenix_live_view, "~> 1.0.0", override: true},
+      {:phoenix_live_view, "~> 1.0.0"},
       {:postgrex, ">= 0.0.0"},
       {:req, "~> 0.5.0"},
       {:sweet_xml, "~> 0.7.4"},
