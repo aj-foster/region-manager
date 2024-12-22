@@ -7,7 +7,7 @@ jobs:
   build:
     name: "Build"
     runs-on: ubuntu-latest
-    container: hexpm/elixir:1.17.2-erlang-27.0.1-debian-bookworm-20240812
+    container: hexpm/elixir:1.18.0-erlang-27.2-debian-bookworm-20241202
     env:
       MIX_ENV: prod
     steps:
