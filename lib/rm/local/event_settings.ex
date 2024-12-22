@@ -11,16 +11,21 @@ defmodule RM.Local.EventSettings do
           event: Event.t(),
           event_id: Ecto.UUID.t(),
           id: Ecto.UUID.t(),
-          registration: RegistrationSettings.t()
+          registration: RegistrationSettings.t(),
+          video_submission: boolean,
+          video_submission_date: Date.t(),
+          virtual: boolean
         }
 
-  @required_fields [:event_id, :virtual]
-  @optional_fields []
+  @required_fields [:event_id, :video_submission, :virtual]
+  @optional_fields [:video_submission_date]
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
   schema "event_settings" do
+    field :video_submission, :boolean
+    field :video_submission_date, :date
     field :virtual, :boolean
     embeds_one :registration, RegistrationSettings, on_replace: :update
 
@@ -74,6 +79,8 @@ defmodule RM.Local.EventSettings do
 
     %{
       event_id: event.id,
+      video_submission: false,
+      video_submission_date: nil,
       virtual: false,
       registration: %RegistrationSettings{
         deadline_days: deadline_days,
