@@ -13,43 +13,43 @@
 </.warning>
 
 <.title>
-  <.link navigate={~p"/team/#{@team}/events"}>Events</.link> &bull; <%= @event.name %>
+  <.link navigate={~p"/team/#{@team}/events"}>Events</.link> &bull; {@event.name}
 </.title>
 
 <.card spaced>
   <.table class="mb-4">
-    <:row title="Name"><%= @event.name %></:row>
-    <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
-    <:row title="Type"><%= Event.type_name(@event.type) %></:row>
-    <:row title="Format"><%= Event.format_name(@event) %></:row>
+    <:row title="Name">{@event.name}</:row>
+    <:row title="Date">{format_range(@event.date_start, @event.date_end)}</:row>
+    <:row title="Type">{Event.type_name(@event.type)}</:row>
+    <:row title="Format">{Event.format_name(@event)}</:row>
     <:row title="Location">
-      <span :if={@event.location.venue} class="block"><%= @event.location.venue %></span>
-      <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
-      <span :if={@event.location.city}><%= @event.location.city %>,</span>
-      <span :if={@event.location.state_province}><%= @event.location.state_province %>,</span>
+      <span :if={@event.location.venue} class="block">{@event.location.venue}</span>
+      <span :if={@event.location.address} class="block">{@event.location.address}</span>
+      <span :if={@event.location.city}>{@event.location.city},</span>
+      <span :if={@event.location.state_province}>{@event.location.state_province},</span>
       <span>
-        <%= @event.location.country || "Unknown Location" %>
+        {@event.location.country || "Unknown Location"}
       </span>
     </:row>
     <:row :if={@event.website} title="Website">
-      <a class="underline" href={@event.website} target="blank"><%= @event.website %></a>
+      <a class="underline" href={@event.website} target="blank">{@event.website}</a>
     </:row>
     <:row :if={@event.live_stream_url} title="Live Stream">
       <a class="underline" href={@event.live_stream_url} target="blank">
-        <%= @event.live_stream_url %>
+        {@event.live_stream_url}
       </a>
     </:row>
-    <:row title="Region"><%= @event.region.name %></:row>
+    <:row title="Region">{@event.region.name}</:row>
     <:row :if={@event.region.has_leagues} title="League">
-      <%= if @event.league, do: @event.league.name, else: "No League Assignment" %>
+      {if @event.league, do: @event.league.name, else: "No League Assignment"}
     </:row>
   </.table>
 
   <p class="text-sm">
-    This data is provided by <em>FIRST®</em>. It was last imported on <%= format_date(
+    This data is provided by <em>FIRST®</em>. It was last imported on {format_date(
       @event.region.stats.events_imported_at,
       :date
-    ) %>.
+    )}.
   </p>
 </.card>
 
@@ -83,19 +83,19 @@
 </.card>
 
 <.card :if={@event.settings.registration.enabled}>
-  <.warning :if={@registration_error} class="mb-4"><%= @registration_error %></.warning>
+  <.warning :if={@registration_error} class="mb-4">{@registration_error}</.warning>
   <%= if @registration do %>
     <%= if @registration.rescinded do %>
       <p class="mb-4">
         The registration for this team was <strong>rescinded</strong>
-        on <%= format_date(
+        on {format_date(
           @registration.updated_at,
           :date
-        ) %>.
+        )}.
       </p>
     <% else %>
       <p class="mb-4">
-        This team registered for the event on <%= format_date(@registration.inserted_at, :date) %>.
+        This team registered for the event on {format_date(@registration.inserted_at, :date)}.
       </p>
     <% end %>
   <% end %>
@@ -109,7 +109,7 @@
           <span class="text-green-600">Open</span>
         <% :else -> %>
           <span class="text-orange-600">
-            Opens <%= format_date(Event.registration_opens(@event), :date) %>
+            Opens {format_date(Event.registration_opens(@event), :date)}
           </span>
       <% end %>
     </:row>
@@ -120,9 +120,9 @@
         <span class="text-red-600">No</span>
         <span :if={@eligibility_reason == :not_event_ready}>(Not event ready)</span>
         <span :if={@eligibility_reason == :out_of_scope}>
-          (Not in <%= if @event.settings.registration.pool == :league,
+          (Not in {if @event.settings.registration.pool == :league,
             do: "league",
-            else: "region" %>)
+            else: "region"})
         </span>
         <span :if={@eligibility_reason == :deadline_passed}>(Deadline passed)</span>
         <span :if={@eligibility_reason == :too_early}>(Registration not yet open)</span>
@@ -133,16 +133,16 @@
       <span>(Registration rescinded)</span>
     </:row>
     <:row title="Deadline">
-      <%= format_date(Event.registration_deadline(@event), :full) %>
+      {format_date(Event.registration_deadline(@event), :full)}
     </:row>
     <:row :if={@event.settings.registration.team_limit} title="Capacity">
       <span class="font-mono text-sm">
         <.async_result :let={teams} assign={@registered_teams}>
           <:loading>...</:loading>
           <:failed>?</:failed>
-          <%= length(teams) %>
+          {length(teams)}
         </.async_result>
-        / <%= @event.settings.registration.team_limit %>
+        / {@event.settings.registration.team_limit}
       </span>
       filled
     </:row>
@@ -151,9 +151,9 @@
         <% :all -> %>
           All Teams
         <% :league -> %>
-          Teams in <%= if(@event.league, do: @event.league.name <> " League", else: "league") %>
+          Teams in {if(@event.league, do: @event.league.name <> " League", else: "league")}
         <% :region -> %>
-          Teams in <%= @event.region.name %>
+          Teams in {@event.region.name}
       <% end %>
     </:row>
     <:row title="Registered Teams">
@@ -165,7 +165,7 @@
           <p class="text-sm">An error occurred while loading teams.</p>
         </:failed>
         <ul :if={length(teams) > 0}>
-          <li :for={team <- teams}><strong><%= team.number %></strong> <%= team.name %></li>
+          <li :for={team <- teams}><strong>{team.number}</strong> {team.name}</li>
         </ul>
         <p :if={length(teams) == 0} class="italic">None</p>
       </.async_result>
@@ -174,7 +174,7 @@
 </.card>
 
 <.modal id="create-registration-modal">
-  <.title class="mb-4" flush>Register for <%= @event.name %></.title>
+  <.title class="mb-4" flush>Register for {@event.name}</.title>
   <p class="mb-4">
     Please register for events when you are reasonably certain that your team will attend.
     If your ability to attend changes, please contact the event host as soon as possible.
@@ -186,7 +186,7 @@
 
 <.modal id="change-registration-modal">
   <.title class="mb-4" flush>
-    Change Registration for <%= @event.name %>
+    Change Registration for {@event.name}
   </.title>
   <p class="mb-4">
     If your team is no longer able to attend, you can rescind your registration.

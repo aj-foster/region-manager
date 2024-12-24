@@ -2,7 +2,7 @@
 
 <div class="mb-8">
   <.title :if={is_nil(@event)}>Propose an Event</.title>
-  <.title :if={@event}>Create Proposal for <%= @event.name %></.title>
+  <.title :if={@event}>Create Proposal for {@event.name}</.title>
 
   <.card :if={is_nil(@event)} spaced>
     <p class="text-sm">
@@ -44,7 +44,7 @@
       <.button phx-click={show_modal("add-venue-modal")}>Add Venue...</.button>
     </div>
     <.error :for={msg <- Enum.map(@event_form[:venue].errors, &translate_error/1)}>
-      <%= msg %>
+      {msg}
     </.error>
   </.card>
 

@@ -1,6 +1,6 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
-<.title>Events in <%= @league.name %> League</.title>
+<.title>Events in {@league.name} League</.title>
 
 <.card spaced>
   <.link
@@ -9,11 +9,11 @@
     navigate={~p"/league/#{@league.region}/#{@league}/events/#{event}"}
   >
     <div class="grow">
-      <h3 class="font-bold"><%= event.name %></h3>
+      <h3 class="font-bold">{event.name}</h3>
       <p class="text-sm">
-        <span><%= format_range(event.date_start, event.date_end) %></span>
-        <span>&bull; <%= Event.type_name(event.type) %></span>
-        <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+        <span>{format_range(event.date_start, event.date_end)}</span>
+        <span>&bull; {Event.type_name(event.type)}</span>
+        <span :if={event.remote or event.hybrid}>&bull; {Event.format_name(event)}</span>
       </p>
     </div>
     <div><.icon name="hero-arrow-right" /></div>
@@ -47,12 +47,12 @@
     navigate={~p"/league/#{@league.region}/#{@league}/events/proposal/#{event}"}
   >
     <div class="grow">
-      <h3 class="font-bold"><%= event.name %></h3>
+      <h3 class="font-bold">{event.name}</h3>
       <p class="text-sm">
-        <span><%= format_range(event.date_start, event.date_end) %></span>
-        <span>&bull; <%= Event.type_name(event.type) %></span>
+        <span>{format_range(event.date_start, event.date_end)}</span>
+        <span>&bull; {Event.type_name(event.type)}</span>
         <span :if={event.format != :traditional}>
-          &bull; <%= EventProposal.format_string(event) %>
+          &bull; {EventProposal.format_string(event)}
         </span>
       </p>
     </div>

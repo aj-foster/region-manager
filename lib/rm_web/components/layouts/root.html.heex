@@ -11,10 +11,10 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <.live_title>
-      <%= if(title = assigns[:page_title],
+      {if(title = assigns[:page_title],
         do: "#{title} · Region Manager",
         else: "Region Manager"
-      ) %>
+      )}
     </.live_title>
 
     <link rel="preconnect" href="https://assets.ftcregion.com" crossorigin />
@@ -23,6 +23,6 @@
     </script>
   </head>
   <body class="bg-slate-100 antialiased">
-    <%= @inner_content %>
+    {@inner_content}
   </body>
 </html>

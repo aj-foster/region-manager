@@ -194,7 +194,7 @@ defmodule RMWeb.Components.TeamExport do
     ~H"""
     <div>
       <.modal id="team-export-modal">
-        <.title flush class="mb-4">Export <%= @context %> Teams</.title>
+        <.title flush class="mb-4">Export {@context} Teams</.title>
 
         <.form
           for={@form}
@@ -218,7 +218,7 @@ defmodule RMWeb.Components.TeamExport do
 
             <.radio_group field={@form[:include]}>
               <:radio :for={{{label, count, _teams}, index} <- Enum.with_index(@teams)} value={index}>
-                <%= label %> (<%= dumb_inflect("team", count) %>)
+                {label} ({dumb_inflect("team", count)})
               </:radio>
             </.radio_group>
           </div>

@@ -20,7 +20,7 @@
 <%= if @pending_proposals_count > 0 do %>
   <.information :if={@pending_proposals_count > 0} class="mb-4">
     <p class="font-bold">
-      There <%= dumb_inflect_is("pending event proposal", @pending_proposals_count) %>
+      There {dumb_inflect_is("pending event proposal", @pending_proposals_count)}
     </p>
     <p>
       Select event proposals to include in a Batch Create spreadsheet.
@@ -53,15 +53,15 @@
               <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
             </div>
             <div class="grow min-w-0 text-ellipsis whitespace-nowrap">
-              <h3 class="font-bold"><%= event.name %></h3>
+              <h3 class="font-bold">{event.name}</h3>
               <p class="text-sm">
-                <span><%= format_range(event.date_start, event.date_end) %></span>
-                <span>&bull; <%= RM.FIRST.Event.type_name(event.type) %></span>
+                <span>{format_range(event.date_start, event.date_end)}</span>
+                <span>&bull; {RM.FIRST.Event.type_name(event.type)}</span>
                 <span :if={event.format != :traditional}>
-                  &bull; <%= EventProposal.format_string(event) %>
+                  &bull; {EventProposal.format_string(event)}
                 </span>
                 <span :if={event.league}>
-                  &bull; <%= event.league.name %>
+                  &bull; {event.league.name}
                 </span>
               </p>
             </div>
@@ -96,17 +96,17 @@
       >
         <.icon class="h-4 mr-1 w-4" name="hero-arrow-down-tray" />
         <span class="underline">
-          <%= format_date(batch.generated_at, :full) %> (<%= dumb_inflect(
+          {format_date(batch.generated_at, :full)} ({dumb_inflect(
             "event",
             batch.event_count
-          ) %>)
+          )})
         </span>
       </button>
     </li>
   </ul>
 </.reveal>
 
-<.title>Upcoming Events in <%= @region.name %></.title>
+<.title>Upcoming Events in {@region.name}</.title>
 
 <.card :if={@upcoming_events_count == 0} spaced>
   <p class="italic text-sm">There are no upcoming events scheduled for this season.</p>
@@ -115,17 +115,17 @@
 <.card padding={false} spaced>
   <.list :if={@upcoming_events_count > 0}>
     <:link :for={event <- @upcoming_events} navigate={~p"/region/#{@region}/events/#{event}"}>
-      <h3 class="font-bold"><%= event.name %></h3>
+      <h3 class="font-bold">{event.name}</h3>
       <p class="text-sm">
-        <span><%= format_range(event.date_start, event.date_end) %></span>
-        <span>&bull; <%= Event.type_name(event.type) %></span>
-        <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+        <span>{format_range(event.date_start, event.date_end)}</span>
+        <span>&bull; {Event.type_name(event.type)}</span>
+        <span :if={event.remote or event.hybrid}>&bull; {Event.format_name(event)}</span>
       </p>
     </:link>
   </.list>
 </.card>
 
-<.title>Past Events in <%= @region.name %></.title>
+<.title>Past Events in {@region.name}</.title>
 
 <.reveal
   id="events-past-published-reveal"
@@ -134,11 +134,11 @@
 >
   <.list :if={@past_events_count > 0}>
     <:link :for={event <- @past_events} navigate={~p"/region/#{@region}/events/#{event}"}>
-      <h3 class="font-bold"><%= event.name %></h3>
+      <h3 class="font-bold">{event.name}</h3>
       <p class="text-sm">
-        <span><%= format_range(event.date_start, event.date_end) %></span>
-        <span>&bull; <%= Event.type_name(event.type) %></span>
-        <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+        <span>{format_range(event.date_start, event.date_end)}</span>
+        <span>&bull; {Event.type_name(event.type)}</span>
+        <span :if={event.remote or event.hybrid}>&bull; {Event.format_name(event)}</span>
       </p>
     </:link>
   </.list>
@@ -161,7 +161,7 @@
         <% end %>
       </p>
       <p class="text-sm">
-        Last refreshed <%= format_date(@region.stats.events_imported_at, :full) %>.
+        Last refreshed {format_date(@region.stats.events_imported_at, :full)}.
       </p>
     </div>
     <div>

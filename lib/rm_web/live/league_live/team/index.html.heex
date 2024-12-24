@@ -1,7 +1,7 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
 <.title :if={@active_teams_count > 0}>
-  Active Teams in <%= @league.name %> League (<%= @active_teams_count %>)
+  Active Teams in {@league.name} League ({@active_teams_count})
   <button phx-click={show_modal("team-active-info")}>
     <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
   </button>
@@ -19,23 +19,23 @@
       navigate={~p"/league/#{@league.region}/#{@league}/teams/#{team}"}
     >
       <h3 class="flex gap-2 items-center">
-        <strong><%= team.number %></strong>
-        <span><%= team.name %></span>
+        <strong>{team.number}</strong>
+        <span>{team.name}</span>
         <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
           Not Event Ready
         </.tag>
       </h3>
       <p class="text-sm">
-        <span><%= team.location.city || "Unknown City" %> &bull;</span>
-        <span :if={team.location.county}><%= team.location.county %> County &bull;</span>
-        <span :if={team.location.postal_code}><%= team.location.postal_code %></span>
+        <span>{team.location.city || "Unknown City"} &bull;</span>
+        <span :if={team.location.county}>{team.location.county} County &bull;</span>
+        <span :if={team.location.postal_code}>{team.location.postal_code}</span>
       </p>
     </:link>
   </.list>
 </.card>
 
 <.title :if={@intend_to_return_teams_count > 0 or @inactive_teams_count > 0}>
-  Inactive Teams in <%= @league.name %> League
+  Inactive Teams in {@league.name} League
 </.title>
 
 <.reveal
@@ -50,16 +50,16 @@
       navigate={~p"/league/#{@league.region}/#{@league}/teams/#{team}"}
     >
       <h3 class="flex gap-2 items-center">
-        <strong><%= team.number %></strong>
-        <span><%= team.name %></span>
+        <strong>{team.number}</strong>
+        <span>{team.name}</span>
         <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
           Not Event Ready
         </.tag>
       </h3>
       <p class="text-sm">
-        <span><%= team.location.city || "Unknown City" %> &bull;</span>
-        <span :if={team.location.county}><%= team.location.county %> County &bull;</span>
-        <span :if={team.location.postal_code}><%= team.location.postal_code %></span>
+        <span>{team.location.city || "Unknown City"} &bull;</span>
+        <span :if={team.location.county}>{team.location.county} County &bull;</span>
+        <span :if={team.location.postal_code}>{team.location.postal_code}</span>
       </p>
     </:link>
   </.list>
@@ -77,16 +77,16 @@
       navigate={~p"/league/#{@league.region}/#{@league}/teams/#{team}"}
     >
       <h3 class="flex gap-2 items-center">
-        <strong><%= team.number %></strong>
-        <span><%= team.name %></span>
+        <strong>{team.number}</strong>
+        <span>{team.name}</span>
         <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
           Not Event Ready
         </.tag>
       </h3>
       <p class="text-sm">
-        <span><%= team.location.city || "Unknown City" %> &bull;</span>
-        <span :if={team.location.county}><%= team.location.county %> County &bull;</span>
-        <span :if={team.location.postal_code}><%= team.location.postal_code %></span>
+        <span>{team.location.city || "Unknown City"} &bull;</span>
+        <span :if={team.location.county}>{team.location.county} County &bull;</span>
+        <span :if={team.location.postal_code}>{team.location.postal_code}</span>
       </p>
     </:link>
   </.list>

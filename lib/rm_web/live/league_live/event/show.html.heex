@@ -2,23 +2,23 @@
 
 <.title>
   <.link navigate={~p"/league/#{@league.region}/#{@league}/events"}>Events</.link>
-  &bull; <%= @event.name %>
+  &bull; {@event.name}
 </.title>
 
 <.card spaced>
   <.table class="mb-4">
-    <:row title="Name"><%= @event.name %></:row>
-    <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
-    <:row title="Type"><%= Event.type_name(@event.type) %></:row>
-    <:row title="Format"><%= Event.format_name(@event) %></:row>
+    <:row title="Name">{@event.name}</:row>
+    <:row title="Date">{format_range(@event.date_start, @event.date_end)}</:row>
+    <:row title="Type">{Event.type_name(@event.type)}</:row>
+    <:row title="Format">{Event.format_name(@event)}</:row>
     <:row title="Location">
       <div :if={not @event.settings.virtual}>
-        <span :if={@event.location.venue} class="block"><%= @event.location.venue %></span>
-        <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
-        <span :if={@event.location.city}><%= @event.location.city %>,</span>
-        <span :if={@event.location.state_province}><%= @event.location.state_province %>,</span>
+        <span :if={@event.location.venue} class="block">{@event.location.venue}</span>
+        <span :if={@event.location.address} class="block">{@event.location.address}</span>
+        <span :if={@event.location.city}>{@event.location.city},</span>
+        <span :if={@event.location.state_province}>{@event.location.state_province},</span>
         <span>
-          <%= @event.location.country || "Unknown Location" %>
+          {@event.location.country || "Unknown Location"}
         </span>
       </div>
       <div :if={@event.settings.virtual} class="italic">Virtual Event</div>
@@ -36,24 +36,24 @@
       </div>
     </:row>
     <:row :if={@event.website} title="Website">
-      <a class="underline" href={@event.website} target="blank"><%= @event.website %></a>
+      <a class="underline" href={@event.website} target="blank">{@event.website}</a>
     </:row>
     <:row :if={@event.live_stream_url} title="Live Stream">
       <a class="underline" href={@event.live_stream_url} target="blank">
-        <%= @event.live_stream_url %>
+        {@event.live_stream_url}
       </a>
     </:row>
-    <:row title="Region"><%= @event.region.name %></:row>
+    <:row title="Region">{@event.region.name}</:row>
     <:row :if={@event.region.has_leagues} title="League">
-      <%= event_league(@event) %>
+      {event_league(@event)}
     </:row>
   </.table>
 
   <p class="text-sm">
-    This data is provided by <em>FIRST®</em>. It was last imported on <%= format_date(
+    This data is provided by <em>FIRST®</em>. It was last imported on {format_date(
       @event.region.stats.events_imported_at,
       :date
-    ) %>.
+    )}.
   </p>
 </.card>
 
@@ -85,55 +85,55 @@
 <.card :if={@event.proposal} spaced>
   <h3 class="font-semibold mb-2">Event Details</h3>
   <.table class="mb-8">
-    <:row title="Name"><%= @event.proposal.name %></:row>
+    <:row title="Name">{@event.proposal.name}</:row>
     <:row title="Date">
-      <%= format_range(@event.proposal.date_start, @event.proposal.date_end) %>
+      {format_range(@event.proposal.date_start, @event.proposal.date_end)}
     </:row>
-    <:row title="Type"><%= RM.FIRST.Event.type_name(@event.proposal.type) %></:row>
-    <:row title="Format"><%= String.capitalize(to_string(@event.proposal.format)) %></:row>
+    <:row title="Type">{RM.FIRST.Event.type_name(@event.proposal.type)}</:row>
+    <:row title="Format">{String.capitalize(to_string(@event.proposal.format))}</:row>
   </.table>
 
   <h3 class="font-semibold mb-2">Venue Details</h3>
   <.table class="mb-8">
-    <:row title="Name"><%= @event.proposal.venue.name %></:row>
+    <:row title="Name">{@event.proposal.venue.name}</:row>
     <:row title="Location">
       <span :if={@event.proposal.venue.address} class="block">
-        <%= @event.proposal.venue.address %>
+        {@event.proposal.venue.address}
       </span>
       <span :if={@event.proposal.venue.address_2} class="block">
-        <%= @event.proposal.venue.address_2 %>
+        {@event.proposal.venue.address_2}
       </span>
-      <span :if={@event.proposal.venue.city}><%= @event.proposal.venue.city %>,</span>
+      <span :if={@event.proposal.venue.city}>{@event.proposal.venue.city},</span>
       <span :if={@event.proposal.venue.state_province}>
-        <%= @event.proposal.venue.state_province %>
+        {@event.proposal.venue.state_province}
       </span>
       <span :if={@event.proposal.venue.postal_code}>
-        <%= @event.proposal.venue.postal_code %>
+        {@event.proposal.venue.postal_code}
       </span>
-      <span class="block"><%= @event.proposal.venue.country || "Unknown Location" %></span>
+      <span class="block">{@event.proposal.venue.country || "Unknown Location"}</span>
     </:row>
     <:row :if={@event.proposal.venue.notes} title="Notes">
-      <%= @event.proposal.venue.notes %>
+      {@event.proposal.venue.notes}
     </:row>
     <:row :if={@event.proposal.venue.website} title="Website">
       <a class="underline" href={@event.proposal.venue.website} target="blank">
-        <%= @event.proposal.venue.website %>
+        {@event.proposal.venue.website}
       </a>
     </:row>
-    <:row title="Timezone"><%= @event.proposal.venue.timezone %></:row>
+    <:row title="Timezone">{@event.proposal.venue.timezone}</:row>
   </.table>
 
   <h3 class="font-semibold mb-2">Contact Information</h3>
   <.table class="mb-8">
-    <:row title="Name"><%= @event.proposal.contact.name %></:row>
+    <:row title="Name">{@event.proposal.contact.name}</:row>
     <:row title="Email">
       <a class="underline" href={"mailto:#{@event.proposal.contact.email}"}>
-        <%= @event.proposal.contact.email %>
+        {@event.proposal.contact.email}
       </a>
     </:row>
     <:row title="Phone">
       <a class="underline" href={"tel:#{@event.proposal.contact.phone}"}>
-        <%= @event.proposal.contact.phone %>
+        {@event.proposal.contact.phone}
       </a>
     </:row>
   </.table>
@@ -141,7 +141,7 @@
   <h3 class="font-semibold mb-2">Additional Details</h3>
   <.table>
     <:row :if={@event.proposal.description} title="Description">
-      <%= @event.proposal.description %>
+      {@event.proposal.description}
     </:row>
     <:row :if={@event.proposal.attachments != []} title="Attachments">
       <ul>
@@ -152,24 +152,24 @@
             href={RM.Local.EventAttachment.url(attachment)}
             target="_blank"
           >
-            <%= attachment.name %>
+            {attachment.name}
           </a>
         </li>
       </ul>
     </:row>
     <:row :if={@event.proposal.website} title="Website">
       <a class="underline" href={@event.proposal.website} target="blank">
-        <%= @event.proposal.website %>
+        {@event.proposal.website}
       </a>
     </:row>
     <:row :if={@event.proposal.live_stream_url} title="Live Stream">
       <a class="underline" href={@event.proposal.live_stream_url} target="blank">
-        <%= @event.proposal.live_stream_url %>
+        {@event.proposal.live_stream_url}
       </a>
     </:row>
-    <:row :if={@event.proposal.notes} title="Notes"><%= @event.proposal.notes %></:row>
-    <:row title="Region"><%= @league.region.name %></:row>
-    <:row title="League"><%= @league.name %></:row>
+    <:row :if={@event.proposal.notes} title="Notes">{@event.proposal.notes}</:row>
+    <:row title="Region">{@league.region.name}</:row>
+    <:row title="League">{@league.name}</:row>
   </.table>
 </.card>
 
@@ -185,7 +185,7 @@
       Export <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-down-tray" />
     </.button>
     <.button phx-click="edit_registration_init">
-      <%= if @edit_registration, do: "Done", else: "Edit..." %>
+      {if @edit_registration, do: "Done", else: "Edit..."}
     </.button>
   </:action>
 </.title>

@@ -21,7 +21,7 @@
         class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
         navigate={~p"/region/#{List.first(@current_user.regions)}"}
       >
-        <%= List.first(@current_user.regions).name %>
+        {List.first(@current_user.regions).name}
       </.link>
       <.link
         :if={
@@ -32,7 +32,7 @@
           ~p"/league/#{List.first(@current_user.leagues).region}/#{List.first(@current_user.leagues)}"
         }
       >
-        <%= List.first(@current_user.leagues).name %>
+        {List.first(@current_user.leagues).name}
       </.link>
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
@@ -73,7 +73,7 @@
 <main class="mb-4 px-4 py-10 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-2xl">
     <.flash_group flash={@flash} />
-    <%= @inner_content %>
+    {@inner_content}
   </div>
 </main>
 

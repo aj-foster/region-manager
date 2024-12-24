@@ -1,7 +1,7 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
 <div class="mb-8">
-  <.title>Editing <%= @proposal.name %></.title>
+  <.title>Editing {@proposal.name}</.title>
 
   <%= cond do %>
     <% @proposal.first_event_id -> %>
@@ -49,7 +49,7 @@
       <.button phx-click={show_modal("add-venue-modal")}>Add Venue...</.button>
     </div>
     <.error :for={msg <- Enum.map(@proposal_form[:venue].errors, &translate_error/1)}>
-      <%= msg %>
+      {msg}
     </.error>
   </.card>
 
@@ -192,7 +192,7 @@
           <p class="mb-1"><.icon class="h-8 w-8" name="hero-exclamation-triangle" /></p>
           <p>
             <span :for={error <- upload_errors(@uploads.attachment)}>
-              <%= upload_error_to_string(error) %>
+              {upload_error_to_string(error)}
             </span>
           </p>
         </div>
@@ -208,7 +208,7 @@
             href={RM.Local.EventAttachment.url(attachment)}
             target="_blank"
           >
-            <%= attachment.name %>
+            {attachment.name}
           </a>
           <button
             aria-label="remove"
@@ -222,7 +222,7 @@
         </li>
         <li :for={entry <- @uploads.attachment.entries} class="flex gap-2 items-center mb-2">
           <.icon class="h-4 w-4" name="hero-cloud-arrow-up" />
-          <span class="text-sm"><%= entry.client_name %></span>
+          <span class="text-sm">{entry.client_name}</span>
           <button
             aria-label="cancel"
             form=""
@@ -233,13 +233,13 @@
             <.icon class="bottom-0.5 h-4 relative text-red-600 w-4" name="hero-trash" />
           </button>
           <progress :if={not entry.done? and entry.valid?} value={entry.progress} max="100">
-            <%= entry.progress %>%
+            {entry.progress}%
           </progress>
           <span
             :for={error <- upload_errors(@uploads.attachment, entry)}
             class="text-red-600 text-sm"
           >
-            <%= upload_error_to_string(error) %>
+            {upload_error_to_string(error)}
           </span>
         </li>
       </ul>

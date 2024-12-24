@@ -8,9 +8,9 @@
           <img src={season.logo_url} alt="Season Logo" />
         </div>
         <div>
-          <p class="font-semibold"><%= season.name %></p>
+          <p class="font-semibold">{season.name}</p>
           <p class="text-sm">
-            <%= season.year %>–<%= season.year + 1 %>
+            {season.year}–{season.year + 1}
             <span :if={@current_season == season.year}>&bull; Active Season</span>
           </p>
         </div>

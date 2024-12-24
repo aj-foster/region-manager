@@ -1,38 +1,38 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
-<.title><%= @team.number %> <%= @team.name %></.title>
+<.title>{@team.number} {@team.name}</.title>
 
 <.card spaced>
   <.table class="mb-4">
     <:row title="Number">
-      <%= if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)" %>
+      {if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)"}
     </:row>
-    <:row title="Name"><%= @team.name %></:row>
+    <:row title="Name">{@team.name}</:row>
     <:row title="Location">
-      <span :if={@team.location.city}><%= @team.location.city %></span>
-      <span :if={@team.location.postal_code}><%= @team.location.postal_code %></span>
+      <span :if={@team.location.city}>{@team.location.city}</span>
+      <span :if={@team.location.postal_code}>{@team.location.postal_code}</span>
       <br />
-      <span :if={@team.location.county}><%= @team.location.county %> County,</span>
-      <span :if={@team.location.state_province}><%= @team.location.state_province %>,</span>
+      <span :if={@team.location.county}>{@team.location.county} County,</span>
+      <span :if={@team.location.state_province}>{@team.location.state_province},</span>
       <span :if={@team.location.country}>
-        <%= @team.location.country || "Unknown Location" %>
+        {@team.location.country || "Unknown Location"}
       </span>
     </:row>
-    <:row title="Rookie Year"><%= @team.rookie_year %></:row>
+    <:row title="Rookie Year">{@team.rookie_year}</:row>
     <:row :if={@team.website} title="Website">
-      <a class="underline" href={@team.website} target="blank"><%= @team.website %></a>
+      <a class="underline" href={@team.website} target="blank">{@team.website}</a>
     </:row>
-    <:row title="Region"><%= @league.region.name %></:row>
+    <:row title="Region">{@league.region.name}</:row>
     <:row :if={@league.region.has_leagues} title="League">
-      <%= if @team.league, do: @team.league.name, else: "No League Assignment" %>
+      {if @team.league, do: @team.league.name, else: "No League Assignment"}
     </:row>
   </.table>
 
   <p class="text-sm">
-    Last updated via team data import on <%= format_date(
+    Last updated via team data import on {format_date(
       @league.region.stats.teams_imported_at,
       :date
-    ) %>.
+    )}.
   </p>
 </.card>
 
@@ -87,12 +87,12 @@
     <.table>
       <:row :if={@lc1} title="First Coach">
         <span :if={is_nil(@lc1.name)} class="text-orange-600">Missing</span>
-        <span :if={@lc1.name}><%= @lc1.name %></span>
+        <span :if={@lc1.name}>{@lc1.name}</span>
       </:row>
       <:row :if={@lc1 && @lc1.email} title="Email">
         <div class="flex gap-4 items-center">
           <div class="grow">
-            <a class="underline" href={"mailto:#{@lc1.email}"}><%= @lc1.email %></a>
+            <a class="underline" href={"mailto:#{@lc1.email}"}>{@lc1.email}</a>
           </div>
           <button
             class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
@@ -108,7 +108,7 @@
       <:row :if={@lc1 && @lc1.email_alt} title="Alt. Email">
         <div class="flex gap-4 items-center">
           <div class="grow">
-            <a class="underline" href={"mailto:#{@lc1.email_alt}"}><%= @lc1.email_alt %></a>
+            <a class="underline" href={"mailto:#{@lc1.email_alt}"}>{@lc1.email_alt}</a>
           </div>
           <button
             class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
@@ -124,7 +124,7 @@
       <:row :if={@lc1 && @lc1.phone} title="Phone">
         <div class="flex gap-4 items-center">
           <div class="grow">
-            <a class="underline" href={"tel:#{@lc1.phone}"}><%= @lc1.phone %></a>
+            <a class="underline" href={"tel:#{@lc1.phone}"}>{@lc1.phone}</a>
           </div>
           <button
             class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
@@ -140,7 +140,7 @@
       <:row :if={@lc1 && @lc1.phone_alt} title="Alt. Phone">
         <div class="flex gap-4 items-center">
           <div class="grow">
-            <a class="underline" href={"tel:#{@lc1.phone_alt}"}><%= @lc1.phone_alt %></a>
+            <a class="underline" href={"tel:#{@lc1.phone_alt}"}>{@lc1.phone_alt}</a>
           </div>
           <button
             class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
@@ -156,12 +156,12 @@
 
       <:row :if={@lc2} class="mt-4" title="Second Coach">
         <span :if={is_nil(@lc2.name)} class="text-orange-600">Missing</span>
-        <span :if={@lc2.name}><%= @lc2.name %></span>
+        <span :if={@lc2.name}>{@lc2.name}</span>
       </:row>
       <:row :if={@lc2 && @lc2.email} title="Email">
         <div class="flex gap-4 items-center">
           <div class="grow">
-            <a class="underline" href={"mailto:#{@lc2.email}"}><%= @lc2.email %></a>
+            <a class="underline" href={"mailto:#{@lc2.email}"}>{@lc2.email}</a>
           </div>
           <button
             class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
@@ -177,7 +177,7 @@
       <:row :if={@lc2 && @lc2.email_alt} title="Alt. Email">
         <div class="flex gap-4 items-center">
           <div class="grow">
-            <a class="underline" href={"mailto:#{@lc2.email_alt}"}><%= @lc2.email_alt %></a>
+            <a class="underline" href={"mailto:#{@lc2.email_alt}"}>{@lc2.email_alt}</a>
           </div>
           <button
             class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
@@ -193,7 +193,7 @@
       <:row :if={@lc2 && @lc2.phone} title="Phone">
         <div class="flex gap-4 items-center">
           <div class="grow">
-            <a class="underline" href={"tel:#{@lc2.phone}"}><%= @lc2.phone %></a>
+            <a class="underline" href={"tel:#{@lc2.phone}"}>{@lc2.phone}</a>
           </div>
           <button
             class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
@@ -209,7 +209,7 @@
       <:row :if={@lc2 && @lc2.phone_alt} title="Alt. Phone">
         <div class="flex gap-4 items-center">
           <div class="grow">
-            <a class="underline" href={"tel:#{@lc2.phone_alt}"}><%= @lc2.phone_alt %></a>
+            <a class="underline" href={"tel:#{@lc2.phone_alt}"}>{@lc2.phone_alt}</a>
           </div>
           <button
             class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"

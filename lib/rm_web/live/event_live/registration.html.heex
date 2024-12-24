@@ -47,7 +47,7 @@
   </.nav_item>
 </.top_nav>
 
-<.title>Registration for <%= @event.name %></.title>
+<.title>Registration for {@event.name}</.title>
 
 <%= if @registration_enabled do %>
   <.card spaced>
@@ -56,32 +56,32 @@
         <%= cond do %>
           <% Event.registration_deadline_passed?(@event) -> %>
             <span class="text-orange-600">
-              Closed on <%= format_date(Event.registration_deadline(@event), :date) %>
+              Closed on {format_date(Event.registration_deadline(@event), :date)}
             </span>
           <% Event.registration_opening_passed?(@event) -> %>
             <span class="text-green-600">Open</span>
           <% :else -> %>
             <span class="text-orange-600">
-              Opens on <%= format_date(Event.registration_opens(@event), :date) %>
+              Opens on {format_date(Event.registration_opens(@event), :date)}
             </span>
         <% end %>
       </:row>
       <:row :if={not Event.registration_deadline_passed?(@event)} title="Deadline">
-        <%= format_date(Event.registration_deadline(@event), :full) %>
+        {format_date(Event.registration_deadline(@event), :full)}
       </:row>
       <:row title="Available For">
         <%= case @event.settings.registration.pool do %>
           <% :all -> %>
             All Teams
           <% :league -> %>
-            Teams in <%= if(@event.league, do: @event.league.name <> " League", else: "league") %>
+            Teams in {if(@event.league, do: @event.league.name <> " League", else: "league")}
           <% :region -> %>
-            Teams in <%= @event.region.name %>
+            Teams in {@event.region.name}
         <% end %>
       </:row>
       <:row :if={@event.settings.registration.team_limit} title="Capacity">
         <span class="font-mono text-sm">
-          <%= length(@registered_teams) %> / <%= @event.settings.registration.team_limit %>
+          {length(@registered_teams)} / {@event.settings.registration.team_limit}
         </span>
         filled
       </:row>
@@ -144,7 +144,7 @@
               </div>
               <div class="grow min-w-0 ml-4 text-ellipsis whitespace-nowrap">
                 <h3 class="gap-1 flex items-center">
-                  <span><strong><%= team.number %></strong> <%= team.name %></span>
+                  <span><strong>{team.number}</strong> {team.name}</span>
                   <%= cond do %>
                     <% info.status == :rescinded -> %>
                       <.tag class="bg-red-100 border-red-300 ml-2">Rescinded</.tag>
@@ -163,8 +163,8 @@
                   </.tag>
                 </h3>
                 <p class="text-sm">
-                  <span :if={team.league}><%= team.league.name %> League &bull;</span>
-                  <span><%= team.region.name %></span>
+                  <span :if={team.league}>{team.league.name} League &bull;</span>
+                  <span>{team.region.name}</span>
                 </p>
               </div>
             </label>
@@ -187,7 +187,7 @@
           disabled={@selected_count == 0}
           phx-click={show_modal("team-registration-confirm")}
         >
-          Register <%= dumb_inflect("Team", @selected_count) %>...
+          Register {dumb_inflect("Team", @selected_count)}...
         </.button>
       </p>
     </.card>
@@ -204,7 +204,7 @@
   <% end %>
 
   <.title>
-    Registered Teams (<%= @registered_teams_count %>)
+    Registered Teams ({@registered_teams_count})
     <:action>
       <.button
         :if={@current_user}
@@ -221,12 +221,12 @@
     <.list>
       <:item :for={team <- @registered_teams} class="px-4 py-2">
         <p>
-          <strong><%= team.number %></strong>
-          <%= team.name %>
+          <strong>{team.number}</strong>
+          {team.name}
         </p>
         <p class="text-sm">
-          <span :if={team.league}><%= team.league.name %> League &bull;</span>
-          <span><%= team.region.name %></span>
+          <span :if={team.league}>{team.league.name} League &bull;</span>
+          <span>{team.region.name}</span>
         </p>
       </:item>
     </.list>
@@ -269,8 +269,8 @@
   <.title flush class="mb-4">Confirm Registration</.title>
   <p class="mb-4">You are about to register for this event:</p>
   <p class="mb-4 pl-6">
-    <%= @event.name %><br />
-    <%= format_range(@event.date_start, @event.date_end) %>
+    {@event.name}<br />
+    {format_range(@event.date_start, @event.date_end)}
   </p>
   <p class="mb-4">
     For the following teams:
@@ -278,8 +278,8 @@
   <.list class="-mx-4 mb-4 pl-6">
     <:item :for={%{team: team} <- @selected} class="px-4 py-2">
       <h3>
-        <strong><%= team.number %></strong>
-        <%= team.name %>
+        <strong>{team.number}</strong>
+        {team.name}
       </h3>
     </:item>
   </.list>
@@ -298,15 +298,15 @@
   </.title>
   <p class="mb-4">You are changing the registration for this event:</p>
   <p class="mb-4 pl-6">
-    <%= @event.name %><br />
-    <%= format_range(@event.date_start, @event.date_end) %>
+    {@event.name}<br />
+    {format_range(@event.date_start, @event.date_end)}
   </p>
   <p class="mb-4">
     For the following team:
   </p>
   <p class="mb-4 pl-6">
-    <strong><%= @edit_registration && @edit_registration.team.number %></strong>
-    <%= @edit_registration && @edit_registration.team.name %>
+    <strong>{@edit_registration && @edit_registration.team.number}</strong>
+    {@edit_registration && @edit_registration.team.name}
   </p>
   <p class="mb-4">
     If your team is no longer able to attend, you can rescind your registration.

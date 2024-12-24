@@ -9,7 +9,7 @@
     <.form :let={f} for={%{}} action={~p"/login"} as={:session}>
       <%= if @error do %>
         <div class="id_error_message">
-          <p><%= @error %></p>
+          <p>{@error}</p>
         </div>
       <% end %>
 

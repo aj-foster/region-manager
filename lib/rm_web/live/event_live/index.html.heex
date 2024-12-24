@@ -42,11 +42,11 @@
 
 <div class="flex flex-wrap gap-4 items-center justify-between mb-4 pl-6">
   <.title flush>
-    Events in <%= events_page_title(
+    Events in {events_page_title(
       @local_league,
       @first_league,
       @region
-    ) %>
+    )}
   </.title>
 
   <div
@@ -84,7 +84,7 @@
 </div>
 
 <div :for={{{_priority, title}, events} <- @grouped_events}>
-  <.title :if={@event_group_count > 1}><%= title %></.title>
+  <.title :if={@event_group_count > 1}>{title}</.title>
 
   <.card padding={false} spaced>
     <.list>
@@ -96,12 +96,12 @@
             else: ~p"/s/#{@season}/r/#{@region}/e/#{event}"
         }
       >
-        <h3 class="font-bold"><%= event.name %></h3>
+        <h3 class="font-bold">{event.name}</h3>
         <p class="text-sm">
-          <span><%= format_range(event.date_start, event.date_end) %></span>
-          <span>&bull; <%= RM.FIRST.Event.type_name(event.type) %></span>
+          <span>{format_range(event.date_start, event.date_end)}</span>
+          <span>&bull; {RM.FIRST.Event.type_name(event.type)}</span>
           <span :if={event.remote or event.hybrid}>
-            &bull; <%= RM.FIRST.Event.format_name(event) %>
+            &bull; {RM.FIRST.Event.format_name(event)}
           </span>
         </p>
       </:link>

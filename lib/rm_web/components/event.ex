@@ -29,19 +29,19 @@ defmodule RMWeb.Components.Event do
 
     <.card spaced>
       <.table>
-        <:row :if={@event.location.venue} title="Name"><%= @event.location.venue %></:row>
+        <:row :if={@event.location.venue} title="Name">{@event.location.venue}</:row>
         <:row title="Address">
           <div :if={@event.settings.virtual}>
             <span class="italic">Virtual Event</span>
           </div>
 
           <div :if={not @event.settings.virtual}>
-            <span :if={@event.location.address} class="block"><%= @event.location.address %></span>
-            <span :if={@event.location.city}><%= @event.location.city %>,</span>
+            <span :if={@event.location.address} class="block">{@event.location.address}</span>
+            <span :if={@event.location.city}>{@event.location.city},</span>
             <span :if={@event.location.state_province}>
-              <%= @event.location.state_province %><span :if={@postal_code}> <%= @postal_code %></span>,
+              {@event.location.state_province}<span :if={@postal_code}> <%= @postal_code %></span>,
             </span>
-            <span><%= @event.location.country || "Unknown Location" %></span>
+            <span>{@event.location.country || "Unknown Location"}</span>
           </div>
 
           <div :if={@editable}>
@@ -58,11 +58,11 @@ defmodule RMWeb.Components.Event do
           </div>
         </:row>
         <:row :if={@event.proposal && @event.proposal.venue.notes} title="Notes">
-          <%= @event.proposal.venue.notes %>
+          {@event.proposal.venue.notes}
         </:row>
         <:row :if={@event.proposal && @event.proposal.venue.website} title="Website">
           <a class="underline" href={@event.proposal.venue.website} target="blank">
-            <%= @event.proposal.venue.website %>
+            {@event.proposal.venue.website}
           </a>
         </:row>
       </.table>

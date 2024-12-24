@@ -46,17 +46,17 @@
   </.nav_item>
 </.top_nav>
 
-<.title><%= @event.name %></.title>
+<.title>{@event.name}</.title>
 
 <.card spaced>
   <.table>
-    <:row title="Name"><%= @event.name %></:row>
-    <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
+    <:row title="Name">{@event.name}</:row>
+    <:row title="Date">{format_range(@event.date_start, @event.date_end)}</:row>
     <:row :if={@event.proposal} title="Timezone">
-      <%= RM.Util.Time.zone_nice_name(@event.proposal.venue.timezone) %>
+      {RM.Util.Time.zone_nice_name(@event.proposal.venue.timezone)}
     </:row>
-    <:row title="Type" info="event-type-modal"><%= Event.type_name(@event.type) %></:row>
-    <:row title="Format" info="event-format-modal"><%= Event.format_name(@event) %></:row>
+    <:row title="Type" info="event-type-modal">{Event.type_name(@event.type)}</:row>
+    <:row title="Format" info="event-format-modal">{Event.format_name(@event)}</:row>
   </.table>
 </.card>
 
@@ -70,7 +70,7 @@
 <.card spaced>
   <.table>
     <:row :if={@event.proposal && @event.proposal.description} title="Description">
-      <%= @event.proposal.description %>
+      {@event.proposal.description}
     </:row>
 
     <:row :if={@event.proposal && @event.proposal.attachments != []} title="Attachments">
@@ -82,7 +82,7 @@
             href={RM.Local.EventAttachment.url(attachment)}
             target="_blank"
           >
-            <%= attachment.name %>
+            {attachment.name}
           </a>
         </li>
       </ul>
@@ -93,7 +93,7 @@
       title="Website"
     >
       <a class="underline" href={website} target="blank">
-        <%= website %>
+        {website}
       </a>
     </:row>
     <:row
@@ -101,13 +101,13 @@
       title="Live Stream"
     >
       <a class="underline" href={url} target="blank">
-        <%= url %>
+        {url}
       </a>
     </:row>
 
-    <:row title="Region" info="event-region-modal"><%= @event.region.name %></:row>
+    <:row title="Region" info="event-region-modal">{@event.region.name}</:row>
     <:row :if={@event.region.has_leagues} title="League" info="event-league-modal">
-      <%= event_league(@event) %>
+      {event_league(@event)}
     </:row>
   </.table>
 </.card>

@@ -1,6 +1,6 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
-<.title>Update: <%= @venue.name %></.title>
+<.title>Update: {@venue.name}</.title>
 
 <.card spaced>
   <p class="text-sm">
@@ -17,12 +17,12 @@
       navigate={~p"/league/#{@league.region}/#{@league}/events/proposal/#{proposal}"}
     >
       <div class="grow">
-        <h3 class="font-bold"><%= proposal.name %></h3>
+        <h3 class="font-bold">{proposal.name}</h3>
         <p class="text-sm">
-          <span><%= format_range(proposal.date_start, proposal.date_end) %></span>
-          <span>&bull; <%= Event.type_name(proposal.type) %></span>
+          <span>{format_range(proposal.date_start, proposal.date_end)}</span>
+          <span>&bull; {Event.type_name(proposal.type)}</span>
           <span :if={proposal.format != :traditional}>
-            &bull; <%= EventProposal.format_string(proposal) %>
+            &bull; {EventProposal.format_string(proposal)}
           </span>
         </p>
       </div>

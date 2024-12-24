@@ -2,7 +2,7 @@
 
 <.title>
   <.link navigate={~p"/league/#{@league.region}/#{@league}/events"}>Events</.link>
-  &bull; <%= @event.name %>
+  &bull; {@event.name}
 
   <:action>
     <.link_button
@@ -16,10 +16,10 @@
 
 <.card spaced>
   <.table class="mb-4">
-    <:row title="Name"><%= @event.name %></:row>
-    <:row title="Date"><%= format_range(@event.date_start, @event.date_end) %></:row>
-    <:row title="Type"><%= RM.FIRST.Event.type_name(@event.type) %></:row>
-    <:row title="Format"><%= String.capitalize(to_string(@event.format)) %></:row>
+    <:row title="Name">{@event.name}</:row>
+    <:row title="Date">{format_range(@event.date_start, @event.date_end)}</:row>
+    <:row title="Type">{RM.FIRST.Event.type_name(@event.type)}</:row>
+    <:row title="Format">{String.capitalize(to_string(@event.format))}</:row>
   </.table>
 
   <p class="text-sm">
@@ -33,20 +33,20 @@
 
 <.card spaced>
   <.table>
-    <:row title="Name"><%= @event.venue.name %></:row>
+    <:row title="Name">{@event.venue.name}</:row>
     <:row title="Location">
-      <span :if={@event.venue.address} class="block"><%= @event.venue.address %></span>
-      <span :if={@event.venue.address_2} class="block"><%= @event.venue.address_2 %></span>
-      <span :if={@event.venue.city}><%= @event.venue.city %>,</span>
-      <span :if={@event.venue.state_province}><%= @event.venue.state_province %></span>
-      <span :if={@event.venue.postal_code}><%= @event.venue.postal_code %></span>
-      <span class="block"><%= @event.venue.country || "Unknown Location" %></span>
+      <span :if={@event.venue.address} class="block">{@event.venue.address}</span>
+      <span :if={@event.venue.address_2} class="block">{@event.venue.address_2}</span>
+      <span :if={@event.venue.city}>{@event.venue.city},</span>
+      <span :if={@event.venue.state_province}>{@event.venue.state_province}</span>
+      <span :if={@event.venue.postal_code}>{@event.venue.postal_code}</span>
+      <span class="block">{@event.venue.country || "Unknown Location"}</span>
     </:row>
-    <:row :if={@event.venue.notes} title="Notes"><%= @event.venue.notes %></:row>
+    <:row :if={@event.venue.notes} title="Notes">{@event.venue.notes}</:row>
     <:row :if={@event.venue.website} title="Website">
-      <a href={@event.venue.website} target="blank"><%= @event.venue.website %></a>
+      <a href={@event.venue.website} target="blank">{@event.venue.website}</a>
     </:row>
-    <:row title="Timezone"><%= @event.venue.timezone %></:row>
+    <:row title="Timezone">{@event.venue.timezone}</:row>
   </.table>
 </.card>
 
@@ -56,9 +56,9 @@
 
 <.card spaced>
   <.table>
-    <:row title="Name"><%= @event.contact.name %></:row>
-    <:row title="Email"><%= @event.contact.email %></:row>
-    <:row title="Phone"><%= @event.contact.phone %></:row>
+    <:row title="Name">{@event.contact.name}</:row>
+    <:row title="Email">{@event.contact.email}</:row>
+    <:row title="Phone">{@event.contact.phone}</:row>
   </.table>
 </.card>
 
@@ -68,7 +68,7 @@
 
 <.card>
   <.table>
-    <:row :if={@event.description} title="Description"><%= @event.description %></:row>
+    <:row :if={@event.description} title="Description">{@event.description}</:row>
     <:row :if={@event.attachments != []} title="Attachments">
       <ul>
         <li :for={attachment <- @event.attachments} class="flex gap-2 items-center mb-2">
@@ -78,21 +78,21 @@
             href={RM.Local.EventAttachment.url(attachment)}
             target="_blank"
           >
-            <%= attachment.name %>
+            {attachment.name}
           </a>
         </li>
       </ul>
     </:row>
     <:row :if={@event.website} title="Website">
-      <a class="underline" href={@event.website} target="blank"><%= @event.website %></a>
+      <a class="underline" href={@event.website} target="blank">{@event.website}</a>
     </:row>
     <:row :if={@event.live_stream_url} title="Live Stream">
       <a class="underline" href={@event.live_stream_url} target="blank">
-        <%= @event.live_stream_url %>
+        {@event.live_stream_url}
       </a>
     </:row>
-    <:row :if={@event.notes} title="Notes"><%= @event.notes %></:row>
-    <:row title="Region"><%= @league.region.name %></:row>
-    <:row title="League"><%= @league.name %></:row>
+    <:row :if={@event.notes} title="Notes">{@event.notes}</:row>
+    <:row title="Region">{@league.region.name}</:row>
+    <:row title="League">{@league.name}</:row>
   </.table>
 </.card>

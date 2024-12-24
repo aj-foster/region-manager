@@ -82,7 +82,7 @@ defmodule RMWeb.LeagueLive.Venue.Components do
           >
             Cancel
           </button>
-          <.button class="ml-4" type="submit"><%= @prompt %></.button>
+          <.button class="ml-4" type="submit">{@prompt}</.button>
         </p>
       </.form>
     </div>

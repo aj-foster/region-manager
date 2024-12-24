@@ -20,7 +20,7 @@
   >
     <div class="grow">
       <h3 class="font-bold">
-        <%= registration.event.name %>
+        {registration.event.name}
         <.tag :if={registration.rescinded} class="bg-orange-100 border-orange-300 ml-2">
           Rescinded
         </.tag>
@@ -30,11 +30,11 @@
       </h3>
       <p class="text-sm">
         <span>
-          <%= format_range(registration.event.date_start, registration.event.date_end) %>
+          {format_range(registration.event.date_start, registration.event.date_end)}
         </span>
-        <span>&bull; <%= Event.type_name(registration.event.type) %></span>
+        <span>&bull; {Event.type_name(registration.event.type)}</span>
         <span :if={registration.event.remote or registration.event.hybrid}>
-          &bull; <%= Event.format_name(registration.event) %>
+          &bull; {Event.format_name(registration.event)}
         </span>
       </p>
     </div>
@@ -61,11 +61,11 @@
       navigate={~p"/team/#{@team}/events/#{event}"}
     >
       <div class="grow">
-        <h3 class="font-bold"><%= event.name %></h3>
+        <h3 class="font-bold">{event.name}</h3>
         <p class="text-sm">
-          <span><%= format_range(event.date_start, event.date_end) %></span>
-          <span>&bull; <%= Event.type_name(event.type) %></span>
-          <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+          <span>{format_range(event.date_start, event.date_end)}</span>
+          <span>&bull; {Event.type_name(event.type)}</span>
+          <span :if={event.remote or event.hybrid}>&bull; {Event.format_name(event)}</span>
         </p>
       </div>
       <div><.icon name="hero-arrow-right" /></div>
@@ -79,11 +79,11 @@
   <.reveal id="events-past-published-reveal" spaced title={"Past Events (#{length(past_events)})"}>
     <.list :if={past_events != []}>
       <:item :for={event <- past_events} class="px-4 py-2">
-        <h3 class="font-bold"><%= event.name %></h3>
+        <h3 class="font-bold">{event.name}</h3>
         <p class="text-sm">
-          <span><%= format_range(event.date_start, event.date_end) %></span>
-          <span>&bull; <%= Event.type_name(event.type) %></span>
-          <span :if={event.remote or event.hybrid}>&bull; <%= Event.format_name(event) %></span>
+          <span>{format_range(event.date_start, event.date_end)}</span>
+          <span>&bull; {Event.type_name(event.type)}</span>
+          <span :if={event.remote or event.hybrid}>&bull; {Event.format_name(event)}</span>
         </p>
       </:item>
     </.list>

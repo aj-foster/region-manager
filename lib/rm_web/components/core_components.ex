@@ -39,7 +39,7 @@ defmodule RMWeb.CoreComponents do
       @spaced && "mb-8",
       @class
     ]}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </div>
     """
   end
@@ -58,7 +58,7 @@ defmodule RMWeb.CoreComponents do
   def link_card(assigns) do
     ~H"""
     <.link class={["bg-white border border-slate-200 px-6 py-4 rounded shadow", @class]} {@rest}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </.link>
     """
   end
@@ -77,7 +77,7 @@ defmodule RMWeb.CoreComponents do
   def tag(assigns) do
     ~H"""
     <span class={["border border-1 font-semibold px-1 py-0.5 rounded text-xs", @class]}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </span>
     """
   end
@@ -103,9 +103,9 @@ defmodule RMWeb.CoreComponents do
         if(@action != [], do: "grow"),
         @class
       ]}>
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </h2>
-      <%= render_slot(@action) %>
+      {render_slot(@action)}
     </div>
     """
   end
@@ -124,7 +124,7 @@ defmodule RMWeb.CoreComponents do
     ]}>
       <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
       <div>
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </div>
     </div>
     """
@@ -144,7 +144,7 @@ defmodule RMWeb.CoreComponents do
     ]}>
       <.icon name="hero-information-circle" class="shrink-0 text-purple-500" />
       <div class="grow">
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </div>
     </div>
     """
@@ -164,7 +164,7 @@ defmodule RMWeb.CoreComponents do
     ]}>
       <.icon name="hero-check-circle" class="shrink-0 text-green-500" />
       <div class="grow">
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </div>
     </div>
     """
@@ -186,14 +186,14 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <div class={["font-normal font-title italic ml-5 text-gray-500", @class]}>
       <span :if={@season} class="whitespace-nowrap">
-        <.link class="mx-1" navigate={~p"/s/#{@season}"}><%= @season %>–<%= @season + 1 %></.link> ⟩
+        <.link class="mx-1" navigate={~p"/s/#{@season}"}>{@season}–{@season + 1}</.link> ⟩
       </span>
       <span :if={@region} class="whitespace-nowrap">
-        <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}"}><%= @region.name %></.link> ⟩
+        <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}"}>{@region.name}</.link> ⟩
       </span>
       <span :if={@league} class="whitespace-nowrap">
         <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}>
-          <%= RM.Local.League.shorten_name(@league.name, @region) %>
+          {RM.Local.League.shorten_name(@league.name, @region)}
         </.link>
         ⟩
       </span>
@@ -216,14 +216,14 @@ defmodule RMWeb.CoreComponents do
           class="mx-1"
           navigate={~p"/s/#{@season}/r/#{@region}/e/#{@event}"}
         >
-          <%= @event.name %>
+          {@event.name}
         </.link>
         <.link
           :if={@league}
           class="mx-1"
           navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}"}
         >
-          <%= @event.name %>
+          {@event.name}
         </.link>
         ⟩
       </span>
@@ -275,7 +275,7 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <div class={["flex font-title italic small-caps", @class]}>
       <div class="border-b border-gray-400 w-4"></div>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
       <div class="border-b border-gray-400 grow"></div>
     </div>
     """
@@ -298,7 +298,7 @@ defmodule RMWeb.CoreComponents do
           class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
           style="background-image: linear-gradient(to bottom, white, transparent)"
         >
-          <%= render_slot(@inner_block) %>
+          {render_slot(@inner_block)}
         </div>
       <% @current in @children -> %>
         <.link
@@ -306,14 +306,14 @@ defmodule RMWeb.CoreComponents do
           style="background-image: linear-gradient(to bottom, white, transparent)"
           navigate={@navigate}
         >
-          <%= render_slot(@inner_block) %>
+          {render_slot(@inner_block)}
         </.link>
       <% :else -> %>
         <.link
           class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
           navigate={@navigate}
         >
-          <%= render_slot(@inner_block) %>
+          {render_slot(@inner_block)}
         </.link>
     <% end %>
     """
@@ -385,7 +385,7 @@ defmodule RMWeb.CoreComponents do
                 </button>
               </div>
               <div id={"#{@id}-content"}>
-                <%= render_slot(@inner_block) %>
+                {render_slot(@inner_block)}
               </div>
             </.focus_wrap>
           </div>
@@ -430,9 +430,9 @@ defmodule RMWeb.CoreComponents do
       <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
         <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4" />
         <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4" />
-        <%= @title %>
+        {@title}
       </p>
-      <p class="mt-2 text-sm leading-5"><%= msg %></p>
+      <p class="mt-2 text-sm leading-5">{msg}</p>
       <button type="button" class="group absolute top-1 right-1 p-2" aria-label="close">
         <.icon name="hero-x-mark-solid" class="h-5 w-5 opacity-40 group-hover:opacity-70" />
       </button>
@@ -508,9 +508,9 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
       <div class="mt-10 space-y-8 bg-white">
-        <%= render_slot(@inner_block, f) %>
+        {render_slot(@inner_block, f)}
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
-          <%= render_slot(action, f) %>
+          {render_slot(action, f)}
         </div>
       </div>
     </.form>
@@ -542,7 +542,7 @@ defmodule RMWeb.CoreComponents do
       ]}
       {@rest}
     >
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </button>
     """
   end
@@ -581,7 +581,7 @@ defmodule RMWeb.CoreComponents do
       ]}
       {@rest}
     >
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </.link>
     """
   end
@@ -682,9 +682,9 @@ defmodule RMWeb.CoreComponents do
           class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
           {@rest}
         />
-        <%= @label %>
+        {@label}
       </label>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
   end
@@ -695,13 +695,13 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <div class={@wrapper}>
       <.label :if={@label} for={@id}>
-        <%= @label %>
+        {@label}
         <span :if={@field_is_required} class="text-orange-500"> *</span>
         <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
           <.icon class="align-text-top h-4 text-gray-700 w-4" name="hero-information-circle" />
         </button>
       </.label>
-      <div :if={@explanation} class="text-gray-700 text-sm"><%= @explanation %></div>
+      <div :if={@explanation} class="text-gray-700 text-sm">{@explanation}</div>
       <select
         id={@id}
         name={@name}
@@ -709,10 +709,10 @@ defmodule RMWeb.CoreComponents do
         multiple={@multiple}
         {@rest}
       >
-        <option :if={@prompt} value=""><%= @prompt %></option>
-        <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
+        <option :if={@prompt} value="">{@prompt}</option>
+        {Phoenix.HTML.Form.options_for_select(@options, @value)}
       </select>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
   end
@@ -723,13 +723,13 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <div class={@wrapper}>
       <.label for={@id}>
-        <%= @label %>
+        {@label}
         <span :if={@field_is_required} class="text-orange-500"> *</span>
         <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
           <.icon class="align-text-top h-4 text-gray-700 w-4" name="hero-information-circle" />
         </button>
       </.label>
-      <div :if={@explanation} class="text-gray-700 text-sm"><%= @explanation %></div>
+      <div :if={@explanation} class="text-gray-700 text-sm">{@explanation}</div>
       <textarea
         id={@id}
         name={@name}
@@ -740,7 +740,7 @@ defmodule RMWeb.CoreComponents do
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
   end
@@ -752,13 +752,13 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <div class={@wrapper}>
       <.label for={@id}>
-        <%= @label %>
+        {@label}
         <span :if={@field_is_required} class="text-orange-500"> *</span>
         <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
           <.icon class="align-text-top h-4 text-gray-700 w-4" name="hero-information-circle" />
         </button>
       </.label>
-      <div :if={@explanation} class="text-gray-700 text-sm"><%= @explanation %></div>
+      <div :if={@explanation} class="text-gray-700 text-sm">{@explanation}</div>
       <input
         type={@type}
         name={@name}
@@ -772,7 +772,7 @@ defmodule RMWeb.CoreComponents do
         {@rest}
       />
       <.error :for={msg <- @errors}>
-        "<%= Phoenix.HTML.Form.normalize_value(@type, @value) %>" <%= msg %>
+        "{Phoenix.HTML.Form.normalize_value(@type, @value)}" {msg}
       </.error>
     </div>
     """
@@ -833,14 +833,14 @@ defmodule RMWeb.CoreComponents do
         </div>
         <div>
           <div class="font-semibold">
-            <%= @label %>
+            {@label}
             <span :if={@field_is_required} class="text-orange-500"> *</span>
             <button :if={@info_modal} form="" phx-click={show_modal(@info_modal)}>
               <.icon class="align-text-bottom h-4 text-gray-700 w-4" name="hero-information-circle" />
             </button>
           </div>
-          <div :if={@explanation} class="mt-1 text-gray-700"><%= @explanation %></div>
-          <.error :for={msg <- @errors}><%= msg %></.error>
+          <div :if={@explanation} class="mt-1 text-gray-700">{@explanation}</div>
+          <.error :for={msg <- @errors}>{msg}</.error>
         </div>
       </label>
     </div>
@@ -886,7 +886,7 @@ defmodule RMWeb.CoreComponents do
   def radio_group(assigns) do
     ~H"""
     <div class={@class}>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
       <div :for={{%{value: value} = rad, idx} <- Enum.with_index(@radio)}>
         <input
           type="radio"
@@ -896,7 +896,7 @@ defmodule RMWeb.CoreComponents do
           checked={to_string(@field.value) == to_string(value)}
           class="rounded-lg focus:ring-0"
         />
-        <label class="ml-2" for={"#{@field.id}-#{idx}"}><%= render_slot(rad) %></label>
+        <label class="ml-2" for={"#{@field.id}-#{idx}"}>{render_slot(rad)}</label>
       </div>
     </div>
     """
@@ -911,7 +911,7 @@ defmodule RMWeb.CoreComponents do
   def label(assigns) do
     ~H"""
     <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </label>
     """
   end
@@ -925,7 +925,7 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <p class="ml-4 mt-2 flex gap-2 text-sm leading-6 text-orange-600">
       <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none bg-orange-500" />
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </p>
     """
   end
@@ -946,7 +946,7 @@ defmodule RMWeb.CoreComponents do
     <dl class={["grid grid-table gap-x-8", @class]}>
       <%= for row <- @row do %>
         <dt class={["col-start-1 col-end-2 font-semibold small-caps", Map.get(row, :class)]}>
-          <%= row.title %>
+          {row.title}
           <button :if={info = Map.get(row, :info)} phx-click={show_modal(info)}>
             <.icon
               class="bottom h-4 ml-1 relative text-gray-600 w-4"
@@ -958,7 +958,7 @@ defmodule RMWeb.CoreComponents do
           "col-start-1 col-end-2 mb-2 xs:col-start-2 xs:col-end-3 last:mb-0",
           Map.get(row, :class)
         ]}>
-          <%= render_slot(row) %>
+          {render_slot(row)}
         </dd>
       <% end %>
     </dl>
@@ -1014,14 +1014,14 @@ defmodule RMWeb.CoreComponents do
           |> JS.toggle_class("rotate-180", to: "##{@id}-reveal-icon")
         }
       >
-        <h3 class="font-semibold grow"><%= @title %></h3>
+        <h3 class="font-semibold grow">{@title}</h3>
         <.icon class="transition-transform" id={"#{@id}-reveal-icon"} name="hero-chevron-up" />
       </div>
       <div
         class={["overflow-y-hidden", @class, if(@show, do: "h-auto", else: "h-0")]}
         id={"#{@id}-reveal-contents"}
       >
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </div>
     </.card>
     """
@@ -1042,7 +1042,7 @@ defmodule RMWeb.CoreComponents do
     ~H"""
     <ul {@rest}>
       <li :for={item <- @item} class={["border-b last:border-0", item[:class]]}>
-        <%= render_slot(item) %>
+        {render_slot(item)}
       </li>
 
       <li :for={item <- @link} class={["border-b last:border-0", item[:class]]}>
@@ -1051,7 +1051,7 @@ defmodule RMWeb.CoreComponents do
           navigate={item[:navigate]}
         >
           <div class="grow">
-            <%= render_slot(item) %>
+            {render_slot(item)}
           </div>
           <div><.icon name="hero-arrow-right" /></div>
         </.link>

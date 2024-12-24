@@ -3,7 +3,7 @@
 <.card spaced>
   <h3 class="font-bold mb-2">Your Profile</h3>
   <.table>
-    <:row title="Name"><%= @current_user.profile.name %></:row>
+    <:row title="Name">{@current_user.profile.name}</:row>
   </.table>
 </.card>
 
@@ -23,7 +23,7 @@
       class="border-b flex gap-2 items-center py-2 first:-mt-2 last:border-0 last:-mb-2"
     >
       <div class="grow">
-        <span class="mr-2"><%= email.email %></span>
+        <span class="mr-2">{email.email}</span>
         <span
           :if={email.confirmed_at}
           class="bg-green-100 border border-green-300 mr-2 px-1 py-0.5 rounded text-xs"

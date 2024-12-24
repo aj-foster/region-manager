@@ -1,10 +1,10 @@
 <.nav class="mb-8" region={@region} view={@socket.view} />
 
 <.title>
-  <%= @league.name %> League
+  {@league.name} League
   <:action>
     <.button phx-click="edit_league_init">
-      <%= if @edit_league, do: "Cancel", else: "Edit..." %>
+      {if @edit_league, do: "Cancel", else: "Edit..."}
     </.button>
   </:action>
 </.title>
@@ -40,7 +40,7 @@
     </a>.
   </p>
   <p>
-    The following fields differ: <%= Enum.map_join(@first_differences, ", ", &to_string/1) %>.
+    The following fields differ: {Enum.map_join(@first_differences, ", ", &to_string/1)}.
     Please reconcile this data when available.
   </p>
 </.information>
@@ -49,7 +49,7 @@
   <.table class="mb-4">
     <:row title="Name">
       <div class="flex gap-4 items-center">
-        <div class="grow"><%= @region.name %> <%= @league.name %> League</div>
+        <div class="grow">{@region.name} {@league.name} League</div>
         <button
           class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
           id="copy-league-name"
@@ -64,7 +64,7 @@
     <:row title="Code">
       <div class="flex gap-4 items-center">
         <div class="grow">
-          <span class="font-mono text-orange-600"><%= @league.code %></span>
+          <span class="font-mono text-orange-600">{@league.code}</span>
         </div>
         <button
           class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
@@ -79,7 +79,7 @@
     </:row>
     <:row title="Location">
       <div class="flex gap-4 items-center shrink">
-        <div class="min-w-0 shrink"><%= @league.location %></div>
+        <div class="min-w-0 shrink">{@league.location}</div>
         <button
           class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
           id="copy-league-location"
@@ -91,7 +91,7 @@
         </button>
       </div>
     </:row>
-    <:row title="Style"><%= if(@league.remote, do: "Remote", else: "Traditional") %></:row>
+    <:row title="Style">{if(@league.remote, do: "Remote", else: "Traditional")}</:row>
   </.table>
 
   <p class="flex flex-col gap-4 items-start justify-end text-sm sm:flex-row">
@@ -174,12 +174,12 @@
 >
   <.list :if={@league.stats.event_count > 0}>
     <:link :for={event <- @league.events} navigate={~p"/region/#{@region}/events/#{event}"}>
-      <h3 class="font-bold"><%= event.name %></h3>
+      <h3 class="font-bold">{event.name}</h3>
       <p class="text-sm">
-        <span><%= format_range(event.date_start, event.date_end) %></span>
-        <span>&bull; <%= RM.FIRST.Event.type_name(event.type) %></span>
+        <span>{format_range(event.date_start, event.date_end)}</span>
+        <span>&bull; {RM.FIRST.Event.type_name(event.type)}</span>
         <span :if={event.remote or event.hybrid}>
-          &bull; <%= RM.FIRST.Event.format_name(event) %>
+          &bull; {RM.FIRST.Event.format_name(event)}
         </span>
       </p>
     </:link>
@@ -199,12 +199,12 @@
     <%!-- TODO: Proposals "show" page --%>
     <:item :for={event <- @league.event_proposals} class="px-4 py-2">
       <%!-- navigate={~p"/region/#{@region}/events"} --%>
-      <h3 class="font-bold"><%= event.name %></h3>
+      <h3 class="font-bold">{event.name}</h3>
       <p class="text-sm">
-        <span><%= format_range(event.date_start, event.date_end) %></span>
-        <span>&bull; <%= RM.FIRST.Event.type_name(event.type) %></span>
+        <span>{format_range(event.date_start, event.date_end)}</span>
+        <span>&bull; {RM.FIRST.Event.type_name(event.type)}</span>
         <span :if={event.format != :traditional}>
-          &bull; <%= RM.Local.EventProposal.format_string(event) %>
+          &bull; {RM.Local.EventProposal.format_string(event)}
         </span>
       </p>
     </:item>
@@ -224,8 +224,8 @@
   <.list>
     <:link :for={team <- @active_teams} navigate={~p"/region/#{@region}/teams/#{team}"}>
       <h3 class="flex gap-2 items-center">
-        <strong><%= team.number %></strong>
-        <span><%= team.name %></span>
+        <strong>{team.number}</strong>
+        <span>{team.name}</span>
         <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
           Not Event Ready
         </.tag>
@@ -238,8 +238,8 @@
         </.tag>
       </h3>
       <p class="text-sm">
-        <span><%= team.location.city || "Unknown City" %> &bull;</span>
-        <span :if={team.league}><%= team.league.name %> League</span>
+        <span>{team.location.city || "Unknown City"} &bull;</span>
+        <span :if={team.league}>{team.league.name} League</span>
         <span :if={@region.has_leagues and is_nil(team.league)}>
           No League
         </span>
@@ -261,8 +261,8 @@
   <.list>
     <:link :for={team <- @intend_to_return_teams} navigate={~p"/region/#{@region}/teams/#{team}"}>
       <h3 class="flex gap-2 items-center">
-        <strong><%= team.number %></strong>
-        <span><%= team.name %></span>
+        <strong>{team.number}</strong>
+        <span>{team.name}</span>
         <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
           Not Event Ready
         </.tag>
@@ -275,8 +275,8 @@
         </.tag>
       </h3>
       <p class="text-sm">
-        <span><%= team.location.city || "Unknown City" %> &bull;</span>
-        <span :if={team.league}><%= team.league.name %> League</span>
+        <span>{team.location.city || "Unknown City"} &bull;</span>
+        <span :if={team.league}>{team.league.name} League</span>
         <span :if={@region.has_leagues and is_nil(team.league)}>
           No League
         </span>
@@ -298,8 +298,8 @@
   <.list>
     <:link :for={team <- @inactive_teams} navigate={~p"/region/#{@region}/teams/#{team}"}>
       <h3 class="flex gap-2 items-center">
-        <strong><%= team.number %></strong>
-        <span><%= team.name %></span>
+        <strong>{team.number}</strong>
+        <span>{team.name}</span>
         <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
           Not Event Ready
         </.tag>
@@ -312,8 +312,8 @@
         </.tag>
       </h3>
       <p class="text-sm">
-        <span><%= team.location.city || "Unknown City" %> &bull;</span>
-        <span :if={team.league}><%= team.league.name %> League</span>
+        <span>{team.location.city || "Unknown City"} &bull;</span>
+        <span :if={team.league}>{team.league.name} League</span>
         <span :if={@region.has_leagues and is_nil(team.league)}>
           No League
         </span>
@@ -343,7 +343,7 @@
       <p class="flex gap-2 items-center">
         <span class="font-semibold">
           <%= if assignment.user do %>
-            <%= assignment.user.profile.name %>
+            {assignment.user.profile.name}
           <% else %>
             <em>Unregistered User</em>
           <% end %>
@@ -362,7 +362,7 @@
             <.tag class="bg-rose-100 border-rose-300">No Permissions</.tag>
         <% end %>
       </p>
-      <p class="text-sm"><%= assignment.email %></p>
+      <p class="text-sm">{assignment.email}</p>
     </div>
 
     <div>
