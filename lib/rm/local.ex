@@ -97,14 +97,15 @@ defmodule RM.Local do
   def verify_eligibility(_event, _team), do: :ok
 
   @spec change_event_settings(Event.t()) :: Changeset.t(EventSettings.t())
-  def change_event_settings(event) do
+  @spec change_event_settings(Event.t(), map) :: Changeset.t(EventSettings.t())
+  def change_event_settings(event, params \\ %{}) do
     case Repo.preload(event, :settings) do
       %Event{settings: nil} ->
-        EventSettings.changeset(%{})
+        EventSettings.changeset(%EventSettings{event: event}, params)
         |> Changeset.put_assoc(:event, event)
 
       %Event{settings: settings} ->
-        EventSettings.changeset(settings, %{})
+        EventSettings.changeset(%EventSettings{settings | event: event}, params)
     end
   end
 
@@ -113,13 +114,16 @@ defmodule RM.Local do
   def update_event_settings(event, params) do
     case Repo.preload(event, :settings) do
       %Event{settings: nil} ->
-        %EventSettings{registration: %RegistrationSettings{enabled: true, pool: :event}}
+        %EventSettings{
+          event: event,
+          registration: %RegistrationSettings{enabled: true, pool: :event}
+        }
         |> EventSettings.changeset(params)
         |> Changeset.put_assoc(:event, event)
         |> Repo.insert()
 
       %Event{settings: settings} ->
-        EventSettings.changeset(settings, params)
+        EventSettings.changeset(%EventSettings{settings | event: event}, params)
         |> Repo.update()
     end
   end

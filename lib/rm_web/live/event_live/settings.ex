@@ -10,6 +10,7 @@ defmodule RMWeb.EventLive.Settings do
     socket
     |> assign_event(event_code)
     |> require_permission()
+    |> event_settings_form(%{})
     |> registration_settings_form()
     |> ok()
   end
@@ -34,6 +35,26 @@ defmodule RMWeb.EventLive.Settings do
 
   @impl true
   def handle_event(event, unsigned_params, socket)
+
+  def handle_event("event_settings_change", %{"event_settings" => params}, socket) do
+    event = socket.assigns[:event]
+
+    with :ok <- require_noreply(socket, :event_settings_update, event) do
+      socket
+      |> event_settings_form(params)
+      |> noreply()
+    end
+  end
+
+  def handle_event("event_settings_submit", %{"event_settings" => params}, socket) do
+    event = socket.assigns[:event]
+
+    with :ok <- require_noreply(socket, :event_settings_update, event) do
+      socket
+      |> event_settings_submit(params)
+      |> noreply()
+    end
+  end
 
   def handle_event("registration_settings_change", %{"event_settings" => params}, socket) do
     event = socket.assigns[:event]
@@ -73,6 +94,30 @@ defmodule RMWeb.EventLive.Settings do
         socket
         |> put_flash(:error, "Event not found")
         |> redirect(to: ~p"/dashboard")
+    end
+  end
+
+  @spec event_settings_form(Socket.t(), map) :: Socket.t()
+  defp event_settings_form(socket, params) do
+    event = socket.assigns[:event]
+    form = RM.Local.change_event_settings(event, params) |> to_form()
+
+    assign(socket, event_settings_form: form, event_settings_success: false)
+  end
+
+  @spec event_settings_submit(Socket.t(), map) :: Socket.t()
+  defp event_settings_submit(socket, params) do
+    event = socket.assigns[:event]
+
+    case RM.Local.update_event_settings(event, params) do
+      {:ok, _settings} ->
+        socket
+        |> refresh_event_settings()
+        |> event_settings_form(%{})
+        |> assign(event_settings_success: true)
+
+      {:error, changeset} ->
+        assign(socket, event_settings_form: to_form(changeset))
     end
   end
 

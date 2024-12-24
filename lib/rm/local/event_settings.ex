@@ -102,5 +102,28 @@ defmodule RM.Local.EventSettings do
     |> Changeset.cast(params, @required_fields ++ @optional_fields)
     |> Changeset.validate_required(@required_fields)
     |> Changeset.cast_embed(:registration)
+    |> validate_video_submission_date()
+  end
+
+  @spec validate_video_submission_date(Changeset.t(t)) :: Changeset.t(t)
+  defp validate_video_submission_date(changeset) do
+    if Changeset.get_field(changeset, :video_submission) do
+      changeset
+      |> Changeset.validate_required([:video_submission_date])
+      |> Changeset.validate_change(:video_submission_date, fn :video_submission_date, date ->
+        cond do
+          not is_struct(changeset.data.event, Event) ->
+            []
+
+          Date.after?(date, changeset.data.event.date_end) ->
+            [video_submission_date: "must be before the end of the event"]
+
+          :else ->
+            []
+        end
+      end)
+    else
+      Changeset.put_change(changeset, :video_submission_date, nil)
+    end
   end
 end

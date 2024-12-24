@@ -650,6 +650,19 @@ defmodule RMWeb.CoreComponents do
     |> input()
   end
 
+  def input(%{type: "hidden"} = assigns) do
+    ~H"""
+    <input
+      class={@wrapper}
+      type={@type}
+      name={@name}
+      id={@id}
+      value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+      {@rest}
+    />
+    """
+  end
+
   def input(%{type: "checkbox"} = assigns) do
     assigns =
       assign_new(assigns, :checked, fn ->

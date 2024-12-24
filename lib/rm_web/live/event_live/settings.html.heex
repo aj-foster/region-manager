@@ -47,7 +47,46 @@
   </.nav_item>
 </.top_nav>
 
-<.title>Settings for <%= @event.name %></.title>
+<.title>Settings for {@event.name}</.title>
+
+<.card spaced>
+  <.form
+    class="mt-2"
+    id="event-settings-general-form"
+    for={@event_settings_form}
+    phx-change="event_settings_change"
+    phx-submit="event_settings_submit"
+  >
+    <.switch
+      explanation="If enabled, teams can submit URLs for video award submissions. Submissions will become visible to everyone after the deadline."
+      disabled={@event.type == :league_meet}
+      field={@event_settings_form[:video_submission]}
+      label="Accept video award submissions"
+      wrapper="mb-4"
+    />
+
+    <%= if @event_settings_form[:video_submission].value in [true, "true"] do %>
+      <.input
+        explanation={"Video award submissions will be due at 11:59pm local time on this date. A common choice is 7 days before the event ends. Event is #{format_range(@event.date_start, @event.date_end)}."}
+        field={@event_settings_form[:video_submission_date]}
+        label="Video Submission Due Date"
+        required
+        type="date"
+        wrapper="mb-4 pl-10"
+      />
+    <% else %>
+      <.input field={@event_settings_form[:video_submission_date]} type="hidden" value="" />
+    <% end %>
+
+    <p class="text-right">
+      <.button disabled={@event_settings_success} type="submit">
+        Update Settings <.icon :if={@event_settings_success} class="h4 w-4" name="hero-check" />
+      </.button>
+    </p>
+  </.form>
+</.card>
+
+<.title>Registration Settings</.title>
 
 <.card spaced>
   <p class="mb-4 text-sm">
@@ -56,7 +95,7 @@
   </p>
 
   <.form
-    id="league-event-registration-settings-form"
+    id="event-settings-registration-form"
     for={@registration_settings_form}
     phx-change="registration_settings_change"
   >
