@@ -23,7 +23,7 @@ defmodule RM.Local.EventSettings do
         }
 
   @required_fields [:event_id, :video_submission, :virtual]
-  @optional_fields [:video_submission_date]
+  @optional_fields [:video_submission_date, :video_submission_pool]
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id

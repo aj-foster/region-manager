@@ -69,13 +69,23 @@
       <.input
         explanation={"Video award submissions will be due at 11:59pm local time on this date. A common choice is 7 days before the event ends. Event is #{format_range(@event.date_start, @event.date_end)}."}
         field={@event_settings_form[:video_submission_date]}
-        label="Video Submission Due Date"
+        label="Video award submission due date"
         required
         type="date"
         wrapper="mb-4 pl-10"
       />
+
+      <.input
+        explanation="The default (registered teams) is appropriate for most events. A different pool of teams can be used if registration is not enabled in Region Manager."
+        field={@event_settings_form[:video_submission_pool]}
+        label="Which teams can submit video awards?"
+        options={award_pool_options(@event)}
+        type="select"
+        wrapper="pl-10 mb-4"
+      />
     <% else %>
       <.input field={@event_settings_form[:video_submission_date]} type="hidden" value="" />
+      <.input field={@event_settings_form[:video_submission_pool]} type="hidden" value="" />
     <% end %>
 
     <p class="text-right">

@@ -192,6 +192,24 @@ defmodule RMWeb.EventLive.Settings do
   # Template Helpers
   #
 
+  @spec award_pool_options(RM.FIRST.Event.t()) :: [{String.t(), String.t()}]
+  defp award_pool_options(%RM.FIRST.Event{league: %_{} = league, region: region}) do
+    [
+      {"Registered Teams", "registered"},
+      {"Teams in #{league.name} League", "league"},
+      {"Teams in #{region.name}", "region"},
+      {"Any Team", "all"}
+    ]
+  end
+
+  defp award_pool_options(%RM.FIRST.Event{region: region}) do
+    [
+      {"Registered Teams", "registered"},
+      {"Teams in #{region.name}", "region"},
+      {"Any Team", "all"}
+    ]
+  end
+
   @spec registration_pool_options(RM.FIRST.Event.t()) :: [{String.t(), String.t()}]
   defp registration_pool_options(%RM.FIRST.Event{league: %_{} = league, region: region}) do
     [
