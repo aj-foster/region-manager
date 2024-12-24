@@ -5,6 +5,7 @@ defmodule RM.Repo.Migrations.AddVideoSubmissionToEventSettings do
     alter table(:event_settings) do
       add :video_submission, :boolean, null: false, default: false
       add :video_submission_date, :date
+      add :video_submission_pool, :text
     end
 
     create_if_not_exists table(:event_videos, primary_key: false) do

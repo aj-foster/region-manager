@@ -6,6 +6,10 @@ defmodule RM.Local.EventSettings do
   alias RM.Local.RegistrationSettings
   alias RM.Repo
 
+  @typedoc "Group of teams that can submit video awards for an event"
+  @type award_pool :: :registered | :league | :region | :all
+  @award_pools [:registered, :league, :region, :all]
+
   @typedoc "Settings for an event"
   @type t :: %__MODULE__{
           event: Event.t(),
@@ -14,6 +18,7 @@ defmodule RM.Local.EventSettings do
           registration: RegistrationSettings.t(),
           video_submission: boolean,
           video_submission_date: Date.t(),
+          video_submission_pool: award_pool,
           virtual: boolean
         }
 
@@ -26,6 +31,7 @@ defmodule RM.Local.EventSettings do
   schema "event_settings" do
     field :video_submission, :boolean
     field :video_submission_date, :date
+    field :video_submission_pool, Ecto.Enum, values: @award_pools
     field :virtual, :boolean
     embeds_one :registration, RegistrationSettings, on_replace: :update
 
@@ -81,6 +87,7 @@ defmodule RM.Local.EventSettings do
       event_id: event.id,
       video_submission: false,
       video_submission_date: nil,
+      video_submission_pool: nil,
       virtual: false,
       registration: %RegistrationSettings{
         deadline_days: deadline_days,
