@@ -58,8 +58,13 @@
     phx-submit="event_settings_submit"
   >
     <.switch
-      explanation="If enabled, teams can submit URLs for video award submissions. Submissions will become visible to everyone after the deadline."
-      disabled={@event.type == :league_meet}
+      explanation={
+        if @event.type in [:league_meet, :kickoff, :workshop, :demo, :volunteer],
+          do: "Awards are unavailable for this type of event.",
+          else:
+            "If enabled, teams can submit URLs for video award submissions. Submissions will become visible to everyone after the deadline."
+      }
+      disabled={@event.type in [:league_meet, :kickoff, :workshop, :demo, :volunteer]}
       field={@event_settings_form[:video_submission]}
       label="Accept video award submissions"
       wrapper="mb-4"
