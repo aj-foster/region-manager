@@ -208,6 +208,7 @@
     <:action>
       <.button
         :if={@current_user}
+        disabled={@registered_teams_count == 0}
         phx-click={show_modal("team-export-modal")}
         style="tertiary"
         target="blank"
@@ -230,6 +231,10 @@
         </p>
       </:item>
     </.list>
+  </.card>
+
+  <.card :if={@registered_teams_count == 0} spaced>
+    <p class="italic text-sm">There are no teams registered for this event.</p>
   </.card>
 <% else %>
   <.card spaced>
