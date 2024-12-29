@@ -2,6 +2,7 @@ defmodule RM.Local.Venue do
   use Ecto.Schema
 
   alias Ecto.Changeset
+  alias RM.FIRST.Region
   alias RM.Local.EventProposal
   alias RM.Local.League
   alias RM.Local.Log
@@ -30,6 +31,7 @@ defmodule RM.Local.Venue do
     # belongs_to :map, File
 
     belongs_to :league, League
+    belongs_to :region, Region
     has_many :event_proposals, EventProposal
 
     embeds_many :log, Log
@@ -43,13 +45,22 @@ defmodule RM.Local.Venue do
   #
 
   @doc """
-  Create a changeset for adding a new venue to the given league
+  Create a changeset for adding a new venue to the given region or league
   """
-  @spec create_changeset(League.t(), map) :: Changeset.t(t)
-  def create_changeset(league, params) do
+  @spec create_changeset(Region.t() | League.t(), map) :: Changeset.t(t)
+  def create_changeset(%Region{} = region, params) do
+    %__MODULE__{}
+    |> Changeset.cast(params, @required_fields ++ @optional_fields)
+    |> Changeset.put_assoc(:region, region)
+    |> Changeset.put_embed(:log, [Log.new("created", params)])
+    |> Changeset.validate_required(@required_fields)
+  end
+
+  def create_changeset(%League{} = league, params) do
     %__MODULE__{}
     |> Changeset.cast(params, @required_fields ++ @optional_fields)
     |> Changeset.put_assoc(:league, league)
+    |> Changeset.put_assoc(:region, league.region)
     |> Changeset.put_embed(:log, [Log.new("created", params)])
     |> Changeset.validate_required(@required_fields)
   end
