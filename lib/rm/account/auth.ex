@@ -25,6 +25,19 @@ defmodule RM.Account.Auth do
       (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
   end
 
+  # Update information about published and unpublished leagues
+  def can?(%User{} = user, :league_update, %RM.FIRST.League{} = league) do
+    league.region_id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :league_update, %RM.FIRST.Region{} = region) do
+    region.id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :league_update, %RM.Local.League{} = league) do
+    league.region_id in region_ids(user)
+  end
+
   # Create a new event proposal
   def can?(%User{} = user, :proposal_create, _data) do
     length(user.regions) > 1 or length(league_ids_with_events(user)) > 1

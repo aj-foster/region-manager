@@ -142,6 +142,11 @@ defmodule RMWeb.EventLive.Index do
   # Template Helpers
   #
 
+  @spec events_page_title(
+          RM.Local.League.t() | nil,
+          RM.FIRST.League.t() | nil,
+          RM.FIRST.Region.t()
+        ) :: String.t()
   defp events_page_title(local_league, first_league, region)
   defp events_page_title(%RM.Local.League{name: name}, _, _), do: name <> " League"
   defp events_page_title(_, %RM.FIRST.League{name: name}, _), do: name <> " League"

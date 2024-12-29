@@ -1,0 +1,67 @@
+<.breadcrumbs class="mb-4" season={@season} region={@region} leagues />
+
+<RMWeb.RegionLive.Util.region_nav
+  class="mb-8"
+  season={@season}
+  region={@region}
+  view={@socket.view}
+/>
+
+<.title>
+  Leagues in {leagues_page_title(
+    @local_league,
+    @first_league,
+    @region
+  )}
+</.title>
+
+<.card :if={@leagues_count > 0} padding={false} spaced>
+  <.list>
+    <:link :for={league <- @leagues} navigate={~p"/s/#{@season}/r/#{@region}/l/#{league}"}>
+      <h3 class="flex font-bold gap-2 items-center">
+        {league.name}
+      </h3>
+      <p class="text-sm">
+        <span :if={league.stats.league_count && league.stats.league_count > 0}>
+          {dumb_inflect("league", league.stats.league_count)} &bull;
+        </span>
+        <span>{dumb_inflect("team", league.stats.team_count)} &bull;</span>
+        <span>{dumb_inflect("event", league.stats.event_count)}</span>
+      </p>
+    </:link>
+  </.list>
+</.card>
+
+<.card :if={@leagues_count == 0} spaced>
+  <p class="italic text-sm">There are no published leagues for this region during this season.</p>
+</.card>
+
+<%= if @unpublished_leagues_count > 0 do %>
+  <.title>
+    Unpublished Leagues in {leagues_page_title(
+      @local_league,
+      @first_league,
+      @region
+    )}
+  </.title>
+
+  <.card padding={false} spaced>
+    <.list>
+      <:link
+        :for={league <- @unpublished_leagues}
+        navigate={~p"/s/#{@season}/r/#{@region}/l/#{league}"}
+      >
+        <h3 class="flex font-bold gap-2 items-center">
+          {league.name}
+        </h3>
+        <p class="text-sm">
+          <span :if={league.stats.league_count && league.stats.league_count > 0}>
+            {dumb_inflect("league", league.stats.league_count)} &bull;
+          </span>
+          <span>{dumb_inflect("team", league.stats.team_count)} &bull;</span>
+          <span>{dumb_inflect("event", league.stats.event_count)}</span>
+        </p>
+      </:link>
+    </.list>
+  </.card>
+<% end %>

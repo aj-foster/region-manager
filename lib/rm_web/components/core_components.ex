@@ -178,6 +178,7 @@ defmodule RMWeb.CoreComponents do
   attr :event_settings, :boolean, default: false, doc: "whether viewing an event settings page"
   attr :events, :boolean, default: false, doc: "whether viewing an event listing"
   attr :league, :any, default: nil, doc: "current league struct (local or FIRST), if any"
+  attr :leagues, :boolean, default: false, doc: "whether viewing a league listing"
   attr :region, RM.FIRST.Region, default: nil, doc: "current region, if any"
   attr :registration, :boolean, default: false, doc: "whether viewing an event registration page"
   attr :season, :integer, default: nil, doc: "current season, if any"
@@ -190,6 +191,12 @@ defmodule RMWeb.CoreComponents do
       </span>
       <span :if={@region} class="whitespace-nowrap">
         <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}"}>{@region.name}</.link> ⟩
+      </span>
+      <span :if={@leagues} class="whitespace-nowrap">
+        <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/leagues"}>
+          Leagues
+        </.link>
+        ⟩
       </span>
       <span :if={@league} class="whitespace-nowrap">
         <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}>

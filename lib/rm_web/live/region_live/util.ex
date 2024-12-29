@@ -8,6 +8,43 @@ defmodule RMWeb.RegionLive.Util do
   alias RMWeb.RegionLive
 
   @doc """
+  Unified navigation component for region-level views
+  """
+  attr :class, :string, default: nil, doc: "Additional classes for the navigation wrapper"
+  attr :region, RM.FIRST.Region, required: true, doc: "current region, `@region`"
+  attr :season, :integer, required: true, doc: "current season, `@season`"
+  attr :view, :any, required: true, doc: "`@socket.view`"
+
+  def region_nav(assigns) do
+    ~H"""
+    <.top_nav class="mb-8">
+      <.nav_item
+        current={@view}
+        navigate={~p"/s/#{@season}/r/#{@region}"}
+        target={RMWeb.RegionLive.Show}
+      >
+        Overview
+      </.nav_item>
+      <.nav_item
+        current={@view}
+        navigate={~p"/s/#{@season}/r/#{@region}/events"}
+        target={RMWeb.EventLive.Index}
+      >
+        Events
+      </.nav_item>
+      <.nav_item
+        :if={@region.has_leagues}
+        current={@view}
+        navigate={~p"/s/#{@season}/r/#{@region}/leagues"}
+        target={RMWeb.LeagueLive.Index}
+      >
+        Leagues
+      </.nav_item>
+    </.top_nav>
+    """
+  end
+
+  @doc """
   Navigation component for region views
   """
   attr :class, :string, default: nil, doc: "Additional classes for the navigation wrapper"
