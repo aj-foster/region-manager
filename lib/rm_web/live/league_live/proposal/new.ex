@@ -66,11 +66,11 @@ defmodule RMWeb.LeagueLive.Proposal.New do
   @spec add_venue_form(Socket.t()) :: Socket.t()
   @spec add_venue_form(Socket.t(), map) :: Socket.t()
   defp add_venue_form(socket, params \\ %{}) do
-    league = socket.assigns[:league]
-
     params =
       params
       |> Map.put("by", socket.assigns[:current_user])
+      |> Map.put("league", socket.assigns[:league])
+      |> Map.put("region", socket.assigns[:region])
       |> Map.put_new("country", socket.assigns[:league].region.metadata.default_country)
       |> Map.put_new(
         "state_province",
@@ -80,10 +80,10 @@ defmodule RMWeb.LeagueLive.Proposal.New do
 
     form =
       if event = socket.assigns[:event] do
-        Venue.retroactive_changeset(event, league, params)
+        Venue.retroactive_changeset(event, params)
         |> to_form()
       else
-        Venue.create_changeset(league, params)
+        Venue.create_changeset(params)
         |> to_form()
       end
 
@@ -92,13 +92,15 @@ defmodule RMWeb.LeagueLive.Proposal.New do
 
   @spec add_venue_submit(Socket.t(), map) :: Socket.t()
   defp add_venue_submit(socket, params) do
-    league = socket.assigns[:league]
-    params = Map.put(params, "by", socket.assigns[:current_user])
+    params =
+      Map.put(params, "by", socket.assigns[:current_user])
+      |> Map.put("league", socket.assigns[:league])
+      |> Map.put("region", socket.assigns[:region])
 
     if event = socket.assigns[:event] do
-      RM.Local.create_venue_from_event(event, league, params)
+      RM.Local.create_venue_from_event(event, params)
     else
-      RM.Local.create_venue(league, params)
+      RM.Local.create_venue(params)
     end
     |> case do
       {:ok, venue} ->

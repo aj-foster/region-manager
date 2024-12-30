@@ -21,6 +21,7 @@ defmodule RM.FIRST.Region do
   alias RM.FIRST.Event
   alias RM.FIRST.League
   alias RM.Local.Team
+  alias RM.Local.Venue
 
   @type t :: %__MODULE__{
           abbreviation: String.t(),
@@ -59,6 +60,7 @@ defmodule RM.FIRST.Region do
     has_many :first_leagues, League
     has_many :leagues, RM.Local.League
     has_many :teams, Team
+    has_many :venues, Venue
 
     embeds_one :metadata, Metadata, on_replace: :update, primary_key: false do
       # Region's country as it appears in Batch Create spreadsheets for events

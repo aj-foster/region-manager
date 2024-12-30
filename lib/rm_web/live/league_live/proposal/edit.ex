@@ -110,28 +110,30 @@ defmodule RMWeb.LeagueLive.Proposal.Edit do
   @spec add_venue_form(Socket.t(), map) :: Socket.t()
   defp add_venue_form(socket, params \\ %{}) do
     league = socket.assigns[:league]
+    region = socket.assigns[:region]
 
     params =
       params
       |> Map.put("by", socket.assigns[:current_user])
-      |> Map.put_new("country", socket.assigns[:league].region.metadata.default_country)
-      |> Map.put_new(
-        "state_province",
-        socket.assigns[:league].region.metadata.default_state_province
-      )
+      |> Map.put("league", league)
+      |> Map.put("region", region)
+      |> Map.put_new("country", region.metadata.default_country)
+      |> Map.put_new("state_province", region.metadata.default_state_province)
       |> Map.put_new("timezone", socket.assigns[:timezone])
 
-    form = Venue.create_changeset(league, params) |> to_form()
+    form = Venue.create_changeset(params) |> to_form()
 
     assign(socket, add_venue_form: form)
   end
 
   @spec add_venue_submit(Socket.t(), map) :: Socket.t()
   defp add_venue_submit(socket, params) do
-    league = socket.assigns[:league]
-    params = Map.put(params, "by", socket.assigns[:current_user])
+    params =
+      Map.put(params, "by", socket.assigns[:current_user])
+      |> Map.put("league", socket.assigns[:league])
+      |> Map.put("region", socket.assigns[:region])
 
-    case RM.Local.create_venue(league, params) do
+    case RM.Local.create_venue(params) do
       {:ok, venue} ->
         socket
         |> push_js("#add-venue-modal", "data-cancel")

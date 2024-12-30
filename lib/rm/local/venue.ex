@@ -47,20 +47,12 @@ defmodule RM.Local.Venue do
   @doc """
   Create a changeset for adding a new venue to the given region or league
   """
-  @spec create_changeset(Region.t() | League.t(), map) :: Changeset.t(t)
-  def create_changeset(%Region{} = region, params) do
+  @spec create_changeset(map) :: Changeset.t(t)
+  def create_changeset(params) do
     %__MODULE__{}
     |> Changeset.cast(params, @required_fields ++ @optional_fields)
-    |> Changeset.put_assoc(:region, region)
-    |> Changeset.put_embed(:log, [Log.new("created", params)])
-    |> Changeset.validate_required(@required_fields)
-  end
-
-  def create_changeset(%League{} = league, params) do
-    %__MODULE__{}
-    |> Changeset.cast(params, @required_fields ++ @optional_fields)
-    |> Changeset.put_assoc(:league, league)
-    |> Changeset.put_assoc(:region, league.region)
+    |> Changeset.put_assoc(:league, params["league"])
+    |> Changeset.put_assoc(:region, params["region"])
     |> Changeset.put_embed(:log, [Log.new("created", params)])
     |> Changeset.validate_required(@required_fields)
   end
@@ -79,10 +71,11 @@ defmodule RM.Local.Venue do
   @doc """
   Create a changeset based on an existing (published) event
   """
-  @spec retroactive_changeset(RM.FIRST.Event.t(), League.t(), map) :: Changeset.t(t)
-  def retroactive_changeset(event, league, params) do
+  @spec retroactive_changeset(RM.FIRST.Event.t(), map) :: Changeset.t(t)
+  def retroactive_changeset(event, params) do
     %RM.FIRST.Event{
       date_timezone: timezone,
+      local_league: local_league,
       location: %RM.FIRST.Event.Location{
         address: address,
         city: city,
@@ -102,7 +95,7 @@ defmodule RM.Local.Venue do
       timezone: timezone
     )
     |> Changeset.cast(params, @required_fields ++ @optional_fields)
-    |> Changeset.put_assoc(:league, league)
+    |> Changeset.put_assoc(:league, local_league)
     |> Changeset.put_embed(:log, [Log.new("created", params)])
     |> Changeset.validate_required(@required_fields)
   end

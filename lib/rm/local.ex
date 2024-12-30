@@ -639,16 +639,16 @@ defmodule RM.Local do
     end
   end
 
-  @spec create_venue(League.t(), map) :: {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
-  def create_venue(league, params) do
-    Venue.create_changeset(league, params)
+  @spec create_venue(map) :: {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
+  def create_venue(params) do
+    Venue.create_changeset(params)
     |> Repo.insert()
   end
 
-  @spec create_venue_from_event(Event.t(), League.t(), map) ::
+  @spec create_venue_from_event(Event.t(), map) ::
           {:ok, Venue.t()} | {:error, Changeset.t(Venue.t())}
-  def create_venue_from_event(event, league, params) do
-    Venue.retroactive_changeset(event, league, params)
+  def create_venue_from_event(event, params) do
+    Venue.retroactive_changeset(event, params)
     |> Repo.insert()
   end
 
