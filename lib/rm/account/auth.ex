@@ -3,7 +3,10 @@ defmodule RM.Account.Auth do
   Authorization helpers for actions across the application
   """
   alias RM.Account.User
+  alias RM.FIRST
   alias RM.FIRST.Event
+  alias RM.FIRST.Region
+  alias RM.Local
   alias RM.Local.EventProposal
 
   @doc """
@@ -19,31 +22,52 @@ defmodule RM.Account.Auth do
   @spec can?(User.t() | nil, atom, term) :: boolean
   def can?(user, action, data \\ nil)
 
+  #
+  # Event Settings
+  #
+
   # Update event settings for a published event
   def can?(%User{} = user, :event_settings_update, %Event{} = event) do
     event.region_id in region_ids(user) or
       (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
   end
 
+  #
+  # Leagues
+  #
+
   # Update information about published and unpublished leagues
-  def can?(%User{} = user, :league_update, %RM.FIRST.League{} = league) do
+  def can?(%User{} = user, :league_update, %FIRST.League{} = league) do
     league.region_id in region_ids(user)
   end
 
-  def can?(%User{} = user, :league_update, %RM.FIRST.Region{} = region) do
+  def can?(%User{} = user, :league_update, %Region{} = region) do
     region.id in region_ids(user)
   end
 
-  def can?(%User{} = user, :league_update, %RM.Local.League{} = league) do
+  def can?(%User{} = user, :league_update, %Local.League{} = league) do
     league.region_id in region_ids(user)
   end
 
+  #
+  # Event Proposals
+  #
+
   # Create a new event proposal
-  def can?(%User{} = user, :proposal_create, %RM.FIRST.Region{id: region_id}) do
+  def can?(%User{} = user, :proposal_create, %Region{id: region_id}) do
     region_id in region_ids(user)
   end
 
-  def can?(%User{} = user, :proposal_create, %RM.Local.League{id: league_id, region_id: region_id}) do
+  def can?(%User{} = user, :proposal_create, %Local.League{id: league_id, region_id: region_id}) do
+    region_id in region_ids(user) or league_id in league_ids_with_events(user)
+  end
+
+  # List unpublished event proposals for a region or league
+  def can?(%User{} = user, :proposal_index, %Region{id: region_id}) do
+    region_id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :proposal_index, %Local.League{id: league_id, region_id: region_id}) do
     region_id in region_ids(user) or league_id in league_ids_with_events(user)
   end
 
@@ -64,11 +88,19 @@ defmodule RM.Account.Auth do
     can?(%User{} = user, :proposal_show, event)
   end
 
+  #
+  # Registration Settings
+  #
+
   # Update registration settings for a published event
   def can?(%User{} = user, :registration_settings_update, %Event{} = event) do
     event.region_id in region_ids(user) or
       (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
   end
+
+  #
+  # Teams
+  #
 
   # See personally-identifiable information for registered teams
   def can?(%User{} = user, :team_pii_show, %Event{} = event) do
@@ -76,11 +108,19 @@ defmodule RM.Account.Auth do
       (present?(event.local_league_id) and event.local_league_id in league_ids_with_contact(user))
   end
 
+  #
+  # Venues
+  #
+
   # Change whether the venue address is visible for a published event
   def can?(%User{} = user, :venue_virtual_toggle, %Event{} = event) do
     event.region_id in region_ids(user) or
       (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
   end
+
+  #
+  # Default
+  #
 
   # Default: deny the action.
   def can?(_user, _action, _data), do: false
