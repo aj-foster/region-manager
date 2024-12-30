@@ -26,6 +26,7 @@ defmodule RMWeb.RegionLive.Util do
         Overview
       </.nav_item>
       <.nav_item
+        children={[RMWeb.EventLive.New]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/events"}
         target={RMWeb.EventLive.Index}

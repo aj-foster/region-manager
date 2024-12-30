@@ -1,0 +1,477 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  events
+  event={@event}
+/>
+
+<RMWeb.RegionLive.Util.region_nav
+  class="mb-8"
+  season={@season}
+  region={@region}
+  view={@socket.view}
+/>
+
+<%= if @event do %>
+  <.title>Create Proposal for {@event.name}</.title>
+<% else %>
+  <.title>Propose an Event</.title>
+<% end %>
+
+<.card :if={is_nil(@event)} spaced>
+  <p class="text-sm">
+    Proposed events are sent to the Program Delivery Partner to submit to <em>FIRST</em>. They will appear in
+    <strong>Region Manager</strong>
+    after they are accepted and published by <em>FIRST</em>. This may take some time.
+  </p>
+</.card>
+
+<.information :if={@event} class="mb-8">
+  <p class="font-semibold">Creating proposal for an existing event</p>
+  <p>If any important event details change, contact your Program Delivery Partner.</p>
+</.information>
+
+<.title>Event Location</.title>
+
+<.card spaced>
+  <p class="mb-2 text-sm">
+    Choose an existing venue or create a new one:
+  </p>
+  <div class="flex items-center">
+    <.form
+      class="flex items-center"
+      for={%{"venue" => ""}}
+      id="event-venue-form"
+      phx-change="venue_change"
+    >
+      <.input
+        disabled={@venues == []}
+        id="venue-select"
+        name="venue"
+        options={venue_options(@venues)}
+        prompt={if(@venues == [], do: "No Venues Created", else: "Choose Venue")}
+        type="select"
+        value={if(@venue, do: @venue.id)}
+        wrapper="mb-2 mr-4"
+      />
+    </.form>
+    <.button phx-click={show_modal("add-venue-modal")}>Add Venue...</.button>
+  </div>
+  <.error :for={msg <- Enum.map(@proposal_form[:venue].errors, &translate_error/1)}>
+    {msg}
+  </.error>
+</.card>
+
+<.form
+  for={@proposal_form}
+  id="event-proposal-form"
+  phx-change="proposal_change"
+  phx-submit="proposal_submit"
+>
+  <.title>Event Details</.title>
+
+  <.card spaced>
+    <.input
+      explanation="Event names are usually [League] [Event Type] [Number], but can have stylized names."
+      field={@proposal_form[:name]}
+      label="Event Name / Title"
+      placeholder="Mountport League Meet #2"
+      required
+      wrapper="mb-8"
+    />
+
+    <div class="flex gap-4 mb-8">
+      <.input
+        field={@proposal_form[:type]}
+        info_modal="event-type-modal"
+        label="Event Type"
+        options={event_type_options(@local_league)}
+        prompt="Select Type"
+        required
+        type="select"
+        wrapper="basis-1/2"
+      />
+
+      <input
+        id="proposal_form_format_hidden"
+        name={@proposal_form[:format].name}
+        type="hidden"
+        value="traditional"
+      />
+      <.input
+        disabled={to_string(@proposal_form[:type].value) in ["league_meet", "demo", "workshop"]}
+        field={@proposal_form[:format]}
+        info_modal="event-format-modal"
+        label="Event Format"
+        options={event_format_options()}
+        prompt="Select Format"
+        required
+        type="select"
+        wrapper="basis-1/2"
+      />
+    </div>
+
+    <.input
+      explanation="For hybrid or remote events, this is the day that judging or score submissions begins (usually 7 days before the end). For traditional events, this should be the same as the end date."
+      field={@proposal_form[:date_start]}
+      label="Start Date"
+      required
+      type="date"
+      wrapper="mb-8"
+    />
+
+    <.input
+      explanation="For hybrid and traditional events, this is the final day of in-person competition. For hybrid and remote events, this is the final day for score submissions."
+      field={@proposal_form[:date_end]}
+      label="End Date"
+      required
+      type="date"
+    />
+  </.card>
+
+  <.title>Contact Information</.title>
+
+  <.card spaced>
+    <p class="mb-4 text-sm">
+      Please provide contact details for the event or tournament director. This information will be available to coaches and mentors in Region Manager.
+    </p>
+    <.inputs_for :let={f} field={@proposal_form[:contact]}>
+      <.input
+        field={f[:name]}
+        label="Contact Name"
+        placeholder="First Last"
+        required
+        wrapper="mb-4"
+      />
+      <.input
+        field={f[:email]}
+        label="Email Address"
+        placeholder="person@example.com"
+        required
+        type="email"
+        wrapper="mb-4"
+      />
+      <.input
+        field={f[:phone]}
+        label="Phone Number"
+        placeholder="+1 (000) 000-0000"
+        required
+        type="tel"
+      />
+    </.inputs_for>
+  </.card>
+
+  <.title>Additional Information</.title>
+
+  <.card spaced>
+    <p class="mb-4 text-sm">
+      The following information, while optional, will help attendees know what to expect at your event.
+    </p>
+
+    <.input
+      explanation="Optional additional information or special instructions for attendees of the event. This information will be publicly available."
+      field={@proposal_form[:description]}
+      label="Public Description"
+      placeholder="Before you arrive, make sure to..."
+      type="textarea"
+      wrapper="mb-8"
+    />
+
+    <div class="flex gap-4 mb-8">
+      <.input
+        explanation="Additional information about this event"
+        field={@proposal_form[:website]}
+        label="Website"
+        placeholder="https://example.com/..."
+        wrapper="basis-1/2"
+      />
+      <.input
+        explanation="Channel or event URL for live coverage"
+        field={@proposal_form[:live_stream_url]}
+        label="Live Stream URL"
+        placeholder="https://youtube.com/..."
+        wrapper="basis-1/2"
+      />
+    </div>
+
+    <.input
+      explanation="Optional notes about this event. These will only be visible to league and region administrators."
+      field={@proposal_form[:notes]}
+      label="Admin Notes"
+      placeholder="This detail may change..."
+      type="textarea"
+    />
+  </.card>
+
+  <%= if is_nil(@event) do %>
+    <.title>Registration Settings</.title>
+
+    <.card spaced>
+      <p class="mb-4 text-sm">
+        The following settings will be copied to the event once it is published.
+      </p>
+
+      <.inputs_for :let={f} field={@proposal_form[:registration_settings]}>
+        <.switch
+          explanation="When enabled, teams can register for this event here in Region Manager. If disabled, you will need to find another way to track event registration. Please check with your region's Program Delivery Partner before making changes."
+          field={f[:enabled]}
+          label="Teams can register for this event in Region Manager"
+          wrapper="mb-4"
+        />
+
+        <div :if={f[:enabled].value}>
+          <.input
+            explanation=""
+            disabled={@proposal_form[:type].value in [:league_meet, :league_tournament]}
+            field={f[:pool]}
+            label="Which teams can sign up for this event?"
+            options={registration_pool_options(@region, @local_league)}
+            type="select"
+            wrapper="pl-10 mb-6"
+          />
+
+          <.input
+            explanation="For events with start dates before team activities begin, be sure to adjust this deadline based on the start date listed above."
+            field={f[:deadline_days]}
+            label="How many days before the event should registration close?"
+            max="60"
+            min="0"
+            step="1"
+            type="number"
+            wrapper="pl-10 mb-6"
+          />
+
+          <.input
+            explanation="For events with start dates before team activities begin, be sure to adjust this deadline based on the start date listed above."
+            field={f[:open_days]}
+            label="How many days before the event should registration open?"
+            max="90"
+            min="2"
+            step="1"
+            type="number"
+            wrapper="pl-10 mb-6"
+          />
+
+          <.switch
+            explanation="Use this only if the event or venue has restricted capacity. It is not necessary to use this setting to restrict non-league teams from signing up."
+            id="league_registration_registration_team_limit_enable"
+            label="Restrict the number of teams that can register for this event"
+            name="event_proposal[registration_settings][team_limit_enable]"
+            value={not is_nil(f[:team_limit].value)}
+            wrapper="mb-2"
+          />
+
+          <div :if={not is_nil(f[:team_limit].value)}>
+            <.input field={f[:team_limit]} min="0" step="1" type="number" wrapper="pl-10 mb-6" />
+
+            <.switch
+              explanation="This enables registration for a waitlist after the event reaches capacity."
+              id="league_registration_registration_waitlist_limit_enable"
+              label="Teams can sign up for a waitlist"
+              name="event_proposal[registration_settings][waitlist_limit_enable]"
+              value={not is_nil(f[:waitlist_limit].value)}
+              wrapper="mb-4"
+            />
+
+            <div :if={not is_nil(f[:waitlist_limit].value)}>
+              <.input
+                explanation="Teams will be presented in the order in which they signed up."
+                field={f[:waitlist_limit]}
+                label="How many additional teams can sign up to the wailist?"
+                min="0"
+                step="1"
+                type="number"
+                wrapper="pl-10 mb-6"
+              />
+
+              <.input
+                explanation="For events with start dates before team activities begin, be sure to adjust this deadline based on the official start date (#{format_date(@event.date_start, :date)})."
+                field={f[:waitlist_deadline_days]}
+                label="How many days before the event should the waitlist close?"
+                max="60"
+                min="0"
+                step="1"
+                type="number"
+                wrapper="pl-10 mb-6"
+              />
+            </div>
+          </div>
+        </div>
+      </.inputs_for>
+    </.card>
+  <% end %>
+
+  <.title>Submit Proposal</.title>
+
+  <.card spaced>
+    <p class="mb-4 text-sm">
+      Thank you for taking the time to fill in all of this information. Remember that it may take some time before
+      <em>FIRST</em>
+      accepts and publishes the event. Your region's Program Delivery Partner will only be notified of changes to this information once the event is publsihed.
+    </p>
+    <div class="flex flex-row-reverse gap-4 items-center justify-between">
+      <.button type="submit">Propose Event</.button>
+      <p :if={@proposal_form.errors != []} class="text-orange-600 text-sm">
+        There is an error in the submission. Please check above.
+      </p>
+    </div>
+  </.card>
+</.form>
+
+<.modal id="add-venue-modal" trap>
+  <.title class="mb-4" flush>Add Venue</.title>
+
+  <p class="mb-4 text-sm">
+    Venues are saved separately from individual events and can be reused in the future.
+    Fields marked with <span class="text-orange-500">*</span> are required.
+    Please provide as much detail as possible.
+  </p>
+
+  <.form
+    for={@add_venue_form}
+    id="add-venue-form"
+    phx-change="add_venue_change"
+    phx-submit="add_venue_submit"
+  >
+    <.input
+      explanation="If there could be confusion, include the name of the specific campus or building."
+      field={@add_venue_form[:name]}
+      label="Venue Name"
+      placeholder="Mountport High School, Tower Campus"
+      required
+      wrapper="mb-4"
+    />
+    <.input
+      explanation="Optional website for general information about the venue, not a specific event."
+      field={@add_venue_form[:website]}
+      label="Website"
+      placeholder="https://example.com"
+      wrapper="mb-4"
+    />
+
+    <.input
+      field={@add_venue_form[:country]}
+      label="Country"
+      options={country_options()}
+      required
+      type="select"
+      wrapper="mb-4"
+    />
+    <.input field={@add_venue_form[:address]} label="Address Line 1" wrapper="mb-4" required />
+    <.input field={@add_venue_form[:address_2]} label="Address Line 2" wrapper="mb-4" />
+    <.input field={@add_venue_form[:city]} label="City" wrapper="mb-4" required />
+
+    <div class="flex gap-4 mb-4">
+      <.input
+        field={@add_venue_form[:state_province]}
+        label="State / Province"
+        options={state_province_options(@add_venue_form[:country].value)}
+        required={RM.Util.Location.state_province_required?(@add_venue_form[:country].value)}
+        type="select"
+        wrapper="basis-1/2 grow"
+      />
+      <.input field={@add_venue_form[:postal_code]} label="Postal Code" wrapper="basis-1/2 grow" />
+    </div>
+
+    <.input
+      field={@add_venue_form[:timezone]}
+      label="Timezone"
+      options={timezone_options(@add_venue_form[:country].value)}
+      required
+      type="select"
+      wrapper="mb-4"
+    />
+    <.input
+      explanation="Helpful notes to visitors, such as entrance or parking instructions. Use this field for venue-specific details that don't change from event to event."
+      field={@add_venue_form[:notes]}
+      label="Additional Notes"
+      type="textarea"
+      wrapper="mb-4"
+    />
+
+    <p class="text-right">
+      <button
+        class="rounded border border-orange-500 font-semibold leading-6 py-1 px-2 text-orange-500"
+        phx-click={hide_modal("add-venue-modal")}
+      >
+        Cancel
+      </button>
+      <.button class="ml-4" type="submit">Add Venue</.button>
+    </p>
+  </.form>
+</.modal>
+
+<.modal id="event-type-modal">
+  <.title class="mb-4" flush>About Event Types</.title>
+  <p class="mb-4">
+    The following event types are available for league events:
+  </p>
+  <ul>
+    <li class="mb-4">
+      <p>
+        <strong>Kickoff</strong>: At kickoff events, teams gather to watch the announcement of the new
+        <em>FIRST</em>
+        Tech Challenge game. Additional coordination with the Program Delivery Partner is required to have access to a physical field.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Scrimmage</strong>: Often early in the season, scrimmage events allow teams to test their robot designs without affecting their league rankings. These events are often shorter and informal.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>League Meet</strong>: As the most common type of event for leagues, league meets allow teams to accumulate a league ranking throughout the season. These events feature scheduled matches, but no judging.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>League Tournament</strong>: This is the capstone event for league teams. Using league rankings accumulated throughout the season, teams compete in qualification and elimination matches, and also present their work to judges.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Off-Season</strong>: Similar to scrimmages, off-season events allow teams to play matches in an informal setting. These events typically occur after the championship, and may even feature modified game rules.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Workshop</strong>: Unlike tournaments, workshops do not involve robot match play. They may be focused on knowledge-sharing among teams or formal instruction.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Demo / Exhibition</strong>: These events are focused on sharing <em>FIRST</em>
+        and <em>FIRST</em>
+        Tech Challenge with the public or targeted audience. Teams should be given specific expectations regarding what to bring and what to do.
+      </p>
+    </li>
+  </ul>
+</.modal>
+
+<.modal id="event-format-modal">
+  <.title class="mb-4" flush>About Event Formats</.title>
+  <p class="mb-4">
+    The following event formats are available for league events:
+  </p>
+  <ul>
+    <li class="mb-4">
+      <p>
+        <strong>Traditional</strong>: In-person events with scheduled matches and in-person judge interviews (if judging is part of the event).
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Hybrid</strong>: Events with in-person scheduled matches, but judging interviews conducted via video conference.
+      </p>
+    </li>
+    <li class="mb-4">
+      <p>
+        <strong>Remote</strong>: Events with no in-person matches.
+        <em>This event type has been discontinued.</em>
+      </p>
+    </li>
+  </ul>
+</.modal>

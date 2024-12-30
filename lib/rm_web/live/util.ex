@@ -257,7 +257,7 @@ defmodule RMWeb.Live.Util do
     season = socket.assigns[:season]
 
     first_league = FIRST.get_league_by_code(region, league_code, season: season)
-    local_league = Local.get_league_by_code(region, league_code)
+    local_league = Local.get_league_by_code(region, league_code, preload: [:settings])
 
     socket = assign(socket, first_league: first_league, local_league: local_league)
 

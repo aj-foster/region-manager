@@ -23,6 +23,7 @@ defmodule RM.Local.EventProposal do
           | :league_meet
           | :qualifier
           | :league_tournament
+          | :regional_championship
           | :off_season
           | :kickoff
           | :workshop
@@ -35,6 +36,7 @@ defmodule RM.Local.EventProposal do
     :league_meet,
     :qualifier,
     :league_tournament,
+    :regional_championship,
     :off_season,
     :kickoff,
     :workshop,
