@@ -13,6 +13,7 @@ defmodule RMWeb.RegionLive.Util do
   attr :class, :string, default: nil, doc: "Additional classes for the navigation wrapper"
   attr :region, RM.FIRST.Region, required: true, doc: "current region, `@region`"
   attr :season, :integer, required: true, doc: "current season, `@season`"
+  attr :user, RM.Account.User, default: nil, doc: "current user, `@current_user`"
   attr :view, :any, required: true, doc: "`@socket.view`"
 
   def region_nav(assigns) do
