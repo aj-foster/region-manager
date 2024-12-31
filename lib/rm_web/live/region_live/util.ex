@@ -5,6 +5,10 @@ defmodule RMWeb.RegionLive.Util do
   alias Phoenix.LiveView.Socket
   alias RM.Account.User
   alias RM.FIRST.Region
+
+  alias RMWeb.EventLive
+  alias RMWeb.LeagueLive
+  alias RMWeb.ProposalLive
   alias RMWeb.RegionLive
 
   @doc """
@@ -19,27 +23,22 @@ defmodule RMWeb.RegionLive.Util do
   def region_nav(assigns) do
     ~H"""
     <.top_nav class="mb-8">
-      <.nav_item
-        current={@view}
-        navigate={~p"/s/#{@season}/r/#{@region}"}
-        target={RMWeb.RegionLive.Show}
-      >
+      <.nav_item current={@view} navigate={~p"/s/#{@season}/r/#{@region}"} target={RegionLive.Show}>
         Overview
       </.nav_item>
       <.nav_item
-        children={[RMWeb.EventLive.New]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/events"}
-        target={RMWeb.EventLive.Index}
+        target={EventLive.Index}
       >
         Events
       </.nav_item>
       <.nav_item
         :if={can?(@user, :proposal_index, @region)}
-        children={[RMWeb.ProposalLive.Show]}
+        children={[ProposalLive.New, ProposalLive.Show]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/proposals"}
-        target={RMWeb.ProposalLive.Index}
+        target={ProposalLive.Index}
       >
         Proposals
       </.nav_item>
@@ -47,7 +46,7 @@ defmodule RMWeb.RegionLive.Util do
         :if={@region.has_leagues}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/leagues"}
-        target={RMWeb.LeagueLive.Index}
+        target={LeagueLive.Index}
       >
         Leagues
       </.nav_item>

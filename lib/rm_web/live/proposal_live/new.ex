@@ -1,4 +1,4 @@
-defmodule RMWeb.EventLive.New do
+defmodule RMWeb.ProposalLive.New do
   use RMWeb, :live_view
 
   alias RM.Local.Venue

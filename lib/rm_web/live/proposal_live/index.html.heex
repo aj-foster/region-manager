@@ -18,11 +18,7 @@
   <:action>
     <.link_button
       :if={can?(@current_user, :proposal_create, @local_league || @region)}
-      navigate={
-        if @local_league,
-          do: ~p"/s/#{@season}/r/#{@region}/l/#{@local_league}/events/new",
-          else: ~p"/s/#{@season}/r/#{@region}/events/new"
-      }
+      navigate={url_for([@season, @region, @local_league, :proposals, :new])}
     >
       Create...
     </.link_button>

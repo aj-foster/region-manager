@@ -47,20 +47,20 @@ defmodule RMWeb.Router do
       live "/s/:season", SeasonLive.Show
       live "/s/:season/r/:region", RegionLive.Show
       live "/s/:season/r/:region/events", EventLive.Index
-      live "/s/:season/r/:region/events/new", EventLive.New
       live "/s/:season/r/:region/e/:event", EventLive.Show
       live "/s/:season/r/:region/e/:event/registration", EventLive.Registration
       live "/s/:season/r/:region/e/:event/settings", EventLive.Settings
       live "/s/:season/r/:region/proposals", ProposalLive.Index
+      live "/s/:season/r/:region/proposals/new", ProposalLive.New
       live "/s/:season/r/:region/p/:proposal", ProposalLive.Show
       live "/s/:season/r/:region/leagues", LeagueLive.Index
       live "/s/:season/r/:region/l/:league", LeagueLive.Show
       live "/s/:season/r/:region/l/:league/events", EventLive.Index
-      live "/s/:season/r/:region/l/:league/events/new", EventLive.New
       live "/s/:season/r/:region/l/:league/e/:event", EventLive.Show
       live "/s/:season/r/:region/l/:league/e/:event/registration", EventLive.Registration
       live "/s/:season/r/:region/l/:league/e/:event/settings", EventLive.Settings
       live "/s/:season/r/:region/l/:league/proposals", ProposalLive.Index
+      live "/s/:season/r/:region/l/:league/proposals/new", ProposalLive.New
       live "/s/:season/r/:region/l/:league/p/:proposal", ProposalLive.Show
     end
 
