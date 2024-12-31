@@ -1,53 +1,64 @@
-defmodule RMWeb.ProposalLive.New do
+defmodule RMWeb.ProposalLive.Edit do
   use RMWeb, :live_view
 
+  alias Phoenix.LiveView.UploadConfig
+  alias Phoenix.LiveView.UploadEntry
   alias RM.Local.Venue
 
   #
   # Lifecycle
   #
 
+  on_mount {__MODULE__, :preload_proposal}
+
   @impl true
-  def mount(params, _session, socket) do
+  def mount(_params, _session, socket) do
+    proposal = socket.assigns[:proposal]
+
     socket
-    |> assign(venue: nil, page_title: "Propose Event")
-    |> assign_retroactive_event(params)
+    |> assign(venue: proposal.venue, page_title: "Update Event Proposal")
     |> assign_venues()
     |> add_venue_form()
     |> proposal_form()
-    |> require_permission()
+    |> allow_upload(:attachment,
+      accept: ["application/pdf"],
+      auto_upload: true,
+      max_entries: 4,
+      max_file_size: 10 * 1024 * 1024
+    )
     |> ok()
   end
 
-  @spec require_permission(Socket.t()) :: Socket.t()
-  defp require_permission(socket) do
+  def on_mount(:preload_proposal, %{"proposal" => proposal_id}, _session, socket) do
     league = socket.assigns[:local_league]
     region = socket.assigns[:region]
     season = socket.assigns[:season]
-    user = socket.assigns[:current_user]
+    preloads = [:attachments, :event, :venue]
+    redirect_target = url_for([season, region, league, :proposals])
 
-    cond do
-      season > region.current_season ->
-        message = "Event proposals for #{season} are not yet available in #{region.name}"
+    case RM.Local.fetch_event_proposal_by_id(proposal_id, league: league, preload: preloads) do
+      {:ok, proposal} ->
+        proposal = RM.Repo.preload(proposal, [:league, first_event: :league])
+        user = socket.assigns[:current_user]
 
-        socket
-        |> put_flash(:error, message)
-        |> redirect(to: ~p"/")
+        if can?(user, :proposal_update, proposal) do
+          {:cont, assign(socket, proposal: proposal, page_title: proposal.name)}
+        else
+          socket =
+            socket
+            |> put_flash(:error, "You are not authorized to perform this action")
+            |> redirect(to: redirect_target)
 
-      season < region.current_season ->
-        message = "Event proposals for #{season} are no longer available in #{region.name}"
+          {:halt, socket}
+        end
 
-        socket
-        |> put_flash(:error, message)
-        |> redirect(to: ~p"/")
+      {:error, :proposal, :not_found} ->
+        socket =
+          socket
+          |> put_flash(:error, "Event proposal not found")
+          |> redirect(to: redirect_target)
 
-      can?(user, :proposal_create, league || region) ->
-        socket
-
-      :else ->
-        socket
-        |> put_flash(:error, "You are not authorized to perform this action")
-        |> redirect(to: ~p"/")
+        {:halt, socket}
     end
   end
 
@@ -70,6 +81,12 @@ defmodule RMWeb.ProposalLive.New do
     |> noreply()
   end
 
+  def handle_event("attachment_remove", %{"attachment" => attachment_id}, socket) do
+    socket
+    |> attachment_remove(attachment_id)
+    |> noreply()
+  end
+
   def handle_event("proposal_change", %{"event_proposal" => params}, socket) do
     socket
     |> proposal_form(params)
@@ -79,6 +96,12 @@ defmodule RMWeb.ProposalLive.New do
   def handle_event("proposal_submit", %{"event_proposal" => params}, socket) do
     socket
     |> proposal_submit(params)
+    |> noreply()
+  end
+
+  def handle_event("upload_cancel", %{"ref" => ref}, socket) do
+    socket
+    |> cancel_upload(:attachment, ref)
     |> noreply()
   end
 
@@ -107,14 +130,7 @@ defmodule RMWeb.ProposalLive.New do
       |> Map.put_new("state_province", region.metadata.default_state_province)
       |> Map.put_new("timezone", socket.assigns[:timezone])
 
-    form =
-      if event = socket.assigns[:event] do
-        Venue.retroactive_changeset(event, params)
-        |> to_form()
-      else
-        Venue.create_changeset(params)
-        |> to_form()
-      end
+    form = Venue.create_changeset(params) |> to_form()
 
     assign(socket, add_venue_form: form)
   end
@@ -126,12 +142,7 @@ defmodule RMWeb.ProposalLive.New do
       |> Map.put("league", socket.assigns[:local_league])
       |> Map.put("region", socket.assigns[:region])
 
-    if event = socket.assigns[:event] do
-      RM.Local.create_venue_from_event(event, params)
-    else
-      RM.Local.create_venue(params)
-    end
-    |> case do
+    case RM.Local.create_venue(params) do
       {:ok, venue} ->
         socket
         |> push_js("#add-venue-modal", "data-cancel")
@@ -143,16 +154,6 @@ defmodule RMWeb.ProposalLive.New do
         assign(socket, add_venue_form: to_form(changeset))
     end
   end
-
-  @spec assign_retroactive_event(Socket.t(), map) :: Socket.t()
-  defp assign_retroactive_event(socket, %{"event" => event_id}) do
-    case RM.FIRST.fetch_event_by_id(event_id, preload: [:local_league, :region, :settings]) do
-      {:ok, event} -> assign(socket, event: event)
-      {:error, :event, :not_found} -> assign(socket, event: nil)
-    end
-  end
-
-  defp assign_retroactive_event(socket, _params), do: assign(socket, event: nil)
 
   @spec assign_venues(Socket.t()) :: Socket.t()
   defp assign_venues(socket) do
@@ -176,9 +177,28 @@ defmodule RMWeb.ProposalLive.New do
     end
   end
 
+  @spec attachment_remove(Socket.t(), Ecto.UUID.t()) :: Socket.t()
+  defp attachment_remove(socket, attachment_id) do
+    proposal = socket.assigns[:proposal]
+
+    if attachment = Enum.find(proposal.attachments, &(&1.id == attachment_id)) do
+      case RM.Local.delete_attachment(attachment) do
+        {:ok, _attachment} ->
+          proposal = RM.Repo.preload(proposal, :attachments, force: true)
+          assign(socket, proposal: proposal)
+
+        {:error, _changeset} ->
+          put_flash(socket, :error, "An error occurred while removing attachment")
+      end
+    else
+      put_flash(socket, :error, "Attachment not found; please refresh and try again")
+    end
+  end
+
   @spec proposal_form(Socket.t()) :: Socket.t()
   @spec proposal_form(Socket.t(), map) :: Socket.t()
   defp proposal_form(socket, params \\ %{}) do
+    proposal = socket.assigns[:proposal]
     league = socket.assigns[:local_league]
     region = socket.assigns[:region]
 
@@ -196,15 +216,7 @@ defmodule RMWeb.ProposalLive.New do
       |> registration_settings_normalize_team_limit()
       |> registration_settings_normalize_waitlist_limit()
 
-    form =
-      if event = socket.assigns[:event] do
-        RM.Local.EventProposal.retroactive_changeset(event, params)
-        |> to_form()
-      else
-        RM.Local.EventProposal.create_changeset(params)
-        |> to_form()
-      end
-
+    form = RM.Local.EventProposal.update_changeset(proposal, params) |> to_form()
     assign(socket, proposal_form: form)
   end
 
@@ -214,40 +226,40 @@ defmodule RMWeb.ProposalLive.New do
     region = socket.assigns[:region]
     season = socket.assigns[:season]
 
+    proposal = socket.assigns[:proposal]
+
     params =
       params
       |> Map.put("by", socket.assigns[:current_user])
-      |> Map.put("league", league)
-      |> Map.put("region", region)
-      |> Map.put("season", region.current_season)
+      |> Map.delete(["league", "region", "season"])
       |> Map.put("venue", socket.assigns[:venue])
       |> Map.put_new("registration_settings", %{"enabled" => "true"})
       |> registration_settings_normalize_pool()
       |> registration_settings_normalize_team_limit()
       |> registration_settings_normalize_waitlist_limit()
 
-    after_success_target = url_for([season, region, league, :events])
+    case RM.Local.update_event(proposal, params) do
+      {:ok, proposal} ->
+        consume_uploaded_entries(socket, :attachment, fn %{path: path},
+                                                         %UploadEntry{client_name: name} ->
+          params = %{
+            "name" => name,
+            "path" => path,
+            "type" => "program",
+            "user" => socket.assigns[:current_user]
+          }
 
-    if event = socket.assigns[:event] do
-      case RM.Local.create_proposal_from_event(event, params) do
-        {:ok, _proposal} ->
-          socket
-          |> put_flash(:info, "Event proposal created successfully")
-          |> push_navigate(to: after_success_target)
+          RM.Local.create_or_update_attachment(proposal, params)
+        end)
 
-        {:error, changeset} ->
-          assign(socket, proposal_form: to_form(changeset))
-      end
-    else
-      case RM.Local.create_event(params) do
-        {:ok, _proposal} ->
-          socket
-          |> put_flash(:info, "Event proposal created successfully")
-          |> push_navigate(to: after_success_target)
+        after_success_target = url_for([season, region, league, proposal.first_event || proposal])
 
-        {:error, changeset} ->
-          assign(socket, proposal_form: to_form(changeset) |> IO.inspect())
-      end
+        socket
+        |> put_flash(:info, "Event proposal updated successfully")
+        |> push_navigate(to: after_success_target)
+
+      {:error, changeset} ->
+        assign(socket, proposal_form: to_form(changeset))
     end
   end
 
@@ -341,8 +353,8 @@ defmodule RMWeb.ProposalLive.New do
     ]
   end
 
-  @spec event_type_options(RM.Local.League.t() | nil) :: [{String.t(), String.t()}]
-  defp event_type_options(nil) do
+  @spec event_type_options(RM.Local.EventProposal.t()) :: [{String.t(), String.t()}]
+  defp event_type_options(%RM.Local.EventProposal{first_event: %RM.FIRST.Event{league_id: nil}}) do
     [
       :kickoff,
       :scrimmage,
@@ -357,7 +369,22 @@ defmodule RMWeb.ProposalLive.New do
     end)
   end
 
-  defp event_type_options(_league) do
+  defp event_type_options(%RM.Local.EventProposal{first_event: nil, league_id: nil}) do
+    [
+      :kickoff,
+      :scrimmage,
+      :qualifier,
+      :regional_championship,
+      :off_season,
+      :workshop,
+      :demo
+    ]
+    |> Enum.map(fn type ->
+      {RM.FIRST.Event.type_name(type), to_string(type)}
+    end)
+  end
+
+  defp event_type_options(_proposal) do
     [
       :kickoff,
       :scrimmage,
@@ -372,16 +399,35 @@ defmodule RMWeb.ProposalLive.New do
     end)
   end
 
-  @spec registration_pool_options(RM.FIRST.Region.t(), RM.Local.League.t()) ::
+  @spec registration_pool_options(RM.FIRST.Region.t(), RM.Local.EventProposal.t()) ::
           [{String.t(), String.t()}]
-  defp registration_pool_options(region, nil) do
+  defp registration_pool_options(region, %RM.Local.EventProposal{
+         first_event: %RM.FIRST.Event{league_id: nil}
+       }) do
     [
       {"Teams in #{region.name}", "region"},
       {"Any Team", "all"}
     ]
   end
 
-  defp registration_pool_options(region, league) do
+  defp registration_pool_options(region, %RM.Local.EventProposal{first_event: nil, league_id: nil}) do
+    [
+      {"Teams in #{region.name}", "region"},
+      {"Any Team", "all"}
+    ]
+  end
+
+  defp registration_pool_options(region, %RM.Local.EventProposal{
+         first_event: %RM.FIRST.Event{league: league}
+       }) do
+    [
+      {"Teams in #{league.name} League", "league"},
+      {"Teams in #{region.name}", "region"},
+      {"Any Team", "all"}
+    ]
+  end
+
+  defp registration_pool_options(region, %RM.Local.EventProposal{first_event: nil, league: league}) do
     [
       {"Teams in #{league.name} League", "league"},
       {"Teams in #{region.name}", "region"},
@@ -399,6 +445,18 @@ defmodule RMWeb.ProposalLive.New do
   defp timezone_options(country_name) do
     RM.Util.Time.zones_for_country(country_name)
   end
+
+  @spec upload_error?(%{attachment: %UploadConfig{}}) :: boolean
+  defp upload_error?(uploads) do
+    upload_errors(uploads.attachment) != [] or
+      Enum.any?(uploads.attachment.entries, &(not &1.valid?))
+  end
+
+  @spec upload_error_to_string(atom) :: String.t()
+  defp upload_error_to_string(:too_large), do: "Provided file is too large"
+  defp upload_error_to_string(:not_accepted), do: "Please select a .pdf file"
+  defp upload_error_to_string(:external_client_failure), do: "Something went terribly wrong"
+  defp upload_error_to_string(:too_many_files), do: "Please select up to 4 files at once"
 
   @spec venue_options([Venue.t()]) :: [{String.t(), Ecto.UUID.t()}]
   defp venue_options(venues) do

@@ -53,6 +53,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/proposals", ProposalLive.Index
       live "/s/:season/r/:region/proposals/new", ProposalLive.New
       live "/s/:season/r/:region/p/:proposal", ProposalLive.Show
+      live "/s/:season/r/:region/p/:proposal/edit", ProposalLive.Edit
       live "/s/:season/r/:region/leagues", LeagueLive.Index
       live "/s/:season/r/:region/l/:league", LeagueLive.Show
       live "/s/:season/r/:region/l/:league/events", EventLive.Index
@@ -62,6 +63,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/l/:league/proposals", ProposalLive.Index
       live "/s/:season/r/:region/l/:league/proposals/new", ProposalLive.New
       live "/s/:season/r/:region/l/:league/p/:proposal", ProposalLive.Show
+      live "/s/:season/r/:region/l/:league/p/:proposal/edit", ProposalLive.Edit
     end
 
     live_session :authenticated,

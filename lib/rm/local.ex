@@ -174,6 +174,9 @@ defmodule RM.Local do
       %EventProposal{} = proposal -> {:ok, proposal}
       nil -> {:error, :proposal, :not_found}
     end
+  rescue
+    Ecto.Query.CastError ->
+      {:error, :proposal, :not_found}
   end
 
   @spec create_event(map) :: {:ok, EventProposal.t()} | {:error, Changeset.t(EventProposal.t())}
