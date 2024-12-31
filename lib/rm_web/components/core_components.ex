@@ -175,12 +175,8 @@ defmodule RMWeb.CoreComponents do
   """
   attr :class, :string, default: nil, doc: "additional classes to apply"
   attr :event, RM.FIRST.Event, default: nil, doc: "current event, if any"
-  attr :event_settings, :boolean, default: false, doc: "whether viewing an event settings page"
-  attr :events, :boolean, default: false, doc: "whether viewing an event listing"
   attr :league, :any, default: nil, doc: "current league struct (local or FIRST), if any"
-  attr :leagues, :boolean, default: false, doc: "whether viewing a league listing"
   attr :region, RM.FIRST.Region, default: nil, doc: "current region, if any"
-  attr :registration, :boolean, default: false, doc: "whether viewing an event registration page"
   attr :season, :integer, default: nil, doc: "current season, if any"
 
   def breadcrumbs(assigns) do
@@ -192,28 +188,9 @@ defmodule RMWeb.CoreComponents do
       <span :if={@region} class="whitespace-nowrap">
         <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}"}>{@region.name}</.link> ⟩
       </span>
-      <span :if={@leagues} class="whitespace-nowrap">
-        <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/leagues"}>
-          Leagues
-        </.link>
-        ⟩
-      </span>
       <span :if={@league} class="whitespace-nowrap">
         <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}>
           {RM.Local.League.shorten_name(@league.name, @region)}
-        </.link>
-        ⟩
-      </span>
-      <span :if={@events || @event} class="whitespace-nowrap">
-        <.link :if={is_nil(@league)} class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/events"}>
-          Events
-        </.link>
-        <.link
-          :if={@league}
-          class="mx-1"
-          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/events"}
-        >
-          Events
         </.link>
         ⟩
       </span>
@@ -231,40 +208,6 @@ defmodule RMWeb.CoreComponents do
           navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}"}
         >
           {@event.name}
-        </.link>
-        ⟩
-      </span>
-      <span :if={@event && @registration} class="whitespace-nowrap">
-        <.link
-          :if={is_nil(@league)}
-          class="mx-1"
-          navigate={~p"/s/#{@season}/r/#{@region}/e/#{@event}/registration"}
-        >
-          Registration
-        </.link>
-        <.link
-          :if={@league}
-          class="mx-1"
-          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}/registration"}
-        >
-          Registration
-        </.link>
-        ⟩
-      </span>
-      <span :if={@event && @event_settings} class="whitespace-nowrap">
-        <.link
-          :if={is_nil(@league)}
-          class="mx-1"
-          navigate={~p"/s/#{@season}/r/#{@region}/e/#{@event}/settings"}
-        >
-          Settings
-        </.link>
-        <.link
-          :if={@league}
-          class="mx-1"
-          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}/settings"}
-        >
-          Settings
         </.link>
         ⟩
       </span>
