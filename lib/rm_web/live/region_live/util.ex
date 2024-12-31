@@ -35,6 +35,14 @@ defmodule RMWeb.RegionLive.Util do
         Events
       </.nav_item>
       <.nav_item
+        :if={can?(@user, :proposal_index, @region)}
+        current={@view}
+        navigate={~p"/s/#{@season}/r/#{@region}/proposals"}
+        target={RMWeb.ProposalLive.Index}
+      >
+        Proposals
+      </.nav_item>
+      <.nav_item
         :if={@region.has_leagues}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/leagues"}

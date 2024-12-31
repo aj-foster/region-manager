@@ -88,6 +88,11 @@ defmodule RM.Account.Auth do
     can?(%User{} = user, :proposal_show, event)
   end
 
+  # Submit Batch Create events in FTC Scoring
+  def can?(%User{} = user, :proposal_submit, %Region{id: region_id}) do
+    region_id in region_ids(user)
+  end
+
   #
   # Registration Settings
   #

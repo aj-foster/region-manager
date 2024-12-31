@@ -1,0 +1,199 @@
+<.breadcrumbs class="mb-4" season={@season} region={@region} league={@local_league} />
+
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league)}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title>
+  Proposed Events
+  <button phx-click={show_modal("event-proposal-info")}>
+    <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+  </button>
+
+  <:action>
+    <.link_button
+      :if={can?(@current_user, :proposal_create, @local_league || @region)}
+      navigate={
+        if @local_league,
+          do: ~p"/s/#{@season}/r/#{@region}/l/#{@local_league}/events/new",
+          else: ~p"/s/#{@season}/r/#{@region}/events/new"
+      }
+    >
+      Create...
+    </.link_button>
+  </:action>
+</.title>
+
+<%= if is_nil(@local_league) and can?(@current_user, :proposal_submit, @region) do %>
+  <%= if @proposals_count > 0 do %>
+    <.information class="mb-4">
+      <p class="font-bold">
+        There {dumb_inflect_is("pending event proposal", @proposals_count)}
+      </p>
+      <p>
+        Select event proposals to include in a Batch Create spreadsheet.
+      </p>
+    </.information>
+
+    <.card padding={false} spaced>
+      <form id="proposal-submission-form" phx-submit="generate_submit">
+        <.list>
+          <:item :for={proposal <- @proposals} class="flex items-center px-4 py-2 relative">
+            <input
+              id={"proposal-include-#{proposal.id}-hidden"}
+              name={"proposal-include[#{proposal.id}]"}
+              type="hidden"
+              value="false"
+            />
+            <input
+              class="absolute left-8 opacity-0 peer"
+              checked={true}
+              id={"proposal-include-#{proposal.id}"}
+              name={"proposal-include[#{proposal.id}]"}
+              type="checkbox"
+              value="true"
+            />
+
+            <label class="flex grow items-center group" for={"proposal-include-#{proposal.id}"}>
+              <div class="bg-slate-300 flex h-5 items-center rounded w-5 peer-checked:group-[]:bg-emerald-300 peer-disabled:group-[]:bg-slate-100 peer-disabled:group-[]:cursor-not-allowed">
+                <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
+              </div>
+              <div class="grow min-w-0 ml-4 text-ellipsis whitespace-nowrap">
+                <h3 class="gap-1 flex items-center">{proposal.name}</h3>
+                <p class="text-sm">
+                  <span>{format_range(proposal.date_start, proposal.date_end)}</span>
+                  <span>&bull; {RM.FIRST.Event.type_name(proposal.type)}</span>
+                  <span :if={proposal.format != :traditional}>
+                    &bull; {RM.Local.EventProposal.format_string(proposal)}
+                  </span>
+                  <span :if={proposal.league}>
+                    &bull; {proposal.league.name}
+                  </span>
+                </p>
+              </div>
+            </label>
+          </:item>
+        </.list>
+        <p class="px-4 py-2 text-right">
+          <.button class="mr-2" type="submit">Generate...</.button>
+          <.link_button
+            href={"https://ftc-scoring.firstinspires.org/region/#{String.upcase(@region.code)}/request/batch?cmpYear=#{@region.current_season + 1}"}
+            style="secondary"
+            target="blank"
+          >
+            Upload
+            <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+          </.link_button>
+        </p>
+      </form>
+    </.card>
+  <% else %>
+    <.confirmation class="mb-6">
+      <p>
+        All pending event proposals have been downloaded for submission to <em>FIRST</em>.
+      </p>
+    </.confirmation>
+  <% end %>
+
+  <.reveal
+    :if={@event_batches_count > 0}
+    id="batch-submissions"
+    spaced
+    title="Previous Batch Create Submissions"
+  >
+    <ul class="px-4 text-sm">
+      <li :for={batch <- @event_batches} class="mb-1">
+        <button
+          class="transition-colors hover:text-orange-600"
+          phx-click="download_batch"
+          phx-value-batch={batch.id}
+        >
+          <.icon class="h-4 mr-1 w-4" name="hero-arrow-down-tray" />
+          <span class="underline">
+            {format_date(batch.generated_at, :full)} ({dumb_inflect(
+              "event",
+              batch.event_count
+            )})
+          </span>
+        </button>
+      </li>
+    </ul>
+  </.reveal>
+<% else %>
+  <.card padding={false} spaced>
+    <.list>
+      <:link
+        :for={proposal <- @proposals}
+        navigate={
+          if @local_league,
+            do: ~p"/s/#{@season}/r/#{@region}/l/#{@local_league}/p/#{proposal}",
+            else: ~p"/s/#{@season}/r/#{@region}/p/#{proposal}"
+        }
+      >
+        <h3 class="font-bold">{proposal.name}</h3>
+        <p class="text-sm">
+          <span>{format_range(proposal.date_start, proposal.date_end)}</span>
+          <span>&bull; {RM.FIRST.Event.type_name(proposal.type)}</span>
+          <span :if={proposal.format != :traditional}>
+            &bull; {RM.Local.EventProposal.format_string(proposal)}
+          </span>
+        </p>
+      </:link>
+    </.list>
+
+    <p :if={@proposals_count == 0} class="italic mx-4 my-2 text-sm">
+      All event proposals have been submitted to <em>FIRST</em>.
+    </p>
+  </.card>
+<% end %>
+
+<.title>Submitted Proposals</.title>
+
+<.card padding={false} spaced>
+  <.list>
+    <:link
+      :for={proposal <- @submitted_proposals}
+      navigate={
+        if @local_league,
+          do: ~p"/s/#{@season}/r/#{@region}/l/#{@local_league}/p/#{proposal}",
+          else: ~p"/s/#{@season}/r/#{@region}/p/#{proposal}"
+      }
+    >
+      <h3 class="font-bold">{proposal.name}</h3>
+      <p class="text-sm">
+        <span>{format_range(proposal.date_start, proposal.date_end)}</span>
+        <span>&bull; {RM.FIRST.Event.type_name(proposal.type)}</span>
+        <span :if={proposal.format != :traditional}>
+          &bull; {RM.Local.EventProposal.format_string(proposal)}
+        </span>
+      </p>
+    </:link>
+  </.list>
+
+  <p :if={@proposals_count == 0} class="italic mx-4 my-2 text-sm">
+    All submitted proposals have been matched to published events.
+  </p>
+</.card>
+
+<.modal id="event-proposal-info">
+  <.title class="mb-4" flush>Event Proposal Info</.title>
+
+  <p class="mb-4">
+    Region and league administrators can propose events in <strong>Region Manager</strong>.
+  </p>
+  <p class="mb-4">
+    In order for these events to become official, they must be submitted to and approved by <em>FIRST</em>.
+    This can take some time, and certain events cannot be submitted until after the season kickoff.
+  </p>
+  <p>
+    Once an event is published, <strong>Region Manager</strong>
+    will link the published data back to the original proposal.
+    Event proposals in <strong>Region Manager</strong>
+    allow administrators to provide additional information to attendees beyond what is available from <em>FIRST</em>.
+  </p>
+</.modal>

@@ -138,8 +138,9 @@ defmodule RM.Local do
     %RM.FIRST.Region{current_season: season} = region
 
     Query.from_proposal()
+    |> Query.proposal_league(opts[:league])
     |> Query.proposal_region(region)
-    |> Query.proposal_season(season)
+    |> Query.proposal_season(opts[:season] || season)
     |> Query.preload_assoc(:proposal, opts[:preload])
     |> Repo.all()
     |> Enum.sort(EventProposal)
