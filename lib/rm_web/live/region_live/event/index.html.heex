@@ -112,7 +112,7 @@
   <p class="italic text-sm">There are no upcoming events scheduled for this season.</p>
 </.card>
 
-<.card padding={false} spaced>
+<.card flush spaced>
   <.list :if={@upcoming_events_count > 0}>
     <:link :for={event <- @upcoming_events} navigate={~p"/region/#{@region}/events/#{event}"}>
       <h3 class="font-bold">{event.name}</h3>

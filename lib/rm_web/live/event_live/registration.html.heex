@@ -103,7 +103,7 @@
       </p>
     </.card>
 
-    <.card :if={@teams != []} padding={false} spaced>
+    <.card :if={@teams != []} flush spaced>
       <p class="mb-4 mx-4 mt-2 text-sm">
         Select teams below to register.
         <button
@@ -218,7 +218,7 @@
     </:action>
   </.title>
 
-  <.card :if={@registered_teams_count > 0} padding={false} spaced>
+  <.card :if={@registered_teams_count > 0} flush spaced>
     <.list>
       <:item :for={team <- @registered_teams} class="px-4 py-2">
         <p>

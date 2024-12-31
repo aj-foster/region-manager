@@ -78,7 +78,7 @@
 <div :for={{{_priority, title}, events} <- @grouped_events}>
   <.title :if={@event_group_count > 1}>{title}</.title>
 
-  <.card padding={false} spaced>
+  <.card flush spaced>
     <.list>
       <:link
         :for={event <- events}

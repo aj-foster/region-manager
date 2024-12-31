@@ -16,7 +16,7 @@
   )}
 </.title>
 
-<.card :if={@leagues_count > 0} padding={false} spaced>
+<.card :if={@leagues_count > 0} flush spaced>
   <.list>
     <:link :for={league <- @leagues} navigate={~p"/s/#{@season}/r/#{@region}/l/#{league}"}>
       <h3 class="flex font-bold gap-2 items-center">
@@ -46,7 +46,7 @@
     )}
   </.title>
 
-  <.card padding={false} spaced>
+  <.card flush spaced>
     <.list>
       <:link
         :for={league <- @unpublished_leagues}

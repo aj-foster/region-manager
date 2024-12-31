@@ -40,7 +40,7 @@
       </p>
     </.information>
 
-    <.card padding={false} spaced>
+    <.card flush spaced>
       <form id="proposal-submission-form" phx-submit="generate_submit">
         <.list>
           <:item :for={proposal <- @proposals} class="flex items-center px-4 py-2 relative">
@@ -125,7 +125,7 @@
     </ul>
   </.reveal>
 <% else %>
-  <.card padding={false} spaced>
+  <.card flush spaced>
     <.list>
       <:link
         :for={proposal <- @proposals}
@@ -154,7 +154,7 @@
 
 <.title>Submitted Proposals</.title>
 
-<.card padding={false} spaced>
+<.card flush spaced>
   <.list>
     <:link
       :for={proposal <- @submitted_proposals}

@@ -12,7 +12,7 @@
   </:action>
 </.title>
 
-<.card :if={@active_teams_count > 0} padding={false} spaced>
+<.card :if={@active_teams_count > 0} flush spaced>
   <.list>
     <:link
       :for={team <- @active_teams}

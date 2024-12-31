@@ -23,7 +23,7 @@ defmodule RMWeb.CoreComponents do
   Visual foreground for page content
   """
   attr :class, :string, default: nil, doc: "additional classes"
-  attr :padding, :boolean, default: true, doc: "whether to pad the contents of the card"
+  attr :flush, :boolean, default: false, doc: "whether to removing padding from the card"
   attr :spaced, :boolean, default: false, doc: "easily add bottom margin"
   slot :inner_block, required: true
 
@@ -34,7 +34,7 @@ defmodule RMWeb.CoreComponents do
   def card(assigns) do
     ~H"""
     <div class={[
-      card_class_padding(@padding),
+      card_class_padding(@flush),
       card_class_style(),
       @spaced && "mb-8",
       @class
@@ -44,8 +44,8 @@ defmodule RMWeb.CoreComponents do
     """
   end
 
-  defp card_class_padding(true), do: @card_class_padding_full
-  defp card_class_padding(false), do: @card_class_padding_minimal
+  defp card_class_padding(true), do: @card_class_padding_minimal
+  defp card_class_padding(false), do: @card_class_padding_full
   defp card_class_style, do: @card_class_style
 
   @doc """
@@ -1013,7 +1013,7 @@ defmodule RMWeb.CoreComponents do
 
   def reveal(assigns) do
     ~H"""
-    <.card class={@wrapper} padding={false} {@rest}>
+    <.card class={@wrapper} flush {@rest}>
       <div
         class="cursor-pointer flex gap-4 items-center px-4 py-2"
         phx-click={

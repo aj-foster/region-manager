@@ -1,6 +1,6 @@
 <.title>Choose a FIRST Tech Challenge Season</.title>
 
-<.card :if={@seasons_count > 0} padding={false} spaced>
+<.card :if={@seasons_count > 0} flush spaced>
   <.list>
     <:link :for={season <- @seasons} navigate={~p"/s/#{season}"}>
       <div class="flex items-center gap-4">

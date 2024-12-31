@@ -2,7 +2,7 @@
 
 <.title>{@season.name}</.title>
 
-<.card :if={@regions_count > 0} padding={false} spaced>
+<.card :if={@regions_count > 0} flush spaced>
   <.list>
     <:link :for={region <- @regions} navigate={~p"/s/#{@season}/r/#{region}"}>
       <h3 class="font-semibold">{region.name}</h3>
