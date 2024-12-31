@@ -1,0 +1,82 @@
+<.breadcrumbs class="mb-4" season={@season} region={@region} league={@local_league} />
+
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league)}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title>
+  Saved Venues
+  <button phx-click={show_modal("venue-list-info")}>
+    <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+  </button>
+  <:action>
+    <.link_button
+      :if={can?(@current_user, :venue_create, @local_league || @region)}
+      navigate={~p"/todo"}
+    >
+      Add...
+    </.link_button>
+  </:action>
+</.title>
+
+<.card spaced>
+  <.link
+    :for={venue <- @active_venues}
+    class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
+    navigate={~p"/todo"}
+  >
+    <div class="grow">
+      <h3 class="font-bold">{venue.name}</h3>
+      <p class="text-sm">
+        <span :if={venue.city}>{venue.city}</span>
+        <span :if={venue.state_province}>&bull; {venue.state_province}</span>
+      </p>
+    </div>
+    <div><.icon name="hero-arrow-right" /></div>
+  </.link>
+
+  <p :if={@active_venue_count == 0} class="italic text-sm">
+    There are no active venues saved for this league.
+  </p>
+</.card>
+
+<.reveal
+  :if={@archived_venue_count > 0}
+  id="team-inactive-reveal"
+  spaced
+  title={"All Inactive Venues (#{@archived_venue_count})"}
+>
+  <.link
+    :for={venue <- @archived_venues}
+    class="border-b flex items-center px-4 py-2 -mx-4 transition-colors hover:bg-slate-100 last:border-0 last:-mb-2"
+    navigate={~p"/todo"}
+  >
+    <div class="grow">
+      <h3 class="font-bold">{venue.name}</h3>
+      <p class="text-sm">
+        <span :if={venue.city}>{venue.city}</span>
+        <span :if={venue.state_province}>&bull; {venue.state_province}</span>
+      </p>
+    </div>
+    <div><.icon name="hero-arrow-right" /></div>
+  </.link>
+</.reveal>
+
+<.modal id="venue-list-info">
+  <.title class="mb-4" flush>About Saved Venues</.title>
+
+  <p class="mb-4">
+    <strong>Region Manager</strong>
+    allows you to save venue information separate from individual events, making it easier to reuse.
+  </p>
+  <p class="mb-4">
+    If you host events in multiple locations at the same school or campus, it is recommended to create separate venues for each location.
+    Remember that updating a venue affects all of the events that reference it.
+  </p>
+  <p>If you are unlikely to use a venue in the future, it can be hidden from view.</p>
+</.modal>

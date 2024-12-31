@@ -10,6 +10,7 @@ defmodule RMWeb.RegionLive.Util do
   alias RMWeb.LeagueLive
   alias RMWeb.ProposalLive
   alias RMWeb.RegionLive
+  alias RMWeb.VenueLive
 
   @doc """
   Unified navigation component for region-level views
@@ -34,7 +35,7 @@ defmodule RMWeb.RegionLive.Util do
         Events
       </.nav_item>
       <.nav_item
-        :if={can?(@user, :proposal_index, @region)}
+        :if={@season == @region.current_season and can?(@user, :proposal_index, @region)}
         children={[ProposalLive.New, ProposalLive.Show]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/proposals"}
@@ -49,6 +50,14 @@ defmodule RMWeb.RegionLive.Util do
         target={LeagueLive.Index}
       >
         Leagues
+      </.nav_item>
+      <.nav_item
+        :if={@season == @region.current_season and can?(@user, :venue_index, @region)}
+        current={@view}
+        navigate={~p"/s/#{@season}/r/#{@region}/venues"}
+        target={VenueLive.Index}
+      >
+        Venues
       </.nav_item>
     </.top_nav>
     """
