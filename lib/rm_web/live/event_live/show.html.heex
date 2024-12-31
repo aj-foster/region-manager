@@ -48,7 +48,7 @@
 <.title>{@event.name}</.title>
 
 <.card spaced>
-  <.table>
+  <.table class="mb-4">
     <:row title="Name">{@event.name}</:row>
     <:row title="Date">{format_range(@event.date_start, @event.date_end)}</:row>
     <:row :if={@event.proposal} title="Timezone">
@@ -57,6 +57,39 @@
     <:row title="Type" info="event-type-modal">{Event.type_name(@event.type)}</:row>
     <:row title="Format" info="event-format-modal">{Event.format_name(@event)}</:row>
   </.table>
+
+  <div
+    :if={@event.proposal && can?(@current_user, :proposal_show, @event)}
+    class="flex gap-2 items-center"
+  >
+    <p class="text-sm">
+      This event was created based on an event proposal. Certain details can be updated in this original proposal.
+    </p>
+    <.link_button
+      class="whitespace-nowrap"
+      style="secondary"
+      navigate={url_for([@season, @region, @local_league, @event.proposal])}
+    >
+      See Proposal
+    </.link_button>
+  </div>
+  <div
+    :if={is_nil(@event.proposal) && can?(@current_user, :proposal_update, @event)}
+    class="flex gap-2 items-center"
+  >
+    <p class="text-sm">
+      This event was not created based on an event proposal in Region Manager. To edit certain details, create a related proposal.
+    </p>
+    <.link_button
+      class="whitespace-nowrap"
+      style="secondary"
+      navigate={
+        url_for([@season, @region, @local_league, :proposals, :new, "?event=#{@event.id}"])
+      }
+    >
+      Create Proposal
+    </.link_button>
+  </div>
 </.card>
 
 <RMWeb.Components.Event.unified_venue

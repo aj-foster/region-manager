@@ -1218,5 +1218,6 @@ defmodule RMWeb.CoreComponents do
   defp url_segment(%RM.Local.League{} = league), do: "/l/#{Phoenix.Param.to_param(league)}"
   defp url_segment(season) when is_integer(season), do: "/s/#{season}"
   defp url_segment(page) when is_atom(page), do: "/#{page}"
+  defp url_segment(segment) when is_binary(segment), do: segment
   defp url_segment(nil), do: ""
 end
