@@ -1,0 +1,118 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league}
+  proposal={@proposal}
+/>
+
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league)}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title>
+  {@proposal.name}
+
+  <:action>
+    <.link_button
+      :if={can?(@current_user, :proposal_update, @proposal)}
+      navigate={url_for([@season, @region, @local_league, @proposal, :edit])}
+    >
+      Update...
+    </.link_button>
+  </:action>
+</.title>
+
+<.card spaced>
+  <.table class="mb-4">
+    <:row title="Name">{@proposal.name}</:row>
+    <:row title="Date">{format_range(@proposal.date_start, @proposal.date_end)}</:row>
+    <:row title="Type">{RM.FIRST.Event.type_name(@proposal.type)}</:row>
+    <:row title="Format">{String.capitalize(to_string(@proposal.format))}</:row>
+  </.table>
+
+  <p class="text-sm">
+    This event has not yet been accepted and published by <em>FIRST</em>.
+  </p>
+</.card>
+
+<.title>
+  Venue Details
+</.title>
+
+<.card spaced>
+  <.table>
+    <:row title="Name">{@proposal.venue.name}</:row>
+    <:row title="Location">
+      <span :if={@proposal.venue.address} class="block">{@proposal.venue.address}</span>
+      <span :if={@proposal.venue.address_2} class="block">{@proposal.venue.address_2}</span>
+      <span :if={@proposal.venue.city}>{@proposal.venue.city},</span>
+      <span :if={@proposal.venue.state_province}>{@proposal.venue.state_province}</span>
+      <span :if={@proposal.venue.postal_code}>{@proposal.venue.postal_code}</span>
+      <span class="block">{@proposal.venue.country || "Unknown Location"}</span>
+    </:row>
+    <:row :if={@proposal.venue.notes} title="Notes">{@proposal.venue.notes}</:row>
+    <:row :if={@proposal.venue.website} title="Website">
+      <a href={@proposal.venue.website} target="blank">{@proposal.venue.website}</a>
+    </:row>
+    <:row title="Timezone">{@proposal.venue.timezone}</:row>
+  </.table>
+</.card>
+
+<.title>
+  Contact Information
+</.title>
+
+<.card spaced>
+  <.table>
+    <:row title="Name">{@proposal.contact.name}</:row>
+    <:row title="Email">
+      <a class="underline" href={"mailto:#{@proposal.contact.email}"}>
+        {@proposal.contact.email}
+      </a>
+    </:row>
+    <:row title="Phone">
+      <a class="underline" href={"tel:#{@proposal.contact.phone}"}>{@proposal.contact.phone}</a>
+    </:row>
+  </.table>
+</.card>
+
+<.title>
+  Additional Information
+</.title>
+
+<.card>
+  <.table>
+    <:row :if={@proposal.description} title="Description">{@proposal.description}</:row>
+    <:row :if={@proposal.attachments != []} title="Attachments">
+      <ul>
+        <li :for={attachment <- @proposal.attachments} class="flex gap-2 items-center mb-2">
+          <.icon class="h-4 w-4" name="hero-document" />
+          <a
+            class="text-sm underline"
+            href={RM.Local.EventAttachment.url(attachment)}
+            target="_blank"
+          >
+            {attachment.name}
+          </a>
+        </li>
+      </ul>
+    </:row>
+    <:row :if={@proposal.website} title="Website">
+      <a class="underline" href={@proposal.website} target="blank">{@proposal.website}</a>
+    </:row>
+    <:row :if={@proposal.live_stream_url} title="Live Stream">
+      <a class="underline" href={@proposal.live_stream_url} target="blank">
+        {@proposal.live_stream_url}
+      </a>
+    </:row>
+    <:row :if={@proposal.notes} title="Notes">{@proposal.notes}</:row>
+    <:row title="Region">{@region.name}</:row>
+    <:row title="League">{if @local_league, do: @local_league.name, else: "None"}</:row>
+  </.table>
+</.card>

@@ -93,6 +93,23 @@ defmodule RM.Account.Auth do
     region_id in region_ids(user)
   end
 
+  # Update the original event proposal for a published event
+  def can?(%User{} = user, :proposal_update, %Event{} = event) do
+    event.region_id in region_ids(user) or
+      (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
+  end
+
+  # Update a proposal for an unpublished event
+  def can?(%User{} = user, :proposal_update, %EventProposal{first_event_id: nil} = proposal) do
+    proposal.region_id in region_ids(user) or
+      (present?(proposal.league_id) and proposal.league_id in league_ids_with_events(user))
+  end
+
+  # Update the original event proposal for a published event
+  def can?(%User{} = user, :proposal_update, %EventProposal{first_event: event}) do
+    can?(%User{} = user, :proposal_update, event)
+  end
+
   #
   # Registration Settings
   #

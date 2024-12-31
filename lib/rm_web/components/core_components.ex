@@ -176,6 +176,7 @@ defmodule RMWeb.CoreComponents do
   attr :class, :string, default: nil, doc: "additional classes to apply"
   attr :event, RM.FIRST.Event, default: nil, doc: "current event, if any"
   attr :league, :any, default: nil, doc: "current league struct (local or FIRST), if any"
+  attr :proposal, RM.Local.EventProposal, default: nil, doc: "current event proposal, if any"
   attr :region, RM.FIRST.Region, default: nil, doc: "current region, if any"
   attr :season, :integer, default: nil, doc: "current season, if any"
 
@@ -208,6 +209,23 @@ defmodule RMWeb.CoreComponents do
           navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}"}
         >
           {@event.name}
+        </.link>
+        ⟩
+      </span>
+      <span :if={@proposal} class="whitespace-nowrap">
+        <.link
+          :if={is_nil(@league)}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/p/#{@proposal}"}
+        >
+          {@proposal.name}
+        </.link>
+        <.link
+          :if={@league}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/p/#{@proposal}"}
+        >
+          {@proposal.name}
         </.link>
         ⟩
       </span>
@@ -1182,4 +1200,23 @@ defmodule RMWeb.CoreComponents do
     else
     end
   end
+
+  @doc """
+  Construct a URL with the given segments
+  """
+  @spec url_for([term]) :: String.t()
+  def url_for(segments) do
+    Enum.map_join(segments, &url_segment/1)
+  end
+
+  @spec url_segment(term) :: String.t()
+  defp url_segment(%RM.FIRST.Event{} = event), do: "/e/#{Phoenix.Param.to_param(event)}"
+  defp url_segment(%RM.FIRST.League{} = league), do: "/l/#{Phoenix.Param.to_param(league)}"
+  defp url_segment(%RM.FIRST.Region{} = region), do: "/r/#{Phoenix.Param.to_param(region)}"
+  defp url_segment(%RM.FIRST.Season{} = season), do: "/s/#{Phoenix.Param.to_param(season)}"
+  defp url_segment(%RM.Local.EventProposal{} = p), do: "/p/#{Phoenix.Param.to_param(p)}"
+  defp url_segment(%RM.Local.League{} = league), do: "/l/#{Phoenix.Param.to_param(league)}"
+  defp url_segment(season) when is_integer(season), do: "/s/#{season}"
+  defp url_segment(page) when is_atom(page), do: "/#{page}"
+  defp url_segment(nil), do: ""
 end

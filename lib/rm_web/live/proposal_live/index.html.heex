@@ -44,39 +44,47 @@
       <form id="proposal-submission-form" phx-submit="generate_submit">
         <.list>
           <:item :for={proposal <- @proposals} class="flex items-center px-4 py-2 relative">
-            <input
-              id={"proposal-include-#{proposal.id}-hidden"}
-              name={"proposal-include[#{proposal.id}]"}
-              type="hidden"
-              value="false"
-            />
-            <input
-              class="absolute left-8 opacity-0 peer"
-              checked={true}
-              id={"proposal-include-#{proposal.id}"}
-              name={"proposal-include[#{proposal.id}]"}
-              type="checkbox"
-              value="true"
-            />
+            <div class="grow">
+              <input
+                id={"proposal-include-#{proposal.id}-hidden"}
+                name={"proposal-include[#{proposal.id}]"}
+                type="hidden"
+                value="false"
+              />
+              <input
+                class="absolute left-8 opacity-0 peer"
+                checked={true}
+                id={"proposal-include-#{proposal.id}"}
+                name={"proposal-include[#{proposal.id}]"}
+                type="checkbox"
+                value="true"
+              />
 
-            <label class="flex grow items-center group" for={"proposal-include-#{proposal.id}"}>
-              <div class="bg-slate-300 flex h-5 items-center rounded w-5 peer-checked:group-[]:bg-emerald-300 peer-disabled:group-[]:bg-slate-100 peer-disabled:group-[]:cursor-not-allowed">
-                <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
-              </div>
-              <div class="grow min-w-0 ml-4 text-ellipsis whitespace-nowrap">
-                <h3 class="gap-1 flex items-center">{proposal.name}</h3>
-                <p class="text-sm">
-                  <span>{format_range(proposal.date_start, proposal.date_end)}</span>
-                  <span>&bull; {RM.FIRST.Event.type_name(proposal.type)}</span>
-                  <span :if={proposal.format != :traditional}>
-                    &bull; {RM.Local.EventProposal.format_string(proposal)}
-                  </span>
-                  <span :if={proposal.league}>
-                    &bull; {proposal.league.name}
-                  </span>
-                </p>
-              </div>
-            </label>
+              <label class="flex grow items-center group" for={"proposal-include-#{proposal.id}"}>
+                <div class="bg-slate-300 flex h-5 items-center rounded w-5 peer-checked:group-[]:bg-emerald-300 peer-disabled:group-[]:bg-slate-100 peer-disabled:group-[]:cursor-not-allowed">
+                  <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
+                </div>
+                <div class="grow min-w-0 ml-4 text-ellipsis whitespace-nowrap">
+                  <h3 class="gap-1 flex items-center">{proposal.name}</h3>
+                  <p class="text-sm">
+                    <span>{format_range(proposal.date_start, proposal.date_end)}</span>
+                    <span>&bull; {RM.FIRST.Event.type_name(proposal.type)}</span>
+                    <span :if={proposal.format != :traditional}>
+                      &bull; {RM.Local.EventProposal.format_string(proposal)}
+                    </span>
+                    <span :if={proposal.league}>
+                      &bull; {proposal.league.name}
+                    </span>
+                  </p>
+                </div>
+              </label>
+            </div>
+            <.link_button
+              navigate={url_for([@season, @region, @local_league, proposal])}
+              style="tertiary"
+            >
+              <.icon name="hero-arrow-right" />
+            </.link_button>
           </:item>
         </.list>
         <p class="px-4 py-2 text-right">

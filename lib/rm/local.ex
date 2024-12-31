@@ -167,7 +167,7 @@ defmodule RM.Local do
           {:ok, EventProposal.t()} | {:error, :proposal, :not_found}
   def fetch_event_proposal_by_id(proposal_id, opts \\ []) do
     Query.from_proposal()
-    |> Query.league(opts[:league])
+    |> Query.proposal_league(opts[:league])
     |> Query.preload_assoc(:proposal, opts[:preload])
     |> Repo.get(proposal_id)
     |> case do

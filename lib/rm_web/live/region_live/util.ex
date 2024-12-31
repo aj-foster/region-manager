@@ -36,6 +36,7 @@ defmodule RMWeb.RegionLive.Util do
       </.nav_item>
       <.nav_item
         :if={can?(@user, :proposal_index, @region)}
+        children={[RMWeb.ProposalLive.Show]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/proposals"}
         target={RMWeb.ProposalLive.Index}
