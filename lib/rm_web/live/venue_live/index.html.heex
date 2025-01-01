@@ -28,7 +28,7 @@
   <.link
     :for={venue <- @active_venues}
     class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
-    navigate={~p"/todo"}
+    navigate={url_for([@season, @region, @local_league, venue])}
   >
     <div class="grow">
       <h3 class="font-bold">{venue.name}</h3>
@@ -51,20 +51,18 @@
   spaced
   title={"All Inactive Venues (#{@archived_venue_count})"}
 >
-  <.link
-    :for={venue <- @archived_venues}
-    class="border-b flex items-center px-4 py-2 -mx-4 transition-colors hover:bg-slate-100 last:border-0 last:-mb-2"
-    navigate={~p"/todo"}
-  >
-    <div class="grow">
+  <.list>
+    <:link
+      :for={venue <- @archived_venues}
+      navigate={url_for([@season, @region, @local_league, venue])}
+    >
       <h3 class="font-bold">{venue.name}</h3>
       <p class="text-sm">
         <span :if={venue.city}>{venue.city}</span>
         <span :if={venue.state_province}>&bull; {venue.state_province}</span>
       </p>
-    </div>
-    <div><.icon name="hero-arrow-right" /></div>
-  </.link>
+    </:link>
+  </.list>
 </.reveal>
 
 <.modal id="venue-list-info">

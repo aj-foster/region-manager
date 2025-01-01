@@ -8,6 +8,7 @@ defmodule RM.Account.Auth do
   alias RM.FIRST.Region
   alias RM.Local
   alias RM.Local.EventProposal
+  alias RM.Local.Venue
 
   @doc """
   Returns whether the given `user` can perform the given `action`
@@ -141,6 +142,18 @@ defmodule RM.Account.Auth do
 
   def can?(%User{} = user, :venue_index, %Local.League{id: league_id, region_id: region_id}) do
     region_id in region_ids(user) or league_id in league_ids_with_events(user)
+  end
+
+  # See an event venue
+  def can?(%User{} = user, :venue_show, %Venue{} = venue) do
+    venue.region_id in region_ids(user) or
+      (present?(venue.league_id) and venue.league_id in league_ids_with_events(user))
+  end
+
+  # Update an event venue
+  def can?(%User{} = user, :venue_update, %Venue{} = venue) do
+    venue.region_id in region_ids(user) or
+      (present?(venue.league_id) and venue.league_id in league_ids_with_events(user))
   end
 
   # Change whether the venue address is visible for a published event

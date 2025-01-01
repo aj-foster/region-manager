@@ -53,6 +53,7 @@ defmodule RMWeb.RegionLive.Util do
       </.nav_item>
       <.nav_item
         :if={@season == @region.current_season and can?(@user, :venue_index, @region)}
+        children={[VenueLive.Show]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/venues"}
         target={VenueLive.Index}

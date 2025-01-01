@@ -179,6 +179,7 @@ defmodule RMWeb.CoreComponents do
   attr :proposal, RM.Local.EventProposal, default: nil, doc: "current event proposal, if any"
   attr :region, RM.FIRST.Region, default: nil, doc: "current region, if any"
   attr :season, :integer, default: nil, doc: "current season, if any"
+  attr :venue, RM.Local.Venue, default: nil, doc: "current event venue, if any"
 
   def breadcrumbs(assigns) do
     ~H"""
@@ -226,6 +227,23 @@ defmodule RMWeb.CoreComponents do
           navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/p/#{@proposal}"}
         >
           {@proposal.name}
+        </.link>
+        ⟩
+      </span>
+      <span :if={@venue} class="whitespace-nowrap">
+        <.link
+          :if={is_nil(@league)}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/v/#{@venue}"}
+        >
+          {@venue.name}
+        </.link>
+        <.link
+          :if={@league}
+          class="mx-1"
+          navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/v/#{@venue}"}
+        >
+          {@venue.name}
         </.link>
         ⟩
       </span>
@@ -1216,6 +1234,7 @@ defmodule RMWeb.CoreComponents do
   defp url_segment(%RM.FIRST.Season{} = season), do: "/s/#{Phoenix.Param.to_param(season)}"
   defp url_segment(%RM.Local.EventProposal{} = p), do: "/p/#{Phoenix.Param.to_param(p)}"
   defp url_segment(%RM.Local.League{} = league), do: "/l/#{Phoenix.Param.to_param(league)}"
+  defp url_segment(%RM.Local.Venue{} = venue), do: "/v/#{Phoenix.Param.to_param(venue)}"
   defp url_segment(season) when is_integer(season), do: "/s/#{season}"
   defp url_segment(page) when is_atom(page), do: "/#{page}"
   defp url_segment(segment) when is_binary(segment), do: segment
