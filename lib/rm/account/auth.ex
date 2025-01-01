@@ -179,6 +179,10 @@ defmodule RM.Account.Auth do
     region_id in region_ids(user) or league_id in league_ids_with_contact(user)
   end
 
+  def can?(%User{} = user, :team_update, %Region{} = region) do
+    region.id in region_ids(user)
+  end
+
   #
   # Venues
   #

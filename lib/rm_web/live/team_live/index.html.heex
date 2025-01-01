@@ -24,12 +24,81 @@
   view={@socket.view}
 />
 
+<%= if @season == @region.current_season and is_nil(@local_league) and is_nil(@first_league) and can?(@current_user, :team_update, @region) do %>
+  <.title>
+    Team Import
+    <button phx-click={show_modal("team-import-info")}>
+      <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+    </button>
+  </.title>
+
+  <.information :if={@unmatched_first_teams_count > 0} class="mb-4">
+    <p class="font-bold">
+      There {dumb_inflect_is("team", @unmatched_first_teams_count)} awaiting import
+    </p>
+    <p>
+      Publicly available data from <em>FIRST</em>
+      includes teams that are not known by Region Manager. An import is recommended.
+    </p>
+  </.information>
+
+  <.card spaced>
+    <form
+      id="team-data-import"
+      phx-change="import_change"
+      phx-drop-target={@uploads.team_data.ref}
+      phx-submit="import_submit"
+    >
+      <label
+        class="bg-slate-100 block border-2 border-slate-300 cursor-pointer py-8 rounded transition-colors data-[drag=active]:bg-slate-200"
+        id="team-data-import-label"
+        phx-hook="DragDropStyle"
+      >
+        <%= cond do %>
+          <% @import_status == :in_progress -> %>
+            <div class="font-semibold text-center text-gray-600">
+              <.icon class="animate-spin h-8 w-8" name="hero-arrow-path" />
+              <br /> Uploading...
+            </div>
+          <% @import_status == :done -> %>
+            <div class="font-semibold text-center text-emerald-600">
+              <.icon class="h-8 w-8" name="hero-check" />
+              <br /> Import successful!
+            </div>
+          <% @import_status == :error -> %>
+            <div class="font-semibold text-center text-rose-600">
+              <.icon class="h-8 w-8" name="hero-exclamation-triangle" />
+              <span :for={error <- @import_errors}>
+                <br />
+                {upload_error_to_string(error)}
+              </span>
+            </div>
+          <% :else -> %>
+            <div class="font-semibold text-center text-gray-600">
+              <.icon class="h-8 w-8" name="hero-document-arrow-up" />
+              <br /> Drag file or click to upload (.csv)
+            </div>
+        <% end %>
+        <.live_file_input class="hidden" upload={@uploads.team_data} />
+      </label>
+    </form>
+  </.card>
+<% end %>
+
+<%= if @season > @region.current_season do %>
+  <.card spaced>
+    <p class="italic text-sm">Team listing is not yet available for this season.</p>
+  </.card>
+<% end %>
+
 <.title :if={@active_teams_count > 0}>
-  Active Teams in {context_name(@local_league || @first_league || @region)} ({@active_teams_count})
+  {if @season == @region.current_season, do: "Active"} Teams in {context_name(
+    @local_league || @first_league || @region
+  )} ({@active_teams_count})
   <button phx-click={show_modal("team-active-info")}>
     <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
   </button>
-  <:action :if={@current_user}>
+  <:action :if={@current_user && @season == @region.current_season}>
     <.button phx-click={show_modal("team-export-modal")} style="tertiary" target="blank">
       Export <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-down-tray" />
     </.button>
@@ -42,18 +111,28 @@
       :for={team <- @active_teams}
       navigate={url_for([@season, @region, @local_league || @first_league, team])}
     >
-      <h3 class="flex gap-2 items-center">
-        <strong>{team.number}</strong>
-        <span>{team.name}</span>
-        <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
-          Not Event Ready
-        </.tag>
-      </h3>
-      <p class="text-sm">
-        <span>{team.location.city || "Unknown City"} &bull;</span>
-        <span :if={team.location.county}>{team.location.county} County &bull;</span>
-        <span :if={team.location.postal_code}>{team.location.postal_code}</span>
-      </p>
+      <%= if is_struct(team, RM.FIRST.Team) do %>
+        <h3 class="flex gap-2 items-center">
+          <strong>{team.team_number}</strong>
+          <span>{team.name_short}</span>
+        </h3>
+        <p class="text-sm">
+          <span>{team.display_location}</span>
+        </p>
+      <% else %>
+        <h3 class="flex gap-2 items-center">
+          <strong>{team.number}</strong>
+          <span>{team.name}</span>
+          <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
+            Not Event Ready
+          </.tag>
+        </h3>
+        <p class="text-sm">
+          <span>{team.location.city || "Unknown City"} &bull;</span>
+          <span :if={team.location.county}>{team.location.county} County &bull;</span>
+          <span :if={team.location.postal_code}>{team.location.postal_code}</span>
+        </p>
+      <% end %>
     </:link>
   </.list>
 </.card>
@@ -137,7 +216,7 @@
 </.modal>
 
 <.live_component
-  :if={@current_user}
+  :if={@current_user && @season == @region.current_season}
   context={context_name(@local_league || @first_league || @region)}
   id="team-export"
   module={RMWeb.Components.TeamExport}

@@ -1231,6 +1231,7 @@ defmodule RMWeb.CoreComponents do
   defp url_segment(%RM.FIRST.Event{} = event), do: "/e/#{Phoenix.Param.to_param(event)}"
   defp url_segment(%RM.FIRST.League{} = league), do: "/l/#{Phoenix.Param.to_param(league)}"
   defp url_segment(%RM.FIRST.Region{} = region), do: "/r/#{Phoenix.Param.to_param(region)}"
+  defp url_segment(%RM.FIRST.Team{} = team), do: "/t/#{Phoenix.Param.to_param(team)}"
   defp url_segment(%RM.FIRST.Season{} = season), do: "/s/#{Phoenix.Param.to_param(season)}"
   defp url_segment(%RM.Local.EventProposal{} = p), do: "/p/#{Phoenix.Param.to_param(p)}"
   defp url_segment(%RM.Local.League{} = league), do: "/l/#{Phoenix.Param.to_param(league)}"
