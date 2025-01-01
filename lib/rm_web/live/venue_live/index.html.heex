@@ -17,7 +17,7 @@
   <:action>
     <.link_button
       :if={can?(@current_user, :venue_create, @local_league || @region)}
-      navigate={~p"/todo"}
+      navigate={url_for([@season, @region, @local_league, :venues, :new])}
     >
       Add...
     </.link_button>

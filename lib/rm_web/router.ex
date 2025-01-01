@@ -55,6 +55,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/p/:proposal", ProposalLive.Show
       live "/s/:season/r/:region/p/:proposal/edit", ProposalLive.Edit
       live "/s/:season/r/:region/venues", VenueLive.Index
+      live "/s/:season/r/:region/venues/new", VenueLive.New
       live "/s/:season/r/:region/v/:venue", VenueLive.Show
       live "/s/:season/r/:region/leagues", LeagueLive.Index
       live "/s/:season/r/:region/l/:league", LeagueLive.Show
@@ -67,6 +68,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/l/:league/p/:proposal", ProposalLive.Show
       live "/s/:season/r/:region/l/:league/p/:proposal/edit", ProposalLive.Edit
       live "/s/:season/r/:region/l/:league/venues", VenueLive.Index
+      live "/s/:season/r/:region/l/:league/venues/new", VenueLive.New
       live "/s/:season/r/:region/l/:league/v/:venue", VenueLive.Show
     end
 

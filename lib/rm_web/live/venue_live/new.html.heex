@@ -1,0 +1,29 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+/>
+
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league)}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title>Add Venue</.title>
+
+<.card spaced>
+  <p class="text-sm">
+    Venues are saved separately from individual events and can be reused in the future.
+    Fields marked with <span class="text-orange-600">*</span> are required.
+    Please provide as much detail as possible.
+  </p>
+</.card>
+
+<.card>
+  <.venue_form id="add-venue-form" prompt="Add Venue" venue_form={@venue_form} />
+</.card>
