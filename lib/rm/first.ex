@@ -632,4 +632,19 @@ defmodule RM.FIRST do
       team -> %Team{team | region: region}
     end)
   end
+
+  @spec fetch_team_by_number(integer) :: {:ok, Team.t()} | {:error, :team, :not_found}
+  @spec fetch_team_by_number(integer, keyword) :: {:ok, Team.t()} | {:error, :team, :not_found}
+  def fetch_team_by_number(team_number, opts \\ []) do
+    Query.from_team()
+    |> where([team: t], t.team_number == ^team_number)
+    |> Query.team_region(opts[:region])
+    |> Query.team_season(opts[:season] || (opts[:region] && opts[:region].current_season))
+    |> Query.preload_assoc(:team, opts[:preload])
+    |> Repo.one()
+    |> case do
+      %Team{} = team -> {:ok, team}
+      nil -> {:error, :team, :not_found}
+    end
+  end
 end

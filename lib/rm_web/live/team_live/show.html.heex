@@ -1,116 +1,349 @@
-<.nav class="mb-8" team={@team} view={@socket.view} />
+<.breadcrumbs class="mb-4" season={@season} region={@region} league={@local_league} />
 
-<.title>{@team.number} {@team.name}</.title>
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league)}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
 
-<.card spaced>
-  <.table class="mb-4">
-    <:row title="Number">
-      {if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)"}
-    </:row>
-    <:row title="Name">{@team.name}</:row>
-    <:row title="Location">
-      <span :if={@team.location.city}>{@team.location.city}</span>
-      <span :if={@team.location.postal_code}>{@team.location.postal_code}</span>
-      <br />
-      <span :if={@team.location.county}>{@team.location.county} County,</span>
-      <span :if={@team.location.state_province}>{@team.location.state_province},</span>
-      <span :if={@team.location.country}>
-        {@team.location.country || "Unknown Location"}
-      </span>
-    </:row>
-    <:row title="Rookie Year">{@team.rookie_year}</:row>
-    <:row :if={@team.website} title="Website">
-      <a class="underline" href={@team.website} target="blank">{@team.website}</a>
-    </:row>
-    <:row title="Region">{@team.region.name}</:row>
-    <:row :if={@team.region.has_leagues} title="League">
-      {if @team.league, do: @team.league.name, else: "No League Assignment"}
-    </:row>
-    <:row title="Event Ready?">
-      {if @team.event_ready, do: "Yes", else: "No"}
+<RMWeb.LeagueLive.Util.league_nav
+  :if={@local_league}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  league={@local_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<%= if is_struct(@team, RM.FIRST.Team) do %>
+  <.title>{@team.team_number} {@team.name_short}</.title>
+
+  <.card spaced>
+    <.table class="mb-4">
+      <:row title="Number">{@team.team_number}</:row>
+      <:row title="Name">{@team.name_short}</:row>
+      <:row title="Location">{@team.display_location}</:row>
+      <:row title="Rookie Year">{@team.rookie_year}</:row>
+      <:row :if={@team.website} title="Website">
+        <a class="underline" href={@team.website} target="blank">{@team.website}</a>
+      </:row>
+      <:row title="Region">{@region.name}</:row>
+      <:row :if={@region.has_leagues} title="League">
+        {if @team.league,
+          do: RM.Local.League.shorten_name(@team.league.name, @region) <> " League",
+          else: "No League Assignment"}
+      </:row>
+    </.table>
+  </.card>
+<% else %>
+  <.title>{@team.number} {@team.name}</.title>
+
+  <.card spaced>
+    <.table class="mb-4">
+      <:row title="Number">
+        {if @team.number, do: @team.number, else: "#{@team.temporary_number} (Temporary)"}
+      </:row>
+      <:row title="Name">{@team.name}</:row>
+      <:row title="Location">
+        <span :if={@team.location.city}>{@team.location.city}</span>
+        <span :if={@team.location.postal_code}>{@team.location.postal_code}</span>
+        <br />
+        <span :if={@team.location.county}>{@team.location.county} County,</span>
+        <span :if={@team.location.state_province}>{@team.location.state_province},</span>
+        <span :if={@team.location.country}>
+          {@team.location.country || "Unknown Location"}
+        </span>
+      </:row>
+      <:row title="Rookie Year">{@team.rookie_year}</:row>
+      <:row :if={@team.website} title="Website">
+        <a class="underline" href={@team.website} target="blank">{@team.website}</a>
+      </:row>
+      <:row title="Region">{@team.region.name}</:row>
+      <:row :if={@team.region.has_leagues} title="League">
+        {if @team.league, do: @team.league.name, else: "No League Assignment"}
+      </:row>
+      <:row title="Event Ready?">
+        {if @team.event_ready, do: "Yes", else: "No"}
+        <.icon
+          :if={@team.event_ready}
+          class="align-text-bottom text-green-600"
+          name="hero-check-circle"
+        />
+        <.icon
+          :if={not @team.event_ready}
+          class="align-text-bottom text-orange-600"
+          name="hero-exclamation-triangle"
+        />
+      </:row>
+    </.table>
+
+    <p class="text-sm">
+      This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on {format_date(
+        @team.region.stats.teams_imported_at,
+        :date
+      )}. Please make corrections in the
+      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+        <em>FIRST</em> Dashboard.
+      </a>
+    </p>
+  </.card>
+
+  <%= if can?(@current_user, :team_pii_show, @team) do %>
+    <.title>
+      Event Readiness
       <.icon
         :if={@team.event_ready}
-        class="align-text-bottom text-green-500"
+        class="align-text-bottom ml-2 text-emerald-600"
         name="hero-check-circle"
       />
       <.icon
         :if={not @team.event_ready}
-        class="align-text-bottom text-orange-500"
+        class="align-text-bottom ml-2 text-orange-600"
         name="hero-exclamation-triangle"
       />
-    </:row>
-  </.table>
+    </.title>
 
-  <p class="text-sm">
-    This data is provided by <em>FIRST®</em>. It was last imported by your region's Program Delivery Partner on {format_date(
-      @team.region.stats.teams_imported_at,
-      :date
-    )}. Please make corrections in the
-    <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-      <em>FIRST</em> Dashboard.
-    </a>
-  </p>
-</.card>
+    <%= if requires_attention?(@team) and can?(@current_user, :team_notices_show, @team) do %>
+      <.title>Items Requiring Attention</.title>
 
-<div :if={requires_attention?(@team)} class="mb-8">
-  <.title>Items Requiring Attention</.title>
+      <.card spaced>
+        <p class="mb-4 text-sm">
+          The following items may prevent you from registering for events:
+        </p>
 
-  <.card>
-    <p class="mb-4 text-sm">The following items may prevent you from registering for events:</p>
+        <.warning :if={@team.notices.lc1_missing} class="mb-4">
+          This team is missing information about <strong>Lead Coach / Mentor #1</strong>.
+          Use the
+          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+            <em>FIRST</em> Dashboard
+          </a>
+          to enter this individual's contact information.
+        </.warning>
 
-    <.warning :if={@team.notices.lc1_missing} class="mb-4">
-      This team is missing information about <strong>Lead Coach / Mentor #1</strong>.
-      Use the
-      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-        <em>FIRST</em> Dashboard
-      </a>
-      to enter this individual's contact information.
-    </.warning>
+        <.warning :if={@team.notices.lc1_ypp} class="mb-4">
+          <strong>Lead Coach / Mentor #1</strong>
+          has not completed Youth Protection Program screening requirements.
+          This individual must log in to the
+          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+            <em>FIRST</em> Dashboard
+          </a>
+          and consent to the screening.
+        </.warning>
 
-    <.warning :if={@team.notices.lc1_ypp} class="mb-4">
-      <strong>Lead Coach / Mentor #1</strong>
-      has not completed Youth Protection Program screening requirements.
-      This individual must log in to the
-      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-        <em>FIRST</em> Dashboard
-      </a>
-      and consent to the screening.
-    </.warning>
+        <.warning :if={@team.notices.lc2_missing} class="mb-4">
+          This team is missing information about <strong>Lead Coach / Mentor #2</strong>.
+          Use the
+          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+            <em>FIRST</em> Dashboard
+          </a>
+          to enter this individual's contact information.
+        </.warning>
 
-    <.warning :if={@team.notices.lc2_missing} class="mb-4">
-      This team is missing information about <strong>Lead Coach / Mentor #2</strong>.
-      Use the
-      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-        <em>FIRST</em> Dashboard
-      </a>
-      to enter this individual's contact information.
-    </.warning>
+        <.warning :if={@team.notices.lc2_ypp} class="mb-4">
+          <strong>Lead Coach / Mentor #2</strong>
+          has not completed Youth Protection Program screening requirements.
+          This individual must log in to the
+          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+            <em>FIRST</em> Dashboard
+          </a>
+          and consent to the screening.
+        </.warning>
 
-    <.warning :if={@team.notices.lc2_ypp} class="mb-4">
-      <strong>Lead Coach / Mentor #2</strong>
-      has not completed Youth Protection Program screening requirements.
-      This individual must log in to the
-      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-        <em>FIRST</em> Dashboard
-      </a>
-      and consent to the screening.
-    </.warning>
+        <.warning :if={@team.notices.unsecured} class="mb-4">
+          <em>FIRST</em>
+          reports it has not received payment for team registration.
+          Please log in to the
+          <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
+            <em>FIRST</em> Dashboard
+          </a>
+          to complete payment.
+        </.warning>
 
-    <.warning :if={@team.notices.unsecured} class="mb-4">
-      <em>FIRST</em>
-      reports it has not received payment for team registration.
-      Please log in to the
-      <a class="underline" href="https://my.firstinspires.org/Dashboard/" target="blank">
-        <em>FIRST</em> Dashboard
-      </a>
-      to complete payment.
-    </.warning>
+        <p class="text-sm">
+          This data is provided by <em>FIRST</em>. It was last imported by your region's Program Delivery Partner on {format_date(
+            @team.region.stats.teams_imported_at,
+            :date
+          )}.
+        </p>
+      </.card>
+    <% else %>
+      <.card :if={can?(@current_user, :team_pii_show, @team)} spaced>
+        <.table>
+          <:row title="Registration">
+            <span :if={@team.notices.unsecured} class="text-orange-600">Unsecured</span>
+            <span :if={not @team.notices.unsecured} class="text-emerald-600">Paid</span>
+          </:row>
+          <:row title="First Coach">
+            <span :if={@team.notices.lc1_missing} class="text-orange-600">Missing</span>
+            <span :if={not @team.notices.lc1_missing} class="text-emerald-600">Present</span>
+          </:row>
+          <:row title="First Coach YPP">
+            <span :if={@team.notices.lc1_ypp} class="text-orange-600">Incomplete</span>
+            <span :if={not @team.notices.lc1_ypp} class="text-emerald-600">Complete</span>
+          </:row>
+          <:row title="Second Coach">
+            <span :if={@team.notices.lc2_missing} class="text-orange-600">Missing</span>
+            <span :if={not @team.notices.lc2_missing} class="text-emerald-600">Present</span>
+          </:row>
+          <:row title="Second Coach YPP">
+            <span :if={@team.notices.lc2_ypp} class="text-orange-600">Incomplete</span>
+            <span :if={not @team.notices.lc2_ypp} class="text-emerald-600">Complete</span>
+          </:row>
+        </.table>
+      </.card>
+    <% end %>
 
-    <p class="text-sm">
-      This data is provided by <em>FIRST</em>. It was last imported by your region's Program Delivery Partner on {format_date(
-        @team.region.stats.teams_imported_at,
-        :date
-      )}.
-    </p>
-  </.card>
-</div>
+    <.title>Coach Information</.title>
+
+    <.card spaced>
+      <p class="mb-4 text-sm">
+        The following is private information, and may only be used or shared in accordance with
+        <em>FIRST</em>
+        Data Protection policies.
+      </p>
+      <.table>
+        <:row :if={@lc1} title="First Coach">
+          <span :if={is_nil(@lc1.name)} class="text-orange-600">Missing</span>
+          <span :if={@lc1.name}>{@lc1.name}</span>
+        </:row>
+        <:row :if={@lc1 && @lc1.email} title="Email">
+          <div class="flex gap-4 items-center">
+            <div class="grow">
+              <a class="underline" href={"mailto:#{@lc1.email}"}>{@lc1.email}</a>
+            </div>
+            <button
+              class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+              id="copy-lc1-email"
+              data-copy={@lc1.email}
+              phx-click={copy("#copy-lc1-email")}
+              title="Copy to Clipboard"
+            >
+              <.icon name="hero-document-duplicate" />
+            </button>
+          </div>
+        </:row>
+        <:row :if={@lc1 && @lc1.email_alt} title="Alt. Email">
+          <div class="flex gap-4 items-center">
+            <div class="grow">
+              <a class="underline" href={"mailto:#{@lc1.email_alt}"}>{@lc1.email_alt}</a>
+            </div>
+            <button
+              class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+              id="copy-lc1-email-alt"
+              data-copy={@lc1.email_alt}
+              phx-click={copy("#copy-lc1-email-alt")}
+              title="Copy to Clipboard"
+            >
+              <.icon name="hero-document-duplicate" />
+            </button>
+          </div>
+        </:row>
+        <:row :if={@lc1 && @lc1.phone} title="Phone">
+          <div class="flex gap-4 items-center">
+            <div class="grow">
+              <a class="underline" href={"tel:#{@lc1.phone}"}>{@lc1.phone}</a>
+            </div>
+            <button
+              class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+              id="copy-lc1-phone"
+              data-copy={@lc1.phone}
+              phx-click={copy("#copy-lc1-phone")}
+              title="Copy to Clipboard"
+            >
+              <.icon name="hero-document-duplicate" />
+            </button>
+          </div>
+        </:row>
+        <:row :if={@lc1 && @lc1.phone_alt} title="Alt. Phone">
+          <div class="flex gap-4 items-center">
+            <div class="grow">
+              <a class="underline" href={"tel:#{@lc1.phone_alt}"}>{@lc1.phone_alt}</a>
+            </div>
+            <button
+              class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+              id="copy-lc1-phone-alt"
+              data-copy={@lc1.phone_alt}
+              phx-click={copy("#copy-lc1-phone-alt")}
+              title="Copy to Clipboard"
+            >
+              <.icon name="hero-document-duplicate" />
+            </button>
+          </div>
+        </:row>
+
+        <:row :if={@lc2} class="mt-4" title="Second Coach">
+          <span :if={is_nil(@lc2.name)} class="text-orange-600">Missing</span>
+          <span :if={@lc2.name}>{@lc2.name}</span>
+        </:row>
+        <:row :if={@lc2 && @lc2.email} title="Email">
+          <div class="flex gap-4 items-center">
+            <div class="grow">
+              <a class="underline" href={"mailto:#{@lc2.email}"}>{@lc2.email}</a>
+            </div>
+            <button
+              class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+              id="copy-lc2-email"
+              data-copy={@lc2.email}
+              phx-click={copy("#copy-lc2-email")}
+              title="Copy to Clipboard"
+            >
+              <.icon name="hero-document-duplicate" />
+            </button>
+          </div>
+        </:row>
+        <:row :if={@lc2 && @lc2.email_alt} title="Alt. Email">
+          <div class="flex gap-4 items-center">
+            <div class="grow">
+              <a class="underline" href={"mailto:#{@lc2.email_alt}"}>{@lc2.email_alt}</a>
+            </div>
+            <button
+              class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+              id="copy-lc2-email-alt"
+              data-copy={@lc2.email_alt}
+              phx-click={copy("#copy-lc2-email-alt")}
+              title="Copy to Clipboard"
+            >
+              <.icon name="hero-document-duplicate" />
+            </button>
+          </div>
+        </:row>
+        <:row :if={@lc2 && @lc2.phone} title="Phone">
+          <div class="flex gap-4 items-center">
+            <div class="grow">
+              <a class="underline" href={"tel:#{@lc2.phone}"}>{@lc2.phone}</a>
+            </div>
+            <button
+              class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+              id="copy-lc2-phone"
+              data-copy={@lc2.phone}
+              phx-click={copy("#copy-lc2-phone")}
+              title="Copy to Clipboard"
+            >
+              <.icon name="hero-document-duplicate" />
+            </button>
+          </div>
+        </:row>
+        <:row :if={@lc2 && @lc2.phone_alt} title="Alt. Phone">
+          <div class="flex gap-4 items-center">
+            <div class="grow">
+              <a class="underline" href={"tel:#{@lc2.phone_alt}"}>{@lc2.phone_alt}</a>
+            </div>
+            <button
+              class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+              id="copy-lc2-phone-alt"
+              data-copy={@lc2.phone_alt}
+              phx-click={copy("#copy-lc2-phone-alt")}
+              title="Copy to Clipboard"
+            >
+              <.icon name="hero-document-duplicate" />
+            </button>
+          </div>
+        </:row>
+      </.table>
+    </.card>
+  <% end %>
+<% end %>

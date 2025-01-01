@@ -99,4 +99,14 @@ defmodule RM.FIRST.Team do
       website: website
     }
   end
+
+  #
+  # Protocols
+  #
+
+  defimpl Phoenix.Param do
+    def to_param(%RM.FIRST.Team{team_number: number}) do
+      Integer.to_string(number)
+    end
+  end
 end

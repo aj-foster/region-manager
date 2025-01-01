@@ -44,6 +44,7 @@ defmodule RMWeb.RegionLive.Util do
         Leagues
       </.nav_item>
       <.nav_item
+        children={[TeamLive.Show]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/teams"}
         target={TeamLive.Index}

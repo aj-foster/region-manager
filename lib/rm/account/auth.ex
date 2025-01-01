@@ -157,6 +157,10 @@ defmodule RM.Account.Auth do
     region_id in region_ids(user) or league_id in league_ids(user)
   end
 
+  def can?(%User{} = user, :team_notices_show, %Local.Team{id: team_id}) do
+    team_id in team_ids(user)
+  end
+
   # See personally-identifiable information for teams
   def can?(%User{} = user, :team_pii_show, %Event{} = event) do
     event.region_id in region_ids(user) or
@@ -176,6 +180,13 @@ defmodule RM.Account.Auth do
   end
 
   def can?(%User{} = user, :team_pii_show, %Local.League{id: league_id, region_id: region_id}) do
+    region_id in region_ids(user) or league_id in league_ids_with_contact(user)
+  end
+
+  def can?(%User{} = user, :team_pii_show, %Local.Team{
+        region_id: region_id,
+        league: %Local.League{id: league_id}
+      }) do
     region_id in region_ids(user) or league_id in league_ids_with_contact(user)
   end
 
@@ -258,4 +269,7 @@ defmodule RM.Account.Auth do
 
   @spec region_ids(User.t()) :: [Ecto.UUID.t()]
   defp region_ids(user), do: Enum.map(user.regions, & &1.id)
+
+  @spec team_ids(User.t()) :: [Ecto.UUID.t()]
+  defp team_ids(user), do: Enum.map(user.teams, & &1.id)
 end
