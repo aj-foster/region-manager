@@ -11,6 +11,7 @@ defmodule RMWeb.LeagueLive.Util do
   alias RMWeb.EventLive
   alias RMWeb.LeagueLive
   alias RMWeb.ProposalLive
+  alias RMWeb.TeamLive
   alias RMWeb.VenueLive
 
   @doc """
@@ -40,6 +41,21 @@ defmodule RMWeb.LeagueLive.Util do
       >
         Events
       </.nav_item>
+      <%!-- <.nav_item
+        :if={@region.has_leagues}
+        current={@view}
+        navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/leagues"}
+        target={LeagueLive.Index}
+      >
+        Leagues
+      </.nav_item> --%>
+      <.nav_item
+        current={@view}
+        navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/teams"}
+        target={TeamLive.Index}
+      >
+        Teams
+      </.nav_item>
       <.nav_item
         :if={@season == @region.current_season and can?(@user, :proposal_index, @league)}
         children={[ProposalLive.New, ProposalLive.Show, ProposalLive.Edit]}
@@ -49,14 +65,6 @@ defmodule RMWeb.LeagueLive.Util do
       >
         Proposals
       </.nav_item>
-      <%!-- <.nav_item
-        :if={@region.has_leagues}
-        current={@view}
-        navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/leagues"}
-        target={LeagueLive.Index}
-      >
-        Leagues
-      </.nav_item> --%>
       <.nav_item
         :if={@season == @region.current_season and can?(@user, :venue_index, @league)}
         children={[VenueLive.New, VenueLive.Show, VenueLive.Edit]}

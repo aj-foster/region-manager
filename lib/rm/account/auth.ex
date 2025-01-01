@@ -63,7 +63,8 @@ defmodule RM.Account.Auth do
         local_league_id: league_id,
         region_id: region_id
       }) do
-    region_id in region_ids(user) or league_id in league_ids_with_events(user)
+    region_id in region_ids(user) or
+      (present?(league_id) and league_id in league_ids_with_events(user))
   end
 
   def can?(%User{} = user, :proposal_create, %Local.League{id: league_id, region_id: region_id}) do
@@ -79,7 +80,8 @@ defmodule RM.Account.Auth do
         local_league_id: league_id,
         region_id: region_id
       }) do
-    region_id in region_ids(user) or league_id in league_ids_with_events(user)
+    region_id in region_ids(user) or
+      (present?(league_id) and league_id in league_ids_with_events(user))
   end
 
   def can?(%User{} = user, :proposal_index, %Local.League{id: league_id, region_id: region_id}) do
@@ -139,10 +141,42 @@ defmodule RM.Account.Auth do
   # Teams
   #
 
-  # See personally-identifiable information for registered teams
+  # See information about inactive teams
+  def can?(%User{} = user, :team_inactive_show, %Region{id: region_id}) do
+    region_id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :team_inactive_show, %FIRST.League{
+        region_id: region_id,
+        local_league_id: league_id
+      }) do
+    region_id in region_ids(user) or (present?(league_id) and league_id in league_ids(user))
+  end
+
+  def can?(%User{} = user, :team_inactive_show, %Local.League{id: league_id, region_id: region_id}) do
+    region_id in region_ids(user) or league_id in league_ids(user)
+  end
+
+  # See personally-identifiable information for teams
   def can?(%User{} = user, :team_pii_show, %Event{} = event) do
     event.region_id in region_ids(user) or
       (present?(event.local_league_id) and event.local_league_id in league_ids_with_contact(user))
+  end
+
+  def can?(%User{} = user, :team_pii_show, %Region{} = region) do
+    region.id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :team_pii_show, %FIRST.League{
+        region_id: region_id,
+        local_league_id: league_id
+      }) do
+    region_id in region_ids(user) or
+      (present?(league_id) and league_id in league_ids_with_contact(user))
+  end
+
+  def can?(%User{} = user, :team_pii_show, %Local.League{id: league_id, region_id: region_id}) do
+    region_id in region_ids(user) or league_id in league_ids_with_contact(user)
   end
 
   #
@@ -196,8 +230,8 @@ defmodule RM.Account.Auth do
   # Helpers
   #
 
-  # @spec league_ids(User.t()) :: [Ecto.UUID.t()]
-  # defp league_ids(user), do: Enum.map(user.leagues, & &1.id)
+  @spec league_ids(User.t()) :: [Ecto.UUID.t()]
+  defp league_ids(user), do: Enum.map(user.leagues, & &1.id)
 
   @spec league_ids_with_contact(User.t()) :: [Ecto.UUID.t()]
   defp league_ids_with_contact(user) do

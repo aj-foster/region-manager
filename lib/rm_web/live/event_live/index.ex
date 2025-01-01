@@ -78,7 +78,6 @@ defmodule RMWeb.EventLive.Index do
         season: season,
         preload: preloads
       )
-      |> RM.Repo.preload(registrations: [:team])
 
     page_title =
       cond do

@@ -591,6 +591,7 @@ defmodule RM.Local do
     |> Query.team_league(league)
     |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.all()
+    |> Enum.map(&Map.put(&1, :league, league))
     |> Enum.sort(Team)
   end
 
@@ -602,6 +603,7 @@ defmodule RM.Local do
     |> where([team: t], t.region_id == ^region.id)
     |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.all()
+    |> Enum.map(&Map.put(&1, :region, region))
     |> Enum.sort(Team)
   end
 
