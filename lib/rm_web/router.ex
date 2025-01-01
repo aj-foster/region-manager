@@ -57,6 +57,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/venues", VenueLive.Index
       live "/s/:season/r/:region/venues/new", VenueLive.New
       live "/s/:season/r/:region/v/:venue", VenueLive.Show
+      live "/s/:season/r/:region/v/:venue/edit", VenueLive.Edit
       live "/s/:season/r/:region/leagues", LeagueLive.Index
       live "/s/:season/r/:region/l/:league", LeagueLive.Show
       live "/s/:season/r/:region/l/:league/events", EventLive.Index
@@ -70,6 +71,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/l/:league/venues", VenueLive.Index
       live "/s/:season/r/:region/l/:league/venues/new", VenueLive.New
       live "/s/:season/r/:region/l/:league/v/:venue", VenueLive.Show
+      live "/s/:season/r/:region/l/:league/v/:venue/edit", VenueLive.Edit
     end
 
     live_session :authenticated,

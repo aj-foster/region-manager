@@ -1,0 +1,51 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  venue={@venue}
+/>
+
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league)}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title>Update: {@venue.name}</.title>
+
+<.card spaced>
+  <p class="text-sm">
+    Updating a venue affects all event proposals that reference it. Refrain from putting any event-specific information in the venue record.
+  </p>
+  <%= if @proposal_count > 0 do %>
+    <p class="my-4 text-sm">
+      The following event proposals reference this venue:
+    </p>
+
+    <.link
+      :for={proposal <- @proposals}
+      class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
+      navigate={url_for([@season, @region, @local_league, proposal])}
+    >
+      <div class="grow">
+        <h3 class="font-bold">{proposal.name}</h3>
+        <p class="text-sm">
+          <span>{format_range(proposal.date_start, proposal.date_end)}</span>
+          <span>&bull; {Event.type_name(proposal.type)}</span>
+          <span :if={proposal.format != :traditional}>
+            &bull; {EventProposal.format_string(proposal)}
+          </span>
+        </p>
+      </div>
+      <div><.icon name="hero-arrow-right" /></div>
+    </.link>
+  <% end %>
+</.card>
+
+<.card>
+  <.venue_form id="edit-venue-form" prompt="Update Venue" venue_form={@venue_form} />
+</.card>
