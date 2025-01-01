@@ -59,6 +59,13 @@ defmodule RM.Account.Auth do
     region_id in region_ids(user)
   end
 
+  def can?(%User{} = user, :proposal_create, %FIRST.League{
+        local_league_id: league_id,
+        region_id: region_id
+      }) do
+    region_id in region_ids(user) or league_id in league_ids_with_events(user)
+  end
+
   def can?(%User{} = user, :proposal_create, %Local.League{id: league_id, region_id: region_id}) do
     region_id in region_ids(user) or league_id in league_ids_with_events(user)
   end
@@ -66,6 +73,13 @@ defmodule RM.Account.Auth do
   # List unpublished event proposals for a region or league
   def can?(%User{} = user, :proposal_index, %Region{id: region_id}) do
     region_id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :proposal_index, %FIRST.League{
+        local_league_id: league_id,
+        region_id: region_id
+      }) do
+    region_id in region_ids(user) or league_id in league_ids_with_events(user)
   end
 
   def can?(%User{} = user, :proposal_index, %Local.League{id: league_id, region_id: region_id}) do

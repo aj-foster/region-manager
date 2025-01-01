@@ -36,7 +36,7 @@ defmodule RMWeb.RegionLive.Util do
       </.nav_item>
       <.nav_item
         :if={@season == @region.current_season and can?(@user, :proposal_index, @region)}
-        children={[ProposalLive.New, ProposalLive.Show]}
+        children={[ProposalLive.New, ProposalLive.Show, ProposalLive.Edit]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/proposals"}
         target={ProposalLive.Index}
@@ -53,7 +53,7 @@ defmodule RMWeb.RegionLive.Util do
       </.nav_item>
       <.nav_item
         :if={@season == @region.current_season and can?(@user, :venue_index, @region)}
-        children={[VenueLive.Show]}
+        children={[VenueLive.New, VenueLive.Show, VenueLive.Edit]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/venues"}
         target={VenueLive.Index}

@@ -15,6 +15,16 @@
   view={@socket.view}
 />
 
+<RMWeb.LeagueLive.Util.league_nav
+  :if={@local_league}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  league={@local_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
 <.title>Update: {@venue.name}</.title>
 
 <.card spaced>

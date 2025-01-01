@@ -24,25 +24,30 @@ defmodule RMWeb.ProposalLive.Index do
     season = socket.assigns[:season]
     user = socket.assigns[:current_user]
 
+    redirect_target = url_for([season, region, league])
+
     cond do
       not can?(user, :proposal_index, league || region) ->
         socket
         |> put_flash(:error, "You are not authorized to perform this action")
-        |> redirect(to: ~p"/")
+        |> redirect(to: redirect_target)
+        |> ok()
 
       season > region.current_season ->
         message = "Event proposals for #{season} are not yet available in #{region.name}"
 
         socket
         |> put_flash(:error, message)
-        |> redirect(to: ~p"/")
+        |> redirect(to: redirect_target)
+        |> ok()
 
       season < region.current_season ->
         message = "Event proposals for #{season} are no longer available in #{region.name}"
 
         socket
         |> put_flash(:error, message)
-        |> redirect(to: ~p"/")
+        |> redirect(to: redirect_target)
+        |> ok()
 
       :else ->
         :ok

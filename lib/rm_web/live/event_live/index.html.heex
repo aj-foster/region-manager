@@ -14,22 +14,15 @@
   view={@socket.view}
 />
 
-<.top_nav :if={@local_league || @first_league} class="mb-8">
-  <.nav_item
-    current={@socket.view}
-    navigate={~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}"}
-    target={RMWeb.LeagueLive.Show}
-  >
-    Overview
-  </.nav_item>
-  <.nav_item
-    current={@socket.view}
-    navigate={~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/events"}
-    target={RMWeb.EventLive.Index}
-  >
-    Events
-  </.nav_item>
-</.top_nav>
+<RMWeb.LeagueLive.Util.league_nav
+  :if={@local_league}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  league={@local_league}
+  user={@current_user}
+  view={@socket.view}
+/>
 
 <div class="flex flex-wrap gap-4 items-center justify-between mb-4 pl-6">
   <.title flush>

@@ -9,6 +9,16 @@
   view={@socket.view}
 />
 
+<RMWeb.LeagueLive.Util.league_nav
+  :if={@local_league}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  league={@local_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
 <.title>
   Proposed Events
   <button phx-click={show_modal("event-proposal-info")}>
@@ -179,7 +189,7 @@
     </:link>
   </.list>
 
-  <p :if={@proposals_count == 0} class="italic mx-4 my-2 text-sm">
+  <p :if={@submitted_proposals_count == 0} class="italic mx-4 my-2 text-sm">
     All submitted proposals have been matched to published events.
   </p>
 </.card>

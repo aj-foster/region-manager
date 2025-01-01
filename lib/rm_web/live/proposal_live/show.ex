@@ -22,7 +22,12 @@ defmodule RMWeb.ProposalLive.Show do
 
     redirect_target = url_for([season, region, league, :proposals])
 
-    case RM.Local.fetch_event_proposal_by_id(proposal_id, league: league, preload: preloads) do
+    case RM.Local.fetch_event_proposal_by_id(proposal_id,
+           league: league,
+           region: region,
+           season: season,
+           preload: preloads
+         ) do
       {:ok, proposal} ->
         if can?(user, :proposal_show, proposal) do
           {:cont, assign(socket, proposal: proposal, page_title: proposal.name)}

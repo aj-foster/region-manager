@@ -1,21 +1,13 @@
 <.breadcrumbs class="mb-4" season={@season} region={@region} league={@league} />
 
-<.top_nav class="mb-8">
-  <.nav_item
-    current={@socket.view}
-    navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}
-    target={RMWeb.LeagueLive.Show}
-  >
-    Overview
-  </.nav_item>
-  <.nav_item
-    current={@socket.view}
-    navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/events"}
-    target={RMWeb.EventLive.Index}
-  >
-    Events
-  </.nav_item>
-</.top_nav>
+<RMWeb.LeagueLive.Util.league_nav
+  class="mb-8"
+  season={@season}
+  region={@region}
+  league={@league}
+  user={@current_user}
+  view={@socket.view}
+/>
 
 <.title>
   Overview of {RM.Local.League.shorten_name(@league.name, @region)} League

@@ -168,6 +168,8 @@ defmodule RM.Local do
   def fetch_event_proposal_by_id(proposal_id, opts \\ []) do
     Query.from_proposal()
     |> Query.proposal_league(opts[:league])
+    |> Query.proposal_region(opts[:region])
+    |> Query.proposal_season(opts[:season])
     |> Query.preload_assoc(:proposal, opts[:preload])
     |> Repo.get(proposal_id)
     |> case do

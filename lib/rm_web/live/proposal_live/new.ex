@@ -9,22 +9,25 @@ defmodule RMWeb.ProposalLive.New do
 
   @impl true
   def mount(params, _session, socket) do
-    socket
-    |> assign(venue: nil, page_title: "Propose Event")
-    |> assign_retroactive_event(params)
-    |> assign_venues()
-    |> add_venue_form()
-    |> proposal_form()
-    |> require_permission()
-    |> ok()
+    with :ok <- require_permission(socket) do
+      socket
+      |> assign(venue: nil, page_title: "Propose Event")
+      |> assign_retroactive_event(params)
+      |> assign_venues()
+      |> add_venue_form()
+      |> proposal_form()
+      |> ok()
+    end
   end
 
-  @spec require_permission(Socket.t()) :: Socket.t()
+  @spec require_permission(Socket.t()) :: :ok | Socket.t()
   defp require_permission(socket) do
     league = socket.assigns[:local_league]
     region = socket.assigns[:region]
     season = socket.assigns[:season]
     user = socket.assigns[:current_user]
+
+    redirect_target = url_for([season, region, league])
 
     cond do
       season > region.current_season ->
@@ -32,22 +35,25 @@ defmodule RMWeb.ProposalLive.New do
 
         socket
         |> put_flash(:error, message)
-        |> redirect(to: ~p"/")
+        |> redirect(to: redirect_target)
+        |> ok()
 
       season < region.current_season ->
         message = "Event proposals for #{season} are no longer available in #{region.name}"
 
         socket
         |> put_flash(:error, message)
-        |> redirect(to: ~p"/")
+        |> redirect(to: redirect_target)
+        |> ok()
 
       can?(user, :proposal_create, league || region) ->
-        socket
+        :ok
 
       :else ->
         socket
         |> put_flash(:error, "You are not authorized to perform this action")
-        |> redirect(to: ~p"/")
+        |> redirect(to: redirect_target)
+        |> ok()
     end
   end
 
