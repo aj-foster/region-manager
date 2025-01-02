@@ -1,5 +1,8 @@
 defmodule RMWeb.EventLive.Index do
   use RMWeb, :live_view
+  require Logger
+
+  alias Phoenix.LiveView.AsyncResult
 
   @typedoc "Key used for sorting groups of events"
   @type group_key :: {priority :: integer, title :: String.t()}
@@ -16,7 +19,8 @@ defmodule RMWeb.EventLive.Index do
   def mount(_params, _session, socket) do
     socket
     |> assign_events()
-    |> assign(grouped_events: [], sort: "")
+    |> assign_refresh_disabled()
+    |> assign(grouped_events: [], sort: "", refresh_events: AsyncResult.ok(nil))
     |> assign_new(:first_league, fn -> nil end)
     |> assign_new(:local_league, fn -> nil end)
     |> ok()
@@ -47,6 +51,22 @@ defmodule RMWeb.EventLive.Index do
   @impl true
   def handle_event(event, unsigned_params, socket)
 
+  def handle_event("refresh_events", _params, socket) do
+    region = socket.assigns[:region]
+    user = socket.assigns[:current_user]
+
+    if can?(user, :event_sync, region) do
+      socket
+      |> start_async(:refresh_events, fn -> RM.FIRST.refresh_events(region) end)
+      |> assign(refresh_events: AsyncResult.loading())
+      |> noreply()
+    else
+      socket
+      |> put_flash(:error, "You do not have permission to refresh events.")
+      |> noreply()
+    end
+  end
+
   def handle_event("sort_league", _params, socket) do
     socket
     |> push_query(sort: "league")
@@ -56,6 +76,34 @@ defmodule RMWeb.EventLive.Index do
   def handle_event("sort_upcoming", _params, socket) do
     socket
     |> push_query(sort: "upcoming")
+    |> noreply()
+  end
+
+  @doc false
+  @impl true
+  def handle_async(name, async_fun_result, socket)
+
+  def handle_async(:refresh_events, {:ok, {:ok, _events}}, socket) do
+    socket
+    |> assign(refresh_events: AsyncResult.ok(true))
+    |> refresh_region()
+    |> assign_events()
+    |> assign_refresh_disabled()
+    |> noreply()
+  end
+
+  def handle_async(:refresh_events, {:ok, {:error, reason}}, socket) do
+    Logger.error("Error while refreshing events: #{inspect(reason)}")
+
+    socket
+    |> assign(refresh_events: AsyncResult.ok(false))
+    |> put_flash(:error, "An error occurred while refreshing events. Please try again later.")
+    |> noreply()
+  end
+
+  def handle_async(:refresh_events_disabled, {:ok, :done}, socket) do
+    socket
+    |> assign(refresh_events_disabled: false)
     |> noreply()
   end
 
@@ -87,6 +135,27 @@ defmodule RMWeb.EventLive.Index do
       end
 
     assign(socket, events: events, page_title: page_title)
+  end
+
+  @spec assign_refresh_disabled(Socket.t()) :: Socket.t()
+  defp assign_refresh_disabled(socket) do
+    %RM.FIRST.Region{stats: %{events_imported_at: last_refresh}} = socket.assigns[:region]
+
+    if not is_nil(last_refresh) and
+         DateTime.after?(last_refresh, DateTime.add(DateTime.utc_now(), -10, :minute)) do
+      time_until_enabled_ms =
+        DateTime.add(last_refresh, 10, :minute)
+        |> DateTime.diff(DateTime.utc_now(), :millisecond)
+
+      socket
+      |> assign(refresh_events_disabled: true)
+      |> start_async(:refresh_events_disabled, fn ->
+        Process.sleep(time_until_enabled_ms)
+        :done
+      end)
+    else
+      assign(socket, refresh_events_disabled: false)
+    end
   end
 
   @spec group_by_league(Socket.t()) :: Socket.t()
@@ -135,6 +204,15 @@ defmodule RMWeb.EventLive.Index do
       grouped_events: grouped_events,
       sort: "upcoming"
     )
+  end
+
+  @spec refresh_region(Socket.t()) :: Socket.t()
+  defp refresh_region(socket) do
+    region =
+      socket.assigns[:region]
+      |> RM.Repo.reload!()
+
+    assign(socket, region: region)
   end
 
   #

@@ -33,6 +33,11 @@ defmodule RM.Account.Auth do
       (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
   end
 
+  # Sync events with FTC Events API
+  def can?(%User{} = user, :event_sync, %Region{id: region_id}) do
+    region_id in region_ids(user)
+  end
+
   #
   # Leagues
   #
