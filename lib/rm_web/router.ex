@@ -88,10 +88,7 @@ defmodule RMWeb.Router do
 
       live "/league/:region/:league", LeagueLive.Overview
       live "/league/:region/:league/events", LeagueLive.Event.Index
-      live "/league/:region/:league/events/new", LeagueLive.Proposal.New
       live "/league/:region/:league/events/:event", LeagueLive.Event.Show
-      live "/league/:region/:league/events/proposal/:event", LeagueLive.Proposal.Show
-      live "/league/:region/:league/events/proposal/:event/edit", LeagueLive.Proposal.Edit
 
       live "/region/:region", RegionLive.Overview
       live "/region/:region/leagues", RegionLive.League.Index

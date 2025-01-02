@@ -36,10 +36,12 @@ defmodule RMWeb.VenueLive.New do
   def handle_event(event, unsigned_params, socket)
 
   def handle_event("venue_cancel", _params, socket) do
-    league = socket.assigns[:league]
+    league = socket.assigns[:local_league]
+    region = socket.assigns[:region]
+    season = socket.assigns[:season]
 
     socket
-    |> push_navigate(to: ~p"/league/#{league.region}/#{league}/venues")
+    |> push_navigate(to: url_for([season, region, league, :venues]))
     |> noreply()
   end
 

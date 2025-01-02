@@ -3,7 +3,6 @@ defmodule RMWeb.LeagueLive.Event.Index do
   import RMWeb.LeagueLive.Util
 
   alias RM.FIRST.Event
-  alias RM.Local.EventProposal
 
   on_mount {RMWeb.LeagueLive.Util, :preload_league}
   on_mount {RMWeb.LeagueLive.Util, :require_league_manager}

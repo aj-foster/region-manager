@@ -57,31 +57,6 @@
   </p>
 </.card>
 
-<.title>
-  Original Proposal
-  <button phx-click={show_modal("event-proposal-info")}>
-    <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
-  </button>
-  <:action>
-    <.link_button
-      :if={is_nil(@event.proposal) and @assignment.permissions.events}
-      navigate={~p"/league/#{@league.region}/#{@league}/events/new?event=#{@event.id}"}
-    >
-      Create
-    </.link_button>
-    <.link_button
-      :if={@event.proposal && @assignment.permissions.events}
-      navigate={~p"/league/#{@league.region}/#{@league}/events/proposal/#{@event.proposal}/edit"}
-    >
-      Update
-    </.link_button>
-  </:action>
-</.title>
-
-<.card :if={is_nil(@event.proposal)} spaced>
-  <p class="text-sm">This event did not originate from a proposal in Region Manager.</p>
-</.card>
-
 <.card :if={@event.proposal} spaced>
   <h3 class="font-semibold mb-2">Event Details</h3>
   <.table class="mb-8">
