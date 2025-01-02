@@ -14,14 +14,14 @@
   </.link>
 </.information>
 
-<div :if={@region_count > 0} class="mb-8">
+<div :if={@region_count > 0}>
   <.title>Regions you manage</.title>
 
-  <.card>
+  <.card spaced>
     <.link
       :for={region <- @current_user.regions}
       class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
-      navigate={~p"/region/#{region}"}
+      navigate={~p"/s/#{region.current_season}/r/#{region}"}
     >
       <div class="grow">
         <h3 class="font-bold">{region.name}</h3>
@@ -38,14 +38,14 @@
   </.card>
 </div>
 
-<div :if={@league_count > 0} class="mb-8">
+<div :if={@league_count > 0}>
   <.title>Leagues you manage</.title>
 
-  <.card>
+  <.card spaced>
     <.link
       :for={league <- @current_user.leagues}
       class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
-      navigate={~p"/league/#{league.region}/#{league}"}
+      navigate={~p"/s/#{league.region.current_season}/r/#{league.region}/l/#{league}"}
     >
       <div class="grow">
         <h3 class="font-bold">{league.name}</h3>
@@ -62,14 +62,14 @@
   </.card>
 </div>
 
-<div :if={@team_count > 0} class="mb-8">
+<div :if={@team_count > 0}>
   <.title>Teams you manage</.title>
 
-  <.card>
+  <.card spaced>
     <.link
       :for={team <- @current_user.teams}
       class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
-      navigate={~p"/team/#{team}"}
+      navigate={~p"/s/#{team.region.current_season}/r/#{team.region}/t/#{team}"}
     >
       <div class="grow">
         <h3>
@@ -95,10 +95,10 @@
   </.card>
 </div>
 
-<div :if={@region_count == 0 and @league_count == 0 and @team_count == 0} class="mb-8">
+<div :if={@region_count == 0 and @league_count == 0 and @team_count == 0}>
   <.title>Your Dashboard</.title>
 
-  <.card>
+  <.card spaced>
     <p class="mb-4">Welcome to <strong>Region Manager</strong>!</p>
     <p class="mb-4 text-sm">
       Your account is currently not associated with any teams.
@@ -125,3 +125,37 @@
     </ul>
   </.card>
 </div>
+
+<.title>Browse Data</.title>
+
+<.card :if={@seasons_count > 0} flush spaced>
+  <.list>
+    <:link :for={season <- @seasons} navigate={~p"/s/#{season}"}>
+      <div class="flex items-center gap-4">
+        <div :if={season.logo_url} class="max-w-10">
+          <img src={season.logo_url} alt="Season Logo" />
+        </div>
+        <div>
+          <p class="font-semibold">{season.name}</p>
+          <p class="text-sm">
+            {season.year}–{season.year + 1}
+            <span :if={@current_season == season.year}>&bull; Active Season</span>
+          </p>
+        </div>
+      </div>
+    </:link>
+  </.list>
+</.card>
+
+<.card :if={@seasons_count == 0} spaced>
+  <p class="italic text-sm">There is no season data currently available.</p>
+</.card>
+
+<.card spaced>
+  <p class="text-sm">
+    <strong>Region Manager</strong>
+    keeps certain season-specific data (such as published events) after the season is over.
+    Other data (league and team data) is only available for the currently-active season.
+    The active season depends on the availability of certain data sources from <em>FIRST</em>, and may not change until after kickoff.
+  </p>
+</.card>

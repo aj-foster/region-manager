@@ -13,6 +13,18 @@ defmodule RMWeb.DashboardLive.Home do
       team_count: length(current_user.teams),
       unconfirmed_email_count: unconfirmed_email_count
     )
+    |> assign_seasons()
     |> ok()
+  end
+
+  #
+  # Helpers
+  #
+
+  @spec assign_seasons(Socket.t()) :: Socket.t()
+  defp assign_seasons(socket) do
+    current = RM.System.current_season()
+    seasons = RM.FIRST.list_seasons() |> Enum.reverse()
+    assign(socket, current_season: current, seasons: seasons, seasons_count: length(seasons))
   end
 end
