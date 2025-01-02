@@ -1,29 +1,5 @@
 <.nav class="mb-8" league={@league} view={@socket.view} />
 
-<.title>Events in {@league.name} League</.title>
-
-<.card spaced>
-  <.link
-    :for={event <- @league.events}
-    class="border-b flex items-center px-4 py-2 -mx-4 transition-colors first:-mt-2 hover:bg-slate-100 last:border-0 last:-mb-2"
-    navigate={~p"/league/#{@league.region}/#{@league}/events/#{event}"}
-  >
-    <div class="grow">
-      <h3 class="font-bold">{event.name}</h3>
-      <p class="text-sm">
-        <span>{format_range(event.date_start, event.date_end)}</span>
-        <span>&bull; {Event.type_name(event.type)}</span>
-        <span :if={event.remote or event.hybrid}>&bull; {Event.format_name(event)}</span>
-      </p>
-    </div>
-    <div><.icon name="hero-arrow-right" /></div>
-  </.link>
-
-  <p :if={@league.events == []} class="italic text-sm">
-    There are no published events for this league.
-  </p>
-</.card>
-
 <.title>
   Default Registration Settings
   <button phx-click={show_modal("registration-settings-info")}>
