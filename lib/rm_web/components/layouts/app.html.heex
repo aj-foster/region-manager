@@ -81,10 +81,7 @@
   <p class="text-neutral-600 text-xs">
     <button phx-click={show_modal("about-site")}>About Region Manager</button>
   </p>
-  <p
-    :if={@current_user && @socket.view != RMWeb.DashboardLive.Feedback}
-    class="text-neutral-600 text-xs"
-  >
+  <p :if={@current_user} class="text-neutral-600 text-xs">
     <.link navigate={~p"/feedback"}>Send Feedback</.link>
   </p>
 </footer>
