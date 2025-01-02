@@ -42,6 +42,11 @@ defmodule RM.Account.Auth do
   # Leagues
   #
 
+  # Update default registration settings for a league
+  def can?(%User{} = user, :league_settings_update, %Local.League{} = league) do
+    league.region_id in region_ids(user) or league.id in league_ids_with_events(user)
+  end
+
   # Update information about published and unpublished leagues
   def can?(%User{} = user, :league_update, %FIRST.League{} = league) do
     league.region_id in region_ids(user)

@@ -75,6 +75,14 @@ defmodule RMWeb.LeagueLive.Util do
       >
         Venues
       </.nav_item>
+      <.nav_item
+        :if={@season == @region.current_season and can?(@user, :league_settings_update, @league)}
+        current={@view}
+        navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/settings"}
+        target={LeagueLive.Settings}
+      >
+        Settings
+      </.nav_item>
     </.top_nav>
     """
   end

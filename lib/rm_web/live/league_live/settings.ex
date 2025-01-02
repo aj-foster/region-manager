@@ -1,24 +1,40 @@
-defmodule RMWeb.LeagueLive.Event.Index do
+defmodule RMWeb.LeagueLive.Settings do
   use RMWeb, :live_view
-  import RMWeb.LeagueLive.Util
 
-  on_mount {RMWeb.LeagueLive.Util, :preload_league}
-  on_mount {RMWeb.LeagueLive.Util, :require_league_manager}
+  #
+  # Lifecycle
+  #
 
+  @doc false
   @impl true
   def mount(_params, _session, socket) do
-    socket
-    |> assign(registration_settings_form: nil)
-    |> ok()
+    with :ok <- require_permission(socket) do
+      socket
+      |> registration_settings_form()
+      |> ok()
+    end
   end
 
-  @impl true
-  def handle_params(_params, _uri, socket) do
-    socket
-    |> load_events()
-    |> filter_events()
-    |> registration_settings_form()
-    |> noreply()
+  @spec require_permission(Socket.t()) :: :ok | Socket.t()
+  defp require_permission(socket) do
+    league = socket.assigns[:local_league]
+    region = socket.assigns[:region]
+    season = socket.assigns[:season]
+    user = socket.assigns[:current_user]
+
+    cond do
+      can?(user, :league_update, league) ->
+        :ok
+
+      can?(user, :league_settings_update, league) ->
+        :ok
+
+      :else ->
+        socket
+        |> put_flash(:error, "You do not have permission to perform this action.")
+        |> redirect(to: url_for([season, region, league]))
+        |> ok()
+    end
   end
 
   #
@@ -30,7 +46,13 @@ defmodule RMWeb.LeagueLive.Event.Index do
 
   def handle_event("registration_settings_change", %{"league_settings" => params}, socket) do
     socket
-    |> registration_settings_change(params)
+    |> registration_settings_form(params)
+    |> noreply()
+  end
+
+  def handle_event("registration_settings_submit", %{"league_settings" => params}, socket) do
+    socket
+    |> registration_settings_submit(params)
     |> noreply()
   end
 
@@ -38,22 +60,18 @@ defmodule RMWeb.LeagueLive.Event.Index do
   # Helpers
   #
 
-  @spec filter_events(Socket.t()) :: Socket.t()
-  defp filter_events(socket) do
-    proposed_events =
-      socket.assigns[:league].event_proposals
-      |> Enum.filter(&is_nil(&1.first_event_id))
+  @spec registration_settings_form(Socket.t()) :: Socket.t()
+  @spec registration_settings_form(Socket.t(), map) :: Socket.t()
+  defp registration_settings_form(socket, params \\ %{}) do
+    league = socket.assigns[:local_league]
+    form = RM.Local.change_league_settings(league, params) |> to_form()
 
-    assign(
-      socket,
-      proposed_events: proposed_events,
-      proposed_events_count: length(proposed_events)
-    )
+    assign(socket, registration_settings_form: form, registration_settings_success: false)
   end
 
-  @spec registration_settings_change(Socket.t(), map) :: Socket.t()
-  defp registration_settings_change(socket, params) do
-    league = socket.assigns[:league]
+  @spec registration_settings_submit(Socket.t(), map) :: Socket.t()
+  defp registration_settings_submit(socket, params) do
+    league = socket.assigns[:local_league]
 
     params =
       params
@@ -62,21 +80,16 @@ defmodule RMWeb.LeagueLive.Event.Index do
 
     case RM.Local.update_league_settings(league, params) do
       {:ok, _settings} ->
+        league = RM.Repo.preload(league, :settings, force: true)
+
         socket
-        |> refresh_league(events: true)
+        |> assign(local_league: league)
         |> registration_settings_form()
+        |> assign(registration_settings_success: true)
 
       {:error, changeset} ->
         assign(socket, registration_settings_form: to_form(changeset))
     end
-  end
-
-  @spec registration_settings_form(Socket.t()) :: Socket.t()
-  defp registration_settings_form(socket) do
-    league = socket.assigns[:league]
-    form = RM.Local.change_league_settings(league, %{}) |> to_form()
-
-    assign(socket, registration_settings_form: form)
   end
 
   @spec registration_settings_normalize_team_limit(map) :: map

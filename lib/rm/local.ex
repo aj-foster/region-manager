@@ -529,15 +529,15 @@ defmodule RM.Local do
   # League Settings
   #
 
-  @spec change_league_settings(League.t()) :: Changeset.t(LeagueSettings.t())
-  def change_league_settings(league) do
+  @spec change_league_settings(League.t(), map) :: Changeset.t(LeagueSettings.t())
+  def change_league_settings(league, params) do
     case Repo.preload(league, :settings) do
       %League{settings: nil} ->
-        LeagueSettings.changeset(%{})
+        LeagueSettings.changeset(params)
         |> Changeset.put_assoc(:league, league)
 
       %League{settings: settings} ->
-        LeagueSettings.changeset(settings, %{})
+        LeagueSettings.changeset(settings, params)
     end
   end
 

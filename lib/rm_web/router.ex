@@ -70,6 +70,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/l/:league/proposals/new", ProposalLive.New
       live "/s/:season/r/:region/l/:league/p/:proposal", ProposalLive.Show
       live "/s/:season/r/:region/l/:league/p/:proposal/edit", ProposalLive.Edit
+      live "/s/:season/r/:region/l/:league/settings", LeagueLive.Settings
       live "/s/:season/r/:region/l/:league/teams", TeamLive.Index
       live "/s/:season/r/:region/l/:league/t/:team", TeamLive.Show
       live "/s/:season/r/:region/l/:league/venues", VenueLive.Index
