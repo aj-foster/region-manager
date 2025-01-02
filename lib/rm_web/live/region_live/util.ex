@@ -153,31 +153,6 @@ defmodule RMWeb.RegionLive.Util do
         <% end %>
       <% end %>
 
-      <%= cond do %>
-        <% @view == RegionLive.Team.Index -> %>
-          <div
-            class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
-            style="background-image: linear-gradient(to bottom, white, transparent)"
-          >
-            Teams
-          </div>
-        <% @view in [RegionLive.Team.Show] -> %>
-          <.link
-            class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
-            navigate={~p"/region/#{@region}/teams"}
-            style="background-image: linear-gradient(to bottom, white, transparent)"
-          >
-            Teams
-          </.link>
-        <% :else -> %>
-          <.link
-            class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
-            navigate={~p"/region/#{@region}/teams"}
-          >
-            Teams
-          </.link>
-      <% end %>
-
       <%!-- <%= if @view == RegionLive.Setup do %>
         <div
           class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"

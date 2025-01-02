@@ -54,16 +54,4 @@
       <.icon name="hero-arrow-right" />
     </div>
   </.link_card>
-
-  <.link_card class="flex items-center mb-4" navigate={~p"/region/#{@region}/teams"}>
-    <div class="grow">
-      <h3 class="font-bold">{dumb_inflect("Active Team", @region.stats.team_count)}</h3>
-      <p :if={@region.stats.teams_imported_at} class="text-sm">
-        Last imported {format_date(@region.stats.teams_imported_at, :date)}
-      </p>
-    </div>
-    <div>
-      <.icon name="hero-arrow-right" />
-    </div>
-  </.link_card>
 </div>
