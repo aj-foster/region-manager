@@ -29,7 +29,7 @@
         }
         class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
         navigate={
-          ~p"/league/#{List.first(@current_user.leagues).region}/#{List.first(@current_user.leagues)}"
+          ~p"/s/#{List.first(@current_user.leagues).region.current_season}/r/#{List.first(@current_user.leagues).region}/l/#{List.first(@current_user.leagues)}"
         }
       >
         {List.first(@current_user.leagues).name}
