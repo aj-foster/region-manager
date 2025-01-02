@@ -218,7 +218,10 @@
 
   <.card :if={@registered_teams_count > 0} flush spaced>
     <.list>
-      <:item :for={team <- @registered_teams} class="px-4 py-2">
+      <:link
+        :for={team <- @registered_teams}
+        navigate={url_for([@season, @region, @local_league, team])}
+      >
         <p>
           <strong>{team.number}</strong>
           {team.name}
@@ -227,7 +230,7 @@
           <span :if={team.league}>{team.league.name} League &bull;</span>
           <span>{team.region.name}</span>
         </p>
-      </:item>
+      </:link>
     </.list>
   </.card>
 
