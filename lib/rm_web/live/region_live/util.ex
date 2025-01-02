@@ -101,31 +101,6 @@ defmodule RMWeb.RegionLive.Util do
         </.link>
       <% end %>
 
-      <%= cond do %>
-        <% @view == RegionLive.Event.Index -> %>
-          <div
-            class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
-            style="background-image: linear-gradient(to bottom, white, transparent)"
-          >
-            Events
-          </div>
-        <% @view in [RegionLive.Event.Show] -> %>
-          <.link
-            class="border border-b-slate-100 border-gray-400 px-4 py-2 rounded-t"
-            style="background-image: linear-gradient(to bottom, white, transparent)"
-            navigate={~p"/region/#{@region}/events"}
-          >
-            Events
-          </.link>
-        <% :else -> %>
-          <.link
-            class="border-b border-b-gray-400 border-t border-t-slate-100 px-4 py-2 transition-colors hover:text-gray-500"
-            navigate={~p"/region/#{@region}/events"}
-          >
-            Events
-          </.link>
-      <% end %>
-
       <%= if @region.has_leagues do %>
         <%= cond do %>
           <% @view == RegionLive.League.Index -> %>

@@ -19,18 +19,6 @@
     </.link>
   </.information>
 
-  <.link_card class="flex items-center mb-4" navigate={~p"/region/#{@region}/events"}>
-    <div class="grow">
-      <h3 class="font-bold">{dumb_inflect("Published Event", @region.stats.event_count)}</h3>
-      <p :if={@region.stats.events_imported_at} class="text-sm">
-        Last refreshed {format_date(@region.stats.events_imported_at, :date)}
-      </p>
-    </div>
-    <div>
-      <.icon name="hero-arrow-right" />
-    </div>
-  </.link_card>
-
   <.link_card
     :if={@region.has_leagues}
     class="flex items-center mb-4"
