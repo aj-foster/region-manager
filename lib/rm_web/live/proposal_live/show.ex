@@ -18,7 +18,7 @@ defmodule RMWeb.ProposalLive.Show do
     region = socket.assigns[:region]
     season = socket.assigns[:season]
     user = socket.assigns[:current_user]
-    preloads = [:attachments, :event, :venue]
+    preloads = [:attachments, :event, :league, :venue]
 
     redirect_target = url_for([season, region, league, :proposals])
 

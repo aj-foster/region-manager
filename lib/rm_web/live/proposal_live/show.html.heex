@@ -123,6 +123,6 @@
     </:row>
     <:row :if={@proposal.notes} title="Notes">{@proposal.notes}</:row>
     <:row title="Region">{@region.name}</:row>
-    <:row title="League">{if @local_league, do: @local_league.name, else: "None"}</:row>
+    <:row title="League">{if @proposal.league, do: @proposal.league.name, else: "None"}</:row>
   </.table>
 </.card>
