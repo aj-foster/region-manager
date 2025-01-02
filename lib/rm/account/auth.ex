@@ -47,6 +47,11 @@ defmodule RM.Account.Auth do
     league.region_id in region_ids(user) or league.id in league_ids_with_events(user)
   end
 
+  # Sync leagues with FTC Events API
+  def can?(%User{} = user, :league_sync, %Region{id: region_id}) do
+    region_id in region_ids(user)
+  end
+
   # Update information about published and unpublished leagues
   def can?(%User{} = user, :league_update, %FIRST.League{} = league) do
     league.region_id in region_ids(user)
