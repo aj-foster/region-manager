@@ -355,6 +355,11 @@ defmodule RM.Local do
     |> Query.league_region(region)
     |> Query.preload_assoc(:league, opts[:preload])
     |> Repo.one()
+    |> case do
+      %League{region: %Region{}} = league -> league
+      %League{} = league -> %League{league | region: region}
+      nil -> nil
+    end
   end
 
   @spec create_league_from_first(RM.FIRST.League.t()) ::

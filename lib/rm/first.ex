@@ -444,6 +444,11 @@ defmodule RM.FIRST do
     |> Query.league_season(opts[:season] || region.current_season)
     |> Query.preload_assoc(:league, opts[:preload])
     |> Repo.one()
+    |> case do
+      %League{region: %Region{}} = league -> league
+      %League{} = league -> %League{league | region: region}
+      nil -> nil
+    end
   end
 
   @spec update_league_event_counts(Repo.struct_or_id(League.t())) :: :ok

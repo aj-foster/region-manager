@@ -9,6 +9,175 @@
   view={@socket.view}
 />
 
+<%= if can?(@current_user, :league_update, @local_league) do %>
+  <.title>
+    {@local_league.name} League Settings
+    <:action>
+      <.button phx-click="edit_league_init">
+        {if @edit_league, do: "Cancel", else: "Edit..."}
+      </.button>
+    </:action>
+  </.title>
+
+  <.information :if={is_nil(@first_league)} class="mb-4">
+    <p class="font-bold">
+      This league is not listed in public data available from <em>FIRST</em>.
+    </p>
+    <p>
+      Please copy the league into the
+      <a
+        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/"}
+        target="blank"
+      >
+        <span class="underline">Cloud Scoring System</span>
+        <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4 align-text-top" />
+      </a>
+      when available.
+    </p>
+  </.information>
+
+  <.information :if={is_struct(@first_league) and not @first_matches} class="mb-4">
+    <p class="font-bold">
+      This league has data that does not match the <a
+        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/"}
+        target="blank"
+      >
+      <span class="underline">Cloud Scoring System</span>
+      <.icon
+          name="hero-arrow-top-right-on-square"
+          class="h-4 w-4 align-text-top"
+        />
+    </a>.
+    </p>
+    <p>
+      The following fields differ: {Enum.map_join(@first_differences, ", ", &to_string/1)}.
+      Please reconcile this data when available.
+    </p>
+  </.information>
+
+  <.card :if={not @edit_league} spaced>
+    <.table class="mb-4">
+      <:row title="Name">
+        <div class="flex gap-4 items-center">
+          <div class="grow">{@region.name} {@local_league.name} League</div>
+          <button
+            class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+            id="copy-league-name"
+            data-copy={"#{@region.name} #{@local_league.name} League"}
+            phx-click={copy("#copy-league-name")}
+            title="Copy to Clipboard"
+          >
+            <.icon name="hero-document-duplicate" />
+          </button>
+        </div>
+      </:row>
+      <:row title="Code">
+        <div class="flex gap-4 items-center">
+          <div class="grow">
+            <span class="font-mono text-orange-600">{@local_league.code}</span>
+          </div>
+          <button
+            class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+            id="copy-league-code"
+            data-copy={@local_league.code}
+            phx-click={copy("#copy-league-code")}
+            title="Copy to Clipboard"
+          >
+            <.icon name="hero-document-duplicate" />
+          </button>
+        </div>
+      </:row>
+      <:row title="Location">
+        <div class="flex gap-4 items-center shrink">
+          <div class="min-w-0 shrink">{@local_league.location}</div>
+          <button
+            class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+            id="copy-league-location"
+            data-copy={@local_league.location}
+            phx-click={copy("#copy-league-location")}
+            title="Copy to Clipboard"
+          >
+            <.icon name="hero-document-duplicate" />
+          </button>
+        </div>
+      </:row>
+      <:row title="Style">{if(@local_league.remote, do: "Remote", else: "Traditional")}</:row>
+    </.table>
+
+    <p class="flex flex-col gap-4 items-start justify-end text-sm sm:flex-row">
+      <.button phx-click={show_modal("league-team-sync-modal")} style="tertiary">
+        Sync Teams...
+      </.button>
+
+      <.link_button
+        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/#{@local_league.code}/"}
+        style="tertiary"
+        target="_blank"
+      >
+        View League <.icon class="bottom-0.5 relative" name="hero-cloud-arrow-up" />
+      </.link_button>
+    </p>
+  </.card>
+
+  <.card :if={@edit_league} spaced>
+    <p class="mb-4 text-sm">
+      Use this form to update league information in <strong>Region Manager</strong>.
+      Afterwards, these changes must be copied to the <a
+        class="text-orange-600"
+        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/#leagues"}
+        target="blank"
+      ><span class="underline"><em>FIRST</em> Cloud Scoring System</span>
+    <.icon
+          name="hero-arrow-top-right-on-square"
+          class="h-4 w-4 align-text-top"
+        /></a>.
+    </p>
+
+    <.form for={@edit_league_form} phx-change="edit_league_change" phx-submit="edit_league_submit">
+      <.input
+        explanation={"Full name: #{@region.name} #{@edit_league_form[:name].value} League"}
+        field={@edit_league_form[:name]}
+        label="League Name"
+        required
+        wrapper="mb-4"
+      />
+
+      <.input
+        explanation="Recommended 2 characters. Max of 4 characters. Capital letters or numbers only."
+        field={@edit_league_form[:code]}
+        info_modal="league-edit-code-modal"
+        label="League Code"
+        maxlength="4"
+        pattern="[A-Z0-9]{1,4}"
+        required
+        wrapper="mb-4"
+      />
+
+      <.input
+        explanation="Cities, counties, or other geographies covered by this league"
+        field={@edit_league_form[:location]}
+        label="Location"
+        required
+        type="textarea"
+        wrapper="mb-4"
+      />
+
+      <.switch
+        explanation="Remote leagues can only have remote events"
+        field={@edit_league_form[:remote]}
+        info_modal="league-edit-style-modal"
+        label="Remote League"
+        type="checkbox"
+        wrapper="mb-4"
+      />
+
+      <p class="text-right">
+        <.button type="submit">Update League</.button>
+      </p>
+    </.form>
+  </.card>
+<% end %>
+
 <.title>
   Default Registration Settings
   <button phx-click={show_modal("registration-settings-info")}>
@@ -207,6 +376,134 @@
     <li>Restrict the number of teams that can register</li>
     <li>Allow teams to register for a waitlist</li>
   </ul>
+</.modal>
+
+<.modal id="league-edit-code-modal">
+  <.title class="mb-4" flush>About League Codes</.title>
+
+  <div class="text-sm">
+    <p class="italic mb-4">The following information was provided by <em>FIRST</em>:</p>
+
+    <p class="mb-4">
+      League codes uniquely identify a league <strong>within a region</strong>. Some guidance on making league codes:
+    </p>
+    <ul class="list-disc pl-8 mb-4">
+      <li>
+        <strong>Keep it short!</strong>
+        The recommended code length is 2 characters. 1 character is fine! If necessary, they can be up to 4 characters.
+      </li>
+      <li>
+        <strong>Base codes on league name.</strong>
+        An acronym for the name will work well! Don't count the word "League". Some approaches:
+        <ul class="list-disc pl-8">
+          <li>1 word name - use the first letter or first two letters.</li>
+          <li>2 word name - use the first letter of each word</li>
+          <li>
+            3+ word name - use the first letter of the two most important or distinguishing words. Or use the first letter of the first and last word.
+          </li>
+        </ul>
+      </li>
+      <li>
+        <strong>Don't duplicate region info.</strong>
+        Do not include country or state abbreviations unless your region runs exactly 1 league and the league name is not different from the region name.
+      </li>
+      <li>
+        <strong>Don't include program acronym.</strong>
+        If the league isn't for FTC, you're in the wrong place!
+      </li>
+      <li>
+        <strong>Don't include remote.</strong>
+        Base the code on other information unless it is your region's only remote league and the name of the league is just "Remote".
+      </li>
+      <li>
+        <strong>Avoid numbers.</strong>
+        While they are allowed, avoid numbers unless necessary for uniqueness.
+      </li>
+    </ul>
+
+    <p>
+      League codes will appear in event codes to help identify related league events. They will appear between the region code and the event type identifier. For example, the first meet in a New Hampshire (<span class="font-mono text-orange-600">USNH</span>) league with code
+      <span class="font-mono text-orange-600">EX</span>
+      will have event code <span class="font-mono text-orange-600">USNHEXM1</span>, and that league's tournament will have event code <span class="font-mono text-orange-600">USNHEXLT</span>.
+    </p>
+  </div>
+</.modal>
+
+<.modal id="league-edit-style-modal">
+  <.title class="mb-4" flush>About League Style</.title>
+
+  <div class="text-sm">
+    <p class="italic mb-4">The following information was provided by <em>FIRST</em>:</p>
+
+    <p class="mb-4">
+      Leagues are either "traditional" or "remote". Remote and traditional rankings are not compatible. Leagues of different styles will not share rankings. For example, matches from a remote meet will not contribute towards a team's ranking at a traditional or hybrid league tournament.
+    </p>
+    <ul class="list-disc pl-8 mb-4">
+      <li>
+        <strong>Traditional League:</strong>
+        Can only have traditional meets. Can have a traditional or hybrid league tournament.
+      </li>
+      <li>
+        <strong>Remote League:</strong>
+        Can only have remote meets. Can only have a remote league tournament.
+      </li>
+    </ul>
+
+    <p>
+      Child leagues must match the style of their parent league.
+    </p>
+  </div>
+</.modal>
+
+<.modal id="league-team-sync-modal">
+  <.title class="mb-4" flush>Sync League Assignments</.title>
+
+  <p class="mb-4">
+    League assignments in <strong>Region Manager</strong>
+    must be copied to the Cloud Scoring System.
+    Luckily, the Cloud Scoring System provides an interface for bulk-adding teams to leagues using a file upload.
+    To use it, follow these steps:
+  </p>
+
+  <ol class="list-decimal pl-8">
+    <li class="mb-4">
+      Ensure all teams assignments are correct here in <strong>Region Manager</strong>.
+    </li>
+
+    <li class="mb-4">
+      <.link
+        download={"#{@region.code}-#{@local_league.code}-teams.txt"}
+        href={
+          {:data, "text/plain;charset=utf-8,#{Enum.map_join(@active_teams, "%20", & &1.number)}"}
+        }
+        style="tertiary"
+      >
+        <span class="underline">Download Team List</span>
+        <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-down-tray" />
+      </.link>
+    </li>
+
+    <li class="mb-4">
+      Go to the
+      <.link
+        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/#{@local_league.code}/teams/"}
+        target="_blank"
+      >
+        <span class="underline">Team Assignment Page</span>
+        <.icon class="bottom-0.5 relative" name="hero-cloud-arrow-up" />
+      </.link>
+      and use the file input in the top-left to upload the team list.
+    </li>
+  </ol>
+
+  <p class="mb-4">
+    This process <strong>will not</strong>
+    remove any existing assignments in the Cloud Scoring System.
+    If a team has moved leagues, be sure to manually remove their assignment first.
+  </p>
+  <p class="mb-4">
+    Only active teams are included, so this process may need to be repeated after new team data is imported.
+  </p>
 </.modal>
 
 <.modal id="league-add-user-modal">

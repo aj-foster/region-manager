@@ -13,8 +13,11 @@ defmodule RMWeb.LeagueLive.Settings do
 
       socket
       |> add_user_form()
+      |> edit_league_form()
       |> registration_settings_form()
-      |> assign(local_league: league, remove_user: nil)
+      |> assign_first_league()
+      |> assign_teams()
+      |> assign(edit_league: false, local_league: league, remove_user: nil)
       |> ok()
     end
   end
@@ -70,6 +73,52 @@ defmodule RMWeb.LeagueLive.Settings do
     if can?(user, :league_add_user, league) do
       socket
       |> add_user_submit(params)
+      |> noreply()
+    else
+      socket
+      |> put_flash(:error, "You do not have permission to perform this action.")
+      |> noreply()
+    end
+  end
+
+  def handle_event("edit_league_change", %{"league" => params}, socket) do
+    league = socket.assigns[:local_league]
+    user = socket.assigns[:current_user]
+
+    if can?(user, :league_update, league) do
+      socket
+      |> edit_league_form(params)
+      |> noreply()
+    else
+      socket
+      |> put_flash(:error, "You do not have permission to perform this action.")
+      |> noreply()
+    end
+  end
+
+  def handle_event("edit_league_init", _params, socket) do
+    league = socket.assigns[:local_league]
+    user = socket.assigns[:current_user]
+
+    if can?(user, :league_update, league) do
+      socket
+      |> assign(edit_league: not socket.assigns[:edit_league])
+      |> edit_league_form()
+      |> noreply()
+    else
+      socket
+      |> put_flash(:error, "You do not have permission to perform this action.")
+      |> noreply()
+    end
+  end
+
+  def handle_event("edit_league_submit", %{"league" => params}, socket) do
+    league = socket.assigns[:local_league]
+    user = socket.assigns[:current_user]
+
+    if can?(user, :league_update, league) do
+      socket
+      |> edit_league_submit(params)
       |> noreply()
     else
       socket
@@ -166,6 +215,72 @@ defmodule RMWeb.LeagueLive.Settings do
     end
   end
 
+  @spec assign_first_league(Socket.t()) :: Socket.t()
+  defp assign_first_league(socket) do
+    first_league = socket.assigns[:first_league]
+
+    local_league =
+      socket.assigns[:local_league]
+      |> Map.put(:first_league, first_league)
+
+    {first_matches?, first_differences} =
+      case RM.Local.League.compare_with_first(local_league) do
+        :unpublished -> {false, []}
+        :match -> {true, []}
+        {:different, differences} -> {false, differences}
+      end
+
+    assign(socket,
+      first_differences: first_differences,
+      first_matches: first_matches?
+    )
+  end
+
+  @spec assign_teams(Socket.t()) :: Socket.t()
+  defp assign_teams(socket) do
+    league = socket.assigns[:local_league]
+    active_teams = RM.Local.list_teams_by_league(league, active: true)
+
+    assign(socket,
+      active_teams: active_teams,
+      active_teams_count: length(active_teams)
+    )
+  end
+
+  @spec edit_league_form(Socket.t()) :: Socket.t()
+  @spec edit_league_form(Socket.t(), map) :: Socket.t()
+  defp edit_league_form(socket, params \\ %{}) do
+    league = socket.assigns[:local_league]
+    form = RM.Local.League.update_changeset(league, params) |> to_form()
+    assign(socket, edit_league_form: form)
+  end
+
+  @spec edit_league_submit(Socket.t(), map) :: Socket.t()
+  defp edit_league_submit(socket, params) do
+    league = socket.assigns[:local_league]
+    region = socket.assigns[:region]
+    season = socket.assigns[:season]
+
+    case RM.Local.update_league(league, params) do
+      {:ok, new_league} ->
+        if new_league.code != league.code do
+          socket
+          |> put_flash(:info, "League updated successfully")
+          |> push_navigate(to: url_for([season, region, new_league]), replace: true)
+        else
+          league = RM.Repo.preload(new_league, [users: [:profile]], force: true)
+
+          socket
+          |> assign(edit_league: false, local_league: league)
+          |> assign_first_league()
+          |> put_flash(:info, "League updated successfully")
+        end
+
+      {:error, changeset} ->
+        assign(socket, edit_league_form: to_form(changeset))
+    end
+  end
+
   @spec registration_settings_form(Socket.t()) :: Socket.t()
   @spec registration_settings_form(Socket.t(), map) :: Socket.t()
   defp registration_settings_form(socket, params \\ %{}) do
@@ -247,7 +362,7 @@ defmodule RMWeb.LeagueLive.Settings do
       league = RM.Repo.preload(league, [users: [:profile]], force: true)
 
       socket
-      |> assign(localleague: league)
+      |> assign(local_league: league)
       |> put_flash(:error, "An error occurred; please try again")
     end
   end
