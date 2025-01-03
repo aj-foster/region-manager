@@ -112,6 +112,63 @@
   </.form>
 </.card>
 
+<%= if can?(@current_user, :league_add_user, @local_league) do %>
+  <.title>
+    League Administrators
+    <:action>
+      <.button phx-click={show_modal("league-add-user-modal")}>Add...</.button>
+    </:action>
+  </.title>
+
+  <.card flush spaced>
+    <.list>
+      <:item
+        :for={assignment <- @local_league.user_assignments}
+        class="flex items-center px-4 py-2 relative"
+      >
+        <div class="grow">
+          <p class="flex gap-2 items-center">
+            <span class="font-semibold">
+              <%= if assignment.user do %>
+                {assignment.user.profile.name}
+              <% else %>
+                <em>Unregistered User</em>
+              <% end %>
+            </span>
+
+            <%= case assignment.permissions do %>
+              <% %{users: true} -> %>
+                <.tag class="bg-emerald-100 border-emerald-300">All Permissions</.tag>
+              <% %{events: true, contact: true} -> %>
+                <.tag class="bg-orange-100 border-orange-300">Events & Contacts</.tag>
+              <% %{events: true, contact: false} -> %>
+                <.tag class="bg-orange-100 border-orange-300">Events Only</.tag>
+              <% %{events: false, contact: true} -> %>
+                <.tag class="bg-orange-100 border-orange-300">Contacts Only</.tag>
+              <% %{events: false, contact: false} -> %>
+                <.tag class="bg-rose-100 border-rose-300">No Permissions</.tag>
+            <% end %>
+          </p>
+          <p class="text-sm">{assignment.email}</p>
+        </div>
+
+        <div>
+          <button
+            class="leading-none ml-2 p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+            phx-click="remove_user_init"
+            phx-value-assignment={assignment.id}
+          >
+            <.icon name="hero-trash" />
+          </button>
+        </div>
+      </:item>
+    </.list>
+    <p :if={length(@local_league.user_assignments) == 0} class="italic px-4 py-2 text-sm">
+      This league currently has no administrators assigned.
+    </p>
+  </.card>
+<% end %>
+
 <.modal id="event-proposal-info">
   <.title class="mb-4" flush>Event Proposal Info</.title>
 
@@ -150,4 +207,82 @@
     <li>Restrict the number of teams that can register</li>
     <li>Allow teams to register for a waitlist</li>
   </ul>
+</.modal>
+
+<.modal id="league-add-user-modal">
+  <.title class="mb-4" flush>Add League Administrator</.title>
+  <p class="mb-4">
+    League administrators are entrusted with the <em>Personally Identifiable Information</em>
+    (including names, addresses, and email addresses) of team coaches and mentors.
+  </p>
+
+  <.form for={@add_user_form} phx-change="add_user_change" phx-submit="add_user_submit">
+    <.input
+      field={@add_user_form[:email]}
+      label="Administrator's Email"
+      placeholder="person@example.com"
+      required
+      type="email"
+      wrapper="mb-4"
+    />
+
+    <.inputs_for :let={p} field={@add_user_form[:permissions]}>
+      <h3 class="font-semibold leading-6 mb-2 text-sm text-zinc-800">Permissions</h3>
+      <.switch
+        explanation="Add additional users as league administrators"
+        field={p[:users]}
+        label="User can add other administrators"
+        wrapper="mb-4"
+      />
+      <.switch
+        disabled={Phoenix.HTML.Form.normalize_value("checkbox", p[:users].value)}
+        explanation="Manage saved venue information, propose events, and propose changes to existing events"
+        field={p[:events]}
+        label="User can propose events"
+        value={
+          Phoenix.HTML.Form.normalize_value("checkbox", p[:users].value) ||
+            Phoenix.HTML.Form.normalize_value("checkbox", p[:events].value)
+        }
+        wrapper="mb-4"
+      />
+      <.switch
+        disabled={Phoenix.HTML.Form.normalize_value("checkbox", p[:users].value)}
+        explanation="View contact information for team lead coaches and mentors"
+        field={p[:contact]}
+        label="User can view team contact information"
+        value={
+          Phoenix.HTML.Form.normalize_value("checkbox", p[:users].value) ||
+            Phoenix.HTML.Form.normalize_value("checkbox", p[:contact].value)
+        }
+        wrapper="mb-4"
+      />
+    </.inputs_for>
+
+    <p class="text-right">
+      <button
+        class="rounded border border-orange-500 font-semibold leading-6 py-1 px-2 text-orange-500"
+        phx-click={hide_modal("league-add-user-modal")}
+      >
+        Cancel
+      </button>
+      <.button class="ml-2" type="submit">Add Administrator</.button>
+    </p>
+  </.form>
+</.modal>
+
+<.modal id="league-remove-user-modal">
+  <.title class="mb-4" flush>Remove League Administrator</.title>
+  <p :if={@remove_user} class="mb-4">
+    Are you sure you want to remove <strong><%= if @remove_user.user, do: @remove_user.user.profile.name, else: @remove_user.email %></strong>?
+    They will immediately lose access to league information and actions.
+  </p>
+  <p class="text-right">
+    <button
+      class="phx-submit-loading:opacity-75 rounded border border-orange-500 font-semibold leading-6 py-1 px-2 text-orange-500"
+      phx-click="remove_user_cancel"
+    >
+      Cancel
+    </button>
+    <.button class="ml-2" phx-click="remove_user_submit">Remove</.button>
+  </p>
 </.modal>

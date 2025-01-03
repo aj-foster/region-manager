@@ -42,6 +42,11 @@ defmodule RM.Account.Auth do
   # Leagues
   #
 
+  # Add league administrations
+  def can?(%User{} = user, :league_add_user, %Local.League{} = league) do
+    league.region_id in region_ids(user) or league.id in league_ids_with_users(user)
+  end
+
   # Update default registration settings for a league
   def can?(%User{} = user, :league_settings_update, %Local.League{} = league) do
     league.region_id in region_ids(user) or league.id in league_ids_with_events(user)
@@ -274,6 +279,13 @@ defmodule RM.Account.Auth do
   defp league_ids_with_events(user) do
     user.league_assignments
     |> Enum.filter(& &1.permissions.events)
+    |> Enum.map(& &1.league_id)
+  end
+
+  @spec league_ids_with_users(User.t()) :: [Ecto.UUID.t()]
+  defp league_ids_with_users(user) do
+    user.league_assignments
+    |> Enum.filter(& &1.permissions.users)
     |> Enum.map(& &1.league_id)
   end
 
