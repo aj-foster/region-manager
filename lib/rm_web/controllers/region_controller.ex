@@ -40,10 +40,10 @@ defmodule RMWeb.RegionController do
     with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(abbreviation, preload: [:leagues]) do
       if season == region.current_season do
         teams = RM.Local.list_teams_by_region(region, active: true, preload: [:league])
-        render(conn, :teams, teams: teams)
+        render(conn, :teams, teams: teams, season: season)
       else
         teams = RM.FIRST.list_teams_by_region(region, preload: [:league], season: season)
-        render(conn, :teams, teams: teams)
+        render(conn, :teams, teams: teams, season: season)
       end
     end
   end

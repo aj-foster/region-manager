@@ -267,22 +267,32 @@ defmodule RMWeb.RegionJSON do
   # Teams
   #
 
-  @spec teams(%{teams: [RM.FIRST.Team.t() | RM.Local.Team.t()]}) :: RMWeb.JSON.success(map)
-  def teams(%{teams: teams}) do
-    success(%{team_count: length(teams), teams: Enum.map(teams, &team/1)})
+  @spec teams(%{teams: [RM.FIRST.Team.t() | RM.Local.Team.t()], season: integer}) ::
+          RMWeb.JSON.success(map)
+  def teams(%{teams: teams, season: season}) do
+    success(%{team_count: length(teams), teams: Enum.map(teams, &team(&1, season))})
   end
 
-  @spec team(RM.FIRST.Team.t()) :: map
-  @spec team(RM.Local.Team.t()) :: map
-  defp team(%RM.Local.Team{
-         event_ready: event_ready,
-         name: name,
-         number: number,
-         rookie_year: rookie_year,
-         website: website,
-         location: %{city: city, country: country, county: county, state_province: state_province},
-         league: league
-       }) do
+  @spec team(RM.FIRST.Team.t(), integer) :: map
+  @spec team(RM.Local.Team.t(), integer) :: map
+  defp team(
+         %RM.Local.Team{
+           event_ready: event_ready,
+           name: name,
+           number: number,
+           rookie_year: rookie_year,
+           website: website,
+           location: %{
+             city: city,
+             country: country,
+             county: county,
+             state_province: state_province
+           },
+           league: league,
+           region: region
+         },
+         season
+       ) do
     %{
       event_ready: event_ready,
       name: name,
@@ -291,20 +301,24 @@ defmodule RMWeb.RegionJSON do
       website: website,
       location: %{city: city, country: country, county: county, state_province: state_province},
       league: team_league(league),
-      url: url(~p"/team/#{number}")
+      url: url(~p"/s/#{season}/r/#{region}/t/#{number}")
     }
   end
 
-  defp team(%RM.FIRST.Team{
-         city: city,
-         country: country,
-         name_short: name,
-         rookie_year: rookie_year,
-         state_province: state_province,
-         team_number: number,
-         website: website,
-         league: league
-       }) do
+  defp team(
+         %RM.FIRST.Team{
+           city: city,
+           country: country,
+           name_short: name,
+           rookie_year: rookie_year,
+           state_province: state_province,
+           team_number: number,
+           website: website,
+           league: league,
+           region: region
+         },
+         season
+       ) do
     %{
       event_ready: nil,
       name: name,
@@ -313,7 +327,7 @@ defmodule RMWeb.RegionJSON do
       website: website,
       location: %{city: city, country: country, county: nil, state_province: state_province},
       league: team_league(league),
-      url: url(~p"/team/#{number}")
+      url: url(~p"/s/#{season}/r/#{region}/t/#{number}")
     }
   end
 
