@@ -87,10 +87,6 @@ defmodule RMWeb.Router do
       live "/dashboard", DashboardLive.Home
       live "/feedback", DashboardLive.Feedback
 
-      live "/team/:team", TeamLive.Show
-      live "/team/:team/events", TeamLive.Events
-      live "/team/:team/events/:event", TeamLive.Event
-
       live "/user/settings", UserLive.Settings
     end
   end
