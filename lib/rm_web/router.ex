@@ -87,11 +87,6 @@ defmodule RMWeb.Router do
       live "/dashboard", DashboardLive.Home
       live "/feedback", DashboardLive.Feedback
 
-      live "/region/:region", RegionLive.Overview
-      live "/region/:region/leagues", RegionLive.League.Index
-      live "/region/:region/leagues/:league", RegionLive.League.Show
-      live "/region/:region/setup", RegionLive.Setup
-
       live "/team/:team", TeamLive.Show
       live "/team/:team/events", TeamLive.Events
       live "/team/:team/events/:event", TeamLive.Event

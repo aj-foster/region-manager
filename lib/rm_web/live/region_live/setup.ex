@@ -1,13 +1,9 @@
 defmodule RMWeb.RegionLive.Setup do
   use RMWeb, :live_view
-  import RMWeb.RegionLive.Util
 
   #
   # Lifecycle
   #
-
-  on_mount {RMWeb.RegionLive.Util, :preload_region}
-  on_mount {RMWeb.RegionLive.Util, :require_region_manager}
 
   @doc false
   @impl true
@@ -54,7 +50,6 @@ defmodule RMWeb.RegionLive.Setup do
     case RM.FIRST.update_region_season(region, season) do
       {:ok, _region} ->
         socket
-        |> refresh_region()
         |> assign_current_season()
         |> put_flash(:info, "Welcome to the new season!")
     end

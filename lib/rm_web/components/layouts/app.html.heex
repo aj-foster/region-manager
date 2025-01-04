@@ -19,7 +19,9 @@
           @current_user && is_list(@current_user.regions) && length(@current_user.regions) == 1
         }
         class="rounded-lg px-2 py-1 transition-colors hover:bg-slate-300"
-        navigate={~p"/region/#{List.first(@current_user.regions)}"}
+        navigate={
+          ~p"/s/#{List.first(@current_user.regions).current_season}/r/#{List.first(@current_user.regions)}"
+        }
       >
         {List.first(@current_user.regions).name}
       </.link>
