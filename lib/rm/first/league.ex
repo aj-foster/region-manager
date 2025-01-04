@@ -54,6 +54,7 @@ defmodule RM.FIRST.League do
       field :events_imported_at, :utc_datetime_usec
       field :league_count, :integer, default: 0
       field :team_count, :integer, default: 0
+      field :teams_imported_at, :utc_datetime_usec
     end
 
     timestamps type: :utc_datetime_usec

@@ -19,10 +19,27 @@
 >
   <div class="grow">
     <h3 class="font-bold">
-      {dumb_inflect("Published Event", @league.stats.event_count)}
+      {dumb_inflect("Event", @league.stats.event_count)}
     </h3>
     <p :if={@league.stats.events_imported_at} class="text-sm">
       Last refreshed {format_date(@league.stats.events_imported_at, :date)}
+    </p>
+  </div>
+  <div>
+    <.icon name="hero-arrow-right" />
+  </div>
+</.link_card>
+
+<.link_card
+  class="flex items-center mb-4"
+  navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/teams"}
+>
+  <div class="grow">
+    <h3 class="font-bold">
+      {dumb_inflect("Team", @league.stats.team_count)}
+    </h3>
+    <p :if={@league.stats.teams_imported_at} class="text-sm">
+      Last refreshed {format_date(@league.stats.teams_imported_at, :date)}
     </p>
   </div>
   <div>
