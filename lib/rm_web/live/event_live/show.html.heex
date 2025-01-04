@@ -6,44 +6,15 @@
   event={@event}
 />
 
-<.top_nav class="mb-8">
-  <.nav_item
-    current={@socket.view}
-    navigate={
-      if @local_league || @first_league,
-        do: ~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/e/#{@event}",
-        else: ~p"/s/#{@season}/r/#{@region}/e/#{@event}"
-    }
-    target={RMWeb.EventLive.Show}
-  >
-    Overview
-  </.nav_item>
-  <.nav_item
-    current={@socket.view}
-    navigate={
-      if @local_league || @first_league,
-        do:
-          ~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/e/#{@event}/registration",
-        else: ~p"/s/#{@season}/r/#{@region}/e/#{@event}/registration"
-    }
-    target={RMWeb.EventLive.Registration}
-  >
-    Registration
-  </.nav_item>
-  <.nav_item
-    :if={can?(@current_user, :registration_settings_update, @event)}
-    current={@socket.view}
-    navigate={
-      if @local_league || @first_league,
-        do:
-          ~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/e/#{@event}/settings",
-        else: ~p"/s/#{@season}/r/#{@region}/e/#{@event}/settings"
-    }
-    target={RMWeb.EventLive.Settings}
-  >
-    Settings
-  </.nav_item>
-</.top_nav>
+<RMWeb.EventLive.Util.event_nav
+  class="mb-8"
+  event={@event}
+  league={@local_league || @first_league}
+  region={@region}
+  season={@season}
+  user={@current_user}
+  view={@socket.view}
+/>
 
 <.title>{@event.name}</.title>
 
