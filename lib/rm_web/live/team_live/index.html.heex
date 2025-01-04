@@ -126,11 +126,22 @@
           <.tag :if={not team.event_ready} class="bg-orange-100 border-orange-300">
             Not Event Ready
           </.tag>
+          <.tag
+            :if={
+              @region.has_leagues and can?(@current_user, :team_league_update, team) and
+                is_nil(team.league)
+            }
+            class="bg-rose-100 border-rose-300"
+          >
+            No League Assigned
+          </.tag>
         </h3>
         <p class="text-sm">
+          <span :if={@region.has_leagues and is_struct(team.league)}>
+            {team.league.name} &bull;
+          </span>
           <span>{team.location.city || "Unknown City"} &bull;</span>
-          <span :if={team.location.county}>{team.location.county} County &bull;</span>
-          <span :if={team.location.postal_code}>{team.location.postal_code}</span>
+          <span :if={team.location.county}>{team.location.county} County</span>
         </p>
       <% end %>
     </:link>

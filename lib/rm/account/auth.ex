@@ -181,6 +181,15 @@ defmodule RM.Account.Auth do
     team_id in team_ids(user)
   end
 
+  # Update league assignments
+  def can?(%User{} = user, :team_league_update, %Region{} = region) do
+    region.id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :team_league_update, %Local.Team{} = team) do
+    team.region_id in region_ids(user)
+  end
+
   # See personally-identifiable information for teams
   def can?(%User{} = user, :team_pii_show, %Event{} = event) do
     event.region_id in region_ids(user) or
@@ -208,6 +217,10 @@ defmodule RM.Account.Auth do
         league: %Local.League{id: league_id}
       }) do
     region_id in region_ids(user) or league_id in league_ids_with_contact(user)
+  end
+
+  def can?(%User{} = user, :team_pii_show, %Local.Team{} = team) do
+    team.region_id in region_ids(user)
   end
 
   def can?(%User{} = user, :team_update, %Region{} = region) do

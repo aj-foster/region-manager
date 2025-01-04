@@ -130,7 +130,7 @@ defmodule RMWeb.TeamLive.Index do
         if local_league do
           RM.Local.list_teams_by_league(local_league)
         else
-          RM.Local.list_teams_by_region(region)
+          RM.Local.list_teams_by_region(region, preload: [:league])
         end
 
       {active_teams, inactive_teams} = Enum.split_with(teams, & &1.active)
