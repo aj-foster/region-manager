@@ -117,7 +117,13 @@
           <span>{team.name_short}</span>
         </h3>
         <p class="text-sm">
-          <span>{team.display_location}</span>
+          <span :if={
+            @region.has_leagues and is_struct(team.league) and is_nil(@local_league) and
+              is_nil(@first_league)
+          }>
+            {RM.Local.League.shorten_name(team.league.name, @region)} &bull;
+          </span>
+          <span>{team.city}</span>
         </p>
       <% else %>
         <h3 class="flex gap-2 items-center">
@@ -137,11 +143,13 @@
           </.tag>
         </h3>
         <p class="text-sm">
-          <span :if={@region.has_leagues and is_struct(team.league)}>
+          <span :if={
+            @region.has_leagues and is_struct(team.league) and is_nil(@local_league) and
+              is_nil(@first_league)
+          }>
             {team.league.name} &bull;
           </span>
-          <span>{team.location.city || "Unknown City"} &bull;</span>
-          <span :if={team.location.county}>{team.location.county} County</span>
+          <span>{team.location.city || "Unknown City"}</span>
         </p>
       <% end %>
     </:link>

@@ -151,9 +151,10 @@ defmodule RMWeb.TeamLive.Index do
         if first_league do
           RM.Repo.preload(first_league, :teams)
           |> Map.fetch!(:teams)
+          |> Enum.map(&Map.put(&1, :league, first_league))
           |> Enum.sort(&team_sort/2)
         else
-          RM.FIRST.list_teams_by_region(region, season: season)
+          RM.FIRST.list_teams_by_region(region, season: season, preload: [:league])
           |> Enum.sort(&team_sort/2)
         end
 
