@@ -179,6 +179,8 @@ defmodule RM.Local.EventBatch do
 
   @spec add_event_row({EventProposal.t(), pos_integer}, Sheet.t()) :: Sheet.t()
   defp add_event_row({proposal, row}, sheet) do
+    proposal = maybe_modify_date_start(proposal)
+
     sheet
     |> Sheet.set_at(row, 0, event_type(proposal))
     |> Sheet.set_at(row, 1, event_style(proposal))
@@ -205,6 +207,18 @@ defmodule RM.Local.EventBatch do
     |> Sheet.set_at(row, 22, proposal.description || "")
     |> Sheet.set_at(row, 23, "")
     |> Sheet.set_at(row, 24, "")
+  end
+
+  # VMS issue prevents scheduling volunteers on the 7th day of an event
+  @spec maybe_modify_date_start(EventProposal.t()) :: EventProposal.t()
+  defp maybe_modify_date_start(proposal) do
+    %EventProposal{date_start: date_start, date_end: date_end} = proposal
+
+    if Date.diff(date_end, date_start) == 6 do
+      %EventProposal{proposal | date_start: Date.add(date_start, 1)}
+    else
+      proposal
+    end
   end
 
   @spec event_type(EventProposal.t()) :: String.t()
