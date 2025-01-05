@@ -50,7 +50,9 @@
       <:row title="Name">{@team.name}</:row>
       <:row title="Location">
         <span :if={@team.location.city}>{@team.location.city}</span>
-        <span :if={@team.location.postal_code}>{@team.location.postal_code}</span>
+        <span :if={@team.location.postal_code && can?(@current_user, :team_pii_show, @team)}>
+          {@team.location.postal_code}
+        </span>
         <br />
         <span :if={@team.location.county}>{@team.location.county} County,</span>
         <span :if={@team.location.state_province}>{@team.location.state_province},</span>
