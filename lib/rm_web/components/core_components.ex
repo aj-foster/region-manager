@@ -188,12 +188,47 @@ defmodule RMWeb.CoreComponents do
         <.link class="mx-1" navigate={~p"/s/#{@season}"}>{@season}–{@season + 1}</.link> ⟩
       </span>
       <span :if={@region} class="whitespace-nowrap">
-        <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}"}>{@region.name}</.link> ⟩
+        <%= cond do %>
+          <% @league -> %>
+            <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/leagues"}>
+              {@region.name}
+            </.link>
+          <% @event -> %>
+            <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/events"}>
+              {@region.name}
+            </.link>
+          <% @proposal -> %>
+            <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/proposals"}>
+              {@region.name}
+            </.link>
+          <% @venue -> %>
+            <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/venues"}>
+              {@region.name}
+            </.link>
+          <% :else -> %>
+            <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}"}>{@region.name}</.link>
+        <% end %>
+        ⟩
       </span>
       <span :if={@league} class="whitespace-nowrap">
-        <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}>
-          {RM.Local.League.shorten_name(@league.name, @region)}
-        </.link>
+        <%= cond do %>
+          <% @event -> %>
+            <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/events"}>
+              {RM.Local.League.shorten_name(@league.name, @region)}
+            </.link>
+          <% @proposal -> %>
+            <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/proposals"}>
+              {RM.Local.League.shorten_name(@league.name, @region)}
+            </.link>
+          <% @venue -> %>
+            <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/venues"}>
+              {RM.Local.League.shorten_name(@league.name, @region)}
+            </.link>
+          <% :else -> %>
+            <.link class="mx-1" navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}>
+              {RM.Local.League.shorten_name(@league.name, @region)}
+            </.link>
+        <% end %>
         ⟩
       </span>
       <span :if={@event} class="whitespace-nowrap">
