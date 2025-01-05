@@ -1,0 +1,284 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  event={@event}
+/>
+
+<RMWeb.EventLive.Util.event_nav
+  class="mb-8"
+  event={@event}
+  league={@local_league || @first_league}
+  region={@region}
+  season={@season}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title>Judging Materials</.title>
+
+<.card spaced>
+  <div class="flex gap-4 items-center">
+    <p class="text-sm">
+      Ready to submit your Engineering Portfolio? Upload it to the official Cloud Scoring System.
+    </p>
+    <.link_button
+      class="whitespace-nowrap"
+      href="https://ftc-scoring.firstinspires.org/"
+      target="blank"
+    >
+      Cloud Scoring
+      <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+    </.link_button>
+  </div>
+</.card>
+
+<%= if @event.settings.video_submission do %>
+  <.title>
+    Compass Award
+    <button phx-click={show_modal("compass-award-info")}>
+      <.icon class="bottom-0.5 h-4 relative text-gray-600 w-4" name="hero-question-mark-circle" />
+    </button>
+  </.title>
+
+  <.card :if={@event.settings.video_submission} spaced>
+    <.table class="mb-4">
+      <:row title="Submissions">
+        <%= if RM.FIRST.Event.video_submission_deadline_passed?(@event) do %>
+          <span class="text-orange-600">
+            Closed on {format_video_due_date(@event)}
+          </span>
+        <% else %>
+          <span class="text-green-600">Open</span>
+        <% end %>
+      </:row>
+      <:row :if={not RM.FIRST.Event.video_submission_deadline_passed?(@event)} title="Deadline">
+        {format_video_due_date(@event)}
+      </:row>
+      <:row title="Open To">
+        <%= case @event.settings.video_submission_pool do %>
+          <% :registered -> %>
+            Registered teams
+          <% :league -> %>
+            Teams in {if @event.league,
+              do: RM.Local.League.shorten_name(@event.league.name, @region)} League
+          <% :region -> %>
+            Teams in {@region.name}
+          <% :all -> %>
+            Any Team
+        <% end %>
+      </:row>
+    </.table>
+
+    <%= if RM.FIRST.Event.video_submission_deadline_passed?(@event) do %>
+      <.list class="-mx-4 -my-2">
+        <:item :for={video <- @event.videos} class="flex gap-2 items-center px-4 py-2">
+          <div class="grow">
+            <h3>
+              <strong>{video.team.number}</strong> {video.team.name}
+            </h3>
+            <p class="text-sm">
+              <span :if={video.team.league}>
+                {RM.Local.League.shorten_name(video.team.league.name, video.team.region)} League &bull;
+              </span>
+              <span>{video.team.region.name}</span>
+            </p>
+          </div>
+          <div>
+            <.link_button href={video.url} style="tertiary" target="blank">
+              View
+              <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+            </.link_button>
+          </div>
+        </:item>
+      </.list>
+    <% else %>
+      <p class="mb-4 text-sm">
+        Select a team below to submit.
+        <button
+          class="italic text-orange-600 underline"
+          phx-click={show_modal("video-submission-team-list-info")}
+        >
+          Where are my teams?
+        </button>
+      </p>
+
+      <.list class="-mx-4 -my-2">
+        <:item :for={%{team: team} = info <- @teams} class="flex gap-2 items-center px-4 py-2">
+          <div class="grow">
+            <h3 class="flex gap-2 items-center">
+              <span><strong>{team.number}</strong> {team.name}</span>
+              <.tag :if={not info.eligible?} class="bg-red-100 border-red-300">
+                Not Eligible
+              </.tag>
+              <.tag
+                :if={info.eligible? and not info.submitted?}
+                class="bg-gray-100 border-gray-300"
+              >
+                No Submission
+              </.tag>
+              <.tag :if={info.submitted?} class="bg-emerald-100 border-emerald-300">
+                Submitted
+              </.tag>
+            </h3>
+            <p class="text-sm">
+              <span :if={team.league}>{team.league.name} League &bull;</span>
+              <span>{team.region.name}</span>
+            </p>
+          </div>
+          <div>
+            <.button
+              :if={info.eligible? and not info.submitted?}
+              form=""
+              phx-click="video_add_init"
+              phx-value-team={team.id}
+              style="tertiary"
+              title="Submit"
+            >
+              <.icon name="hero-plus-circle" />
+            </.button>
+            <.button
+              :if={info.eligible? and info.submitted?}
+              form=""
+              phx-click="video_edit_init"
+              phx-value-team={team.id}
+              style="tertiary"
+              title="Submit"
+            >
+              <.icon name="hero-pencil-square" />
+            </.button>
+          </div>
+        </:item>
+      </.list>
+    <% end %>
+  </.card>
+<% else %>
+  <.title>Video Awards</.title>
+
+  <.card :if={not @event.settings.video_submission} spaced>
+    <p class="italic text-sm">This event does not accept video award submissions.</p>
+  </.card>
+<% end %>
+
+<.modal id="compass-award-info">
+  <.title flush class="mb-4">Compass Award Information</.title>
+  <p class="mb-4">
+    The <strong>Compass Award</strong>
+    recognizes an adult coach or mentor who has given outstanding guidance and support to a team throughout the year and demonstrates to the team what it means to be a Gracious Professional.
+    The winner of the Compass Award will be chosen from candidates nominated by <em>FIRST</em>
+    Tech Challenge student team members, via a 40-60 second video submission.
+    The video must highlight how their mentor has helped them become an inspirational team.
+    The video should emphasize what sets the mentor apart.
+  </p>
+  <p class="mb-4">
+    <strong>Requirement 1:</strong>
+    Team must be able to clearly articulate this mentor's contribution to the team and explain what sets this mentor apart.
+  </p>
+  <p class="mb-2">
+    <strong>Requirement 2:</strong>
+    Submission must be in video format and meet the following requirements:
+  </p>
+  <ol class="mb-4 pl-6">
+    <li class="list-decimal mb-2">
+      Submitted by <strong>{format_video_due_date(@event)}</strong>
+    </li>
+    <li class="list-decimal mb-2">
+      Be a publicly-accessible video (ex. Unlisted or Public on YouTube) — this is a deliberate change to the official rules due to the difficulty of accepting video uploads
+    </li>
+    <li class="list-decimal mb-2">
+      One video submission per team per event (videos can be updated or changed between events)
+    </li>
+    <li class="list-decimal mb-2">
+      All music must be used with permission from the copyright owners and be indicated in the video credits
+    </li>
+    <li class="list-decimal mb-2">
+      Videos cannot be longer than 60 seconds, including credits
+    </li>
+  </ol>
+  <p class="mb-4">
+    Teams are encouraged to review the <a
+      class="italic underline"
+      href="https://www.firstinspires.org/brand"
+      phx-no-format
+      target="blank"
+    >FIRST Branding and Style Guidelines</a> before
+    creating their video.
+  </p>
+</.modal>
+
+<.modal id="video-submission-team-list-info">
+  <.title flush class="mb-4">About Team List</.title>
+  <p class="my-4">
+    If not all of your teams are listed, it could mean:
+  </p>
+  <ul class="list-disc mb-4 pl-8">
+    <li class="mb-4">
+      Your account may not have the same email address as you use in the <a
+        class="underline"
+        href="https://my.firstinspires.org/Dashboard/"
+        target="blank"
+      ><em>FIRST</em> Dashboard</a>.
+      Ensure you register <strong>and confirm</strong>
+      this address in your <.link class="underline" navigate={~p"/user/settings"}>settings</.link>.
+    </li>
+    <li class="mb-4">
+      You have not yet paid this season's registration fee with <em>FIRST®</em>.
+    </li>
+    <li class="mb-4">
+      Your region's <em>Program Delivery Partner</em>
+      may not have imported team data since your team finished registering with <em>FIRST</em>
+      or since coaching information was updated. Contact them to check on the status of your team.
+    </li>
+  </ul>
+</.modal>
+
+<.modal id="video-add-modal">
+  <.title flush class="mb-4">Submit Compass Award Video</.title>
+
+  <p class="mb-4 text-sm">
+    Make sure the video is publicly accessible (ex. Unlisted or Public on YouTube or visible to anyone using the link on Google Drive).
+    You can verify this by opening the video in a private or incognito window.
+    It must remain accessible until the Compass Award is presented at the event.
+  </p>
+
+  <.form for={@video_add_form} id="video-add-form" phx-submit="video_add_submit">
+    <.input type="hidden" field={@video_add_form[:award]} value="compass" />
+
+    <.input
+      field={@video_add_form[:url]}
+      label="Video URL"
+      placeholder="https://www.youtube.com/watch?v=..."
+      required
+      type="text"
+      wrapper="mb-4"
+    />
+    <p class="text-right">
+      <.button style="primary" type="submit">Submit</.button>
+    </p>
+  </.form>
+</.modal>
+
+<.modal id="video-edit-modal">
+  <.title flush class="mb-4">Update Compass Award Submission</.title>
+
+  <p class="mb-4 text-sm">
+    Make sure the video is publicly accessible (ex. Unlisted or Public on YouTube or visible to anyone using the link on Google Drive).
+    You can verify this by opening the video in a private or incognito window.
+    It must remain accessible until the Compass Award is presented at the event.
+  </p>
+
+  <.form for={@video_edit_form} id="video-edit-form" phx-submit="video_edit_submit">
+    <.input
+      field={@video_edit_form[:url]}
+      label="Video URL"
+      placeholder="https://www.youtube.com/watch?v=..."
+      required
+      type="text"
+      wrapper="mb-4"
+    />
+    <p class="text-right">
+      <.button style="primary" type="submit">Submit</.button>
+    </p>
+  </.form>
+</.modal>

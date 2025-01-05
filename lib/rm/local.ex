@@ -11,6 +11,7 @@ defmodule RM.Local do
   alias RM.Local.EventProposal
   alias RM.Local.EventRegistration
   alias RM.Local.EventSettings
+  alias RM.Local.EventVideo
   alias RM.Local.League
   alias RM.Local.LeagueAssignment
   alias RM.Local.LeagueSettings
@@ -303,6 +304,24 @@ defmodule RM.Local do
           {:ok, EventRegistration.t()} | {:error, Changeset.t(EventRegistration.t())}
   def rescind_event_registration(registration, params) do
     EventRegistration.rescind_changeset(registration, params)
+    |> Repo.update()
+  end
+
+  #
+  # Event Video Award Submissions
+  #
+
+  @spec create_event_video(Event.t(), Team.t(), map) ::
+          {:ok, EventVideo.t()} | {:error, Changeset.t(EventVideo.t())}
+  def create_event_video(event, team, params) do
+    EventVideo.create_changeset(event, team, params)
+    |> Repo.insert()
+  end
+
+  @spec update_event_video(EventVideo.t(), map) ::
+          {:ok, EventVideo.t()} | {:error, Changeset.t(EventVideo.t())}
+  def update_event_video(submission, params) do
+    EventVideo.update_changeset(submission, params)
     |> Repo.update()
   end
 

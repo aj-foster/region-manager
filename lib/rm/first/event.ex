@@ -69,6 +69,7 @@ defmodule RM.FIRST.Event do
     has_one :proposal, EventProposal, foreign_key: :first_event_id
     has_many :registrations, EventRegistration
     has_one :settings, EventSettings
+    has_many :videos, RM.Local.EventVideo
 
     embeds_one :location, Location, on_replace: :update, primary_key: false do
       field :address, :string
@@ -258,6 +259,32 @@ defmodule RM.FIRST.Event do
     DateTime.after?(
       DateTime.now!(date_timezone),
       registration_opens(event)
+    )
+  end
+
+  @doc "Deadline for video submissions, in the event's local timezone"
+  @spec video_submission_deadline(t) :: DateTime.t()
+  def video_submission_deadline(event) do
+    %__MODULE__{
+      date_timezone: date_timezone,
+      settings: %EventSettings{video_submission_date: date}
+    } = event
+
+    DateTime.new!(
+      date,
+      Time.new!(23, 59, 59, 999_999),
+      date_timezone
+    )
+  end
+
+  @doc "Whether the video submission deadline has passed"
+  @spec video_submission_deadline_passed?(t) :: boolean
+  def video_submission_deadline_passed?(event) do
+    %__MODULE__{date_timezone: date_timezone} = event
+
+    DateTime.after?(
+      DateTime.now!(date_timezone),
+      video_submission_deadline(event)
     )
   end
 

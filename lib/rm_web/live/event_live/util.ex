@@ -38,6 +38,18 @@ defmodule RMWeb.EventLive.Util do
         Registration
       </.nav_item>
       <.nav_item
+        :if={@user && @event.type not in [:league_meet, :kickoff, :workshop, :demo, :volunteer]}
+        current={@view}
+        navigate={
+          if @league,
+            do: ~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}/awards",
+            else: ~p"/s/#{@season}/r/#{@region}/e/#{@event}/awards"
+        }
+        target={RMWeb.EventLive.Awards}
+      >
+        Awards
+      </.nav_item>
+      <.nav_item
         :if={can?(@user, :registration_settings_update, @event)}
         current={@view}
         navigate={
