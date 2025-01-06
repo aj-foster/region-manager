@@ -95,7 +95,7 @@
               value="false"
             />
             <input
-              checked={@teams_count == 1}
+              checked={Enum.any?(@selected, &(&1.team.number == team.number))}
               class="absolute left-8 opacity-0 peer"
               disabled={not info.eligible? or info.status != :unregistered}
               id={"team-registration-select-#{team.number}"}

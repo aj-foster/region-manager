@@ -137,7 +137,17 @@ defmodule RMWeb.EventLive.Registration do
           end
         end)
 
-      assign(socket, selected: [], selected_count: 0, teams: teams, teams_count: length(teams))
+      selected_teams =
+        teams
+        |> Enum.filter(& &1.eligible?)
+        |> Enum.filter(&(&1.status == :unregistered))
+
+      assign(socket,
+        selected: selected_teams,
+        selected_count: length(selected_teams),
+        teams: teams,
+        teams_count: length(teams)
+      )
     else
       assign(socket, selected: [], selected_count: 0, teams: [], teams_count: 0)
     end
