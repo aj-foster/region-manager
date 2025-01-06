@@ -94,7 +94,16 @@
         </:item>
       </.list>
     <% else %>
-      <p class="mb-4 text-sm">
+      <p :if={@teams_count == 0} class="italic mb-4 text-sm">
+        There are no teams associated with this account.
+        <button
+          class="italic text-orange-600 underline"
+          phx-click={show_modal("video-submission-team-list-info")}
+        >
+          Why?
+        </button>
+      </p>
+      <p :if={@teams_count > 0} class="mb-4 text-sm">
         Select a team below to submit.
         <button
           class="italic text-orange-600 underline"

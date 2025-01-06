@@ -173,9 +173,9 @@ defmodule RMWeb.EventLive.Awards do
           end
         end)
 
-      assign(socket, teams: teams)
+      assign(socket, teams: teams, teams_count: length(teams))
     else
-      assign(socket, teams: [])
+      assign(socket, teams: [], teams_count: 0)
     end
   end
 
