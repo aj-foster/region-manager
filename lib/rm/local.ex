@@ -86,6 +86,12 @@ defmodule RM.Local do
       do: {:error, :out_of_scope}
 
   def verify_eligibility(
+        %Event{settings: %EventSettings{registration: %RegistrationSettings{pool: :league}}},
+        %Team{league: nil}
+      ),
+      do: {:error, :out_of_scope}
+
+  def verify_eligibility(
         %Event{
           region_id: event_region_id,
           settings: %EventSettings{registration: %RegistrationSettings{pool: :region}}
