@@ -159,7 +159,7 @@ defmodule RM.Import.Team do
   end
 
   @date_re ~r"(?<month>\d+)/(?<day>\d+)/(?<year>\d+)"
-  @datetime_re ~r"(?<month>\d+)/(?<day>\d+)/(?<year>\d+)\s+(?<hour>\d+):(?<minute>\d+):(?<second>\d+)\s(?<ampm>AM|PM)"
+  @datetime_re ~r"(?<month>\d+)/(?<day>\d+)/(?<year>\d+)\s+(?<hour>\d+):(?<minute>\d+)(:(?<second>\d+)(\s*(?<ampm>AM|PM|am|pm))?)?"
 
   defp parse_date(datetime_str) do
     %{
@@ -191,9 +191,14 @@ defmodule RM.Import.Team do
     year = String.to_integer(year)
     hour = String.to_integer(hour)
     minute = String.to_integer(minute)
-    second = String.to_integer(second)
 
-    hour = if ampm == "AM", do: hour, else: hour + 12
+    second =
+      case Integer.parse(second) do
+        {second, ""} -> second
+        _else -> 0
+      end
+
+    hour = if ampm in ["PM", "pm"], do: hour + 12, else: hour
 
     DateTime.new!(Date.new!(year, month, day), Time.new!(hour, minute, second, 0))
   end

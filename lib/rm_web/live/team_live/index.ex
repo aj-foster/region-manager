@@ -71,6 +71,25 @@ defmodule RMWeb.TeamLive.Index do
   @impl true
   def handle_event(event, unsigned_params, socket)
 
+  def handle_event("import_change", _params, socket) do
+    case socket.assigns[:uploads].team_data do
+      %{entries: [%{valid?: false} = entry]} = upload ->
+        socket
+        |> assign(
+          import_errors: upload_errors(upload, entry),
+          import_status: :error
+        )
+        |> noreply()
+
+      _else ->
+        noreply(socket)
+    end
+  end
+
+  def handle_event("import_submit", _params, socket) do
+    noreply(socket)
+  end
+
   def handle_event("sort_league", _params, socket) do
     socket
     |> push_query(sort: "league")
