@@ -156,7 +156,11 @@ defmodule RMWeb.EventLive.Awards do
               Map.put(info, :eligible?, team.id in Enum.map(event.registrations, & &1.team_id))
 
             :league ->
-              Map.put(info, :eligible?, team.league_id == event.league_id)
+              Map.put(
+                info,
+                :eligible?,
+                is_struct(team.league) and team.league.id == event.league_id
+              )
 
             :region ->
               Map.put(info, :eligible?, team.region_id == event.region_id)
