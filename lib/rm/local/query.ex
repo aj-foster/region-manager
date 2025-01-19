@@ -86,11 +86,13 @@ defmodule RM.Local.Query do
   def proposal_league(query, league), do: where(query, [proposal: p], p.league_id == ^league.id)
 
   @doc "Filter event proposals by region"
-  @spec proposal_region(query, RM.FIRST.Region.t()) :: query
+  @spec proposal_region(query, Region.t() | nil) :: query
+  def proposal_region(query, nil), do: query
   def proposal_region(query, region), do: where(query, [proposal: p], p.region_id == ^region.id)
 
   @doc "Filter event proposals by season"
-  @spec proposal_season(query, integer) :: query
+  @spec proposal_season(query, integer | nil) :: query
+  def proposal_season(query, nil), do: query
   def proposal_season(query, season), do: where(query, [proposal: p], p.season == ^season)
 
   @doc "Filter by the associated region"

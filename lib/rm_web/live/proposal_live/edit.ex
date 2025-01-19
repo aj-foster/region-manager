@@ -36,7 +36,12 @@ defmodule RMWeb.ProposalLive.Edit do
     preloads = [:attachments, :event, :venue]
     redirect_target = url_for([season, region, league, :proposals])
 
-    case RM.Local.fetch_event_proposal_by_id(proposal_id, league: league, preload: preloads) do
+    case RM.Local.fetch_event_proposal_by_id(proposal_id,
+           league: league,
+           region: region,
+           season: season,
+           preload: preloads
+         ) do
       {:ok, proposal} ->
         proposal = RM.Repo.preload(proposal, [:league, first_event: :league])
         user = socket.assigns[:current_user]
