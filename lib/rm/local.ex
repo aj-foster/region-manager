@@ -317,6 +317,16 @@ defmodule RM.Local do
   # Event Video Award Submissions
   #
 
+  @spec list_event_videos_by_region(Region.t()) :: [EventVideo.t()]
+  @spec list_event_videos_by_region(Region.t(), keyword) :: [EventVideo.t()]
+  def list_event_videos_by_region(region, opts \\ []) do
+    Query.from_video()
+    |> Query.video_region(region)
+    |> Query.video_season(opts[:season] || region.current_season)
+    |> Query.preload_assoc(:video, opts[:preload])
+    |> Repo.all()
+  end
+
   @spec create_event_video(Event.t(), Team.t(), map) ::
           {:ok, EventVideo.t()} | {:error, Changeset.t(EventVideo.t())}
   def create_event_video(event, team, params) do

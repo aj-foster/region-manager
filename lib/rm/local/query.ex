@@ -7,6 +7,7 @@ defmodule RM.Local.Query do
   alias RM.FIRST.Region
   alias RM.Local.EventProposal
   alias RM.Local.EventRegistration
+  alias RM.Local.EventVideo
   alias RM.Local.League
   alias RM.Local.Team
   alias RM.Local.Venue
@@ -46,6 +47,12 @@ defmodule RM.Local.Query do
   @spec from_venue :: query
   def from_venue do
     from(Venue, as: :venue)
+  end
+
+  @doc "Start query from the event videos table"
+  @spec from_video :: query
+  def from_video do
+    from(EventVideo, as: :video)
   end
 
   #
@@ -119,6 +126,26 @@ defmodule RM.Local.Query do
     )
   end
 
+  @doc "Filter videos by related region"
+  @spec video_region(query, Region.t() | nil) :: query
+  def video_region(query, nil), do: query
+
+  def video_region(query, region) do
+    query
+    |> join_event_from_video()
+    |> where([event: e], e.region_id == ^region.id)
+  end
+
+  @doc "Filter videos by related season"
+  @spec video_season(query, integer | nil) :: query
+  def video_season(query, nil), do: query
+
+  def video_season(query, season) do
+    query
+    |> join_event_from_video()
+    |> where([event: e], e.season == ^season)
+  end
+
   @doc "Filter by the `waitlisted` attribute of a registration"
   @spec waitlisted(query, boolean | nil) :: query
   def waitlisted(query, nil), do: query
@@ -157,6 +184,14 @@ defmodule RM.Local.Query do
   def join_event_from_proposal(query) do
     with_named_binding(query, :event, fn query, binding ->
       join(query, :left, [proposal: p], e in assoc(p, :first_event), as: ^binding)
+    end)
+  end
+
+  @doc "Load the `event` association on an event video"
+  @spec join_event_from_video(query) :: query
+  def join_event_from_video(query) do
+    with_named_binding(query, :event, fn query, binding ->
+      join(query, :left, [video: v], e in assoc(v, :event), as: ^binding)
     end)
   end
 
@@ -258,6 +293,14 @@ defmodule RM.Local.Query do
     end)
   end
 
+  @doc "Load the `team` association on a video"
+  @spec join_team_from_video(query) :: query
+  def join_team_from_video(query) do
+    with_named_binding(query, :team, fn query, binding ->
+      join(query, :left, [video: v], t in assoc(v, :team), as: ^binding)
+    end)
+  end
+
   @doc "Load the `user_assignments` and `users` associations on a team"
   @spec join_users_from_team(query) :: query
   def join_users_from_team(query) do
@@ -300,6 +343,11 @@ defmodule RM.Local.Query do
   With `venue` as the base:
 
     * `event_proposals`: `event_proposals` on a venue
+
+  With `video` as the base:
+
+    * `event`: `event` on a video
+    * `team`: `team` on a video
 
   """
   @spec preload_assoc(query, atom, [atom] | nil) :: query
@@ -431,5 +479,21 @@ defmodule RM.Local.Query do
     |> join_proposals_from_venue()
     |> preload([event_proposals: p], event_proposals: p)
     |> preload_assoc(:venue, rest)
+  end
+
+  # Video
+
+  def preload_assoc(query, :video, [:event | rest]) do
+    query
+    |> join_event_from_video()
+    |> preload([event: e], event: e)
+    |> preload_assoc(:video, rest)
+  end
+
+  def preload_assoc(query, :video, [:team | rest]) do
+    query
+    |> join_team_from_video()
+    |> preload([team: t], team: t)
+    |> preload_assoc(:video, rest)
   end
 end

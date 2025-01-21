@@ -343,4 +343,35 @@ defmodule RMWeb.RegionJSON do
   defp team_league(%RM.Local.League{code: code, location: location, name: name, remote: remote}) do
     %{code: code, location: location, name: name, remote: remote}
   end
+
+  #
+  # Videos
+  #
+
+  @spec videos(%{videos: [RM.Local.EventVideo.t()]}) :: RMWeb.JSON.success(map)
+  def videos(%{videos: videos}) do
+    success(%{video_count: length(videos), videos: Enum.map(videos, &video/1)})
+  end
+
+  @spec video(RM.Local.EventVideo.t()) :: map
+  defp video(
+         %RM.Local.EventVideo{
+           event:
+             %RM.FIRST.Event{
+               code: event_code,
+               name: event_name
+             } = event,
+           team: %RM.Local.Team{number: number},
+           url: url
+         } = video
+       ) do
+    %{
+      available_at: RM.FIRST.Event.video_submission_deadline(event),
+      award: RM.Local.EventVideo.award_name(video),
+      event_code: event_code,
+      event_name: event_name,
+      team: number,
+      url: if(RM.FIRST.Event.video_submission_deadline_passed?(event), do: url, else: nil)
+    }
+  end
 end

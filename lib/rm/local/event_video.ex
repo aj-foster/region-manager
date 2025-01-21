@@ -105,4 +105,14 @@ defmodule RM.Local.EventVideo do
       changeset
     end
   end
+
+  #
+  # Helpers
+  #
+
+  @doc """
+  Returns a human-readable name for an award
+  """
+  @spec award_name(t) :: String.t()
+  def award_name(%__MODULE__{award: :compass}), do: "Compass Award"
 end

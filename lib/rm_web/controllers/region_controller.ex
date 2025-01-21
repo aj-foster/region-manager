@@ -48,6 +48,19 @@ defmodule RMWeb.RegionController do
     end
   end
 
+  def videos(conn, %{"region" => abbreviation}) do
+    season = conn.assigns[:season]
+    preloads = [:event, :team]
+
+    with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(abbreviation) do
+      videos =
+        RM.Local.list_event_videos_by_region(region, season: season, preload: preloads)
+        |> RM.Repo.preload(event: :settings)
+
+      render(conn, :videos, videos: videos)
+    end
+  end
+
   #
   # Helper Plugs
   #
