@@ -190,7 +190,12 @@
   </p>
   <ol class="mb-4 pl-6">
     <li class="list-decimal mb-2">
-      Submitted by <strong>{format_video_due_date(@event)}</strong>
+      Submitted by
+      <strong>
+        {if @event.settings.video_submission,
+          do: format_video_due_date(@event),
+          else: "(No date set)"}
+      </strong>
     </li>
     <li class="list-decimal mb-2">
       Be a publicly-accessible video (ex. Unlisted or Public on YouTube) — this is a deliberate change to the official rules due to the difficulty of accepting video uploads

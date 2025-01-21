@@ -159,7 +159,7 @@ defmodule RMWeb.EventLive.Awards do
               Map.put(
                 info,
                 :eligible?,
-                is_struct(team.league) and team.league.id == event.league_id
+                is_struct(team.league) and team.league.id == event.local_league_id
               )
 
             :region ->
