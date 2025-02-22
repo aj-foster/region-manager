@@ -125,6 +125,7 @@ defmodule RMWeb.EventLive.Awards do
           event =
             RM.Repo.preload(event, registrations: :team, videos: [team: [:league, :region]])
             |> Map.put(:region, region)
+            |> Map.update!(:videos, &sort_videos/1)
 
           assign(socket, event: event, page_title: event.name)
         else
@@ -138,6 +139,11 @@ defmodule RMWeb.EventLive.Awards do
         |> put_flash(:error, "Event not found")
         |> redirect(to: ~p"/dashboard")
     end
+  end
+
+  @spec sort_videos([RM.Local.EventVideo.t()]) :: [RM.Local.EventVideo.t()]
+  defp sort_videos(videos) do
+    Enum.sort_by(videos, & &1.team.number)
   end
 
   @spec assign_teams(Socket.t()) :: Socket.t()

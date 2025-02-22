@@ -38,7 +38,10 @@ defmodule RMWeb.EventLive.Util do
         Registration
       </.nav_item>
       <.nav_item
-        :if={@user && @event.type not in [:league_meet, :kickoff, :workshop, :demo, :volunteer]}
+        :if={
+          (@user || @event.settings.video_submission) &&
+            @event.type not in [:league_meet, :kickoff, :workshop, :demo, :volunteer]
+        }
         current={@view}
         navigate={
           if @league,

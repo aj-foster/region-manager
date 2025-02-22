@@ -16,23 +16,25 @@
   view={@socket.view}
 />
 
-<.title>Judging Materials</.title>
+<%= if @current_user do %>
+  <.title>Judging Materials</.title>
 
-<.card spaced>
-  <div class="flex gap-4 items-center">
-    <p class="text-sm">
-      Ready to submit your Engineering Portfolio? Upload it to the official Cloud Scoring System.
-    </p>
-    <.link_button
-      class="whitespace-nowrap"
-      href="https://ftc-scoring.firstinspires.org/"
-      target="blank"
-    >
-      Cloud Scoring
-      <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
-    </.link_button>
-  </div>
-</.card>
+  <.card spaced>
+    <div class="flex gap-4 items-center">
+      <p class="text-sm">
+        Ready to submit your Engineering Portfolio? Upload it to the official Cloud Scoring System.
+      </p>
+      <.link_button
+        class="whitespace-nowrap"
+        href="https://ftc-scoring.firstinspires.org/"
+        target="blank"
+      >
+        Cloud Scoring
+        <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+      </.link_button>
+    </div>
+  </.card>
+<% end %>
 
 <%= if @event.settings.video_submission do %>
   <.title>
