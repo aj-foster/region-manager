@@ -3,7 +3,9 @@ updates:
   - package-ecosystem: "mix"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "monday"
+      time: "18:00"
     groups:
       non-security:
         patterns:
