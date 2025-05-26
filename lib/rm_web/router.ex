@@ -26,6 +26,10 @@ defmodule RMWeb.Router do
     plug :fetch_version
   end
 
+  pipeline :hook do
+    plug :accepts, ["json"]
+  end
+
   #
   # Browser Traffic
   #
@@ -172,6 +176,16 @@ defmodule RMWeb.Router do
     get "/s/:season/r/:region/leagues", RegionController, :leagues
     get "/s/:season/r/:region/teams", RegionController, :teams
     get "/s/:season/r/:region/videos", RegionController, :videos
+  end
+
+  #
+  # Webhooks
+  #
+
+  scope "/hook", RMWeb do
+    pipe_through :hook
+
+    post "/ses-delivery", SESController, :delivery
   end
 
   #
