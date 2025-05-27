@@ -27,46 +27,39 @@ resource "aws_sns_topic" "delivery_notifications" {
     service = "ses"
   }
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Id": "notification-policy",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ses.amazonaws.com"
-      },
-      "Action": "sns:Publish",
-      "Resource": "arn:aws:sns:us-east-1:${local.aws_account_id}:ftcregion-ses-delivery-notifications",
-      "Condition": {
-        "StringEquals": {
-          "AWS:SourceAccount": "${local.aws_account_id}",
-          "AWS:SourceArn": "arn:aws:ses:us-east-1:${local.aws_account_id}:identity/ftcregion.com"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "notification-policy"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ses.amazonaws.com"
+        }
+        Action   = "sns:Publish"
+        Resource = "arn:aws:sns:us-east-1:${local.aws_account_id}:ftcregion-ses-delivery-notifications"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceAccount" : "${local.aws_account_id}"
+            "AWS:SourceArn" : "arn:aws:ses:us-east-1:${local.aws_account_id}:identity/ftcregion.com"
+          }
         }
       }
-    }
-  ]
-}
-EOF
+    ]
+  })
 
-  delivery_policy = <<EOF
-{
-  "http": {
-    "defaultHealthyRetryPolicy": {
-      "numRetries": 3,
-      "numNoDelayRetries": null,
-      "minDelayTarget": 20,
-      "maxDelayTarget": 20,
-      "numMinDelayRetries": null,
-      "numMaxDelayRetries": null,
-      "backoffFunction": "linear"
-    },
-    "disableSubscriptionOverrides": false,
-    "defaultRequestPolicy": {
-      "headerContentType": "application/json"
+  delivery_policy = jsonencode({
+    http = {
+      defaultHealthyRetryPolicy = {
+        numRetries      = 3
+        minDelayTarget  = 20
+        maxDelayTarget  = 20
+        backoffFunction = "linear"
+      }
+      disableSubscriptionOverrides = false
+      defaultRequestPolicy = {
+        headerContentType = "application/json"
+      }
     }
-  }
-}
-EOF
+  })
 }
