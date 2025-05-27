@@ -4,7 +4,7 @@ defmodule RM.Application do
 
   @impl true
   def start(_type, _args) do
-    Oban.Telemetry.attach_default_logger()
+    Oban.Telemetry.attach_default_logger(events: [:job, :notifier, :peer, :queue, :stager])
 
     children = [
       RMWeb.Telemetry,
