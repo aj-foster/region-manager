@@ -53,8 +53,8 @@ defmodule RMWeb.SESController do
   )
 
   @spec verify_message(map) :: :ok | {:error, String.t()}
-  def verify_message(message) do
-    string_to_sign = construct_string_to_sign(message) <> "\n"
+  defp verify_message(message) do
+    string_to_sign = construct_signed_string(message) <> "\n"
 
     with {:ok, key} <- get_public_key(message["SigningCertURL"]),
          {:ok, hash_algorithm} <- get_hash_algorithm(message["SignatureVersion"]),
@@ -67,19 +67,19 @@ defmodule RMWeb.SESController do
     end
   end
 
-  @spec construct_string_to_sign(map) :: String.t()
-  def construct_string_to_sign(message)
+  @spec construct_signed_string(map) :: String.t()
+  defp construct_signed_string(message)
 
-  def construct_string_to_sign(%{"Type" => "Notification"} = message) do
-    subject = Map.get(message, "Subject", "")
+  defp construct_signed_string(%{"Type" => "Notification"} = message) do
+    subject = message["Subject"]
 
     [
       "Message",
       message["Message"],
       "MessageId",
       message["MessageId"],
-      if(subject != "", do: "Subject"),
-      if(subject != "", do: subject),
+      if(subject, do: "Subject"),
+      if(subject, do: subject),
       "Timestamp",
       message["Timestamp"],
       "TopicArn",
@@ -91,7 +91,7 @@ defmodule RMWeb.SESController do
     |> Enum.join("\n")
   end
 
-  def construct_string_to_sign(message) do
+  defp construct_signed_string(message) do
     [
       "Message",
       message["Message"],
@@ -112,7 +112,7 @@ defmodule RMWeb.SESController do
   end
 
   @spec get_public_key(String.t()) :: {:ok, :public_key.public_key()} | {:error, String.t()}
-  def get_public_key(signing_cert_url) do
+  defp get_public_key(signing_cert_url) do
     if key = :persistent_term.get({__MODULE__, signing_cert_url}, nil) do
       {:ok, key}
     else
@@ -126,10 +126,10 @@ defmodule RMWeb.SESController do
   end
 
   @spec validate_signing_cert_url(String.t()) :: :ok | {:error, String.t()}
-  def validate_signing_cert_url(signing_cert_url) do
+  defp validate_signing_cert_url(signing_cert_url) do
     valid_hostname? =
       URI.parse(signing_cert_url).host
-      |> String.ends_with?("amazonaws.com")
+      |> String.match?(~r/sns\.[a-zA-z0-9\-]+\.amazonaws\.com/)
 
     if valid_hostname? do
       :ok
@@ -139,7 +139,7 @@ defmodule RMWeb.SESController do
   end
 
   @spec download_signing_cert(String.t()) :: {:ok, binary} | {:error, String.t()}
-  def download_signing_cert(signing_cert_url) do
+  defp download_signing_cert(signing_cert_url) do
     case Req.get(signing_cert_url) do
       {:ok, %Req.Response{status: 200, body: body}} ->
         {:ok, body}
@@ -153,7 +153,7 @@ defmodule RMWeb.SESController do
   end
 
   @spec decode_signing_cert(binary) :: {:ok, :public_key.public_key()} | {:error, String.t()}
-  def decode_signing_cert(cert) do
+  defp decode_signing_cert(cert) do
     :public_key.pem_decode(cert)
     |> then(&:lists.keysearch(:Certificate, 1, &1))
     |> then(fn {:value, {:Certificate, cert, :not_encrypted}} -> cert end)
@@ -168,12 +168,12 @@ defmodule RMWeb.SESController do
   end
 
   @spec get_hash_algorithm(integer) :: {:ok, :sha | :sha256} | {:error, String.t()}
-  def get_hash_algorithm("1"), do: {:ok, :sha}
-  def get_hash_algorithm("2"), do: {:ok, :sha256}
-  def get_hash_algorithm(_), do: {:error, "Unsupported signature version"}
+  defp get_hash_algorithm("1"), do: {:ok, :sha}
+  defp get_hash_algorithm("2"), do: {:ok, :sha256}
+  defp get_hash_algorithm(_), do: {:error, "Unsupported signature version"}
 
   @spec decode_signature(String.t()) :: {:ok, binary} | {:error, String.t()}
-  def decode_signature(signature) do
+  defp decode_signature(signature) do
     case Base.decode64(signature) do
       {:ok, decoded_signature} -> {:ok, decoded_signature}
       :error -> {:error, "Invalid signature format"}
@@ -186,7 +186,7 @@ defmodule RMWeb.SESController do
 
   @spec handle_management_messages(map) ::
           :ok | {:ignore, String.t()} | {:error, atom, String.t()}
-  def handle_management_messages(%{"Type" => "SubscriptionConfirmation"} = message) do
+  defp handle_management_messages(%{"Type" => "SubscriptionConfirmation"} = message) do
     case Req.get(message["SubscribeURL"]) do
       {:ok, %Req.Response{status: 200}} ->
         {:ignore, "Subscription confirmation; not a notification"}
@@ -199,9 +199,9 @@ defmodule RMWeb.SESController do
     end
   end
 
-  def handle_management_messages(%{"Type" => "UnsubscribeConfirmation"}) do
+  defp handle_management_messages(%{"Type" => "UnsubscribeConfirmation"}) do
     {:ignore, "Unsubscribe confirmation; not a notification"}
   end
 
-  def handle_management_messages(_params), do: :ok
+  defp handle_management_messages(_params), do: :ok
 end
