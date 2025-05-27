@@ -38,6 +38,12 @@ variable "rm_ftc_events_api_user" { sensitive = true }
 # Use `mix phx.gen.secret` in the root of this project to generate a secret
 variable "rm_secret_key_base" { sensitive = true }
 
+# Username for HTTP Basic Auth used by SNS when delivering messages
+variable "rm_sns_username" { sensitive = true }
+
+# Use `mix phx.gen.secret` in the root of this project to generate a password
+variable "rm_sns_password" { sensitive = true }
+
 # DigitalOcean Spaces or other S3-compatible access ID and secret key
 variable "rm_spaces_access_id" { sensitive = true }
 variable "rm_spaces_access_key" { sensitive = true }

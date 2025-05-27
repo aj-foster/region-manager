@@ -152,6 +152,20 @@ resource "digitalocean_app" "this" {
       }
 
       env {
+        key   = "SNS_USERNAME"
+        value = var.rm_sns_username
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
+
+      env {
+        key   = "SNS_PASSWORD"
+        value = var.rm_sns_password
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
+
+      env {
         key   = "SPACES_ACCESS_ID"
         value = var.rm_spaces_access_id
         scope = "RUN_TIME"
