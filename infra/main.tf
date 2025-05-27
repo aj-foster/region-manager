@@ -60,6 +60,17 @@ provider "aws" {
   region     = "us-east-1"
   access_key = var.az_access_key
   secret_key = var.az_secret_key
+
+  default_tags {
+    tags = {
+      group = "ftcregion"
+    }
+  }
+}
+
+data "aws_caller_identity" "this" {}
+locals {
+  aws_account_id = data.aws_caller_identity.this.account_id
 }
 
 #
