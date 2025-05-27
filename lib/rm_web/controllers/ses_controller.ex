@@ -4,13 +4,31 @@ defmodule RMWeb.SESController do
   """
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
+  require Logger
 
+  plug :auth
   action_fallback :fallback
 
   def delivery(conn, params) do
     with :ok <- verify_message(params),
          :ok <- handle_management_messages(params) do
       send_resp(conn, :ok, "")
+    end
+  end
+
+  #
+  # Authentication
+  #
+
+  defp auth(conn, _opts) do
+    username = Application.get_env(:rm, RMWeb.SESController)[:username]
+    password = Application.get_env(:rm, RMWeb.SESController)[:password]
+
+    if username && password do
+      Plug.BasicAuth.basic_auth(conn, username: username, password: password)
+    else
+      Logger.warning("SESController authentication is not configured. Skipping authentication.")
+      conn
     end
   end
 

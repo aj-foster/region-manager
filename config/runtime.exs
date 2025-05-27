@@ -78,6 +78,10 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  config :rm, RMWeb.SESController,
+    username: System.get_env("SNS_USERNAME"),
+    password: System.get_env("SNS_PASSWORD")
+
   #
   # External
   #
