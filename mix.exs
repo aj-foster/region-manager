@@ -48,7 +48,7 @@ defmodule RM.MixProject do
       {:hackney, "~> 1.20"},
       {:identity, github: "aj-foster/identity", branch: "main"},
       {:jason, "~> 1.2"},
-      {:nimble_csv, "~> 1.2.0"},
+      {:nimble_csv, "~> 1.3.0"},
       {:nimble_totp, "~> 1.0"},
       {:oban, "~> 2.17"},
       {:phoenix, "~> 1.7.10"},
