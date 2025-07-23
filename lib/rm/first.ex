@@ -300,6 +300,13 @@ defmodule RM.FIRST do
     end
   end
 
+  @doc "Create a new season with the given attributes"
+  @spec create_season(map) :: {:ok, Season.t()} | {:error, Changeset.t(Season.t())}
+  def create_season(attrs) do
+    Season.create_changeset(attrs)
+    |> Repo.insert()
+  end
+
   #
   # Regions
   #

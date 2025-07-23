@@ -154,4 +154,22 @@ defmodule RM.FIRSTTest do
     |> Jason.decode!()
     |> Map.fetch!("events")
   end
+
+  describe "create_season/1" do
+    test "creates a new season" do
+      attrs = %{
+        kickoff: ~D[2023-09-01],
+        logo_url: "https://example.com/logo.png",
+        name: "2023–2024 Season"
+      }
+
+      assert {:ok,
+              %RM.FIRST.Season{
+                kickoff: ~D[2023-09-01],
+                name: "2023–2024 Season",
+                year: 2023,
+                logo_url: "https://example.com/logo.png"
+              }} = FIRST.create_season(attrs)
+    end
+  end
 end
