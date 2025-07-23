@@ -252,7 +252,7 @@ defmodule RMWeb.ProposalLive.New do
           |> push_navigate(to: after_success_target)
 
         {:error, changeset} ->
-          assign(socket, proposal_form: to_form(changeset) |> IO.inspect())
+          assign(socket, proposal_form: to_form(changeset))
       end
     end
   end
@@ -282,10 +282,15 @@ defmodule RMWeb.ProposalLive.New do
 
   @spec registration_settings_normalize_pool(map) :: map
   defp registration_settings_normalize_pool(params) do
-    if params["type"] in ["league_meet", "league_tournament"] do
-      put_in(params, ["registration_settings", "pool"], "league")
-    else
-      params
+    cond do
+      params["registration_settings"]["enabled"] == "false" ->
+        put_in(params, ["registration_settings", "pool"], "all")
+
+      params["type"] in ["league_meet", "league_tournament"] ->
+        put_in(params, ["registration_settings", "pool"], "league")
+
+      :else ->
+        params
     end
   end
 
