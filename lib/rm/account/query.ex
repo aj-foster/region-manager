@@ -23,6 +23,14 @@ defmodule RM.Account.Query do
   # Joins
   #
 
+  @doc "Load the `admin` association on a user"
+  @spec join_admin_from_user(query) :: query
+  def join_admin_from_user(query) do
+    with_named_binding(query, :admin, fn query, binding ->
+      join(query, :left, [user: u], a in assoc(u, :admin), as: ^binding)
+    end)
+  end
+
   @doc "Load the `emails` association on a user"
   @spec join_emails_from_user(query) :: query
   def join_emails_from_user(query) do
@@ -87,6 +95,13 @@ defmodule RM.Account.Query do
   def preload_assoc(query, associations)
   def preload_assoc(query, nil), do: query
   def preload_assoc(query, []), do: query
+
+  def preload_assoc(query, [:admin | rest]) do
+    query
+    |> join_admin_from_user()
+    |> preload([admin: a], admin: a)
+    |> preload_assoc(rest)
+  end
 
   def preload_assoc(query, [:emails | rest]) do
     query
