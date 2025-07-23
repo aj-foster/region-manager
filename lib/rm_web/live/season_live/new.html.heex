@@ -1,0 +1,40 @@
+<.breadcrumbs class="mb-4" />
+
+<.title>Create a Season</.title>
+
+<.card spaced>
+  <p class="text-sm">
+    Seasons represent the annual cycle of <em>FIRST</em> Tech Challenge events.
+    They are used to group regions, leagues, and events.
+  </p>
+</.card>
+
+<.card>
+  <.form for={@create_season_form} id="create-season-form" phx-submit="create_season">
+    <.input
+      explanation="Include the full season name, including ℠ as appropriate, and presenting sponsors."
+      field={@create_season_form[:name]}
+      type="text"
+      label="Name"
+      required
+      wrapper="mb-4"
+    />
+    <.input
+      field={@create_season_form[:kickoff]}
+      type="date"
+      label="Kickoff Date"
+      required
+      wrapper="mb-4"
+    />
+    <.input
+      explanation="Static URL for the season logo; should be around 256x256 pixels."
+      field={@create_season_form[:logo_url]}
+      type="url"
+      label="Logo URL"
+      required
+      wrapper="mb-4"
+    />
+
+    <.button class="mt-4">Create Season</.button>
+  </.form>
+</.card>

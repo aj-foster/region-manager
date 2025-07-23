@@ -37,14 +37,14 @@ defmodule RM.FIRST.Season do
   @optional_fields [:logo_url]
 
   @doc "Create a changeset for inserting a new season"
-  @spec create_changeset(map) :: Ecto.Changeset.t(t)
+  @spec create_changeset(map) :: Changeset.t(t)
   def create_changeset(attrs) do
     %__MODULE__{}
     |> Changeset.change()
     |> cast_and_validate(attrs)
   end
 
-  @spec cast_and_validate(Ecto.Changeset.t(t), map) :: Ecto.Changeset.t(t)
+  @spec cast_and_validate(Changeset.t(t), map) :: Changeset.t(t)
   defp cast_and_validate(changeset, attrs) do
     changeset
     |> Changeset.cast(attrs, @required_fields ++ @optional_fields)
@@ -54,7 +54,7 @@ defmodule RM.FIRST.Season do
     |> Changeset.validate_required(@required_fields)
   end
 
-  @spec put_year(Ecto.Changeset.t(t)) :: Ecto.Changeset.t(t)
+  @spec put_year(Changeset.t(t)) :: Changeset.t(t)
   defp put_year(changeset) do
     year =
       if kickoff = Changeset.get_field(changeset, :kickoff) do

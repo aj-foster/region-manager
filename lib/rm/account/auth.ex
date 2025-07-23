@@ -2,6 +2,7 @@ defmodule RM.Account.Auth do
   @moduledoc """
   Authorization helpers for actions across the application
   """
+  alias RM.Account.Admin
   alias RM.Account.User
   alias RM.FIRST
   alias RM.FIRST.Event
@@ -156,6 +157,13 @@ defmodule RM.Account.Auth do
     event.region_id in region_ids(user) or
       (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
   end
+
+  #
+  # Seasons
+  #
+
+  # Create a new season
+  def can?(%User{admin: %Admin{}}, :season_create, _), do: true
 
   #
   # Teams

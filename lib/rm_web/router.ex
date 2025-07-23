@@ -48,6 +48,7 @@ defmodule RMWeb.Router do
         {RMWeb.Live.Util, :check_league}
       ] do
       live "/seasons", SeasonLive.Index
+      live "/s/new", SeasonLive.New
       live "/s/:season", SeasonLive.Show
       live "/s/:season/r/:region", RegionLive.Show
       live "/s/:season/r/:region/events", EventLive.Index
