@@ -37,6 +37,10 @@ resource "aws_ses_email_identity" "email" {
 # Output Variables
 #
 
+output "domain_identity" {
+  value = aws_ses_domain_identity.domain.id
+}
+
 output "smtp_password" {
   value = aws_iam_access_key.this.ses_smtp_password_v4
 }

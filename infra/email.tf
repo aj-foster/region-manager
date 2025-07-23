@@ -63,3 +63,41 @@ resource "aws_sns_topic" "delivery_notifications" {
     }
   })
 }
+
+resource "aws_sns_topic_subscription" "example_with_delivery_policy" {
+  topic_arn = aws_sns_topic.delivery_notifications.arn
+  protocol  = "https"
+  endpoint  = "https://${var.domain}/hook/ses-delivery"
+}
+
+# resource "aws_ses_identity_notification_topic" "bounce" {
+#   topic_arn                = aws_sns_topic.delivery_notifications.arn
+#   notification_type        = "Bounce"
+#   identity                 = module.az_ses.domain_identity
+#   include_original_headers = true
+# }
+
+# data "aws_kms_alias" "delivery_notifications" {
+#   name = "alias/aws/sns"
+# }
+
+# resource "aws_kms_key_policy" "delivery_notifications" {
+#   key_id = data.aws_kms_alias.delivery_notifications.target_key_id
+#   policy = jsonencode({
+#     Statement = [
+#       {
+#         Action = [
+#           "kms:GenerateDataKey",
+#           "kms:Decrypt"
+#         ]
+#         Effect = "Allow"
+#         Principal = {
+#           Service = "ses.amazonaws.com"
+#         }
+#         Resource = "*"
+#         Sid      = "Allow SES to use KMS key"
+#       },
+#     ]
+#     Version = "2012-10-17"
+#   })
+# }
