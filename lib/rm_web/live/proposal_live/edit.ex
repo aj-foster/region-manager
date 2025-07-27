@@ -214,7 +214,7 @@ defmodule RMWeb.ProposalLive.Edit do
       |> Map.put("region", region)
       |> Map.put("season", region.current_season)
       |> Map.put("venue", socket.assigns[:venue])
-      |> Map.put_new("registration_settings", %{"enabled" => "true"})
+      |> Map.put_new("registration_settings", %{})
       |> proposal_normalize_date_end()
       |> proposal_normalize_format()
       |> registration_settings_normalize_pool()
