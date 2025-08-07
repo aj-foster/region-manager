@@ -27,15 +27,28 @@ defmodule RMWeb.Components.Event do
       </:action>
     </.title>
 
-    <.card spaced>
+    <.card :if={@event.settings.virtual} spaced>
+      <div>
+        <span class="italic text-sm">This is a virtual event.</span>
+        <button
+          :if={@editable}
+          class="text-orange-600 text-sm underline"
+          phx-click={show_modal("venue-virtual-modal")}
+        >
+          <%= if @event.settings.virtual do %>
+            Unhide Address
+          <% else %>
+            Hide Address
+          <% end %>
+        </button>
+      </div>
+    </.card>
+
+    <.card :if={not @event.settings.virtual} spaced>
       <.table>
         <:row :if={@event.location.venue} title="Name">{@event.location.venue}</:row>
         <:row title="Address">
-          <div :if={@event.settings.virtual}>
-            <span class="italic">Virtual Event</span>
-          </div>
-
-          <div :if={not @event.settings.virtual}>
+          <div>
             <span :if={@event.location.address} class="block">{@event.location.address}</span>
             <span :if={@event.location.city}>{@event.location.city},</span>
             <span :if={@event.location.state_province}>
@@ -49,11 +62,7 @@ defmodule RMWeb.Components.Event do
               class="text-orange-600 text-sm underline"
               phx-click={show_modal("venue-virtual-modal")}
             >
-              <%= if @event.settings.virtual do %>
-                Unhide Address
-              <% else %>
-                Hide Address
-              <% end %>
+              Hide Address
             </button>
           </div>
         </:row>
