@@ -68,7 +68,10 @@ defmodule RM.FIRST do
       )
 
     proposal_event_pairs =
-      Enum.reduce(events, [], fn event, proposal_updates ->
+      events
+      |> Repo.preload(:proposal)
+      |> Enum.filter(&is_nil(&1.proposal))
+      |> Enum.reduce([], fn event, proposal_updates ->
         if proposal = Enum.find(open_proposals, &RM.Local.EventProposal.event_matches?(&1, event)) do
           [{proposal.id, event.id} | proposal_updates]
         else
