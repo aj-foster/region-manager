@@ -32,6 +32,14 @@
     >
       Create...
     </.link_button>
+    <.link_button
+      :if={is_nil(@local_league) and can?(@current_user, :proposal_submit, @region)}
+      href={"https://ftc-scoring.firstinspires.org/region/#{String.upcase(@region.code)}/request/batch?cmpYear=#{@region.current_season + 1}"}
+      style="secondary"
+      target="blank"
+    >
+      Upload <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
+    </.link_button>
   </:action>
 </.title>
 
@@ -95,14 +103,6 @@
         </.list>
         <p class="px-4 py-2 text-right">
           <.button class="mr-2" type="submit">Generate...</.button>
-          <.link_button
-            href={"https://ftc-scoring.firstinspires.org/region/#{String.upcase(@region.code)}/request/batch?cmpYear=#{@region.current_season + 1}"}
-            style="secondary"
-            target="blank"
-          >
-            Upload
-            <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
-          </.link_button>
         </p>
       </form>
     </.card>
