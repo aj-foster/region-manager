@@ -127,7 +127,7 @@ defmodule RMWeb.EventLive.Awards do
             |> Map.put(:region, region)
             |> Map.update!(:videos, &sort_videos/1)
 
-          assign(socket, event: event, page_title: event.name)
+          assign(socket, event: event, page_title: "#{event.name} Awards")
         else
           socket
           |> put_flash(:error, "Event not found")

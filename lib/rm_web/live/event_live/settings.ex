@@ -83,7 +83,7 @@ defmodule RMWeb.EventLive.Settings do
             RM.Repo.preload(event, proposal: :attachments, registrations: :team)
             |> Map.put(:region, region)
 
-          assign(socket, event: event, page_title: event.name)
+          assign(socket, event: event, page_title: "#{event.name} Settings")
         else
           socket
           |> put_flash(:error, "Event not found")

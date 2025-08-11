@@ -17,7 +17,12 @@ defmodule RMWeb.LeagueLive.Settings do
       |> registration_settings_form()
       |> assign_first_league()
       |> assign_teams()
-      |> assign(edit_league: false, local_league: league, remove_user: nil)
+      |> assign(
+        edit_league: false,
+        local_league: league,
+        page_title: "#{league.name} League Settings",
+        remove_user: nil
+      )
       |> ok()
     end
   end

@@ -13,6 +13,7 @@ defmodule RMWeb.ProposalLive.Index do
       socket
       |> assign_batches()
       |> assign_proposals()
+      |> assign(page_title: "Event Proposals")
       |> ok()
     end
   end

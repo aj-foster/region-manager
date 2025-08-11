@@ -24,7 +24,7 @@ defmodule RMWeb.LeagueLive.Show do
       end
 
     socket
-    |> assign(league: league)
+    |> assign(league: league, page_title: "#{league.name} League")
     |> ok()
   end
 end

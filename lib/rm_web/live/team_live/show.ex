@@ -33,7 +33,7 @@ defmodule RMWeb.TeamLive.Show do
              lc1: Enum.find(team.user_assignments, &(&1.relationship == :lc1)),
              lc2: Enum.find(team.user_assignments, &(&1.relationship == :lc2)),
              team: team,
-             page_title: team.name
+             page_title: "#{team.name} (Team ##{team.number})"
            )}
 
         {:error, :team, :not_found} ->
@@ -51,7 +51,13 @@ defmodule RMWeb.TeamLive.Show do
              preload: [:league]
            ) do
         {:ok, team} ->
-          {:cont, assign(socket, lc1: nil, lc2: nil, team: team, page_title: team.name_short)}
+          {:cont,
+           assign(socket,
+             lc1: nil,
+             lc2: nil,
+             team: team,
+             page_title: "#{team.name_short} (Team ##{team.team_number})"
+           )}
 
         {:error, :team, :not_found} ->
           socket =

@@ -73,7 +73,7 @@ defmodule RMWeb.EventLive.Registration do
             )
             |> Map.put(:region, region)
 
-          assign(socket, event: event, page_title: event.name)
+          assign(socket, event: event, page_title: "#{event.name} Registration")
         else
           socket
           |> put_flash(:error, "Event not found")

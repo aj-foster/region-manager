@@ -20,6 +20,12 @@ defmodule RMWeb.SeasonLive.Index do
   defp assign_seasons(socket) do
     current = RM.System.current_season()
     seasons = RM.FIRST.list_seasons() |> Enum.reverse()
-    assign(socket, current_season: current, seasons: seasons, seasons_count: length(seasons))
+
+    assign(socket,
+      current_season: current,
+      page_title: "Choose a Season",
+      seasons: seasons,
+      seasons_count: length(seasons)
+    )
   end
 end

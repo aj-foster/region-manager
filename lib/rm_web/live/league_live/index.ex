@@ -139,6 +139,7 @@ defmodule RMWeb.LeagueLive.Index do
           |> Enum.split_with(&is_nil(&1.removed_at))
 
         assign(socket,
+          page_title: "#{region.name} Leagues",
           hidden_leagues: hidden_leagues,
           hidden_leagues_count: length(hidden_leagues),
           leagues: leagues,
@@ -154,6 +155,7 @@ defmodule RMWeb.LeagueLive.Index do
           |> Enum.sort(RM.FIRST.League)
 
         assign(socket,
+          page_title: "#{region.name} Leagues",
           hidden_leagues: [],
           hidden_leagues_count: 0,
           leagues: leagues,
@@ -168,6 +170,7 @@ defmodule RMWeb.LeagueLive.Index do
           |> Enum.sort(RM.FIRST.League)
 
         assign(socket,
+          page_title: "#{region.name} Leagues",
           hidden_leagues: [],
           hidden_leagues_count: 0,
           leagues: leagues,
