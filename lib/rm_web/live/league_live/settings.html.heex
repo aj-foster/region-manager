@@ -59,11 +59,11 @@
     <.table class="mb-4">
       <:row title="Name">
         <div class="flex gap-4 items-center">
-          <div class="grow">{@region.name} {@local_league.name} League</div>
+          <div class="grow"><strong>{@local_league.name}</strong> League</div>
           <button
             class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
             id="copy-league-name"
-            data-copy={"#{@region.name} #{@local_league.name} League"}
+            data-copy={@local_league.name}
             phx-click={copy("#copy-league-name")}
             title="Copy to Clipboard"
           >
