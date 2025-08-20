@@ -101,7 +101,6 @@
           </button>
         </div>
       </:row>
-      <:row title="Style">{if(@local_league.remote, do: "Remote", else: "Traditional")}</:row>
     </.table>
 
     <p class="flex flex-col gap-4 items-start justify-end text-sm sm:flex-row">
@@ -159,15 +158,6 @@
         label="Location"
         required
         type="textarea"
-        wrapper="mb-4"
-      />
-
-      <.switch
-        explanation="Remote leagues can only have remote events"
-        field={@edit_league_form[:remote]}
-        info_modal="league-edit-style-modal"
-        label="Remote League"
-        type="checkbox"
         wrapper="mb-4"
       />
 
@@ -412,10 +402,6 @@
         If the league isn't for FTC, you're in the wrong place!
       </li>
       <li>
-        <strong>Don't include remote.</strong>
-        Base the code on other information unless it is your region's only remote league and the name of the league is just "Remote".
-      </li>
-      <li>
         <strong>Avoid numbers.</strong>
         While they are allowed, avoid numbers unless necessary for uniqueness.
       </li>
@@ -425,32 +411,6 @@
       League codes will appear in event codes to help identify related league events. They will appear between the region code and the event type identifier. For example, the first meet in a New Hampshire (<span class="font-mono text-orange-600">USNH</span>) league with code
       <span class="font-mono text-orange-600">EX</span>
       will have event code <span class="font-mono text-orange-600">USNHEXM1</span>, and that league's tournament will have event code <span class="font-mono text-orange-600">USNHEXLT</span>.
-    </p>
-  </div>
-</.modal>
-
-<.modal id="league-edit-style-modal">
-  <.title class="mb-4" flush>About League Style</.title>
-
-  <div class="text-sm">
-    <p class="italic mb-4">The following information was provided by <em>FIRST</em>:</p>
-
-    <p class="mb-4">
-      Leagues are either "traditional" or "remote". Remote and traditional rankings are not compatible. Leagues of different styles will not share rankings. For example, matches from a remote meet will not contribute towards a team's ranking at a traditional or hybrid league tournament.
-    </p>
-    <ul class="list-disc pl-8 mb-4">
-      <li>
-        <strong>Traditional League:</strong>
-        Can only have traditional meets. Can have a traditional or hybrid league tournament.
-      </li>
-      <li>
-        <strong>Remote League:</strong>
-        Can only have remote meets. Can only have a remote league tournament.
-      </li>
-    </ul>
-
-    <p>
-      Child leagues must match the style of their parent league.
     </p>
   </div>
 </.modal>

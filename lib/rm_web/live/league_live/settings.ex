@@ -271,7 +271,7 @@ defmodule RMWeb.LeagueLive.Settings do
         if new_league.code != league.code do
           socket
           |> put_flash(:info, "League updated successfully")
-          |> push_navigate(to: url_for([season, region, new_league]), replace: true)
+          |> push_navigate(to: url_for([season, region, new_league, :settings]), replace: true)
         else
           league = RM.Repo.preload(new_league, [users: [:profile]], force: true)
 
