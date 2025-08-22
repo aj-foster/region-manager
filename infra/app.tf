@@ -43,6 +43,7 @@ resource "digitalocean_app" "this" {
       http_port          = 4000
 
       image {
+        registry      = "aj-foster"
         registry_type = "DOCR"
         repository    = "ftcregion"
         tag           = "latest"
