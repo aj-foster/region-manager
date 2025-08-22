@@ -6,6 +6,14 @@ resource "aws_ses_domain_identity" "domain" {
   domain = var.domain
 }
 
+resource "cloudflare_dns_record" "ses_verification" {
+  zone_id = var.cloudflare_zone_id
+  name    = "_amazonses.${var.domain}"
+  ttl     = 1
+  type    = "TXT"
+  content = "\"${aws_ses_domain_identity.domain.verification_token}\""
+}
+
 resource "digitalocean_record" "ses_verification" {
   count = var.create_do_records ? 1 : 0
 
@@ -27,6 +35,16 @@ resource "aws_ses_domain_identity_verification" "ses_verification" {
 
 resource "aws_ses_domain_dkim" "this" {
   domain = var.domain
+}
+
+resource "cloudflare_dns_record" "dkim" {
+  count = var.create_cf_records ? 3 : 0
+
+  zone_id = var.cloudflare_zone_id
+  name    = "${element(aws_ses_domain_dkim.this.dkim_tokens, count.index)}._domainkey.${var.domain}"
+  ttl     = 1
+  type    = "CNAME"
+  content = "${element(aws_ses_domain_dkim.this.dkim_tokens, count.index)}.dkim.amazonses.com"
 }
 
 resource "digitalocean_record" "dkim" {
