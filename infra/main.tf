@@ -9,10 +9,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "~> 5"
-    }
     digitalocean = {
       source  = "digitalocean/digitalocean"
       version = "~> 2.0"
@@ -26,12 +22,6 @@ terraform {
 
 # Hostname, such as "assets.ftcregion.com"
 variable "rm_asset_host" {}
-
-# Cloudflare account ID
-variable "rm_cloudflare_account" {}
-
-# Cloudflare API token with permissions to manage DNS records
-variable "rm_cloudflare_api_token" { sensitive = true }
 
 # Full contents of the `.crt` file supplied by DigitalOcean when creating a managed database
 variable "rm_database_cacert" { sensitive = true }
@@ -87,14 +77,6 @@ provider "aws" {
 data "aws_caller_identity" "this" {}
 locals {
   aws_account_id = data.aws_caller_identity.this.account_id
-}
-
-#
-# Cloudflare
-#
-
-provider "cloudflare" {
-  api_token = var.rm_cloudflare_api_token
 }
 
 #

@@ -14,22 +14,3 @@ module "do_mx_google" {
   # Provided by Google when adding a domain to Google Workspace
   verification = "qRA_wnz18-92Ek_-eu32h2hPGTH3PPZvbo9uzUdjKGA"
 }
-
-# Cloudflare DNS records
-
-resource "cloudflare_zone" "this" {
-  account = {
-    id = var.rm_cloudflare_account
-  }
-  name = var.domain
-  type = "full"
-}
-
-module "cf_mx_google" {
-  source  = "./cf_mx_google"
-  zone_id = cloudflare_zone.this.id
-  domain  = var.domain
-
-  # Provided by Google when adding a domain to Google Workspace
-  verification = "qRA_wnz18-92Ek_-eu32h2hPGTH3PPZvbo9uzUdjKGA"
-}

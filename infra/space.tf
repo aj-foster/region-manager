@@ -7,15 +7,6 @@ resource "digitalocean_spaces_bucket" "assets" {
   region = "nyc3"
 }
 
-resource "cloudflare_dns_record" "assets" {
-  zone_id = cloudflare_zone.this.id
-  name    = "assets.ftcregion.com"
-  type    = "CNAME"
-  ttl     = 1
-  proxied = true
-  content = "ftcregion.nyc3.cdn.digitaloceanspaces.com"
-}
-
 resource "digitalocean_record" "assets" {
   domain = digitalocean_domain.this.name
   name   = "assets"

@@ -6,12 +6,11 @@
 module "az_ses" {
   source = "./az_ses"
 
-  domain             = var.domain
-  email              = "no-reply@${var.domain}"
-  group              = "ftcregion"
-  create_do_records  = true
-  sender_ips         = []
-  cloudflare_zone_id = cloudflare_zone.this.id
+  domain            = var.domain
+  email             = "no-reply@${var.domain}"
+  group             = "ftcregion"
+  create_do_records = true
+  sender_ips        = []
 }
 
 #

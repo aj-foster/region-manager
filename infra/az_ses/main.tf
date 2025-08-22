@@ -15,16 +15,6 @@ variable "group" {
   default     = "global"
 }
 
-variable "create_cf_records" {
-  description = "Whether to create a Cloudflare DNS record for domain verification"
-  default     = false
-}
-
-variable "cloudflare_zone_id" {
-  description = "Cloudflare zone ID for the domain"
-  default     = ""
-}
-
 variable "create_do_records" {
   description = "Whether to create a DigitalOcean domain record for domain verification"
   default     = false
@@ -63,10 +53,6 @@ terraform {
   required_providers {
     aws = {
       source = "hashicorp/aws"
-    }
-    cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "~> 5"
     }
     digitalocean = {
       source = "digitalocean/digitalocean"
