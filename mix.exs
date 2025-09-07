@@ -34,6 +34,7 @@ defmodule RM.MixProject do
   defp deps do
     [
       {:bandit, ">= 0.0.0"},
+      {:castore, "~> 1.0"},
       {:dns_cluster, "~> 0.2.0"},
       {:ecto_sql, "~> 3.10"},
       {:elixlsx, "~> 0.6.0"},
