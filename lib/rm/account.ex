@@ -53,6 +53,10 @@ defmodule RM.Account do
     Identity.create_email_and_login(params, opts)
   end
 
+  #
+  # Emails
+  #
+
   @doc """
   Confirm and email address by its confirmation token and relink coaches with that email
   """
@@ -84,6 +88,63 @@ defmodule RM.Account do
 
       :ok
     end
+  end
+
+  @doc """
+  Mark an email address as bounced or having received a complaint
+  """
+  @spec mark_email_undeliverable(String.t(), :complaint | :permanent_bounce | :temporary_bounce) ::
+          :ok
+  def mark_email_undeliverable(email, :complaint) do
+    now = DateTime.utc_now()
+
+    %RM.Account.Email{
+      email: email,
+      complained_at: now
+    }
+    |> Repo.insert(
+      on_conflict: [
+        set: [complained_at: now]
+      ],
+      conflict_target: [:email]
+    )
+  end
+
+  def mark_email_undeliverable(email, :permanent_bounce) do
+    now = DateTime.utc_now()
+
+    %RM.Account.Email{
+      email: email,
+      bounce_count: 1,
+      first_bounced_at: now,
+      last_bounced_at: now,
+      permanently_bounced_at: now
+    }
+    |> Repo.insert(
+      on_conflict: [
+        set: [last_bounced_at: now, permanently_bounced_at: now],
+        inc: [bounce_count: 1]
+      ],
+      conflict_target: [:email]
+    )
+  end
+
+  def mark_email_undeliverable(email, :temporary_bounce) do
+    now = DateTime.utc_now()
+
+    %RM.Account.Email{
+      email: email,
+      bounce_count: 1,
+      first_bounced_at: now,
+      last_bounced_at: now
+    }
+    |> Repo.insert(
+      on_conflict: [
+        set: [last_bounced_at: now],
+        inc: [bounce_count: 1]
+      ],
+      conflict_target: [:email]
+    )
   end
 
   @doc """

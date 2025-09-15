@@ -11,9 +11,64 @@ defmodule RMWeb.SESController do
 
   def delivery(conn, params) do
     with :ok <- verify_message(params),
-         :ok <- handle_management_messages(params) do
+         :ok <- handle_management_messages(params),
+         :ok <- handle_notifications(params) do
       send_resp(conn, :ok, "")
     end
+  end
+
+  @spec handle_notifications(map) :: :ok | {:error, atom, String.t()}
+  defp handle_notifications(%{"Type" => "Notification", "Message" => message}) do
+    case JSON.decode(message) do
+      {:ok, %{"notificationType" => "AmazonSnsSubscriptionSucceeded", "message" => message}} ->
+        Logger.info("[SES] Subscription Succeeded: #{message}")
+        :ok
+
+      {:ok, %{"notificationType" => "Bounce", "bounce" => bounce}} ->
+        handle_bounce(bounce)
+
+      {:ok, %{"notificationType" => "Complaint"}} ->
+        # We don't currently handle complaints
+        :ok
+
+      {:ok, %{"notificationType" => other} = message} ->
+        Logger.warning("[SES] Ignoring unknown notification type: #{other}")
+        Logger.info("[SES] Ignored message: #{inspect(message)}")
+        :ok
+
+      {:ok, _} ->
+        Logger.info("[SES] Ignoring unknown message format")
+        Logger.info("[SES] Ignored message: #{inspect(message)}")
+        :ok
+
+      {:error, reason} ->
+        Logger.error("[SES] Failed to decode notification message: #{inspect(reason)}")
+        Logger.info("[SES] Failed message: #{inspect(message)}")
+        {:error, :bad_request, "Failed to decode notification message: #{inspect(reason)}"}
+    end
+  end
+
+  defp handle_notifications(_), do: :ok
+
+  @spec handle_bounce(map) :: :ok
+  defp handle_bounce(%{"bouncedRecipients" => recipients, "bounceType" => "Permanent"}) do
+    for recipient <- recipients do
+      email = Map.fetch!(recipient, "emailAddress")
+      Logger.info("[SES] Marking email as permanently bounced: #{email}")
+      RM.Account.mark_email_undeliverable(email, :permanent_bounce)
+    end
+
+    :ok
+  end
+
+  defp handle_bounce(%{"bouncedRecipients" => recipients, "bounceType" => "Temporary"}) do
+    for recipient <- recipients do
+      email = Map.fetch!(recipient, "emailAddress")
+      Logger.info("[SES] Marking email as temporarily bounced: #{email}")
+      RM.Account.mark_email_undeliverable(email, :temporary_bounce)
+    end
+
+    :ok
   end
 
   #
@@ -210,9 +265,11 @@ defmodule RMWeb.SESController do
         {:ignore, "Subscription confirmation; not a notification"}
 
       {:ok, %Req.Response{status: status}} when status in 400..599 ->
+        Logger.warning("[SES] Failed to confirm subscription: HTTP #{status}")
         {:error, :bad_request, "Failed to confirm subscription: HTTP #{status}"}
 
       {:error, reason} ->
+        Logger.warning("[SES] Failed to confirm subscription: #{inspect(reason)}")
         {:error, :internal_server_error, "Failed to confirm subscription: #{inspect(reason)}"}
     end
   end
