@@ -145,9 +145,9 @@ defmodule RMWeb.TeamLive.Show do
 
   @spec league_options([RM.Local.League.t()]) :: [{String.t(), String.t()}]
   defp league_options(leagues) do
-    Enum.map(leagues, fn league ->
-      {league.name, league.id}
-    end)
+    leagues
+    |> Enum.sort_by(& &1.name)
+    |> Enum.map(fn league -> {league.name, league.id} end)
     |> List.insert_at(0, {"No League Assignment", ""})
   end
 
