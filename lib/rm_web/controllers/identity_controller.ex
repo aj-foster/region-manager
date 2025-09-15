@@ -16,7 +16,7 @@ defmodule RMWeb.IdentityController do
 
   @spec create_user(Conn.t(), Conn.params()) :: Conn.t()
   def create_user(conn, %{"user" => user_params}) do
-    if Email.known_email?(user_params["email"]) do
+    if Email.known_address?(user_params["email"]) do
       token_url = fn token -> Identity.Phoenix.Util.url_for(conn, :confirm_email, token) end
 
       case Account.create_user(user_params, token_url: token_url) do
