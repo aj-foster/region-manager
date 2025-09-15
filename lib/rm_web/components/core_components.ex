@@ -294,7 +294,7 @@ defmodule RMWeb.CoreComponents do
 
   def top_nav(assigns) do
     ~H"""
-    <div class={["flex font-title italic small-caps", @class]}>
+    <div class={["flex font-title italic overflow-x-auto small-caps", @class]}>
       <div class="border-b border-gray-400 w-4"></div>
       {render_slot(@inner_block)}
       <div class="border-b border-gray-400 grow"></div>
