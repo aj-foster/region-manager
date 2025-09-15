@@ -1,4 +1,4 @@
-defmodule RM.Account.Email do
+defmodule RM.Email.Address do
   @moduledoc """
   Record of an email address known to Region Manager
 
@@ -29,7 +29,7 @@ defmodule RM.Account.Email do
         }
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  schema "rm_emails" do
+  schema "email_addresses" do
     field :email, :string
     # Generated column (read-only)
     field :sendable, :boolean, read_after_writes: true

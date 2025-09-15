@@ -90,98 +90,6 @@ defmodule RM.Account do
     end
   end
 
-  @doc """
-  Mark an email address as bounced or having received a complaint
-  """
-  @spec mark_email_undeliverable(
-          String.t(),
-          :complaint | :permanent_bounce | :temporary_bounce | :unsubscribe
-        ) :: :ok
-  def mark_email_undeliverable(email, :complaint) do
-    now = DateTime.utc_now()
-
-    %RM.Account.Email{
-      email: email,
-      complained_at: now
-    }
-    |> Repo.insert(
-      on_conflict: [
-        set: [complained_at: now]
-      ],
-      conflict_target: [:email]
-    )
-  end
-
-  def mark_email_undeliverable(email, :permanent_bounce) do
-    now = DateTime.utc_now()
-
-    %RM.Account.Email{
-      email: email,
-      bounce_count: 1,
-      first_bounced_at: now,
-      last_bounced_at: now,
-      permanently_bounced_at: now
-    }
-    |> Repo.insert(
-      on_conflict: [
-        set: [last_bounced_at: now, permanently_bounced_at: now],
-        inc: [bounce_count: 1]
-      ],
-      conflict_target: [:email]
-    )
-  end
-
-  def mark_email_undeliverable(email, :temporary_bounce) do
-    now = DateTime.utc_now()
-
-    %RM.Account.Email{
-      email: email,
-      bounce_count: 1,
-      first_bounced_at: now,
-      last_bounced_at: now
-    }
-    |> Repo.insert(
-      on_conflict: [
-        set: [last_bounced_at: now],
-        inc: [bounce_count: 1]
-      ],
-      conflict_target: [:email]
-    )
-  end
-
-  def mark_email_undeliverable(email, :unsubscribe) do
-    now = DateTime.utc_now()
-
-    %RM.Account.Email{
-      email: email,
-      unsubscribed_at: now
-    }
-    |> Repo.insert(
-      on_conflict: [
-        set: [unsubscribed_at: now]
-      ],
-      conflict_target: [:email]
-    )
-  end
-
-  @doc """
-  Check if the given email address is known to Region Manager
-
-  This check was added due to a large number of fake sign-ups that sent confirmation emails to
-  unsuspecting accounts.
-  """
-  @spec known_email?(nil) :: false
-  @spec known_email?(String.t()) :: boolean
-  def known_email?(nil), do: false
-
-  def known_email?(email) do
-    email
-    |> RM.Account.Email.by_email_query()
-    |> Repo.one()
-    |> is_nil()
-    |> Kernel.not()
-  end
-
   #
   # League Users
   #
@@ -195,7 +103,7 @@ defmodule RM.Account do
     changeset = League.create_changeset(league, params)
 
     with {:ok, assignment} <- Repo.insert(changeset) do
-      RM.Account.Email.new(assignment.email)
+      RM.Email.Address.new(assignment.email)
       |> Repo.insert(on_conflict: :nothing, conflict_target: [:email])
 
       League.user_update_by_email_query(assignment.email)

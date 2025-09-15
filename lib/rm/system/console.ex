@@ -7,7 +7,7 @@ defmodule RM.System.Console do
     |> String.split(~r/\s+/, trim: true)
     |> Enum.uniq()
     |> Enum.each(fn address ->
-      %RM.Account.Email{email: address}
+      %RM.Email.Address{email: address}
       |> RM.Repo.insert(conflict_target: :email, on_conflict: :nothing)
     end)
   end
@@ -18,7 +18,7 @@ defmodule RM.System.Console do
     |> String.split(~r/\s+/, trim: true)
     |> Enum.uniq()
     |> Enum.each(fn address ->
-      RM.Account.mark_email_undeliverable(address, :permanent_bounce)
+      RM.Email.mark_email_undeliverable(address, :permanent_bounce)
     end)
   end
 
@@ -28,7 +28,7 @@ defmodule RM.System.Console do
     |> String.split(~r/\s+/, trim: true)
     |> Enum.uniq()
     |> Enum.each(fn address ->
-      RM.Account.mark_email_undeliverable(address, :unsubscribe)
+      RM.Email.mark_email_undeliverable(address, :unsubscribe)
     end)
   end
 end

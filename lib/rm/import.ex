@@ -152,9 +152,9 @@ defmodule RM.Import do
       user_teams
       |> Enum.map(& &1.email)
       |> Enum.reject(&is_nil/1)
-      |> Account.Email.new()
+      |> RM.Email.Address.new()
 
-    Repo.insert_all(Account.Email, email_addresses,
+    Repo.insert_all(RM.Email.Address, email_addresses,
       on_conflict: :nothing,
       conflict_target: [:email]
     )

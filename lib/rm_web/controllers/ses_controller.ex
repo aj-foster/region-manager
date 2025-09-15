@@ -55,7 +55,7 @@ defmodule RMWeb.SESController do
     for recipient <- recipients do
       email = Map.fetch!(recipient, "emailAddress")
       Logger.info("[SES] Marking email as permanently bounced: #{email}")
-      RM.Account.mark_email_undeliverable(email, :permanent_bounce)
+      RM.Email.mark_email_undeliverable(email, :permanent_bounce)
     end
 
     :ok
@@ -65,7 +65,7 @@ defmodule RMWeb.SESController do
     for recipient <- recipients do
       email = Map.fetch!(recipient, "emailAddress")
       Logger.info("[SES] Marking email as temporarily bounced: #{email}")
-      RM.Account.mark_email_undeliverable(email, :temporary_bounce)
+      RM.Email.mark_email_undeliverable(email, :temporary_bounce)
     end
 
     :ok
