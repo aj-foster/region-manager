@@ -37,8 +37,12 @@ resource "aws_ses_email_identity" "email" {
 # Output Variables
 #
 
-output "domain_identity" {
-  value = aws_ses_domain_identity.domain.id
+output "domain_identity_arn" {
+  value = aws_ses_domain_identity.domain.arn
+}
+
+output "email_identity_arn" {
+  value = aws_ses_email_identity.email.arn
 }
 
 output "smtp_password" {

@@ -40,7 +40,7 @@ resource "aws_sns_topic" "delivery_notifications" {
         Condition = {
           StringEquals = {
             "AWS:SourceAccount" : "${local.aws_account_id}"
-            "AWS:SourceArn" : "arn:aws:ses:us-east-1:${local.aws_account_id}:identity/ftcregion.com"
+            "AWS:SourceArn" : "${module.az_ses.email_identity_arn}"
           }
         }
       }
@@ -72,7 +72,7 @@ resource "aws_sns_topic_subscription" "delivery_notifications" {
 resource "aws_ses_identity_notification_topic" "bounce" {
   topic_arn                = aws_sns_topic.delivery_notifications.arn
   notification_type        = "Bounce"
-  identity                 = module.az_ses.domain_identity
+  identity                 = module.az_ses.email_identity_arn
   include_original_headers = true
 
   depends_on = [aws_sns_topic_subscription.delivery_notifications]
@@ -81,7 +81,7 @@ resource "aws_ses_identity_notification_topic" "bounce" {
 resource "aws_ses_identity_notification_topic" "complaint" {
   topic_arn                = aws_sns_topic.delivery_notifications.arn
   notification_type        = "Complaint"
-  identity                 = module.az_ses.domain_identity
+  identity                 = module.az_ses.email_identity_arn
   include_original_headers = true
 
   depends_on = [aws_sns_topic_subscription.delivery_notifications]
