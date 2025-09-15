@@ -93,8 +93,10 @@ defmodule RM.Account do
   @doc """
   Mark an email address as bounced or having received a complaint
   """
-  @spec mark_email_undeliverable(String.t(), :complaint | :permanent_bounce | :temporary_bounce) ::
-          :ok
+  @spec mark_email_undeliverable(
+          String.t(),
+          :complaint | :permanent_bounce | :temporary_bounce | :unsubscribe
+        ) :: :ok
   def mark_email_undeliverable(email, :complaint) do
     now = DateTime.utc_now()
 
@@ -142,6 +144,21 @@ defmodule RM.Account do
       on_conflict: [
         set: [last_bounced_at: now],
         inc: [bounce_count: 1]
+      ],
+      conflict_target: [:email]
+    )
+  end
+
+  def mark_email_undeliverable(email, :unsubscribe) do
+    now = DateTime.utc_now()
+
+    %RM.Account.Email{
+      email: email,
+      unsubscribed_at: now
+    }
+    |> Repo.insert(
+      on_conflict: [
+        set: [unsubscribed_at: now]
       ],
       conflict_target: [:email]
     )
