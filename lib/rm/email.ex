@@ -3,6 +3,7 @@ defmodule RM.Email do
   Email-related functionality for Region Manager
   """
   alias RM.Email.Address
+  alias RM.Email.List
   alias RM.Repo
 
   #
@@ -99,5 +100,16 @@ defmodule RM.Email do
       ],
       conflict_target: [:email]
     )
+  end
+
+  #
+  # Lists
+  #
+
+  @doc "Create a new email list"
+  @spec create_list(map) :: {:ok, List.t()} | {:error, Ecto.Changeset.t(List.t())}
+  def create_list(params) do
+    List.create_changeset(params)
+    |> Repo.insert()
   end
 end
