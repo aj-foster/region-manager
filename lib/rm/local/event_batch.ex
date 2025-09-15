@@ -214,7 +214,7 @@ defmodule RM.Local.EventBatch do
   defp maybe_modify_date_start(proposal) do
     %EventProposal{date_start: date_start, date_end: date_end} = proposal
 
-    if Date.diff(date_end, date_start) == 6 do
+    if Date.diff(date_end, date_start) == 7 do
       %EventProposal{proposal | date_start: Date.add(date_start, 1)}
     else
       proposal
