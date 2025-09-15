@@ -22,16 +22,24 @@ defmodule RM.Account.Email do
           id: Ecto.UUID.t(),
           inserted_at: DateTime.t(),
           last_bounced_at: DateTime.t() | nil,
+          permanently_bounced_at: DateTime.t() | nil,
+          sendable: boolean,
+          unsubscribed_at: DateTime.t() | nil,
           updated_at: DateTime.t()
         }
 
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "rm_emails" do
     field :email, :string
+    # Generated column (read-only)
+    field :sendable, :boolean, read_after_writes: true
 
     field :bounce_count, :integer
+    field :complained_at, :utc_datetime_usec
     field :first_bounced_at, :utc_datetime_usec
     field :last_bounced_at, :utc_datetime_usec
+    field :permanently_bounced_at, :utc_datetime_usec
+    field :unsubscribed_at, :utc_datetime_usec
 
     timestamps type: :utc_datetime_usec
   end
