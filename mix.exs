@@ -62,7 +62,7 @@ defmodule RM.MixProject do
       {:req, "~> 0.5.10"},
       {:sweet_xml, "~> 0.7.4"},
       {:swoosh, "~> 1.3"},
-      {:tailwind, "~> 0.3.1", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.4.0", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:tzdata, "~> 1.1"},
