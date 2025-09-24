@@ -97,7 +97,9 @@
             <input
               checked={Enum.any?(@selected, &(&1.team.number == team.number))}
               class="absolute left-8 opacity-0 peer"
-              disabled={not info.eligible? or info.status != :unregistered}
+              disabled={
+                not info.eligible? or info.status != :unregistered or not @registration_open?
+              }
               id={"team-registration-select-#{team.number}"}
               name={"team-registration-select[#{team.number}]"}
               type="checkbox"
@@ -153,7 +155,7 @@
       </form>
       <p class="px-4 py-2 text-right">
         <.button
-          disabled={@selected_count == 0}
+          disabled={@selected_count == 0 or not @registration_open?}
           phx-click={show_modal("team-registration-confirm")}
         >
           Register {dumb_inflect("Team", @selected_count)}...

@@ -73,7 +73,11 @@ defmodule RMWeb.EventLive.Registration do
             )
             |> Map.put(:region, region)
 
-          assign(socket, event: event, page_title: "#{event.name} Registration")
+          assign(socket,
+            event: event,
+            page_title: "#{event.name} Registration",
+            registration_open?: Event.registration_open?(event)
+          )
         else
           socket
           |> put_flash(:error, "Event not found")
@@ -138,9 +142,13 @@ defmodule RMWeb.EventLive.Registration do
         end)
 
       selected_teams =
-        teams
-        |> Enum.filter(& &1.eligible?)
-        |> Enum.filter(&(&1.status == :unregistered))
+        if socket.assigns[:registration_open?] do
+          teams
+          |> Enum.filter(& &1.eligible?)
+          |> Enum.filter(&(&1.status == :unregistered))
+        else
+          []
+        end
 
       assign(socket,
         selected: selected_teams,
@@ -185,16 +193,21 @@ defmodule RMWeb.EventLive.Registration do
   @spec register_teams(Socket.t()) :: Socket.t()
   defp register_teams(socket) do
     event = socket.assigns[:event]
-    teams = Enum.map(socket.assigns[:selected], & &1.team)
-    user = socket.assigns[:current_user]
 
-    registrations =
-      RM.Local.create_event_registrations(event, teams, %{by: user, waitlisted: false})
+    if Event.registration_open?(event) do
+      teams = Enum.map(socket.assigns[:selected], & &1.team)
+      user = socket.assigns[:current_user]
 
-    if length(registrations) == length(teams) do
-      put_flash(socket, :info, "#{dumb_inflect("team", registrations)} registered successfully")
+      registrations =
+        RM.Local.create_event_registrations(event, teams, %{by: user, waitlisted: false})
+
+      if length(registrations) == length(teams) do
+        put_flash(socket, :info, "#{dumb_inflect("team", registrations)} registered successfully")
+      else
+        put_flash(socket, :error, "Not all teams were successfully registered; please try again")
+      end
     else
-      put_flash(socket, :error, "Not all teams were successfully registered; please try again")
+      put_flash(socket, :error, "Registration is closed for this event")
     end
   end
 
