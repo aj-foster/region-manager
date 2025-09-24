@@ -110,7 +110,7 @@
           explanation={"Registration will open at 00:01 local time on #{safe_subtract_date(@event.date_start, f[:open_days].value)}."}
           field={f[:open_days]}
           label={"How many days before #{format_date(@event.date_start, :date)} should registration open?"}
-          max="90"
+          max="180"
           min="2"
           step="1"
           type="number"
