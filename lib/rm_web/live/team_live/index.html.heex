@@ -243,6 +243,8 @@
   teams={[
     {"Active", @active_teams_count, @active_teams},
     {"Active and Intending to Return", @active_teams_count + @intend_to_return_teams_count,
-     Enum.sort(@active_teams ++ @intend_to_return_teams, RM.Local.Team)}
+     Enum.sort(@active_teams ++ @intend_to_return_teams, RM.Local.Team)},
+    {"All Historical", @active_teams_count + @inactive_teams_count,
+     Enum.sort(@active_teams ++ @inactive_teams, RM.Local.Team)}
   ]}
 />
