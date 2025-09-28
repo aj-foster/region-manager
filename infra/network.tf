@@ -18,6 +18,6 @@ resource "digitalocean_database_firewall" "app-db" {
 
   rule {
     type  = "ip_addr"
-    value = trimspace(data.http.local_ip_address.body)
+    value = trimspace(data.http.local_ip_address.response_body)
   }
 }
