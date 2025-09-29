@@ -51,7 +51,10 @@ defmodule RM.Account.Team do
         lc2_phone: lc2_phone,
         lc2_phone_alt: lc2_phone_alt,
         lc2_ypp: lc2_ypp,
-        lc2_ypp_reason: lc2_ypp_reason
+        lc2_ypp_reason: lc2_ypp_reason,
+        admin_email: admin_email,
+        admin_name: admin_name,
+        admin_phone: admin_phone
       }
     } = import_team
 
@@ -86,6 +89,17 @@ defmodule RM.Account.Team do
         phone: if(lc2_phone != "", do: lc2_phone),
         phone_alt: if(lc2_phone_alt != "", do: lc2_phone_alt),
         relationship: :lc2,
+        team_id: Map.fetch!(team_id_map, team_id),
+        updated_at: now,
+        user_id: nil
+      },
+      %__MODULE__{
+        email: if(admin_email != "", do: admin_email),
+        inserted_at: now,
+        name: if(admin_name != "", do: admin_name),
+        notices: %__MODULE__.Notices{},
+        phone: if(admin_phone != "", do: admin_phone),
+        relationship: :admin,
         team_id: Map.fetch!(team_id_map, team_id),
         updated_at: now,
         user_id: nil
