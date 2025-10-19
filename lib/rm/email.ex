@@ -29,6 +29,47 @@ defmodule RM.Email do
   end
 
   @doc """
+  Get an address record by the string address
+  """
+  @spec get_address(String.t()) :: Address.t() | nil
+  def get_address(address_string) do
+    address_string
+    |> Address.by_email_query()
+    |> Repo.one()
+  end
+
+  @doc """
+  Get an address record by the string address, returning a tagged tuple
+  """
+  @spec fetch_address(String.t()) :: {:ok, Address.t()} | :error
+  def fetch_address(address_string) do
+    case get_address(address_string) do
+      nil -> :error
+      address -> {:ok, address}
+    end
+  end
+
+  @doc """
+  Get an address record by its hashed ID
+  """
+  @spec get_address_by_hashed_id(String.t()) :: Address.t() | nil
+  def get_address_by_hashed_id(hashed_id) do
+    Address.by_hashed_id_query(hashed_id)
+    |> Repo.one()
+  end
+
+  @doc """
+  Get an address record by its hashed ID, returning a tagged tuple
+  """
+  @spec fetch_address_by_hashed_id(String.t()) :: {:ok, Address.t()} | :error
+  def fetch_address_by_hashed_id(hashed_id) do
+    case get_address_by_hashed_id(hashed_id) do
+      nil -> :error
+      address -> {:ok, address}
+    end
+  end
+
+  @doc """
   Mark an email address as bounced or having received a complaint
   """
   @spec mark_email_undeliverable(

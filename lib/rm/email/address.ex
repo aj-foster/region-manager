@@ -80,4 +80,13 @@ defmodule RM.Email.Address do
     from(__MODULE__, as: :email)
     |> where([email: e], e.email == ^email)
   end
+
+  @doc """
+  Query to find an email record by the address
+  """
+  @spec by_hashed_id_query(String.t()) :: Ecto.Query.t()
+  def by_hashed_id_query(hashed_id) do
+    from(__MODULE__, as: :email)
+    |> where([email: e], e.hashed_id == ^hashed_id)
+  end
 end
