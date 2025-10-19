@@ -31,8 +31,6 @@ defmodule RM.Email.Address do
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "email_addresses" do
     field :email, :string
-    # Generated column (read-only)
-    field :sendable, :boolean, read_after_writes: true
 
     field :bounce_count, :integer
     field :complained_at, :utc_datetime_usec
@@ -40,6 +38,10 @@ defmodule RM.Email.Address do
     field :last_bounced_at, :utc_datetime_usec
     field :permanently_bounced_at, :utc_datetime_usec
     field :unsubscribed_at, :utc_datetime_usec
+
+    # Generated columns (read-only)
+    field :hashed_id, :string, read_after_writes: true
+    field :sendable, :boolean, read_after_writes: true
 
     timestamps type: :utc_datetime_usec
   end
