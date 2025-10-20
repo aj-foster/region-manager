@@ -96,6 +96,14 @@ defmodule RMWeb.Router do
 
       live "/user/settings", UserLive.Settings
     end
+
+    live_session :unauthenticated,
+      on_mount: [
+        {Identity.LiveView, :fetch_identity},
+        {RMWeb.Live.Util, :preload_user}
+      ] do
+      live "/email/manage", EmailLive.Index
+    end
   end
 
   scope "/" do

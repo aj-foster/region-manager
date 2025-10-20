@@ -75,7 +75,7 @@ defmodule RM.Email do
   @spec mark_email_undeliverable(
           String.t(),
           :complaint | :permanent_bounce | :temporary_bounce | :unsubscribe
-        ) :: :ok
+        ) :: {:ok, Address.t()} | {:error, Ecto.Changeset.t(Address.t())}
   def mark_email_undeliverable(email, :complaint) do
     now = DateTime.utc_now()
 
@@ -87,7 +87,8 @@ defmodule RM.Email do
       on_conflict: [
         set: [complained_at: now]
       ],
-      conflict_target: [:email]
+      conflict_target: [:email],
+      returning: true
     )
   end
 
@@ -106,7 +107,8 @@ defmodule RM.Email do
         set: [last_bounced_at: now, permanently_bounced_at: now],
         inc: [bounce_count: 1]
       ],
-      conflict_target: [:email]
+      conflict_target: [:email],
+      returning: true
     )
   end
 
@@ -124,7 +126,8 @@ defmodule RM.Email do
         set: [last_bounced_at: now],
         inc: [bounce_count: 1]
       ],
-      conflict_target: [:email]
+      conflict_target: [:email],
+      returning: true
     )
   end
 
@@ -141,6 +144,17 @@ defmodule RM.Email do
       ],
       conflict_target: [:email]
     )
+  end
+
+  @doc """
+  Remove manual unsubscribe mark from an email address
+  """
+  @spec resubscribe_address(Address.t()) ::
+          {:ok, Address.t()} | {:error, Ecto.Changeset.t(Address.t())}
+  def resubscribe_address(address) do
+    address
+    |> Ecto.Changeset.change(unsubscribed_at: nil)
+    |> Repo.update()
   end
 
   #
