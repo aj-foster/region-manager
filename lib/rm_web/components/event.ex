@@ -1,5 +1,6 @@
 defmodule RMWeb.Components.Event do
   use RMWeb, :html
+  import RMWeb.Live.Util
 
   @doc """
   Venue information, incorporating both event and proposal data
@@ -48,13 +49,30 @@ defmodule RMWeb.Components.Event do
       <.table>
         <:row :if={@event.location.venue} title="Name">{@event.location.venue}</:row>
         <:row title="Address">
-          <div>
-            <span :if={@event.location.address} class="block">{@event.location.address}</span>
-            <span :if={@event.location.city}>{@event.location.city},</span>
-            <span :if={@event.location.state_province}>
-              {@event.location.state_province}<span :if={@postal_code}> <%= @postal_code %></span>,
-            </span>
-            <span>{@event.location.country || "Unknown Location"}</span>
+          <div class="flex gap-4 items-center">
+            <div class="grow">
+              <a
+                class="block no-underline hover:underline"
+                href={venue_address_link(@event, @postal_code)}
+              >
+                <span :if={@event.location.address} class="block">{@event.location.address}</span>
+                <span :if={@event.location.city}>{@event.location.city},</span>
+                <span :if={@event.location.state_province}>
+                  {@event.location.state_province}<span :if={@postal_code}> <%= @postal_code %></span>,
+                </span>
+                <span>{@event.location.country || "Unknown Location"}</span>
+              </a>
+            </div>
+
+            <button
+              class="leading-none p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+              id="copy-venue-address"
+              data-copy={venue_address_string(@event, @postal_code)}
+              phx-click={copy("#copy-venue-address")}
+              title="Copy to Clipboard"
+            >
+              <.icon name="hero-document-duplicate" />
+            </button>
           </div>
 
           <div :if={@editable}>
@@ -125,4 +143,24 @@ defmodule RMWeb.Components.Event do
   end
 
   defp venue_postal_code(_event), do: nil
+
+  @spec venue_address_string(RM.FIRST.Event.t(), String.t() | nil) :: String.t()
+  defp venue_address_string(event, postal_code) do
+    Enum.join([
+      if(event.location.address, do: event.location.address <> ", "),
+      if(event.location.city, do: event.location.city <> ", "),
+      if(event.location.state_province, do: event.location.state_province <> " "),
+      if(postal_code, do: postal_code <> ", "),
+      if(event.location.country, do: event.location.country)
+    ])
+  end
+
+  @spec venue_address_link(RM.FIRST.Event.t(), String.t() | nil) :: String.t()
+  defp venue_address_link(event, postal_code) do
+    query =
+      venue_address_string(event, postal_code)
+      |> URI.encode()
+
+    "https://maps.apple.com/maps?q=#{query}"
+  end
 end
