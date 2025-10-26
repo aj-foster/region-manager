@@ -6,7 +6,7 @@
 />
 
 <RMWeb.RegionLive.Util.region_nav
-  :if={is_nil(@local_league)}
+  :if={is_nil(@local_league) and is_nil(@first_league)}
   class="mb-8"
   season={@season}
   region={@region}
@@ -15,11 +15,11 @@
 />
 
 <RMWeb.LeagueLive.Util.league_nav
-  :if={@local_league}
+  :if={@local_league || @first_league}
   class="mb-8"
   season={@season}
   region={@region}
-  league={@local_league}
+  league={@local_league || @first_league}
   user={@current_user}
   view={@socket.view}
 />
