@@ -269,12 +269,6 @@ defmodule RM.Account.Auth do
       (present?(venue.league_id) and venue.league_id in league_ids_with_events(user))
   end
 
-  # Change whether the venue address is visible for a published event
-  def can?(%User{} = user, :venue_virtual_toggle, %Event{} = event) do
-    event.region_id in region_ids(user) or
-      (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
-  end
-
   #
   # Default
   #
