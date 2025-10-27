@@ -14,7 +14,11 @@ defmodule RMWeb.Components.Event do
     <.title>
       Venue Information
       <:action :if={not @event.settings.virtual}>
-        <.link_button navigate={venue_map_link(@event)} style="tertiary" target="blank">
+        <.link_button
+          href={venue_address_link(@event, @postal_code)}
+          style="tertiary"
+          target="blank"
+        >
           Map <.icon class="bottom-0.5 h-4 relative w-4" name="hero-arrow-top-right-on-square" />
         </.link_button>
       </:action>
@@ -35,6 +39,7 @@ defmodule RMWeb.Components.Event do
               <a
                 class="block no-underline hover:underline"
                 href={venue_address_link(@event, @postal_code)}
+                target="blank"
               >
                 <span :if={@event.location.address} class="block">{@event.location.address}</span>
                 <span :if={@event.location.city}>{@event.location.city},</span>
@@ -67,26 +72,6 @@ defmodule RMWeb.Components.Event do
       </.table>
     </.card>
     """
-  end
-
-  @spec venue_map_link(RM.FIRST.Event.t()) :: String.t()
-  defp venue_map_link(event) do
-    %RM.FIRST.Event{
-      location: %RM.FIRST.Event.Location{
-        address: address,
-        city: city,
-        country: country,
-        state_province: state_province,
-        venue: venue
-      }
-    } = event
-
-    query =
-      [venue, address, city, state_province, country]
-      |> Enum.reject(&(&1 in ["", nil]))
-      |> Enum.join(", ")
-
-    "https://www.google.com/maps/search/?api=1&#{URI.encode_query(query: query)}"
   end
 
   @spec venue_postal_code(RM.FIRST.Event.t()) :: String.t() | nil
