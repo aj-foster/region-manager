@@ -27,6 +27,13 @@
     phx-submit="event_settings_submit"
   >
     <.switch
+      explanation="Marking an event as virtual will hide the physical address and venue name from public view."
+      field={@event_settings_form[:virtual]}
+      label="Virtual Event"
+      wrapper="mb-4"
+    />
+
+    <.switch
       explanation={
         if @event.type in [:league_meet, :kickoff, :workshop, :demo, :volunteer],
           do: "Awards are unavailable for this type of event.",

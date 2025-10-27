@@ -63,10 +63,7 @@
   </div>
 </.card>
 
-<RMWeb.Components.Event.unified_venue
-  editable={can?(@current_user, :venue_virtual_toggle, @event)}
-  event={@event}
-/>
+<RMWeb.Components.Event.unified_venue event={@event} />
 
 <.title>Additional Information</.title>
 
