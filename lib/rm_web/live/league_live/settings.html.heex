@@ -295,16 +295,26 @@
               <% end %>
             </span>
 
-            <%= case assignment.permissions do %>
-              <% %{users: true} -> %>
+            <%= cond do %>
+              <% assignment.permissions.users -> %>
                 <.tag class="bg-emerald-100 border-emerald-300">All Permissions</.tag>
-              <% %{events: true, contact: true} -> %>
-                <.tag class="bg-orange-100 border-orange-300">Events & Contacts</.tag>
-              <% %{events: true, contact: false} -> %>
-                <.tag class="bg-orange-100 border-orange-300">Events Only</.tag>
-              <% %{events: false, contact: true} -> %>
-                <.tag class="bg-orange-100 border-orange-300">Contacts Only</.tag>
-              <% %{events: false, contact: false} -> %>
+              <% assignment.permissions.contact || assignment.permissions.email || assignment.permissions.events -> %>
+                <.tag
+                  :if={assignment.permissions.contact}
+                  class="bg-orange-100 border-orange-300"
+                >
+                  Contacts
+                </.tag>
+                <.tag :if={assignment.permissions.email} class="bg-orange-100 border-orange-300">
+                  Email
+                </.tag>
+                <.tag
+                  :if={assignment.permissions.events}
+                  class="bg-orange-100 border-orange-300"
+                >
+                  Events
+                </.tag>
+              <% :else -> %>
                 <.tag class="bg-rose-100 border-rose-300">No Permissions</.tag>
             <% end %>
           </p>
@@ -489,6 +499,17 @@
         explanation="Add additional users as league administrators"
         field={p[:users]}
         label="User can add other administrators"
+        wrapper="mb-4"
+      />
+      <.switch
+        disabled={Phoenix.HTML.Form.normalize_value("checkbox", p[:users].value)}
+        explanation="Manage email lists and send messages"
+        field={p[:email]}
+        label="User can send emails"
+        value={
+          Phoenix.HTML.Form.normalize_value("checkbox", p[:users].value) ||
+            Phoenix.HTML.Form.normalize_value("checkbox", p[:email].value)
+        }
         wrapper="mb-4"
       />
       <.switch

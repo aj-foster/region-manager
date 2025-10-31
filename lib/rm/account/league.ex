@@ -30,6 +30,7 @@ defmodule RM.Account.League do
 
     embeds_one :permissions, Permissions, on_replace: :update, primary_key: false do
       field :contact, :boolean, default: false
+      field :email, :boolean, default: false
       field :events, :boolean, default: false
       field :users, :boolean, default: false
     end
@@ -55,7 +56,7 @@ defmodule RM.Account.League do
           Changeset.t(%__MODULE__.Permissions{})
   defp permissions_changeset(permissions, params) do
     permissions
-    |> Changeset.cast(params, [:contact, :events, :users])
+    |> Changeset.cast(params, [:contact, :email, :events, :users])
     |> cascade_permissions()
   end
 
@@ -65,6 +66,7 @@ defmodule RM.Account.League do
     if Changeset.get_field(changeset, :users) do
       changeset
       |> Changeset.put_change(:contact, true)
+      |> Changeset.put_change(:email, true)
       |> Changeset.put_change(:events, true)
     else
       changeset
