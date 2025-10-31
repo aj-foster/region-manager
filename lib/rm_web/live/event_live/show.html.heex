@@ -41,7 +41,15 @@
       style="secondary"
       navigate={url_for([@season, @region, @local_league, @event.proposal])}
     >
-      See Proposal
+      View
+    </.link_button>
+    <.link_button
+      :if={@season == @region.current_season && can?(@current_user, :proposal_update, @event)}
+      class="whitespace-nowrap"
+      style="secondary"
+      navigate={url_for([@season, @region, @local_league, @event.proposal, :edit])}
+    >
+      Update
     </.link_button>
   </div>
   <div
@@ -86,6 +94,23 @@
           </a>
         </li>
       </ul>
+    </:row>
+
+    <:row
+      :if={
+        @season == @region.current_season &&
+          @event.proposal &&
+          can?(@current_user, :proposal_update, @event) &&
+          @event.proposal.attachments == []
+      }
+      title="Attachments"
+    >
+      <.link
+        class="text-orange-600 underline"
+        navigate={url_for([@season, @region, @local_league, @event.proposal, :edit])}
+      >
+        Upload...
+      </.link>
     </:row>
 
     <:row
