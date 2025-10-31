@@ -40,35 +40,13 @@ defmodule RM.Account.Auth do
   end
 
   #
-  # Leagues
+  # Event Registration Settings
   #
 
-  # Add league administrations
-  def can?(%User{} = user, :league_add_user, %Local.League{} = league) do
-    league.region_id in region_ids(user) or league.id in league_ids_with_users(user)
-  end
-
-  # Update default registration settings for a league
-  def can?(%User{} = user, :league_settings_update, %Local.League{} = league) do
-    league.region_id in region_ids(user) or league.id in league_ids_with_events(user)
-  end
-
-  # Sync leagues with FTC Events API
-  def can?(%User{} = user, :league_sync, %Region{id: region_id}) do
-    region_id in region_ids(user)
-  end
-
-  # Update information about published and unpublished leagues
-  def can?(%User{} = user, :league_update, %FIRST.League{} = league) do
-    league.region_id in region_ids(user)
-  end
-
-  def can?(%User{} = user, :league_update, %Region{} = region) do
-    region.id in region_ids(user)
-  end
-
-  def can?(%User{} = user, :league_update, %Local.League{} = league) do
-    league.region_id in region_ids(user)
+  # Update registration settings for a published event
+  def can?(%User{} = user, :registration_settings_update, %Event{} = event) do
+    event.region_id in region_ids(user) or
+      (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
   end
 
   #
@@ -149,13 +127,35 @@ defmodule RM.Account.Auth do
   end
 
   #
-  # Registration Settings
+  # Leagues
   #
 
-  # Update registration settings for a published event
-  def can?(%User{} = user, :registration_settings_update, %Event{} = event) do
-    event.region_id in region_ids(user) or
-      (present?(event.local_league_id) and event.local_league_id in league_ids_with_events(user))
+  # Add league administrations
+  def can?(%User{} = user, :league_add_user, %Local.League{} = league) do
+    league.region_id in region_ids(user) or league.id in league_ids_with_users(user)
+  end
+
+  # Update default registration settings for a league
+  def can?(%User{} = user, :league_settings_update, %Local.League{} = league) do
+    league.region_id in region_ids(user) or league.id in league_ids_with_events(user)
+  end
+
+  # Sync leagues with FTC Events API
+  def can?(%User{} = user, :league_sync, %Region{id: region_id}) do
+    region_id in region_ids(user)
+  end
+
+  # Update information about published and unpublished leagues
+  def can?(%User{} = user, :league_update, %FIRST.League{} = league) do
+    league.region_id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :league_update, %Region{} = region) do
+    region.id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :league_update, %Local.League{} = league) do
+    league.region_id in region_ids(user)
   end
 
   #
