@@ -46,9 +46,23 @@
     <:row title="Format">{String.capitalize(to_string(@proposal.format))}</:row>
   </.table>
 
-  <p class="text-sm">
-    This event has not yet been accepted and published by <em>FIRST</em>.
-  </p>
+  <div :if={is_nil(@proposal.first_event_id)}>
+    <p class="text-sm">
+      This event has not yet been accepted and published by <em>FIRST</em>.
+    </p>
+  </div>
+  <div :if={not is_nil(@proposal.first_event_id)} class="flex gap-2 items-center">
+    <p class="grow text-sm">
+      This event has been accepted and published by <em>FIRST</em>.
+    </p>
+    <.link_button
+      class="whitespace-nowrap"
+      style="secondary"
+      navigate={url_for([@season, @region, @local_league, @proposal.first_event])}
+    >
+      View
+    </.link_button>
+  </div>
 </.card>
 
 <.title>
