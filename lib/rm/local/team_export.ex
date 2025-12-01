@@ -208,24 +208,29 @@ defmodule RM.Local.TeamExport do
       "county" => county || "",
       "postal-code" => postal_code || "",
       "lc1-name" => lc1_name || "",
-      "lc1-email" => lc1_email || "",
-      "lc1-email-alt" => lc1_email_alt || "",
+      "lc1-email" => maybe_downcase(lc1_email) || "",
+      "lc1-email-alt" => maybe_downcase(lc1_email_alt) || "",
       "lc1-phone" => lc1_phone || "",
       "lc1-phone-alt" => lc1_phone_alt || "",
       "lc1-ypp-status" => if(lc1_ypp, do: "Passed", else: lc1_ypp_reason),
       "lc2-name" => lc2_name || "",
-      "lc2-email" => lc2_email || "",
-      "lc2-email-alt" => lc2_email_alt || "",
+      "lc2-email" => maybe_downcase(lc2_email) || "",
+      "lc2-email-alt" => maybe_downcase(lc2_email_alt) || "",
       "lc2-phone" => lc2_phone || "",
       "lc2-phone-alt" => lc2_phone_alt || "",
       "lc2-ypp-status" => if(lc2_ypp, do: "Passed", else: lc2_ypp_reason),
       "admin-name" => admin_name || "",
-      "admin-email" => admin_email || "",
+      "admin-email" => maybe_downcase(admin_email) || "",
       "admin-phone" => admin_phone || ""
     }
 
     Enum.map(fields, &Map.fetch!(values, &1))
   end
+
+  @spec maybe_downcase(nil) :: nil
+  @spec maybe_downcase(String.t()) :: String.t()
+  defp maybe_downcase(nil), do: nil
+  defp maybe_downcase(value) when is_binary(value), do: String.downcase(value)
 
   #
   # XLSX
