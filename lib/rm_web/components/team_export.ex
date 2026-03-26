@@ -190,6 +190,7 @@ defmodule RMWeb.Components.TeamExport do
     required: true,
     doc: "list of tuples containing a group label, count of teams, and the teams"
 
+  @impl true
   def render(assigns) do
     ~H"""
     <div>
