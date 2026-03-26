@@ -87,7 +87,7 @@ jobs:
           payload: |
             text: "Region Manager deployed: ${{ env.COMMIT_MESSAGE }} (${{ env.COMMIT_URL }})"
             blocks:
-              - type: "section",
+              - type: "section"
                 text:
                   type: "mrkdwn"
                   text: "*Region Manager* deployed: <${{ env.COMMIT_URL }}|${{ env.COMMIT_MESSAGE }}>"
