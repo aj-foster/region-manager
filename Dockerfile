@@ -1,13 +1,12 @@
 FROM hexpm/erlang:28.4.1-debian-trixie-20260316-slim
 
-ENV LC_ALL C.UTF-8
+ENV LC_ALL=C.UTF-8
 WORKDIR /srv
 
-RUN addgroup erlang && \
-    adduser \
-    --home /srv \
-    --ingroup erlang \
-    --disabled-password \
+RUN groupadd erlang && \
+    useradd \
+    --home-dir /srv \
+    --gid erlang \
     --no-create-home \
     erlang && \
     chown -R erlang:erlang /srv
