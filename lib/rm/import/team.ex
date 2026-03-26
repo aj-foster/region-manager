@@ -207,13 +207,13 @@ defmodule RM.Import.Team do
   Add a region ID to an existing team struct
   """
   @spec put_region(%__MODULE__{}, Ecto.UUID.t()) :: %__MODULE__{}
-  def put_region(team, region_id), do: %__MODULE__{team | region_id: region_id}
+  def put_region(%__MODULE__{} = team, region_id), do: %__MODULE__{team | region_id: region_id}
 
   @doc """
   Add an upload ID to an existing team struct
   """
   @spec put_upload(%__MODULE__{}, Ecto.UUID.t()) :: %__MODULE__{}
-  def put_upload(team, upload_id), do: %__MODULE__{team | upload_id: upload_id}
+  def put_upload(%__MODULE__{} = team, upload_id), do: %__MODULE__{team | upload_id: upload_id}
 
   #
   # Queries

@@ -111,7 +111,7 @@ defmodule RM.Local do
         EventSettings.changeset(%EventSettings{event: event}, params)
         |> Changeset.put_assoc(:event, event)
 
-      %Event{settings: settings} ->
+      %Event{settings: %EventSettings{} = settings} ->
         EventSettings.changeset(%EventSettings{settings | event: event}, params)
     end
   end
@@ -129,7 +129,7 @@ defmodule RM.Local do
         |> Changeset.put_assoc(:event, event)
         |> Repo.insert()
 
-      %Event{settings: settings} ->
+      %Event{settings: %EventSettings{} = settings} ->
         EventSettings.changeset(%EventSettings{settings | event: event}, params)
         |> Repo.update()
     end
@@ -153,7 +153,7 @@ defmodule RM.Local do
     |> Enum.sort(EventProposal)
     |> Enum.map(fn
       %EventProposal{region: %RM.FIRST.Region{}} = proposal -> proposal
-      proposal -> %EventProposal{proposal | region: region}
+      %EventProposal{} = proposal -> %EventProposal{proposal | region: region}
     end)
   end
 
@@ -363,7 +363,7 @@ defmodule RM.Local do
     |> Repo.all()
     |> Enum.map(fn
       %League{region: %RM.FIRST.Region{}} = league -> league
-      league -> %League{league | region: region}
+      %League{} = league -> %League{league | region: region}
     end)
   end
 

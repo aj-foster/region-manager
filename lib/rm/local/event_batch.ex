@@ -211,7 +211,7 @@ defmodule RM.Local.EventBatch do
 
   # VMS issue prevents scheduling volunteers on the 7th day of an event
   @spec maybe_modify_date_start(EventProposal.t()) :: EventProposal.t()
-  defp maybe_modify_date_start(proposal) do
+  defp maybe_modify_date_start(%EventProposal{} = proposal) do
     %EventProposal{date_start: date_start, date_end: date_end} = proposal
 
     if Date.diff(date_end, date_start) == 7 do

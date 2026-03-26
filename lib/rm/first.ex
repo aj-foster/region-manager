@@ -421,7 +421,7 @@ defmodule RM.FIRST do
     |> Repo.all()
     |> Enum.map(fn
       %League{region: %RM.FIRST.Region{}} = league -> league
-      league -> %League{league | region: region}
+      %League{} = league -> %League{league | region: region}
     end)
   end
 
@@ -502,7 +502,7 @@ defmodule RM.FIRST do
     |> Enum.filter(&is_nil(&1.division_code))
     |> Enum.map(fn
       %Event{region: %Region{}} = event -> event
-      event -> %Event{event | region: region}
+      %Event{} = event -> %Event{event | region: region}
     end)
     |> Enum.sort(Event)
   end
@@ -644,7 +644,7 @@ defmodule RM.FIRST do
     |> Repo.all()
     |> Enum.map(fn
       %Team{region: %RM.FIRST.Region{}} = team -> team
-      team -> %Team{team | region: region}
+      %Team{} = team -> %Team{team | region: region}
     end)
   end
 
