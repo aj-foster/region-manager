@@ -25,6 +25,18 @@ defmodule RM.Account.Auth do
   def can?(user, action, data \\ nil)
 
   #
+  # Email Lists
+  #
+
+  def can?(%User{} = user, :email_list_index, %Region{id: region_id}) do
+    region_id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :email_list_index, %Local.League{id: league_id, region_id: region_id}) do
+    region_id in region_ids(user) or league_id in league_ids_with_email(user)
+  end
+
+  #
   # Event Settings
   #
 
@@ -287,6 +299,13 @@ defmodule RM.Account.Auth do
   defp league_ids_with_contact(user) do
     user.league_assignments
     |> Enum.filter(& &1.permissions.contact)
+    |> Enum.map(& &1.league_id)
+  end
+
+  @spec league_ids_with_email(User.t()) :: [Ecto.UUID.t()]
+  defp league_ids_with_email(user) do
+    user.league_assignments
+    |> Enum.filter(& &1.permissions.email)
     |> Enum.map(& &1.league_id)
   end
 
