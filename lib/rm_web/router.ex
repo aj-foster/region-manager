@@ -48,7 +48,6 @@ defmodule RMWeb.Router do
         {RMWeb.Live.Util, :check_league}
       ] do
       live "/seasons", SeasonLive.Index
-      live "/s/new", SeasonLive.New
       live "/s/:season", SeasonLive.Show
       live "/s/:season/r/:region", RegionLive.Show
       live "/s/:season/r/:region/events", EventLive.Index
@@ -103,6 +102,18 @@ defmodule RMWeb.Router do
         {RMWeb.Live.Util, :preload_user}
       ] do
       live "/email/manage", EmailLive.Index
+    end
+
+    live_session :admin,
+      on_mount: [
+        {Identity.LiveView, :fetch_identity},
+        {RMWeb.Live.Util, :preload_user},
+        {RMWeb.Live.Util, :require_admin},
+        {RMWeb.Live.Util, :check_season},
+        {RMWeb.Live.Util, :check_region},
+        {RMWeb.Live.Util, :check_league}
+      ] do
+      live "/a/s/new", SeasonLive.New
     end
   end
 

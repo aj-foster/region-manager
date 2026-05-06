@@ -319,6 +319,22 @@ defmodule RMWeb.Live.Util do
     end
   end
 
+  # Must be called after :preload_user
+  def on_mount(:require_admin, _params, _session, socket) do
+    user = socket.assigns[:current_user]
+
+    if user && is_struct(user.admin, Account.Admin) do
+      {:cont, socket}
+    else
+      socket =
+        socket
+        |> LiveView.put_flash(:error, "You are not authorized to perform this action")
+        |> LiveView.redirect(to: ~p"/")
+
+      {:halt, socket}
+    end
+  end
+
   # Must be called after :setup_season has run
   def on_mount(:require_season, _params, _session, socket) do
     if socket.assigns[:season] do
