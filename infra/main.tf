@@ -35,6 +35,13 @@ variable "rm_ftc_events_api_key" { sensitive = true }
 # Username supplied by the FTC Events API developers
 variable "rm_ftc_events_api_user" { sensitive = true }
 
+# hCaptcha secret and site key for protecting forms with hCaptcha
+variable "rm_hcaptcha_secret_key" { sensitive = true }
+variable "rm_hcaptcha_site_key" { sensitive = true }
+
+# "ecto://username:password@host:port/database_name"
+variable "rm_keila_database_url" { sensitive = true }
+
 # Use `mix phx.gen.secret` in the root of this project to generate a secret
 variable "rm_secret_key_base" { sensitive = true }
 

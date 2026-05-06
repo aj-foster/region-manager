@@ -111,6 +111,27 @@ resource "digitalocean_app" "this" {
       }
 
       env {
+        key   = "HCAPTCHA_SECRET_KEY"
+        value = var.rm_hcaptcha_secret_key
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
+
+      env {
+        key   = "HCAPTCHA_SITE_KEY"
+        value = var.rm_hcaptcha_site_key
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
+
+      env {
+        key   = "KEILA_DATABASE_URL"
+        value = var.rm_keila_database_url
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
+
+      env {
         key   = "PHX_HOST"
         value = var.domain
         scope = "RUN_TIME"
