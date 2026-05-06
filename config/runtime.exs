@@ -60,12 +60,10 @@ if config_env() == :prod do
   # Endpoint
   #
 
-  secret_key_base =
-    System.get_env("SECRET_KEY_BASE") ||
-      raise """
-      environment variable SECRET_KEY_BASE is missing.
-      You can generate one by calling: mix phx.gen.secret
-      """
+  secret_key_base = System.fetch_env!("SECRET_KEY_BASE")
+
+  live_view_salt =
+    :crypto.hash(:sha384, secret_key_base <> "live_view_salt") |> Base.url_encode64()
 
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
@@ -76,7 +74,8 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: port
     ],
-    secret_key_base: secret_key_base
+    secret_key_base: secret_key_base,
+    live_view: [signing_salt: live_view_salt]
 
   config :rm, RMWeb.SESController,
     username: System.get_env("SNS_USERNAME"),
@@ -109,6 +108,62 @@ if config_env() == :prod do
     asset_host: System.get_env("ASSET_HOST", host),
     bucket: System.get_env("STORAGE_BUCKET", "ftcregion"),
     storage: Waffle.Storage.S3
+
+  #
+  # Keila
+  #
+
+  keila_database_url =
+    System.get_env("KEILA_DATABASE_URL") ||
+      raise """
+      environment variable KEILA_DATABASE_URL is missing.
+      For example: ecto://USER:PASS@HOST/DATABASE
+      """
+
+  config :keila, Keila.Repo,
+    url: keila_database_url,
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    socket_options: maybe_ipv6,
+    ssl: [
+      verify: :verify_peer,
+      cacerts: cacerts,
+      server_name_indication: :disable
+    ]
+
+  config :keila, Keila.Auth.Emails,
+    adapter: Swoosh.Adapters.SMTP,
+    relay: System.fetch_env!("SES_HOST"),
+    username: System.fetch_env!("SES_USER"),
+    password: System.fetch_env!("SES_PASS"),
+    hostname: System.fetch_env!("PHX_HOST"),
+    port: 465,
+    ssl: true,
+    sockopts: [
+      verify: :verify_peer,
+      cacertfile: CAStore.file_path(),
+      depth: 3,
+      server_name_indication: :disable,
+      middlebox_comp_mode: false
+    ],
+    tls: :never,
+    auth: :always,
+    retries: 1
+
+  config :keila, KeilaWeb.Captcha,
+    provider: :hcaptcha,
+    secret_key: System.get_env("HCAPTCHA_SECRET_KEY"),
+    site_key: System.get_env("HCAPTCHA_SITE_KEY")
+
+  hashid_salt = :crypto.hash(:sha256, secret_key_base <> "hashid_salt") |> Base.url_encode64()
+  config :keila, Keila.Id, salt: hashid_salt
+
+  config :keila,
+    registration_disabled: true,
+    sender_creation_disabled: true
+
+  config :keila, Keila.Accounts, credits_enabled: false
+  config :keila, :update_checks_enabled, false
+  config :keila, Keila.Mailings, enable_precedence_header: true
 end
 
 if File.exists?(Path.expand("runtime.secret.exs", __DIR__)) do

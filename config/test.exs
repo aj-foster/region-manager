@@ -35,3 +35,40 @@ config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+#
+# Keila
+#
+
+config :keila, Keila.Repo,
+  url:
+    "ecto://postgres:postgres@localhost:5432/rm_keila_test#{System.get_env("MIX_TEST_PARTITION")}",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  ownership_timeout: 60_000,
+  timeout: 60_000,
+  pool_size: 16
+
+config :keila, KeilaWeb.ContactsCsvExport, chunk_size: 3
+
+# Configure Swoosh
+config :keila, Keila.Mailer, adapter: Swoosh.Adapters.Test
+
+# Configure Argon2 for performance (not security)
+config :argon2_elixir, t_cost: 1, m_cost: 8
+
+# Configure Oban for testing
+config :keila, Oban, testing: :manual
+
+# Allow scheduling campaigns at utc_now
+config :keila, Keila.Mailings, min_campaign_schedule_offset: -10
+
+# Only use test and smtp Sender Adapters
+config :keila, Keila.Mailings.SenderAdapters,
+  adapters: [
+    Keila.Mailings.SenderAdapters.SMTP,
+    Keila.Mailings.SenderAdapters.SES,
+    Keila.TestSenderAdapter
+  ]
+
+# Disable sending quotas by default in testing
+config :keila, Keila.Accounts, credits_enabled: false
