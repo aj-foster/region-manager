@@ -34,16 +34,21 @@ defmodule RM.MixProject do
       {:ex_aws, "~> 2.5"},
       {:ex_aws_s3, "~> 2.5"},
       {:ex_machina, "~> 2.8", only: :test},
+      # Required by Keila.
+      {:fast_html, "~> 2.5"},
       {:finch, "~> 0.13"},
-      {:floki, ">= 0.30.0", only: :test},
+      # Normally only: :test, but keila requires it elsewhere.
+      {:floki, ">= 0.30.0"},
       {:gen_smtp, "~> 1.0"},
       {:hackney, "~> 1.20"},
       {:identity, github: "aj-foster/identity", branch: "main"},
       {:jason, "~> 1.2"},
+      {:keila, github: "pentacent/keila", ref: "main", runtime: false},
       {:nimble_csv, "~> 1.3.0"},
       {:nimble_totp, "~> 1.0"},
       {:oban, "~> 2.17"},
-      {:phoenix, "~> 1.8.0"},
+      # keila wants 1.7
+      {:phoenix, "~> 1.8.0", override: true},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_dashboard, "~> 0.8.2"},
