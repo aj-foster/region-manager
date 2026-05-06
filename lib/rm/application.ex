@@ -5,6 +5,7 @@ defmodule RM.Application do
   @impl true
   def start(_type, _args) do
     Oban.Telemetry.attach_default_logger(events: [:job, :notifier, :peer, :queue, :stager])
+    maybe_run_keila_migrations()
 
     children =
       [
@@ -15,7 +16,16 @@ defmodule RM.Application do
         {Phoenix.PubSub, name: RM.PubSub},
         {Finch, name: RM.Finch},
         RMWeb.Endpoint,
-        {Oban, Application.fetch_env!(:rm, Oban)}
+        {Oban, Application.fetch_env!(:rm, Oban)},
+
+        # Keila
+        Keila.Repo,
+        {Task.Supervisor, name: Keila.TaskSupervisor},
+        %{
+          id: Keila.Id.Cache,
+          start: {Agent, :start_link, [&Keila.Id.hashid_config/0, [name: Keila.Id.Cache]]}
+        },
+        {Keila.Mailings.RateLimiter, []}
       ] ++ tz_children()
 
     opts = [strategy: :one_for_one, name: RM.Supervisor]
@@ -32,5 +42,11 @@ defmodule RM.Application do
     defp tz_children, do: []
   else
     defp tz_children, do: [{Tz.UpdatePeriodically, [interval_in_days: 5]}]
+  end
+
+  defp maybe_run_keila_migrations do
+    unless Application.get_env(:keila, :skip_migrations) do
+      Keila.ReleaseTasks.init()
+    end
   end
 end
