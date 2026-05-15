@@ -26,7 +26,7 @@ defmodule RM.Application do
           start: {Agent, :start_link, [&Keila.Id.hashid_config/0, [name: Keila.Id.Cache]]}
         },
         {Keila.Mailings.RateLimiter, []}
-      ] ++ tz_children()
+      ] ++ tz_children() ++ keila_scheduler()
 
     opts = [strategy: :one_for_one, name: RM.Supervisor]
     Supervisor.start_link(children, opts)
@@ -39,8 +39,10 @@ defmodule RM.Application do
   end
 
   if Mix.env() == :test do
+    defp keila_scheduler, do: []
     defp tz_children, do: []
   else
+    defp keila_scheduler, do: [{Keila.Mailings.Scheduler, []}]
     defp tz_children, do: [{Tz.UpdatePeriodically, [interval_in_days: 5]}]
   end
 

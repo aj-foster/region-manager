@@ -52,7 +52,7 @@
   "hashids": {:hex, :hashids, "2.1.0", "aabbcc4f9fa0b460cc6ef629f5bcbc35e7e87b382fee79f9c50be40b86574288", [:mix], [], "hexpm", "172163b1642d415881ef1c6e1f1be12d4e92b0711d5bbbd8854f82a1ce32d60b"},
   "httpoison": {:hex, :httpoison, "1.8.2", "9eb9c63ae289296a544842ef816a85d881d4a31f518a0fec089aaa744beae290", [:mix], [{:hackney, "~> 1.17", [hex: :hackney, repo: "hexpm", optional: false]}], "hexpm", "2bb350d26972e30c96e2ca74a1aaf8293d61d0742ff17f01e0279fef11599921"},
   "kday": {:hex, :kday, "1.1.0", "64efac85279a12283eaaf3ad6f13001ca2dff943eda8c53288179775a8c057a0", [:mix], [{:ex_doc, "~> 0.21", [hex: :ex_doc, repo: "hexpm", optional: true]}], "hexpm", "69703055d63b8d5b260479266c78b0b3e66f7aecdd2022906cd9bf09892a266d"},
-  "keila": {:git, "https://github.com/pentacent/keila.git", "b62ff7367e9881497fd6db1cb4067fd5077760e4", [ref: "main"]},
+  "keila": {:git, "https://github.com/pentacent/keila.git", "39cb366e9792a1d63bed71306daff9b23938ef74", [ref: "v0.20.0"]},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], [], "hexpm", "69b09adddc4f74a40716ae54d140f93beb0fb8978d8636eaded0c31b6f099f16"},
   "mjml": {:hex, :mjml, "5.3.1", "ea00306c80d9e5b1824b00bad327e669dd89157bbc08d1ef07eee55fed5b8c5f", [:mix], [{:rustler, ">= 0.0.0", [hex: :rustler, repo: "hexpm", optional: true]}, {:rustler_precompiled, "~> 0.8.3", [hex: :rustler_precompiled, repo: "hexpm", optional: false]}], "hexpm", "e8878f1aabd162c21fc2ae588f6be015ed14dd98400ba9fc67d1dca1e6a10da5"},
   "nimble_ownership": {:hex, :nimble_ownership, "0.3.1", "99d5244672fafdfac89bfad3d3ab8f0d367603ce1dc4855f86a1c75008bce56f", [:mix], [], "hexpm", "4bf510adedff0449a1d6e200e43e57a814794c8b5b6439071274d248d272a549"},

@@ -41,8 +41,7 @@ config :phoenix, :plug_init_mode, :runtime
 #
 
 config :keila, Keila.Repo,
-  url:
-    "ecto://postgres:postgres@localhost:5432/rm_keila_test#{System.get_env("MIX_TEST_PARTITION")}",
+  url: "ecto://postgres:postgres@localhost:5432/rm_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   ownership_timeout: 60_000,
   timeout: 60_000,
