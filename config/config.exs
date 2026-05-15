@@ -56,7 +56,8 @@ config :rm, Oban,
      crontab: [
        {"30 4 * * *", RM.FIRST.RefreshJob},
        {"* * * * *", Keila.Mailings.DeliverScheduledCampaignsWorker},
-       {"* * * * *", Keila.Mailings.ScheduleWorker}
+       {"* * * * *", Keila.Mailings.CampaignRenderRescueWorker},
+       {"0 0 * * *", Keila.Mailings.MessagePruner}
      ],
      timezone: "America/New_York"},
     {Oban.Plugins.Lifeline, rescue_after: :timer.minutes(60)},
@@ -66,7 +67,9 @@ config :rm, Oban,
     default: 10,
     # Keila
     mailer: 50,
-    mailer_scheduler: 1
+    campaign_renderer: 3,
+    campaign_scheduler: 1,
+    system: 1
   ],
   repo: RM.Repo
 
@@ -100,7 +103,10 @@ config :keila, Keila.Id,
   alphabet: "abcdefghijkmnopqrstuvwxyz23456789ABCDEFGHJKLMNPQRSTUVWXYZ",
   min_len: 8
 
-config :keila, Keila.Mailings, min_campaign_schedule_offset: 300, enable_precedence_header: true
+config :keila, Keila.Mailings,
+  min_campaign_schedule_offset: 300,
+  enable_precedence_header: true,
+  message_retention_days: 30
 
 config :keila, Keila.Mailings.SenderAdapters,
   adapters: [],
