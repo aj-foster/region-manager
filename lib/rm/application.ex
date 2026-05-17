@@ -45,6 +45,7 @@ defmodule RM.Application do
   end
 
   @env Mix.env()
+  @dialyzer {:nowarn_function, [keila_scheduler: 0]}
   defp keila_scheduler do
     if @env == :test do
       []

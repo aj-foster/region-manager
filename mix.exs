@@ -11,7 +11,10 @@ defmodule RM.MixProject do
       aliases: aliases(),
       deps: deps(),
       releases: [rm: [steps: [:assemble, :tar]]],
-      listeners: listeners()
+      listeners: listeners(),
+      dialyzer: [
+        plt_add_apps: [:keila]
+      ]
     ]
   end
 
@@ -27,6 +30,7 @@ defmodule RM.MixProject do
       {:bandit, ">= 0.0.0"},
       {:castore, "~> 1.0"},
       {:dns_cluster, "~> 0.2.0"},
+      {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
       {:ecto_sql, "~> 3.10"},
       {:elixlsx, "~> 0.6.0"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
