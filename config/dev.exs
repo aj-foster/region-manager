@@ -46,7 +46,8 @@ config :keila, Keila.Repo,
   database: "rm_keila_dev",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  pool_size: 10,
+  log: false
 
 config :keila, Keila.Mailings.SenderAdapters,
   adapters: [],
@@ -54,3 +55,9 @@ config :keila, Keila.Mailings.SenderAdapters,
 
 config :keila, Keila.Mailer, adapter: Swoosh.Adapters.Local
 config :keila, Keila.Accounts, credits_enabled: true
+
+config :logger,
+  compile_time_purge_matching: [
+    [module: Keila.Mailings.RateLimiter, level_lower_than: :warning],
+    [module: Keila.Mailings.Scheduler, level_lower_than: :warning]
+  ]
