@@ -4,7 +4,8 @@ defmodule RM.Application do
 
   @impl true
   def start(_type, _args) do
-    Oban.Telemetry.attach_default_logger(events: [:job, :notifier, :peer, :queue, :stager])
+    # Disabled due to Keila cron job logs
+    # Oban.Telemetry.attach_default_logger(events: [:job, :notifier, :peer, :queue, :stager])
     maybe_run_keila_migrations()
 
     children =
