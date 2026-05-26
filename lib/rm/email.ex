@@ -167,4 +167,165 @@ defmodule RM.Email do
     List.create_changeset(params)
     |> Repo.insert()
   end
+
+  #
+  # Keila: Regions
+  #
+
+  @doc """
+  Sync a single region to Keila, creating or updating the corresponding project as needed
+  """
+  @spec sync_project_for_region(RM.FIRST.Region.t()) ::
+          {:ok, Keila.Projects.Project.t()}
+          | {:error, Ecto.Changeset.t(Keila.Projects.Project.t())}
+  def sync_project_for_region(region) do
+    root_group = Keila.Auth.root_group()
+    params = %{name: "#{region.name} Region (#{region.code})", group_id: root_group.id}
+
+    if region.metadata.keila_project_id do
+      Keila.Projects.update_project(region.metadata.keila_project_id, params)
+    else
+      params
+      |> Keila.Projects.Project.creation_changeset()
+      |> Keila.Repo.insert()
+      |> case do
+        {:ok, project} ->
+          Ecto.Changeset.change(region, %{metadata: %{keila_project_id: project.id}})
+          |> RM.Repo.update!()
+
+          {:ok, project}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
+  Sync a segment for a single region to Keila, creating or updating the corresponding segment as needed
+  """
+  @spec sync_segment_for_region(RM.FIRST.Region.t()) ::
+          {:ok, Keila.Contacts.Segment.t()}
+          | {:error, Ecto.Changeset.t(Keila.Contacts.Segment.t())}
+  def sync_segment_for_region(region) do
+    region_code = String.downcase(region.code)
+
+    params = %{
+      name: "#{region.name} Region (#{region.code})",
+      project_id: region.metadata.keila_project_id,
+      filter: %{"data.#{region_code}" => "true"}
+    }
+
+    if region.metadata.keila_segment_id do
+      Keila.Contacts.update_segment(region.metadata.keila_segment_id, params)
+    else
+      case Keila.Contacts.create_segment(region.metadata.keila_project_id, params) do
+        {:ok, segment} ->
+          Ecto.Changeset.change(region, %{metadata: %{keila_segment_id: segment.id}})
+          |> RM.Repo.update!()
+
+          {:ok, segment}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
+  Sync a coach segment for a single region to Keila, creating or updating the corresponding segment as needed
+  """
+  @spec sync_coach_segment_for_region(RM.FIRST.Region.t()) ::
+          {:ok, Keila.Contacts.Segment.t()}
+          | {:error, Ecto.Changeset.t(Keila.Contacts.Segment.t())}
+  def sync_coach_segment_for_region(region) do
+    region_code = String.downcase(region.code)
+
+    params = %{
+      name: "#{region.name} Region Coaches (#{region.code})",
+      project_id: region.metadata.keila_project_id,
+      filter: %{"$and" => [%{"data.#{region_code}" => "true"}, %{"data.coach" => "true"}]}
+    }
+
+    if region.metadata.keila_coach_segment_id do
+      Keila.Contacts.update_segment(region.metadata.keila_coach_segment_id, params)
+    else
+      case Keila.Contacts.create_segment(region.metadata.keila_project_id, params) do
+        {:ok, segment} ->
+          Ecto.Changeset.change(region, %{metadata: %{keila_coach_segment_id: segment.id}})
+          |> RM.Repo.update!()
+
+          {:ok, segment}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  #
+  # Keila: Leagues
+  #
+
+  @doc """
+  Sync a single league to Keila, creating or updating the corresponding segment as needed
+  """
+  @spec sync_segment_for_league(RM.FIRST.Region.t(), RM.Local.League.t()) ::
+          {:ok, Keila.Contacts.Segment.t()}
+          | {:error, Ecto.Changeset.t(Keila.Contacts.Segment.t())}
+  def sync_segment_for_league(region, league) do
+    league_code = String.downcase(region.code <> league.code)
+
+    params = %{
+      name: "#{region.name} #{league.name} League (#{region.code}#{league.code})",
+      project_id: region.metadata.keila_project_id,
+      filter: %{"data.#{league_code}" => "true"}
+    }
+
+    if league.metadata.keila_segment_id do
+      Keila.Contacts.update_segment(league.metadata.keila_segment_id, params)
+    else
+      case Keila.Contacts.create_segment(region.metadata.keila_project_id, params) do
+        {:ok, segment} ->
+          Ecto.Changeset.change(league, %{metadata: %{keila_segment_id: segment.id}})
+          |> RM.Repo.update!()
+
+          {:ok, segment}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
+  Sync a single league to Keila, creating or updating the corresponding segment as needed
+  """
+  @spec sync_coach_segment_for_league(RM.FIRST.Region.t(), RM.Local.League.t()) ::
+          {:ok, Keila.Contacts.Segment.t()}
+          | {:error, Ecto.Changeset.t(Keila.Contacts.Segment.t())}
+  def sync_coach_segment_for_league(region, league) do
+    league_code = String.downcase(region.code <> league.code)
+
+    params = %{
+      name: "#{region.name} #{league.name} League Coaches (#{region.code}#{league.code})",
+      project_id: region.metadata.keila_project_id,
+      filter: %{"$and" => [%{"data.#{league_code}" => "true"}, %{"data.coach" => "true"}]}
+    }
+
+    if league.metadata.keila_coach_segment_id do
+      Keila.Contacts.update_segment(league.metadata.keila_coach_segment_id, params)
+    else
+      case Keila.Contacts.create_segment(region.metadata.keila_project_id, params) do
+        {:ok, segment} ->
+          Ecto.Changeset.change(league, %{metadata: %{keila_coach_segment_id: segment.id}})
+          |> RM.Repo.update!()
+
+          {:ok, segment}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
 end
