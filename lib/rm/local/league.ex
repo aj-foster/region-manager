@@ -45,6 +45,11 @@ defmodule RM.Local.League do
     has_many :users, through: [:user_assignments, :user]
     has_many :venues, Venue
 
+    embeds_one :metadata, Metadata, on_replace: :update, primary_key: false do
+      field :keila_segment_id, :string
+      field :keila_coach_segment_id, :string
+    end
+
     embeds_one :stats, Stats, on_replace: :update, primary_key: false do
       field :event_count, :integer, default: 0
       field :events_imported_at, :utc_datetime_usec

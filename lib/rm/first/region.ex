@@ -76,6 +76,13 @@ defmodule RM.FIRST.Region do
 
       # Default state/province, if any, for event proposals in this region
       field :default_state_province, :string
+
+      # Keila project ID for this region, if any
+      field :keila_project_id, :string
+
+      # Keila segment IDs for this region, if any
+      field :keila_segment_id, :string
+      field :keila_coach_segment_id, :string
     end
 
     embeds_one :stats, Stats, on_replace: :update, primary_key: false do
