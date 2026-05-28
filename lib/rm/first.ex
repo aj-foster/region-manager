@@ -382,9 +382,14 @@ defmodule RM.FIRST do
   @spec update_region_season(Region.t(), integer) ::
           {:ok, Region.t()} | {:error, Changeset.t(Region.t())}
   def update_region_season(region, season) do
-    region
-    |> Changeset.change(current_season: season)
-    |> Repo.update()
+    region_changeset = Changeset.change(region, current_season: season)
+
+    with {:ok, region} <- Repo.update(region_changeset) do
+      update_region_event_counts(region)
+      update_region_published_league_counts(region)
+
+      {:ok, region}
+    end
   end
 
   @spec update_region_team_counts(Repo.struct_or_id(Region.t())) :: :ok
