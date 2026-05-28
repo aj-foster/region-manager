@@ -144,6 +144,7 @@ defmodule RM.FIRST.League do
       from(__MODULE__, as: :league)
       |> where([league: l], l.id in ^league_ids)
       |> join(:left, [league: l], t in assoc(l, :teams), as: :team)
+      |> where([team: t], not t._hidden)
       |> group_by([league: l], l.id)
       |> select([league: l, team: t], %{id: l.id, count: count(t.id)})
 
