@@ -57,6 +57,7 @@ defmodule RM.FIRST.Team do
     timestamps type: :utc_datetime_usec
 
     field :local_team, :any, virtual: true
+    field :_hidden, :boolean, default: false
   end
 
   @spec from_ftc_events(map, map) :: map
