@@ -76,13 +76,10 @@ defmodule External.FTCEvents.API.Client do
   end
 
   @impl true
-  def list_teams(season, region, opts \\ []) do
+  def list_teams(season, opts \\ []) do
     req_opts = Keyword.take(opts, [:headers, :body, :params])
     url = "/v2.0/#{season}/teams"
-
-    params =
-      Keyword.take(opts, [:page])
-      |> Keyword.put(:state, region)
+    params = Keyword.take(opts, [:page, :state])
 
     new(req_opts)
     |> Req.get(params: params, url: url)

@@ -65,7 +65,7 @@ defmodule External.FTCEvents.API do
   # Teams
 
   @typedoc "Options for the `c:list_teams/2` endpoint"
-  @type list_teams_options :: [{:page, page}]
+  @type list_teams_options :: [{:page, page} | {:state, region}]
 
   @typedoc "Response data for the `c:list_teams/3` endpoint"
   @type list_teams_response :: %{
@@ -77,9 +77,9 @@ defmodule External.FTCEvents.API do
         }
 
   @doc false
-  @callback list_teams(season, region) :: response(list_teams_response)
-  @doc "Returns a paginated list of teams registered in the given region"
-  @callback list_teams(season, region, keyword) :: response(list_teams_response)
+  @callback list_teams(season) :: response(list_teams_response)
+  @doc "Returns a paginated list of teams, optionally filtered by the given `state` region code"
+  @callback list_teams(season, keyword) :: response(list_teams_response)
 
   #
   # Configuration

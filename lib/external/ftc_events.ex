@@ -31,6 +31,8 @@ defmodule External.FTCEvents do
           API.response(API.list_teams_response())
   def list_teams(season, region, opts \\ []) do
     %Region{metadata: %Region.Metadata{code_list_teams: code}} = region
-    API.client().list_teams(season, code, opts)
+    opts = Keyword.put(opts, :state, code)
+
+    API.client().list_teams(season, opts)
   end
 end
