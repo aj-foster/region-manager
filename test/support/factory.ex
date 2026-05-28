@@ -182,7 +182,6 @@ defmodule RM.Factory do
 
     %RM.Local.League{
       code: code,
-      current_season: RM.System.current_season(),
       location: "Somewhere",
       name: "League #{code}",
       region: fn -> build(:region) end,
