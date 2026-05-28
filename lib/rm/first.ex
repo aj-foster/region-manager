@@ -384,9 +384,14 @@ defmodule RM.FIRST do
   def update_region_season(region, season) do
     region_changeset = Changeset.change(region, current_season: season)
 
+    # Future: Optionally update :_hidden field on `first_teams` based on current `active` status
+    # from `teams`. Then, update league stats to reflect the new team counts.
+
     with {:ok, region} <- Repo.update(region_changeset) do
       update_region_event_counts(region)
       update_region_published_league_counts(region)
+
+      # Future: Set all of the regions teams to inactive.
 
       {:ok, region}
     end
