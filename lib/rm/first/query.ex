@@ -136,6 +136,12 @@ defmodule RM.FIRST.Query do
     where(query, [region: r], r.abbreviation == ^abbreviation or r.code == ^abbreviation)
   end
 
+  @doc "Filter teams by hidden status"
+  @spec team_hidden(query, boolean) :: query
+  def team_hidden(query, hidden) do
+    where(query, [team: t], t._hidden == ^hidden)
+  end
+
   @doc "Find teams related to the given region"
   @spec team_region(query, Region.t()) :: query
   def team_region(query, %Region{id: region_id}) do

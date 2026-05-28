@@ -634,6 +634,8 @@ defmodule RM.FIRST do
   @doc """
   List teams for the given region
 
+  This function does not return teams that have been marked as `:_hidden`.
+
   ## Options
 
     * `season`: Season to get teams for. Defaults to the region's current season.
@@ -643,6 +645,7 @@ defmodule RM.FIRST do
   @spec list_teams_by_region(Region.t(), keyword) :: [Team.t()]
   def list_teams_by_region(region, opts \\ []) do
     Query.from_team()
+    |> Query.team_hidden(false)
     |> Query.team_region(region)
     |> Query.team_season(opts[:season] || region.current_season)
     |> Query.preload_assoc(:team, opts[:preload])

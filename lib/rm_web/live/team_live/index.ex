@@ -170,6 +170,7 @@ defmodule RMWeb.TeamLive.Index do
         if first_league do
           RM.Repo.preload(first_league, :teams)
           |> Map.fetch!(:teams)
+          |> Enum.filter(&(!&1._hidden))
           |> Enum.map(&Map.put(&1, :league, first_league))
           |> Enum.sort(&team_sort/2)
         else
