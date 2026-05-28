@@ -153,7 +153,7 @@ defmodule RM.Local.TeamExport do
       },
       name: name,
       number: number,
-      region: %RM.FIRST.Region{name: region},
+      region: %RM.FIRST.Region{name: region, current_season: current_season},
       rookie_year: rookie_year,
       website: website
     } = RM.Repo.preload(team, [:league, :region])
@@ -194,8 +194,7 @@ defmodule RM.Local.TeamExport do
       "event-ready" => if(event_ready?, do: "Yes", else: "No"),
       "missing-contacts" => missing_contacts,
       "secured-date" => if(secured_date, do: Date.to_string(secured_date)),
-      "rookie-status" =>
-        if(rookie_year == RM.System.current_season(), do: "Rookie", else: "Veteran"),
+      "rookie-status" => if(rookie_year == current_season, do: "Rookie", else: "Veteran"),
       "rookie-year" => to_string(rookie_year),
       "school" => school || "",
       "school-type" => school_type || "",
