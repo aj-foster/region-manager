@@ -9,13 +9,13 @@ defmodule RMWeb.MetaJSON do
     })
   end
 
-  def seasons(%{seasons: seasons, current: current}) do
-    seasons = Enum.map(seasons, fn s -> season(s, s.year == current) end)
-    success(%{season_count: length(seasons), current_season: current, seasons: seasons})
+  def seasons(%{seasons: seasons}) do
+    seasons = Enum.map(seasons, &season/1)
+    success(%{season_count: length(seasons), seasons: seasons})
   end
 
-  defp season(%RM.FIRST.Season{kickoff: kickoff, name: name, year: year}, current?) do
-    %{kickoff: kickoff, name: name, year: year, current: current?}
+  defp season(%RM.FIRST.Season{kickoff: kickoff, name: name, year: year}) do
+    %{kickoff: kickoff, name: name, year: year}
   end
 
   def regions(%{regions: regions}) do
