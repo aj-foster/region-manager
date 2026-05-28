@@ -11,7 +11,6 @@
           <p class="font-semibold">{season.name}</p>
           <p class="text-sm">
             {season.year}–{season.year + 1}
-            <span :if={@current_season == season.year}>&bull; Active Season</span>
           </p>
         </div>
       </div>
@@ -27,7 +26,7 @@
   <p class="text-sm">
     <strong>Region Manager</strong>
     keeps certain season-specific data (such as published events) after the season is over.
-    Other data (league and team data) is only available for the currently-active season.
+    Other data (including league and team data) is only available for the currently-active season.
     The active season depends on the availability of certain data sources from <em>FIRST</em>, and may not change until after kickoff.
   </p>
 </.card>
