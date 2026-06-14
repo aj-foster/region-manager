@@ -48,6 +48,7 @@ defmodule RM.Local.League do
     embeds_one :metadata, Metadata, on_replace: :update, primary_key: false do
       field :keila_segment_id, :string
       field :keila_coach_segment_id, :string
+      field :keila_extended_coach_segment_id, :string
     end
 
     embeds_one :stats, Stats, on_replace: :update, primary_key: false do

@@ -83,6 +83,7 @@ defmodule RM.FIRST.Region do
       # Keila segment IDs for this region, if any
       field :keila_segment_id, :string
       field :keila_coach_segment_id, :string
+      field :keila_extended_coach_segment_id, :string
     end
 
     embeds_one :stats, Stats, on_replace: :update, primary_key: false do

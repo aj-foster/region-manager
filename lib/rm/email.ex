@@ -263,6 +263,44 @@ defmodule RM.Email do
     end
   end
 
+  @doc """
+  Sync an extended coach segment for a single region to Keila, creating or updating the corresponding segment as needed
+  """
+  @spec sync_extended_coach_segment_for_region(RM.FIRST.Region.t()) ::
+          {:ok, Keila.Contacts.Segment.t()}
+          | {:error, Ecto.Changeset.t(Keila.Contacts.Segment.t())}
+  def sync_extended_coach_segment_for_region(region) do
+    region_code = String.downcase(region.code)
+
+    params = %{
+      name: "#{region.name} Region Coaches Extended (#{region.code})",
+      project_id: region.metadata.keila_project_id,
+      filter: %{
+        "$and" => [
+          %{"data.#{region_code}" => "true"},
+          %{"$or" => [%{"data.coach" => "true"}, %{"data.coach_last_season" => "true"}]}
+        ]
+      }
+    }
+
+    if region.metadata.keila_extended_coach_segment_id do
+      Keila.Contacts.update_segment(region.metadata.keila_extended_coach_segment_id, params)
+    else
+      case Keila.Contacts.create_segment(region.metadata.keila_project_id, params) do
+        {:ok, segment} ->
+          Ecto.Changeset.change(region, %{
+            metadata: %{keila_extended_coach_segment_id: segment.id}
+          })
+          |> RM.Repo.update!()
+
+          {:ok, segment}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
   #
   # Keila: Leagues
   #
@@ -299,7 +337,7 @@ defmodule RM.Email do
   end
 
   @doc """
-  Sync a single league to Keila, creating or updating the corresponding segment as needed
+  Sync a coach segment for a single league to Keila, creating or updating the corresponding segment as needed
   """
   @spec sync_coach_segment_for_league(RM.FIRST.Region.t(), RM.Local.League.t()) ::
           {:ok, Keila.Contacts.Segment.t()}
@@ -319,6 +357,45 @@ defmodule RM.Email do
       case Keila.Contacts.create_segment(region.metadata.keila_project_id, params) do
         {:ok, segment} ->
           Ecto.Changeset.change(league, %{metadata: %{keila_coach_segment_id: segment.id}})
+          |> RM.Repo.update!()
+
+          {:ok, segment}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
+  Sync an extended coach segment for a single league to Keila, creating or updating the corresponding segment as needed
+  """
+  @spec sync_extended_coach_segment_for_league(RM.FIRST.Region.t(), RM.Local.League.t()) ::
+          {:ok, Keila.Contacts.Segment.t()}
+          | {:error, Ecto.Changeset.t(Keila.Contacts.Segment.t())}
+  def sync_extended_coach_segment_for_league(region, league) do
+    league_code = String.downcase(region.code <> league.code)
+
+    params = %{
+      name:
+        "#{region.name} #{league.name} League Coaches Extended (#{region.code}#{league.code})",
+      project_id: region.metadata.keila_project_id,
+      filter: %{
+        "$and" => [
+          %{"data.#{league_code}" => "true"},
+          %{"$or" => [%{"data.coach" => "true"}, %{"data.coach_last_season" => "true"}]}
+        ]
+      }
+    }
+
+    if league.metadata.keila_extended_coach_segment_id do
+      Keila.Contacts.update_segment(league.metadata.keila_extended_coach_segment_id, params)
+    else
+      case Keila.Contacts.create_segment(region.metadata.keila_project_id, params) do
+        {:ok, segment} ->
+          Ecto.Changeset.change(league, %{
+            metadata: %{keila_extended_coach_segment_id: segment.id}
+          })
           |> RM.Repo.update!()
 
           {:ok, segment}

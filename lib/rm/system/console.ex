@@ -37,8 +37,10 @@ defmodule RM.System.Console do
     |> RM.Repo.all()
     |> Enum.each(fn region ->
       {:ok, _project} = RM.Email.sync_project_for_region(region)
-      {:ok, _segment} = region |> RM.Repo.reload!() |> RM.Email.sync_segment_for_region()
-      {:ok, _segment} = region |> RM.Repo.reload!() |> RM.Email.sync_coach_segment_for_region()
+      region = RM.Repo.reload!(region)
+      {:ok, _segment} = RM.Email.sync_segment_for_region(region)
+      {:ok, _segment} = RM.Email.sync_coach_segment_for_region(region)
+      {:ok, _segment} = RM.Email.sync_extended_coach_segment_for_region(region)
 
       region =
         RM.Repo.reload!(region)
@@ -48,6 +50,7 @@ defmodule RM.System.Console do
       |> Enum.each(fn league ->
         {:ok, _segment} = RM.Email.sync_segment_for_league(region, league)
         {:ok, _segment} = RM.Email.sync_coach_segment_for_league(region, league)
+        {:ok, _segment} = RM.Email.sync_extended_coach_segment_for_league(region, league)
       end)
     end)
   end
