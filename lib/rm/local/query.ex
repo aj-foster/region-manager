@@ -110,6 +110,11 @@ defmodule RM.Local.Query do
     where(query, [any], any.region_id == ^region_id)
   end
 
+  @doc "Filter by the associated season"
+  @spec season(query, integer | nil) :: query
+  def season(query, nil), do: query
+  def season(query, season), do: where(query, [any], any.season == ^season)
+
   @doc "Filter by the `rescinded` attribute of a registration"
   @spec rescinded(query, boolean | nil) :: query
   def rescinded(query, nil), do: query

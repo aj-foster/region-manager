@@ -25,7 +25,8 @@ defmodule RMWeb.TeamLive.Show do
     if season == region.current_season do
       case RM.Local.fetch_team_by_number(number,
              league: league,
-             preload: [:region, :league, :users]
+             preload: [:region, :league, :users],
+             season: season
            ) do
         {:ok, team} ->
           {:cont,

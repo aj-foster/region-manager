@@ -540,7 +540,7 @@ defmodule RM.Local do
           {:ok, league} ->
             first_league.teams
             |> Enum.map(& &1.team_number)
-            |> list_teams_by_number()
+            |> list_teams_by_number(season: first_league.season)
             |> Enum.map(fn team -> LeagueAssignment.new(league, team) end)
 
           _else ->
@@ -618,6 +618,8 @@ defmodule RM.Local do
   @spec list_teams_by_number([integer], keyword) :: [Team.t()]
   def list_teams_by_number(numbers, opts \\ []) do
     Query.from_team()
+    |> Query.active_team(opts[:active])
+    |> Query.season(opts[:season])
     |> where([team: t], t.number in ^numbers)
     |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.all()
@@ -628,6 +630,7 @@ defmodule RM.Local do
   def list_teams_by_league(league, opts \\ []) do
     Query.from_team()
     |> Query.active_team(opts[:active])
+    |> Query.season(opts[:season] || league.region.current_season)
     |> Query.team_league(league)
     |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.all()
@@ -640,6 +643,7 @@ defmodule RM.Local do
   def list_teams_by_region(region, opts \\ []) do
     Query.from_team()
     |> Query.active_team(opts[:active])
+    |> Query.season(opts[:season] || region.current_season)
     |> where([team: t], t.region_id == ^region.id)
     |> Query.preload_assoc(:team, opts[:preload])
     |> Repo.all()
@@ -647,17 +651,11 @@ defmodule RM.Local do
     |> Enum.sort(Team)
   end
 
-  @spec list_teams_by_team_id([integer], keyword) :: [Team.t()]
-  def list_teams_by_team_id(team_ids, opts \\ []) do
-    Query.from_team()
-    |> where([team: t], t.team_id in ^team_ids)
-    |> Query.preload_assoc(:team, opts[:preload])
-    |> Repo.all()
-  end
-
   @spec fetch_team_by_number(integer) :: {:ok, Team.t()} | {:error, :team, :not_found}
   def fetch_team_by_number(team_number, opts \\ []) do
     Query.from_team()
+    |> Query.active_team(opts[:active])
+    |> Query.season(opts[:season])
     |> where([team: t], t.number == ^team_number)
     |> Query.team_league(opts[:league])
     |> Query.region(opts[:region])
