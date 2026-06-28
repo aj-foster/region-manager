@@ -63,6 +63,10 @@ defmodule RM.Import do
 
     RM.FIRST.update_region_team_counts(regions_affected)
 
+    regions_affected
+    |> Enum.flat_map(&Local.list_leagues_by_region/1)
+    |> Enum.each(&RM.Local.update_league_team_counts/1)
+
     Repo.preload(additions ++ Enum.map(updates, &elem(&1, 0)), :league_assignment)
     |> Enum.map(&(&1.league_assignment && &1.league_assignment.league_id))
     |> RM.Local.update_league_team_counts(import: true)

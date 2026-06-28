@@ -168,7 +168,11 @@ defmodule RM.Local.League do
     count_query =
       from(__MODULE__, as: :league)
       |> where([league: l], l.id in ^league_ids)
-      |> join(:left, [league: l], t in assoc(l, :teams), on: t.active, as: :team)
+      |> join(:inner, [league: l], r in assoc(l, :region), as: :region)
+      |> join(:left, [league: l, region: r], t in assoc(l, :teams),
+        on: t.active and t.season == r.current_season,
+        as: :team
+      )
       |> group_by([league: l], l.id)
       |> select([league: l, team: t], %{id: l.id, count: count(t.id)})
 
