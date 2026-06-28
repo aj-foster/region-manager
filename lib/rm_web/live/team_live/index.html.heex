@@ -89,6 +89,12 @@
   <.card spaced>
     <p class="italic text-sm">Team listing is not yet available for this season.</p>
   </.card>
+<% else %>
+  <.card :if={@active_teams_count == 0} spaced>
+    <p class="italic text-sm">
+      There are no active teams in {context_name(@local_league || @first_league || @region)}.
+    </p>
+  </.card>
 <% end %>
 
 <.title :if={@active_teams_count > 0}>
