@@ -217,8 +217,9 @@ defmodule RM.Factory do
   end
 
   @doc false
-  def team_factory do
+  def team_factory(attrs \\ %{}) do
     number = sequence("team", & &1)
+    season = attrs[:season] || attrs[:region].current_season || RM.System.current_season()
 
     %RM.Local.Team{
       active: true,
@@ -226,11 +227,13 @@ defmodule RM.Factory do
       name: "Team #{number}",
       number: number,
       region: fn -> build(:region) end,
-      rookie_year: RM.System.current_season(),
+      rookie_year: season,
+      season: season,
       team_id: number,
       temporary_number: number,
       website: nil
     }
+    |> merge_attributes(attrs)
   end
 
   @doc false

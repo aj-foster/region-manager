@@ -20,7 +20,7 @@ defmodule External.FTCEvents.API.Stub do
   end
 
   @impl true
-  def list_teams(_season, _region, _opts \\ []) do
+  def list_teams(_season, _opts \\ []) do
     {:ok,
      %{
        teams: [],

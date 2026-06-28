@@ -35,7 +35,6 @@ defmodule RMWeb.MetaControllerTest do
       |> get(~p"/api/meta/seasons")
       |> assert_success(200)
       |> assert_match(%{
-        "current_season" => _,
         "seasons" => [%{"name" => "CENTERSTAGE"} | _],
         "season_count" => _
       })
