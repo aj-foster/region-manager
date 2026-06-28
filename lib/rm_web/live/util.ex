@@ -190,7 +190,7 @@ defmodule RMWeb.Live.Util do
     |> Map.update!(:emails, &sort_emails/1)
     |> Map.update!(:leagues, &sort_leagues/1)
     |> Map.update!(:regions, &sort_regions/1)
-    |> Map.update!(:teams, &sort_teams/1)
+    |> Map.update!(:teams, &sort_and_filter_teams/1)
   end
 
   @spec sort_emails([Identity.Schema.Email.t()]) :: [Identity.Schema.Email.t()]
@@ -212,9 +212,11 @@ defmodule RMWeb.Live.Util do
     Enum.sort_by(regions, & &1.name)
   end
 
-  @spec sort_teams([RM.Local.Team.t()]) :: [RM.Local.Team.t()]
-  defp sort_teams(teams) do
-    Enum.sort_by(teams, & &1.number)
+  @spec sort_and_filter_teams([RM.Local.Team.t()]) :: [RM.Local.Team.t()]
+  defp sort_and_filter_teams(teams) do
+    teams
+    |> Enum.filter(&(&1.region.current_season == &1.season))
+    |> Enum.sort_by(& &1.number)
   end
 
   @doc """
