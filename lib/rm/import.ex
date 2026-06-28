@@ -44,6 +44,7 @@ defmodule RM.Import do
       |> Stream.filter(fn %{"Region Name" => region} -> region in allowed_region_names end)
       |> Stream.map(&Team.from_csv/1)
       |> Stream.map(&Team.put_region(&1, allowed_regions_by_name[&1.region].id))
+      |> Stream.map(&Team.put_season(&1, allowed_regions_by_name[&1.region].current_season))
       |> Stream.map(&Team.put_upload(&1, upload_id))
       |> Enum.to_list()
       |> insert_import_teams()

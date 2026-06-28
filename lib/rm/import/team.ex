@@ -12,6 +12,7 @@ defmodule RM.Import.Team do
     field :imported_at, :utc_datetime_usec
     field :region, :string
     field :region_id, Ecto.UUID
+    field :season, :integer
     field :team_id, :integer
     field :upload_id, Ecto.UUID
 
@@ -208,6 +209,12 @@ defmodule RM.Import.Team do
   """
   @spec put_region(%__MODULE__{}, Ecto.UUID.t()) :: %__MODULE__{}
   def put_region(%__MODULE__{} = team, region_id), do: %__MODULE__{team | region_id: region_id}
+
+  @doc """
+  Add a season to an existing team struct
+  """
+  @spec put_season(%__MODULE__{}, integer) :: %__MODULE__{}
+  def put_season(%__MODULE__{} = team, season), do: %__MODULE__{team | season: season}
 
   @doc """
   Add an upload ID to an existing team struct

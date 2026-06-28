@@ -19,6 +19,7 @@ defmodule RM.Local.Team do
     :number,
     :region_id,
     :rookie_year,
+    :season,
     :team_id
   ]
 
@@ -38,6 +39,7 @@ defmodule RM.Local.Team do
     field :name, :string
     field :number, :integer
     field :rookie_year, :integer
+    field :season, :integer
     field :team_id, :integer
     field :temporary_number, :integer
     field :website, :string
@@ -76,6 +78,7 @@ defmodule RM.Local.Team do
   def from_import(team, import_team) do
     %RM.Import.Team{
       region_id: region_id,
+      season: season,
       team_id: team_id,
       data: %RM.Import.Team.Data{
         active: active,
@@ -109,6 +112,7 @@ defmodule RM.Local.Team do
         number: number,
         region_id: region_id,
         rookie_year: rookie_year,
+        season: season,
         team_id: team_id,
         temporary_number: temporary_number,
         website: website,
