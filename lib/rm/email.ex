@@ -405,4 +405,51 @@ defmodule RM.Email do
       end
     end
   end
+
+  @doc """
+  Sync all coach contacts for a team to Keila, creating or updating the corresponding contacts as needed
+  """
+  @spec sync_coach_contacts_for_team(RM.Local.Team.t()) :: :ok
+  def sync_coach_contacts_for_team(team) do
+    if team.active do
+      team = RM.Repo.preload(team, [:league, :region, :user_assignments])
+      project_id = team.region.metadata.keila_project_id
+
+      team.user_assignments
+      |> Enum.filter(&(not is_nil(&1.email)))
+      |> Enum.each(fn assignment ->
+        league_code = if team.league, do: String.downcase(team.region.code <> team.league.code)
+        sync_coach_contact(project_id, assignment.email, league_code)
+      end)
+    else
+      :ok
+    end
+  end
+
+  @spec sync_coach_contact(String.t(), String.t(), String.t() | nil) ::
+          {:ok, Keila.Contacts.Contact.t()}
+          | {:error, Ecto.Changeset.t(Keila.Contacts.Contact.t())}
+  defp sync_coach_contact(project_id, email, league_code) do
+    data =
+      if league_code do
+        %{"coach" => "true", league_code => "true"}
+      else
+        %{"coach" => "true"}
+      end
+
+    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
+      Keila.Contacts.update_contact(contact.id, %{data: data})
+    else
+      status =
+        case get_address(email) do
+          %Address{unsubscribed_at: %DateTime{}} -> :unsubscribed
+          %Address{sendable: false} -> :bounced
+          _else -> :active
+        end
+
+      Keila.Contacts.create_contact(project_id, %{email: email, data: data, status: status},
+        set_status: true
+      )
+    end
+  end
 end

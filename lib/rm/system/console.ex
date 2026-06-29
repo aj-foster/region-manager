@@ -52,6 +52,12 @@ defmodule RM.System.Console do
         {:ok, _segment} = RM.Email.sync_coach_segment_for_league(region, league)
         {:ok, _segment} = RM.Email.sync_extended_coach_segment_for_league(region, league)
       end)
+
+      region
+      |> RM.Local.list_teams_by_region()
+      |> Enum.each(fn team ->
+        RM.Email.sync_coach_contacts_for_team(team)
+      end)
     end)
   end
 end
