@@ -145,23 +145,28 @@
     />
   </.card>
 
-  <.title>Contact Information</.title>
+  <.title>Event Director</.title>
 
   <.card spaced>
     <p class="mb-4 text-sm">
-      Please provide contact details for the event or tournament director. This information will be available to coaches and mentors in Region Manager.
+      The Event Director is the primary contact for this event.
+      They will be responsible for communicating with <em>FIRST</em>
+      and the Program Delivery Partner regarding event details.
+    </p>
+    <p class="mb-4 text-sm">
+      This information will be available to <em>FIRST</em> and coaches in Region Manager.
     </p>
     <.inputs_for :let={f} field={@proposal_form[:contact]}>
       <.input
         field={f[:name]}
-        label="Contact Name"
+        label="Event Director Name"
         placeholder="First Last"
         required
         wrapper="mb-4"
       />
       <.input
         field={f[:email]}
-        label="Email Address"
+        label="Event Director Email"
         placeholder="person@example.com"
         required
         type="email"
@@ -169,7 +174,7 @@
       />
       <.input
         field={f[:phone]}
-        label="Phone Number"
+        label="Event Director Phone"
         placeholder="+1 (000) 000-0000"
         required
         type="tel"
