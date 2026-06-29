@@ -77,6 +77,11 @@ defmodule RM.Email do
           :complaint | :permanent_bounce | :temporary_bounce | :unsubscribe
         ) :: {:ok, Address.t()} | {:error, Ecto.Changeset.t(Address.t())}
   def mark_email_undeliverable(email, :complaint) do
+    RM.FIRST.list_regions()
+    |> Enum.each(fn region ->
+      update_keila_contact_status(region.metadata.keila_project_id, email, :unreachable)
+    end)
+
     now = DateTime.utc_now()
 
     %Address{
@@ -85,7 +90,7 @@ defmodule RM.Email do
     }
     |> Repo.insert(
       on_conflict: [
-        set: [complained_at: now]
+        set: [complained_at: now, updated_at: now]
       ],
       conflict_target: [:email],
       returning: true
@@ -93,6 +98,11 @@ defmodule RM.Email do
   end
 
   def mark_email_undeliverable(email, :permanent_bounce) do
+    RM.FIRST.list_regions()
+    |> Enum.each(fn region ->
+      update_keila_contact_status(region.metadata.keila_project_id, email, :unreachable)
+    end)
+
     now = DateTime.utc_now()
 
     %Address{
@@ -104,7 +114,7 @@ defmodule RM.Email do
     }
     |> Repo.insert(
       on_conflict: [
-        set: [last_bounced_at: now, permanently_bounced_at: now],
+        set: [last_bounced_at: now, permanently_bounced_at: now, updated_at: now],
         inc: [bounce_count: 1]
       ],
       conflict_target: [:email],
@@ -123,15 +133,34 @@ defmodule RM.Email do
     }
     |> Repo.insert(
       on_conflict: [
-        set: [last_bounced_at: now],
+        set: [last_bounced_at: now, updated_at: now],
         inc: [bounce_count: 1]
       ],
       conflict_target: [:email],
       returning: true
     )
+    |> case do
+      {:ok, address} ->
+        if address.bounce_count >= 2 do
+          RM.FIRST.list_regions()
+          |> Enum.each(fn region ->
+            update_keila_contact_status(region.metadata.keila_project_id, email, :unreachable)
+          end)
+        end
+
+        {:ok, address}
+
+      error ->
+        error
+    end
   end
 
   def mark_email_undeliverable(email, :unsubscribe) do
+    RM.FIRST.list_regions()
+    |> Enum.each(fn region ->
+      update_keila_contact_status(region.metadata.keila_project_id, email, :unsubscribed)
+    end)
+
     now = DateTime.utc_now()
 
     %Address{
@@ -140,7 +169,7 @@ defmodule RM.Email do
     }
     |> Repo.insert(
       on_conflict: [
-        set: [unsubscribed_at: now]
+        set: [unsubscribed_at: now, updated_at: now]
       ],
       conflict_target: [:email]
     )
@@ -406,6 +435,10 @@ defmodule RM.Email do
     end
   end
 
+  #
+  # Keila: Users
+  #
+
   @doc """
   Sync all coach contacts for a team to Keila, creating or updating the corresponding contacts as needed
   """
@@ -451,5 +484,21 @@ defmodule RM.Email do
         set_status: true
       )
     end
+  end
+
+  @doc """
+  Update the status of a contact in Keila to either `:unreachable` or `:unsubscribed`
+  """
+  @spec update_keila_contact_status(
+          Keila.Projects.Project.id(),
+          String.t(),
+          :unreachable | :unsubscribed
+        ) :: :ok
+  def update_keila_contact_status(project_id, email, status) do
+    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
+      Keila.Contacts.downgrade_contact_status(contact.id, status)
+    end
+
+    :ok
   end
 end
