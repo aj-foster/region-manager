@@ -59,7 +59,15 @@ defmodule RM.Import do
     import_teams_by_id = Map.new(import_teams, fn team -> {team.team_id, team} end)
 
     {additions, updates} = diff_teams(local_teams_by_id, import_teams_by_id)
+    teams = additions ++ Enum.map(updates, &elem(&1, 0))
+
+    ## Email links
+
     relink_coaches(import_teams, additions ++ Enum.map(updates, &elem(&1, 0)))
+    teams = RM.Repo.preload(teams, [:league, :region, :user_assignments])
+    Enum.each(teams, &RM.Email.sync_coach_contacts_for_team/1)
+
+    ## Region and League Stats
 
     RM.FIRST.update_region_team_counts(regions_affected)
 
@@ -67,7 +75,7 @@ defmodule RM.Import do
     |> Enum.flat_map(&Local.list_leagues_by_region/1)
     |> Enum.each(&RM.Local.update_league_team_counts/1)
 
-    Repo.preload(additions ++ Enum.map(updates, &elem(&1, 0)), :league_assignment)
+    teams
     |> Enum.map(&(&1.league_assignment && &1.league_assignment.league_id))
     |> RM.Local.update_league_team_counts(import: true)
 
