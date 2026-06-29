@@ -113,9 +113,23 @@ defmodule RM.Import do
 
     additions =
       for import_team <- Map.values(import_to_add) do
-        %Local.Team{}
-        |> Local.Team.from_import(import_team)
-        |> Repo.insert!()
+        inserted_team =
+          %Local.Team{}
+          |> Local.Team.from_import(import_team)
+          |> Repo.insert!()
+
+        case Local.fetch_team_by_number(inserted_team.number,
+               season: inserted_team.season - 1,
+               preload: [:league]
+             ) do
+          {:ok, %Local.Team{league: %Local.League{} = league}} ->
+            {:ok, _assignment} = Local.create_or_update_league_assignment(league, inserted_team)
+
+          _ ->
+            :ok
+        end
+
+        inserted_team
       end
 
     updates =
