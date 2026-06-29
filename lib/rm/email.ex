@@ -452,17 +452,23 @@ defmodule RM.Email do
       |> Enum.filter(&(not is_nil(&1.email)))
       |> Enum.each(fn assignment ->
         league_code = if team.league, do: String.downcase(team.region.code <> team.league.code)
-        sync_coach_contact(project_id, assignment.email, league_code)
+        sync_coach_contact(project_id, assignment.email, league_code, assignment.name)
       end)
     else
       :ok
     end
   end
 
-  @spec sync_coach_contact(String.t(), String.t(), String.t() | nil) ::
+  @spec sync_coach_contact(String.t(), String.t(), String.t() | nil, String.t()) ::
           {:ok, Keila.Contacts.Contact.t()}
           | {:error, Ecto.Changeset.t(Keila.Contacts.Contact.t())}
-  defp sync_coach_contact(project_id, email, league_code) do
+  defp sync_coach_contact(project_id, email, league_code, name) do
+    {first_name, last_name} =
+      case String.split(name, " ", parts: 2) do
+        [first_name, last_name] -> {first_name, last_name}
+        [first_name] -> {first_name, ""}
+      end
+
     data =
       if league_code do
         %{"coach" => "true", league_code => "true"}
@@ -480,7 +486,15 @@ defmodule RM.Email do
           _else -> :active
         end
 
-      Keila.Contacts.create_contact(project_id, %{email: email, data: data, status: status},
+      Keila.Contacts.create_contact(
+        project_id,
+        %{
+          email: email,
+          first_name: first_name,
+          data: data,
+          last_name: last_name,
+          status: status
+        },
         set_status: true
       )
     end
