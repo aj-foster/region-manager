@@ -3,7 +3,7 @@
 resource "digitalocean_database_cluster" "this" {
   name                 = "db-ftcregion"
   engine               = "pg"
-  version              = "15"
+  version              = "18"
   size                 = "db-s-1vcpu-1gb"
   region               = "nyc3"
   node_count           = 1
@@ -15,6 +15,11 @@ resource "digitalocean_database_cluster" "this" {
 resource "digitalocean_database_db" "this" {
   cluster_id = digitalocean_database_cluster.this.id
   name       = "ftcregion"
+}
+
+resource "digitalocean_database_db" "keila" {
+  cluster_id = digitalocean_database_cluster.this.id
+  name       = "ftcregion_keila"
 }
 
 resource "digitalocean_database_user" "this" {
