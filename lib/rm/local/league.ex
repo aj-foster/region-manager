@@ -20,7 +20,7 @@ defmodule RM.Local.League do
 
   @type t :: %__MODULE__{}
 
-  @required_fields [:code, :current_season, :location, :name, :remote]
+  @required_fields [:code, :location, :name, :remote]
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -85,8 +85,7 @@ defmodule RM.Local.League do
           name: name,
           parent_league_id: parent_league_id,
           region: region,
-          remote: remote,
-          season: season
+          remote: remote
         },
         league_id_map \\ %{}
       ) do
@@ -94,7 +93,6 @@ defmodule RM.Local.League do
 
     %{
       code: code,
-      current_season: season,
       inserted_at: now,
       location: location,
       log: [Log.new("copied", %{})],
