@@ -477,6 +477,7 @@ defmodule RM.Email do
       end
 
     if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
+      data = Map.merge(contact.data || %{}, data)
       Keila.Contacts.update_contact(contact.id, %{data: data})
     else
       status =
