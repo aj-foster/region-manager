@@ -39,17 +39,6 @@ defmodule RM.Email do
   end
 
   @doc """
-  Get an address record by the string address, returning a tagged tuple
-  """
-  @spec fetch_address(String.t()) :: {:ok, Address.t()} | :error
-  def fetch_address(address_string) do
-    case get_address(address_string) do
-      nil -> :error
-      address -> {:ok, address}
-    end
-  end
-
-  @doc """
   Get an address record by its hashed ID
   """
   @spec get_address_by_hashed_id(String.t()) :: Address.t() | nil
