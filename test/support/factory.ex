@@ -8,7 +8,12 @@ defmodule RM.Factory do
   @doc false
   def user_factory do
     %RM.Account.User{
-      emails: fn -> [build(:user_email)] end
+      emails: fn -> [build(:user_email)] end,
+      profile: fn ->
+        %RM.Account.Profile{
+          name: "User #{sequence("user", & &1)}"
+        }
+      end
     }
   end
 
@@ -39,6 +44,32 @@ defmodule RM.Factory do
     user = RM.Repo.preload(user, [:region_assignments, :regions], force: true)
 
     %{region: region, user: user}
+  end
+
+  @doc false
+  def user_team_factory(attrs) do
+    user = Map.get_lazy(attrs, :user, fn -> build(:user) end)
+
+    %RM.Account.Team{
+      email: "user-#{sequence("user", & &1)}@example.com",
+      name: user.profile.name,
+      relationship: :lc1,
+      team: fn -> build(:team) end,
+      user: user
+    }
+    |> merge_attributes(attrs)
+    |> evaluate_lazy_attributes()
+  end
+
+  #
+  # Email
+  #
+
+  @doc false
+  def address_factory do
+    %RM.Email.Address{
+      email: sequence("email", &"user-#{&1}@example.com")
+    }
   end
 
   #
@@ -183,6 +214,7 @@ defmodule RM.Factory do
     %RM.Local.League{
       code: code,
       location: "Somewhere",
+      metadata: %{},
       name: "League #{code}",
       region: fn -> build(:region) end,
       remote: false
@@ -219,7 +251,10 @@ defmodule RM.Factory do
   @doc false
   def team_factory(attrs \\ %{}) do
     number = sequence("team", & &1)
-    season = attrs[:season] || attrs[:region].current_season || RM.System.current_season()
+
+    season =
+      attrs[:season] || (attrs[:region] && attrs[:region].current_season) ||
+        RM.System.current_season()
 
     %RM.Local.Team{
       active: true,
@@ -234,6 +269,7 @@ defmodule RM.Factory do
       website: nil
     }
     |> merge_attributes(attrs)
+    |> evaluate_lazy_attributes()
   end
 
   @doc false
