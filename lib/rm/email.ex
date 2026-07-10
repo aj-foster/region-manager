@@ -2,6 +2,8 @@ defmodule RM.Email do
   @moduledoc """
   Email-related functionality for Region Manager
   """
+  import Ecto.Query
+
   alias RM.Email.Address
   alias RM.Email.List
   alias RM.Repo
@@ -66,9 +68,9 @@ defmodule RM.Email do
           :complaint | :permanent_bounce | :temporary_bounce | :unsubscribe
         ) :: {:ok, Address.t()} | {:error, Ecto.Changeset.t(Address.t())}
   def mark_email_undeliverable(email, :complaint) do
-    RM.FIRST.list_regions()
-    |> Enum.each(fn region ->
-      update_keila_contact_status(region.metadata.keila_project_id, email, :unreachable)
+    list_contacts_by_email(email)
+    |> Enum.each(fn contact ->
+      Keila.Contacts.downgrade_contact_status(contact.id, :unreachable)
     end)
 
     now = DateTime.utc_now()
@@ -87,9 +89,9 @@ defmodule RM.Email do
   end
 
   def mark_email_undeliverable(email, :permanent_bounce) do
-    RM.FIRST.list_regions()
-    |> Enum.each(fn region ->
-      update_keila_contact_status(region.metadata.keila_project_id, email, :unreachable)
+    list_contacts_by_email(email)
+    |> Enum.each(fn contact ->
+      Keila.Contacts.downgrade_contact_status(contact.id, :unreachable)
     end)
 
     now = DateTime.utc_now()
@@ -131,9 +133,9 @@ defmodule RM.Email do
     |> case do
       {:ok, address} ->
         if address.bounce_count >= 2 do
-          RM.FIRST.list_regions()
-          |> Enum.each(fn region ->
-            update_keila_contact_status(region.metadata.keila_project_id, email, :unreachable)
+          list_contacts_by_email(email)
+          |> Enum.each(fn contact ->
+            Keila.Contacts.downgrade_contact_status(contact.id, :unreachable)
           end)
         end
 
@@ -145,9 +147,9 @@ defmodule RM.Email do
   end
 
   def mark_email_undeliverable(email, :unsubscribe) do
-    RM.FIRST.list_regions()
-    |> Enum.each(fn region ->
-      update_keila_contact_status(region.metadata.keila_project_id, email, :unsubscribed)
+    list_contacts_by_email(email)
+    |> Enum.each(fn contact ->
+      Keila.Contacts.downgrade_contact_status(contact.id, :unsubscribed)
     end)
 
     now = DateTime.utc_now()
@@ -170,6 +172,11 @@ defmodule RM.Email do
   @spec resubscribe_address(Address.t()) ::
           {:ok, Address.t()} | {:error, Ecto.Changeset.t(Address.t())}
   def resubscribe_address(address) do
+    list_contacts_by_email(address.email)
+    |> Enum.each(fn contact ->
+      Keila.Contacts.update_contact(contact.id, %{status: :active}, update_status: true)
+    end)
+
     address
     |> Ecto.Changeset.change(unsubscribed_at: nil)
     |> Repo.update()
@@ -491,18 +498,14 @@ defmodule RM.Email do
   end
 
   @doc """
-  Update the status of a contact in Keila to either `:unreachable` or `:unsubscribed`
+  List all contacts in Keila with the given email address, across all projects
   """
-  @spec update_keila_contact_status(
-          Keila.Projects.Project.id(),
-          String.t(),
-          :unreachable | :unsubscribed
-        ) :: :ok
-  def update_keila_contact_status(project_id, email, status) do
-    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
-      Keila.Contacts.downgrade_contact_status(contact.id, status)
-    end
-
-    :ok
+  @spec list_contacts_by_email(String.t()) :: [Keila.Contacts.Contact.t()]
+  def list_contacts_by_email(email) do
+    from(Keila.Contacts.Contact, as: :contact)
+    |> where([contact: c], c.email == ^email)
+    |> join(:inner, [contact: c], p in assoc(c, :project), as: :project)
+    |> preload([project: p], project: p)
+    |> Keila.Repo.all()
   end
 end
