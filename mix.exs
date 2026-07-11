@@ -29,6 +29,8 @@ defmodule RM.MixProject do
     [
       {:bandit, ">= 0.0.0"},
       {:castore, "~> 1.0"},
+      # Keila wants 2.x
+      {:decimal, "~> 3.1", override: true},
       {:dns_cluster, "~> 0.2.0"},
       {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
       {:ecto_sql, "~> 3.10"},
@@ -47,11 +49,11 @@ defmodule RM.MixProject do
       {:hackney, "~> 4.0", override: true},
       {:identity, github: "aj-foster/identity", branch: "main"},
       {:jason, "~> 1.2"},
-      {:keila, github: "pentacent/keila", ref: "v0.20.0", runtime: false},
+      {:keila, github: "pentacent/keila", ref: "v0.30.2", runtime: false},
       {:nimble_csv, "~> 1.3.0"},
       {:nimble_totp, "~> 1.0"},
       {:oban, "~> 2.17"},
-      # keila wants 1.7
+      # Keila wants 1.7.x
       {:phoenix, "~> 1.8.0", override: true},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_html, "~> 4.1"},
@@ -62,12 +64,13 @@ defmodule RM.MixProject do
       {:req, "~> 0.6.2"},
       {:sweet_xml, "~> 0.7.4"},
       {:swoosh, "~> 1.3"},
-      {:tailwind, "~> 0.5.0", runtime: Mix.env() == :dev},
+      # Keila wants 0.4.1
+      {:tailwind, "~> 0.5.0", runtime: Mix.env() == :dev, override: true},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:tz, "~> 0.28"},
       {:tz_extra, "~> 0.45.0"},
-      {:ua_parser, github: "beam-community/ua_parser", override: true},
+      {:ua_parser, "~> 1.10"},
       {:waffle, "~> 1.1"},
       {:waffle_ecto, "~> 0.0.12"}
     ]

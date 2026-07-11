@@ -25,8 +25,7 @@ defmodule RM.Application do
         %{
           id: Keila.Id.Cache,
           start: {Agent, :start_link, [&Keila.Id.hashid_config/0, [name: Keila.Id.Cache]]}
-        },
-        {Keila.Mailings.RateLimiter, []}
+        }
       ] ++ tz_children() ++ keila_scheduler()
 
     opts = [strategy: :one_for_one, name: RM.Supervisor]
