@@ -549,7 +549,7 @@ defmodule RMWeb.CoreComponents do
   attr :type, :string, default: nil
   attr :class, :string, default: nil
   attr :style, :string, default: "primary"
-  attr :rest, :global, include: ~w(disabled form name value)
+  attr :rest, :global, include: ~w(disabled form name target value)
 
   slot :inner_block, required: true
 
@@ -588,7 +588,7 @@ defmodule RMWeb.CoreComponents do
   """
   attr :class, :string, default: nil
   attr :style, :string, default: "primary"
-  attr :rest, :global, include: ~w(download href navigate patch)
+  attr :rest, :global, include: ~w(download href navigate patch target)
 
   slot :inner_block, required: true
 
