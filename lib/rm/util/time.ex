@@ -223,18 +223,46 @@ defmodule RM.Util.Time do
   def find_equivalent_future_timezones do
     now = DateTime.utc_now() |> DateTime.to_gregorian_seconds() |> elem(0)
 
-    Tzdata.canonical_zone_list()
+    TzExtra.time_zone_ids(include_aliases: false)
     |> Enum.map(fn timezone ->
       periods =
-        Tzdata.periods(timezone)
+        Tz.PeriodsProvider.periods(timezone)
         |> elem(1)
-        |> Enum.reject(&(&1.until.utc < now))
+        |> filter_current_and_future_periods(now)
 
       %{name: timezone, periods: periods}
     end)
     |> Enum.group_by(& &1.periods, & &1.name)
     |> Map.values()
     |> Enum.reject(&(length(&1) < 2))
+  end
+
+  defp filter_current_and_future_periods([{seconds, from, to, _} | periods], now)
+       when seconds > now do
+    [{seconds, from, to} | filter_current_and_future_periods(periods, now)]
+  end
+
+  defp filter_current_and_future_periods([{seconds, from, to, _} | _periods], now)
+       when seconds < now do
+    [{seconds, from, to}]
+  end
+
+  defp filter_current_and_future_periods([], _now), do: []
+
+  # Check that the timezone consolidation is up to date. Returns a set of groups that are in the
+  # theoretical list but not in the current list, or vice versa. If the result is empty, the
+  # consolidation is up to date.
+  @doc false
+  def check_tz_consolidation do
+    current =
+      Map.values(@tz_consolidation)
+      |> Enum.map(&Enum.sort/1)
+
+    theoretical =
+      find_equivalent_future_timezones()
+      |> Enum.map(&Enum.sort/1)
+
+    MapSet.symmetric_difference(MapSet.new(current), MapSet.new(theoretical))
   end
 
   @doc """
@@ -257,9 +285,9 @@ defmodule RM.Util.Time do
   """
   @spec zones :: [{String.t(), String.t()}]
   def zones do
-    now = DateTime.utc_now() |> DateTime.to_gregorian_seconds() |> elem(0)
+    now = DateTime.utc_now() |> datetime_to_iso_days()
 
-    Tzdata.canonical_zone_list()
+    TzExtra.time_zone_ids(include_aliases: false)
     |> Enum.reject(&MapSet.member?(@tz_consolidation_aliases, &1))
     |> Enum.map(&period_for(&1, now))
     |> Enum.sort(&timezone_sorter/2)
@@ -273,7 +301,7 @@ defmodule RM.Util.Time do
           list_names([tz.name])
         end
 
-      offset = tz.utc_off + tz.std_off
+      offset = tz.utc_offset + tz.std_offset
       hour_offset = div(offset, 3600)
       minute_offset = div(rem(offset, 3600), 60)
 
@@ -315,7 +343,7 @@ defmodule RM.Util.Time do
   """
   @spec zones_for_country(String.t()) :: [{String.t(), String.t()}]
   def zones_for_country(country_name) do
-    now = DateTime.utc_now() |> DateTime.to_gregorian_seconds() |> elem(0)
+    now = DateTime.utc_now() |> datetime_to_iso_days()
     allowed_timezones = RM.Util.Location.timezones(country_name)
 
     allowed_timezones
@@ -332,7 +360,7 @@ defmodule RM.Util.Time do
           list_names([tz.name])
         end
 
-      offset = tz.utc_off + tz.std_off
+      offset = tz.utc_offset + tz.std_offset
       hour_offset = div(offset, 3600)
       minute_offset = div(rem(offset, 3600), 60)
 
@@ -366,19 +394,29 @@ defmodule RM.Util.Time do
     end)
   end
 
-  @spec period_for(String.t(), pos_integer) :: map
-  defp period_for(timezone, unix_now) do
-    case Tzdata.periods_for_time(timezone, unix_now, :utc) do
-      [] ->
-        raise RuntimeError,
-          message: "Current time #{unix_now} is invalid for timezone #{timezone}"
-
-      [period] ->
+  @spec period_for(String.t(), Calendar.iso_days()) :: map
+  defp period_for(timezone, iso_days_now) do
+    case Tz.TimeZoneDatabase.time_zone_period_from_utc_iso_days(iso_days_now, timezone) do
+      {:ok, period} ->
         Map.put(period, :name, timezone)
 
-      [_first, second] ->
-        Map.put(second, :name, timezone)
+      {:error, _reason} ->
+        raise RuntimeError,
+          message: "Current time #{inspect(iso_days_now)} is invalid for timezone #{timezone}"
     end
+  end
+
+  @spec datetime_to_iso_days(DateTime.t()) :: Calendar.iso_days()
+  defp datetime_to_iso_days(datetime) do
+    Calendar.ISO.naive_datetime_to_iso_days(
+      datetime.year,
+      datetime.month,
+      datetime.day,
+      datetime.hour,
+      datetime.minute,
+      datetime.second,
+      datetime.microsecond
+    )
   end
 
   @spec list_names([String.t()]) :: String.t()
@@ -395,8 +433,8 @@ defmodule RM.Util.Time do
   # Callback for Enum.sort/2
   @spec timezone_sorter(map, map) :: boolean
   defp timezone_sorter(a, b) do
-    a_offset = a.utc_off + a.std_off
-    b_offset = b.utc_off + b.std_off
+    a_offset = a.utc_offset + a.std_offset
+    b_offset = b.utc_offset + b.std_offset
 
     cond do
       a_offset > b_offset -> true

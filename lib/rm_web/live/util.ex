@@ -365,11 +365,9 @@ defmodule RMWeb.Live.Util do
     timezone = LiveView.get_connect_params(socket)["timezone"] || "Etc/UTC"
 
     canonical_timezone =
-      if Tzdata.zone_alias?(timezone) do
-        Tzdata.links()
-        |> Map.get(timezone, "Etc/UTC")
-      else
-        timezone
+      case TzExtra.canonical_time_zone_id(timezone) do
+        {:ok, canonical} -> canonical
+        _ -> "Etc/UTC"
       end
 
     Process.put(:client_timezone, canonical_timezone)
