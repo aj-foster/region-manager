@@ -38,8 +38,8 @@ defmodule RM.EmailTest do
   describe "mark_email_undeliverable/2" do
     test "marks email as unreachable for complaint" do
       address = Factory.insert(:address)
-      keila_project = create_keila_project()
-      keila_contact = create_keila_contact(keila_project, address.email)
+      keila_project = Factory.insert_keila_project()
+      keila_contact = Factory.insert_keila_contact(keila_project, address.email)
 
       assert {:ok, _} = Email.mark_email_undeliverable(address.email, :complaint)
       assert %Address{complained_at: %DateTime{}, sendable: false} = Repo.reload!(address)
@@ -48,8 +48,8 @@ defmodule RM.EmailTest do
 
     test "marks email as unreachable for permanent_bounce" do
       address = Factory.insert(:address)
-      keila_project = create_keila_project()
-      keila_contact = create_keila_contact(keila_project, address.email)
+      keila_project = Factory.insert_keila_project()
+      keila_contact = Factory.insert_keila_contact(keila_project, address.email)
 
       assert {:ok, _} = Email.mark_email_undeliverable(address.email, :permanent_bounce)
 
@@ -61,8 +61,8 @@ defmodule RM.EmailTest do
 
     test "marks email as unreachable after multiple bounces" do
       address = Factory.insert(:address)
-      keila_project = create_keila_project()
-      keila_contact = create_keila_contact(keila_project, address.email)
+      keila_project = Factory.insert_keila_project()
+      keila_contact = Factory.insert_keila_contact(keila_project, address.email)
 
       # First bounce
 
@@ -83,8 +83,8 @@ defmodule RM.EmailTest do
 
     test "marks email as unsubscribed for unsubscribe" do
       address = Factory.insert(:address)
-      keila_project = create_keila_project()
-      keila_contact = create_keila_contact(keila_project, address.email)
+      keila_project = Factory.insert_keila_project()
+      keila_contact = Factory.insert_keila_contact(keila_project, address.email)
 
       assert {:ok, _} = Email.mark_email_undeliverable(address.email, :unsubscribe)
       assert %Address{unsubscribed_at: %DateTime{}, sendable: false} = Repo.reload!(address)
@@ -97,8 +97,8 @@ defmodule RM.EmailTest do
   describe "resubscribe_address/1" do
     test "resubscribes an unsubscribed address" do
       address = Factory.insert(:address, unsubscribed_at: DateTime.utc_now())
-      keila_project = create_keila_project()
-      keila_contact = create_keila_contact(keila_project, address.email)
+      keila_project = Factory.insert_keila_project()
+      keila_contact = Factory.insert_keila_contact(keila_project, address.email)
       Keila.Contacts.downgrade_contact_status(keila_contact.id, :unsubscribed)
 
       assert {:ok, _} = Email.resubscribe_address(address)
@@ -175,7 +175,7 @@ defmodule RM.EmailTest do
 
   describe "sync_segment_for_region/1" do
     test "syncs the segment for a given region" do
-      keila_project = create_keila_project()
+      keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
 
       Email.sync_segment_for_region(region)
@@ -193,7 +193,7 @@ defmodule RM.EmailTest do
 
   describe "sync_coach_segment_for_region/1" do
     test "syncs the coach segment for a given region" do
-      keila_project = create_keila_project()
+      keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
 
       Email.sync_coach_segment_for_region(region)
@@ -211,7 +211,7 @@ defmodule RM.EmailTest do
 
   describe "sync_extended_coach_segment_for_region/1" do
     test "syncs the extended coach segment for a given region" do
-      keila_project = create_keila_project()
+      keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
 
       Email.sync_extended_coach_segment_for_region(region)
@@ -229,7 +229,7 @@ defmodule RM.EmailTest do
 
   describe "sync_segment_for_league/1" do
     test "syncs the segment for a given league" do
-      keila_project = create_keila_project()
+      keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
       league = Factory.insert(:league, region: region)
 
@@ -248,7 +248,7 @@ defmodule RM.EmailTest do
 
   describe "sync_coach_segment_for_league/1" do
     test "syncs the coach segment for a given league" do
-      keila_project = create_keila_project()
+      keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
       league = Factory.insert(:league, region: region)
 
@@ -271,7 +271,7 @@ defmodule RM.EmailTest do
 
   describe "sync_extended_coach_segment_for_league/1" do
     test "syncs the extended coach segment for a given league" do
-      keila_project = create_keila_project()
+      keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
       league = Factory.insert(:league, region: region)
 
@@ -294,7 +294,7 @@ defmodule RM.EmailTest do
 
   describe "sync_coach_contacts_for_team/1" do
     test "syncs the coach contacts for a given team" do
-      keila_project = create_keila_project()
+      keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
       league = Factory.insert(:league, region: region)
       team = Factory.insert(:team, region: region)
@@ -312,8 +312,8 @@ defmodule RM.EmailTest do
   describe "list_contacts_by_email/1" do
     test "returns contacts with the given email across all projects" do
       email = "test-#{System.unique_integer()}@example.com"
-      keila_project1 = create_keila_project()
-      keila_project2 = create_keila_project()
+      keila_project1 = Factory.insert_keila_project()
+      keila_project2 = Factory.insert_keila_project()
 
       Keila.Contacts.create_contact(keila_project1.id, %{email: email})
       Keila.Contacts.create_contact(keila_project2.id, %{email: email})
@@ -321,17 +321,5 @@ defmodule RM.EmailTest do
 
       assert Email.list_contacts_by_email(email) |> length() == 2
     end
-  end
-
-  defp create_keila_project do
-    %{name: "Test Project", group_id: Keila.Auth.root_group().id}
-    |> Keila.Projects.Project.creation_changeset()
-    |> Keila.Repo.insert!()
-  end
-
-  defp create_keila_contact(project, email) do
-    %{email: email}
-    |> Keila.Contacts.Contact.creation_changeset(project.id)
-    |> Keila.Repo.insert!()
   end
 end

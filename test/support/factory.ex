@@ -288,4 +288,22 @@ defmodule RM.Factory do
       timezone: "Etc/UTC"
     }
   end
+
+  #
+  # Keila
+  #
+
+  @doc false
+  def insert_keila_project do
+    %{name: "Test Project", group_id: Keila.Auth.root_group().id}
+    |> Keila.Projects.Project.creation_changeset()
+    |> Keila.Repo.insert!()
+  end
+
+  @doc false
+  def insert_keila_contact(project, email) do
+    %{email: email}
+    |> Keila.Contacts.Contact.creation_changeset(project.id)
+    |> Keila.Repo.insert!()
+  end
 end

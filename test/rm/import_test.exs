@@ -7,8 +7,10 @@ defmodule RM.ImportTest do
 
   describe "import_from_team_info_tableau_export/2" do
     setup do
+      keila_project = Factory.insert_keila_project()
+
       Factory.insert(:user)
-      |> Factory.with_region(name: "Florida")
+      |> Factory.with_region(name: "Florida", metadata: %{keila_project_id: keila_project.id})
     end
 
     test "imports teams", %{user: user} do
