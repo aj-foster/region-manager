@@ -1,6 +1,6 @@
 defmodule RMWeb.Fallback do
   use RMWeb, :controller
-  use RMWeb, :json
+  import RMWeb.JSON
 
   def call(conn, {:error, data, :not_found}) do
     conn

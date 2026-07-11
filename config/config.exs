@@ -26,7 +26,7 @@ config :rm, External.FTCEvents.API, client: External.FTCEvents.API.Client
 # Dependencies
 #
 
-config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+config :elixir, :time_zone_database, Tz.TimeZoneDatabase
 
 config :esbuild,
   version: "0.17.11",

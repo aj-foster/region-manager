@@ -6,16 +6,17 @@ defmodule RM.Application do
   def start(_type, _args) do
     Oban.Telemetry.attach_default_logger(events: [:job, :notifier, :peer, :queue, :stager])
 
-    children = [
-      RMWeb.Telemetry,
-      RM.Repo,
-      RM.System.Config,
-      {DNSCluster, query: Application.get_env(:rm, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: RM.PubSub},
-      {Finch, name: RM.Finch},
-      RMWeb.Endpoint,
-      {Oban, Application.fetch_env!(:rm, Oban)}
-    ]
+    children =
+      [
+        RMWeb.Telemetry,
+        RM.Repo,
+        RM.System.Config,
+        {DNSCluster, query: Application.get_env(:rm, :dns_cluster_query) || :ignore},
+        {Phoenix.PubSub, name: RM.PubSub},
+        {Finch, name: RM.Finch},
+        RMWeb.Endpoint,
+        {Oban, Application.fetch_env!(:rm, Oban)}
+      ] ++ tz_children()
 
     opts = [strategy: :one_for_one, name: RM.Supervisor]
     Supervisor.start_link(children, opts)
@@ -25,5 +26,11 @@ defmodule RM.Application do
   def config_change(changed, _new, removed) do
     RMWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  if Mix.env() == :test do
+    defp tz_children, do: []
+  else
+    defp tz_children, do: [{Tz.UpdatePeriodically, [interval_in_days: 5]}]
   end
 end
