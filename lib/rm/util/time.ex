@@ -33,7 +33,13 @@ defmodule RM.Util.Time do
   #
   @tz_consolidation %{
     "Africa/Casablanca" => ["Africa/Casablanca", "Africa/El_Aaiun"],
-    "WET" => ["Atlantic/Canary", "Atlantic/Faroe", "Atlantic/Madeira", "Europe/Lisbon", "WET"],
+    "WET" => [
+      "Atlantic/Canary",
+      "Atlantic/Faroe",
+      "Atlantic/Madeira",
+      "Europe/Lisbon",
+      "WET"
+    ],
     "Australia/Adelaide" => ["Australia/Adelaide", "Australia/Broken_Hill"],
     "Asia/Gaza" => ["Asia/Gaza", "Asia/Hebron"],
     "America/Argentina/San_Juan" => [
@@ -74,7 +80,6 @@ defmodule RM.Util.Time do
       "America/Cambridge_Bay",
       "America/Ciudad_Juarez",
       "America/Denver",
-      "America/Edmonton",
       "America/Inuvik",
       "MST7MDT"
     ],
@@ -86,6 +91,7 @@ defmodule RM.Util.Time do
       "EET",
       "Europe/Athens",
       "Europe/Bucharest",
+      "Europe/Chisinau",
       "Europe/Helsinki",
       "Europe/Kyiv",
       "Europe/Riga",
@@ -124,12 +130,10 @@ defmodule RM.Util.Time do
     ],
     "America/Nuuk" => ["America/Nuuk", "America/Scoresbysund"],
     "Asia/Almaty" => ["Asia/Almaty", "Asia/Qostanay"],
-    "Asia/Choibalsan" => ["Asia/Choibalsan", "Asia/Ulaanbaatar"],
     "Asia/Khandyga" => ["Asia/Khandyga", "Asia/Yakutsk"],
     "America/Los_Angeles" => [
       "America/Los_Angeles",
       "America/Tijuana",
-      "America/Vancouver",
       "PST8PDT"
     ],
     "America/Argentina/Buenos_Aires" => [
