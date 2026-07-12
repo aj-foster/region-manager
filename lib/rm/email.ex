@@ -238,7 +238,7 @@ defmodule RM.Email do
     params = %{
       name: "#{region.name} Region (#{region.code})",
       project_id: region.metadata.keila_project_id,
-      filter: %{"data.#{region_code}" => "true"}
+      filter: %{"data.#{region_code}.sub" => "true"}
     }
 
     if region.metadata.keila_segment_id do
@@ -265,11 +265,12 @@ defmodule RM.Email do
           | {:error, Ecto.Changeset.t(Keila.Contacts.Segment.t())}
   def sync_coach_segment_for_region(region) do
     region_code = String.downcase(region.code)
+    season = to_string(region.current_season)
 
     params = %{
       name: "#{region.name} Region Coaches (#{region.code})",
       project_id: region.metadata.keila_project_id,
-      filter: %{"$and" => [%{"data.#{region_code}" => "true"}, %{"data.coach" => "true"}]}
+      filter: %{"data.#{region_code}.coach.#{season}" => "true"}
     }
 
     if region.metadata.keila_coach_segment_id do
@@ -296,14 +297,16 @@ defmodule RM.Email do
           | {:error, Ecto.Changeset.t(Keila.Contacts.Segment.t())}
   def sync_extended_coach_segment_for_region(region) do
     region_code = String.downcase(region.code)
+    season = to_string(region.current_season)
+    last_season = to_string(region.current_season - 1)
 
     params = %{
       name: "#{region.name} Region Coaches Extended (#{region.code})",
       project_id: region.metadata.keila_project_id,
       filter: %{
-        "$and" => [
-          %{"data.#{region_code}" => "true"},
-          %{"$or" => [%{"data.coach" => "true"}, %{"data.coach_last_season" => "true"}]}
+        "$or" => [
+          %{"data.#{region_code}.coach.#{season}" => "true"},
+          %{"data.#{region_code}.coach.#{last_season}" => "true"}
         ]
       }
     }
@@ -342,7 +345,7 @@ defmodule RM.Email do
     params = %{
       name: "#{region.name} #{league.name} League (#{region.code}#{league.code})",
       project_id: region.metadata.keila_project_id,
-      filter: %{"data.#{league_code}" => "true"}
+      filter: %{"data.#{league_code}.sub" => "true"}
     }
 
     if league.metadata.keila_segment_id do
@@ -369,11 +372,12 @@ defmodule RM.Email do
           | {:error, Ecto.Changeset.t(Keila.Contacts.Segment.t())}
   def sync_coach_segment_for_league(region, league) do
     league_code = String.downcase(region.code <> league.code)
+    season = to_string(region.current_season)
 
     params = %{
       name: "#{region.name} #{league.name} League Coaches (#{region.code}#{league.code})",
       project_id: region.metadata.keila_project_id,
-      filter: %{"$and" => [%{"data.#{league_code}" => "true"}, %{"data.coach" => "true"}]}
+      filter: %{"data.#{league_code}.coach.#{season}" => "true"}
     }
 
     if league.metadata.keila_coach_segment_id do
@@ -400,15 +404,17 @@ defmodule RM.Email do
           | {:error, Ecto.Changeset.t(Keila.Contacts.Segment.t())}
   def sync_extended_coach_segment_for_league(region, league) do
     league_code = String.downcase(region.code <> league.code)
+    season = to_string(region.current_season)
+    last_season = to_string(region.current_season - 1)
 
     params = %{
       name:
         "#{region.name} #{league.name} League Coaches Extended (#{region.code}#{league.code})",
       project_id: region.metadata.keila_project_id,
       filter: %{
-        "$and" => [
-          %{"data.#{league_code}" => "true"},
-          %{"$or" => [%{"data.coach" => "true"}, %{"data.coach_last_season" => "true"}]}
+        "$or" => [
+          %{"data.#{league_code}.coach.#{season}" => "true"},
+          %{"data.#{league_code}.coach.#{last_season}" => "true"}
         ]
       }
     }
@@ -447,40 +453,82 @@ defmodule RM.Email do
       team.user_assignments
       |> Enum.filter(&(not is_nil(&1.email)))
       |> Enum.each(fn assignment ->
+        region_code = String.downcase(team.region.code)
         league_code = if team.league, do: String.downcase(team.region.code <> team.league.code)
-        sync_coach_contact(project_id, assignment.email, league_code, assignment.name)
+
+        sync_coach_contact(
+          project_id,
+          assignment.email,
+          to_string(team.season),
+          region_code,
+          league_code,
+          assignment.name
+        )
       end)
     else
       :ok
     end
   end
 
-  @spec sync_coach_contact(String.t(), String.t(), String.t() | nil, String.t()) ::
+  @spec sync_coach_contact(
+          String.t(),
+          String.t(),
+          String.t(),
+          String.t(),
+          String.t() | nil,
+          String.t()
+        ) ::
           {:ok, Keila.Contacts.Contact.t()}
           | {:error, Ecto.Changeset.t(Keila.Contacts.Contact.t())}
-  defp sync_coach_contact(project_id, email, league_code, name) do
+  defp sync_coach_contact(project_id, email, season, region_code, league_code, name) do
+    status =
+      case get_address(email) do
+        %Address{unsubscribed_at: %DateTime{}} -> :unsubscribed
+        %Address{sendable: false} -> :bounced
+        _else -> :active
+      end
+
+    # New coach contacts get subscribed to the league and region by default, unless they are
+    # already marked as unsubscribed or bounced.
+    subscribed? = if status == :active, do: "true", else: "false"
+
     {first_name, last_name} =
       case String.split(name, " ", parts: 2) do
         [first_name, last_name] -> {first_name, last_name}
         [first_name] -> {first_name, ""}
       end
 
-    data =
-      if league_code do
-        %{"coach" => "true", league_code => "true"}
-      else
-        %{"coach" => "true"}
-      end
-
     if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
-      data = Map.merge(contact.data || %{}, data)
+      data =
+        (contact.data || %{})
+        |> update_in([Access.key(region_code, %{}), "sub"], fn
+          nil -> subscribed?
+          value -> value
+        end)
+        |> put_in([Access.key(region_code, %{}), Access.key("coach", %{}), season], "true")
+
+      data =
+        if league_code do
+          data
+          |> update_in([Access.key(league_code, %{}), "sub"], fn
+            nil -> subscribed?
+            value -> value
+          end)
+          |> put_in([Access.key(league_code, %{}), Access.key("coach", %{}), season], "true")
+        else
+          data
+        end
+
       Keila.Contacts.update_contact(contact.id, %{data: data})
     else
-      status =
-        case get_address(email) do
-          %Address{unsubscribed_at: %DateTime{}} -> :unsubscribed
-          %Address{sendable: false} -> :bounced
-          _else -> :active
+      data =
+        if league_code do
+          %{
+            region_code => %{"sub" => subscribed?, "coach" => %{"#{season}" => "true"}},
+            league_code => %{"sub" => subscribed?, "coach" => %{"#{season}" => "true"}}
+          }
+        else
+          %{region_code => %{"sub" => subscribed?, "coach" => %{"#{season}" => "true"}}}
         end
 
       Keila.Contacts.create_contact(
