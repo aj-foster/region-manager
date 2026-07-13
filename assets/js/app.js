@@ -26,6 +26,34 @@ Hooks.DragDropStyle = {
   }
 }
 
+Hooks.AutoClearFlash = {
+  mounted() {
+    if (["client-error", "server-error"].includes(this.el.id)) return;
+
+    this.hideTimer = setTimeout(() => {
+      this.el.style.opacity = 0;
+      delete this.hideTimer;
+    }, 5000);
+
+    this.clearTimer = setTimeout(() => {
+      this.pushEvent("lv:clear-flash");
+      delete this.clearTimer;
+    }, 5500);
+  },
+  destroyed() {
+    if (["client-error", "server-error"].includes(this.el.id)) return;
+
+    if (this.hideTimer) clearTimeout(this.hideTimer);
+    if (this.clearTimer) clearTimeout(this.clearTimer);
+  },
+  updated() {
+    if (["client-error", "server-error"].includes(this.el.id)) return;
+
+    this.destroyed();
+    this.mounted();
+  }
+}
+
 //
 // Live Socket
 //
