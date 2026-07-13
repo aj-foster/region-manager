@@ -1,0 +1,206 @@
+<.title class="mb-4">Manage Emails</.title>
+
+<.warning :if={@address.unsubscribed_at} class="mb-4">
+  This email address has been unsubscribed from receiving any emails from Region Manager.
+  This includes messages from region, league, and event administrators.
+</.warning>
+
+<.warning :if={not @address.sendable and is_nil(@address.unsubscribed_at)} class="mb-4">
+  This email address cannot receive messages due to previous bounced emails.
+  If you believe this is in error, please contact support.
+</.warning>
+
+<.card spaced>
+  <.table>
+    <:row title="Address">
+      {redact_email_address(@address.email)}
+    </:row>
+    <:row title="Status">
+      <%= cond do %>
+        <% @address.complained_at -> %>
+          <span class="text-orange-600">Email Sending Disabled (Reported as Spam)</span>
+        <% @address.permanently_bounced_at -> %>
+          <span class="text-orange-600">Email Sending Disabled (Permanently Bounced)</span>
+        <% @address.unsubscribed_at -> %>
+          <span class="text-orange-600">
+            Unsubscribed {format_date(@address.unsubscribed_at, :date)}
+          </span>
+        <% not @address.sendable -> %>
+          <span class="text-orange-600">Email Sending Disabled (Bounced Messages)</span>
+        <% :else -> %>
+          <span class="text-green-600">Able to Receive Messages</span>
+      <% end %>
+    </:row>
+  </.table>
+</.card>
+
+<.title class="mb-4">Subscriptions</.title>
+
+<.card :if={@subscriptions == []} spaced>
+  <p class="italic text-sm">
+    This email address is not subscribed to any region or league messages.
+  </p>
+</.card>
+
+<.card :if={@subscriptions != []} flush spaced>
+  <div :for={contact <- @subscriptions}>
+    <.list>
+      <:item class="flex gap-2 items-center px-2 py-2">
+        <.icon
+          :if={contact.region_subscribed?}
+          name="hero-check"
+          class="shrink-0 text-green-500"
+          title="Subscribed"
+        />
+        <.icon
+          :if={not contact.region_subscribed?}
+          name="hero-x-mark"
+          class="shrink-0 text-orange-500"
+          title="Not subscribed"
+        />
+
+        <span class="ml-2">
+          {contact.region.name} Region
+        </span>
+
+        <.tag :if={contact.region_coach?} class="bg-sky-100 border-sky-300">
+          Coach
+        </.tag>
+        <.tag
+          :if={not contact.region_coach? and contact.region_previous_coach?}
+          class="bg-sky-100 border-sky-300"
+        >
+          Previous Coach
+        </.tag>
+
+        <span class="grow"></span>
+
+        <.button
+          :if={contact.region_subscribed?}
+          class="text-red-600 text-sm"
+          phx-click="unsubscribe_region"
+          phx-value-code={contact.region.code}
+          phx-value-coach={contact.region_coach? && "true"}
+          style="plain"
+        >
+          Unsubscribe
+        </.button>
+        <.button
+          :if={not contact.region_subscribed?}
+          class="flex gap-1 items-center text-green-600 text-sm"
+          phx-click="subscribe_region"
+          phx-value-code={contact.region.code}
+          style="plain"
+          title="Subscribe"
+        >
+          <.icon
+            name="hero-plus-circle"
+            title="Subscribe"
+          /> Subscribe
+        </.button>
+      </:item>
+
+      <:item :for={league <- contact.leagues} class="flex gap-4 items-center px-2 py-2">
+        <.icon
+          :if={league.league_subscribed?}
+          name="hero-check"
+          class="shrink-0 text-green-500"
+          title="Subscribed"
+        />
+        <.icon
+          :if={not league.league_subscribed?}
+          name="hero-x-mark"
+          class="shrink-0 text-orange-500"
+          title="Not subscribed"
+        />
+
+        <span class="ml-6">
+          {league.league.name} League
+        </span>
+
+        <.tag :if={league.league_coach?} class="bg-sky-100 border-sky-300">
+          Coach
+        </.tag>
+        <.tag
+          :if={not league.league_coach? and league.league_previous_coach?}
+          class="bg-sky-100 border-sky-300"
+        >
+          Previous Coach
+        </.tag>
+
+        <span class="grow"></span>
+
+        <.button
+          :if={league.league_subscribed?}
+          class="text-red-600 text-sm"
+          phx-click="unsubscribe_league"
+          phx-value-code={contact.region.code <> league.league.code}
+          phx-value-coach={league.league_coach? && "true"}
+          style="plain"
+        >
+          Unsubscribe
+        </.button>
+        <.button
+          :if={not league.league_subscribed?}
+          class="flex gap-1 items-center text-green-600 text-sm"
+          phx-click="subscribe_league"
+          phx-value-code={contact.region.code <> league.league.code}
+          style="plain"
+          title="Subscribe"
+        >
+          <.icon
+            name="hero-plus-circle"
+            title="Subscribe"
+          /> Subscribe
+        </.button>
+      </:item>
+    </.list>
+  </div>
+</.card>
+
+<.title class="mb-4">Unsubscribe from All</.title>
+
+<.card>
+  <div :if={is_nil(@address.unsubscribed_at)}>
+    <p class="mb-4 text-sm">
+      If you no longer wish to receive any emails from Region Manager, including messages from
+      region, league, and event administrators, you can unsubscribe here:
+    </p>
+    <p>
+      <.button
+        phx-click="unsubscribe"
+        phx-disable-with="Unsubscribing..."
+      >
+        Unsubscribe from Emails
+      </.button>
+    </p>
+  </div>
+  <div :if={@address.unsubscribed_at}>
+    <p class="mb-4 text-sm">
+      If you wish to allow emails from Region Manager to be sent to this address again, you can
+      resubscribe here:
+    </p>
+    <p>
+      <.button
+        phx-click="resubscribe"
+        phx-disable-with="Resubscribing..."
+      >
+        Resubscribe to Emails
+      </.button>
+    </p>
+  </div>
+</.card>
+
+<.modal id="unsubscribe-coach">
+  <.title flush class="mb-4">Coach Emails</.title>
+  <p class="mb-4">
+    You are now unsubscribed from general emails, but you will still receive emails related to your
+    role as a coach. If you wish to change the email used for coach communication, please visit the
+    <a class="underline" href="https://my.firstinspires.org/Dashboard/"><em>FIRST</em> Dashboard</a>
+    and update your email address or manage your teams.
+  </p>
+  <p>
+    <em>FIRST</em> Dashboard updates are reflected in Region Manager the next time your Program
+    Delivery Partner imports team data.
+  </p>
+</.modal>

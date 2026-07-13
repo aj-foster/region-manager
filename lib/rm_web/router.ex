@@ -102,7 +102,7 @@ defmodule RMWeb.Router do
         {Identity.LiveView, :fetch_identity},
         {RMWeb.Live.Util, :preload_user}
       ] do
-      live "/email/manage", EmailLive.Index
+      live "/email/manage", EmailLive.Manage
     end
 
     live_session :admin,
