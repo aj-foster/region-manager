@@ -322,4 +322,76 @@ defmodule RM.EmailTest do
       assert Email.list_contacts_by_email(email) |> length() == 2
     end
   end
+
+  describe "subscribe_email/3" do
+    test "subscribes an email to a region" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+      email = "subscribe-#{System.unique_integer()}@example.com"
+      name = "Test User"
+
+      assert {:ok, contact} = Email.subscribe_email(email, name, region)
+      assert contact.email == email
+      assert contact.first_name == "Test"
+      assert contact.last_name == "User"
+
+      assert contact.data == %{
+               String.downcase(region.code) => %{"sub" => "true"}
+             }
+    end
+
+    test "subscribes an email to a league" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+      league = Factory.insert(:league, region: region)
+      email = "subscribe-#{System.unique_integer()}@example.com"
+      name = "League User"
+
+      assert {:ok, contact} = Email.subscribe_email(email, name, league)
+      assert contact.email == email
+      assert contact.first_name == "League"
+      assert contact.last_name == "User"
+
+      assert contact.data == %{
+               String.downcase(region.code <> String.downcase(league.code)) => %{"sub" => "true"}
+             }
+    end
+  end
+
+  describe "unsubscribe_email/2" do
+    test "unsubscribes an email from a region" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+      email = "unsubscribe-#{System.unique_integer()}@example.com"
+      name = "Unsubscribe User"
+
+      assert {:error, :not_found} = Email.unsubscribe_email(email, region)
+
+      {:ok, contact} = Email.subscribe_email(email, name, region)
+      assert contact.data[String.downcase(region.code)]["sub"] == "true"
+
+      assert {:ok, contact} = Email.unsubscribe_email(email, region)
+      assert contact.data[String.downcase(region.code)]["sub"] == "false"
+    end
+
+    test "unsubscribes an email from a league" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+      league = Factory.insert(:league, region: region)
+      email = "unsubscribe-#{System.unique_integer()}@example.com"
+      name = "Unsubscribe League User"
+
+      assert {:error, :not_found} = Email.unsubscribe_email(email, league)
+
+      {:ok, contact} = Email.subscribe_email(email, name, league)
+
+      assert contact.data[String.downcase(region.code <> String.downcase(league.code))]["sub"] ==
+               "true"
+
+      assert {:ok, contact} = Email.unsubscribe_email(email, league)
+
+      assert contact.data[String.downcase(region.code <> String.downcase(league.code))]["sub"] ==
+               "false"
+    end
+  end
 end

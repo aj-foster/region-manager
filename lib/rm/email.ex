@@ -556,4 +556,108 @@ defmodule RM.Email do
     |> preload([project: p], project: p)
     |> Keila.Repo.all()
   end
+
+  @doc """
+  Subscribe the given email address to the given region or league in Keila
+  """
+  @spec subscribe_email(String.t(), String.t(), RM.FIRST.Region.t() | RM.Local.League.t()) ::
+          {:ok, Keila.Contacts.Contact.t()}
+          | {:error, Ecto.Changeset.t(Keila.Contacts.Contact.t())}
+  def subscribe_email(email, name, %RM.FIRST.Region{} = region) do
+    project_id = region.metadata.keila_project_id
+    region_code = String.downcase(region.code)
+
+    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
+      data =
+        (contact.data || %{})
+        |> put_in([Access.key(region_code, %{}), "sub"], "true")
+
+      Keila.Contacts.update_contact(contact.id, %{data: data})
+    else
+      data = %{region_code => %{"sub" => "true"}}
+
+      {first_name, last_name} =
+        case String.split(name, " ", parts: 2) do
+          [first_name, last_name] -> {first_name, last_name}
+          [first_name] -> {first_name, ""}
+        end
+
+      Keila.Contacts.create_contact(
+        project_id,
+        %{
+          email: email,
+          first_name: first_name,
+          data: data,
+          last_name: last_name
+        }
+      )
+    end
+  end
+
+  def subscribe_email(email, name, %RM.Local.League{} = league) do
+    project_id = league.region.metadata.keila_project_id
+    league_code = String.downcase(league.region.code <> league.code)
+
+    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
+      data =
+        (contact.data || %{})
+        |> put_in([Access.key(league_code, %{}), "sub"], "true")
+
+      Keila.Contacts.update_contact(contact.id, %{data: data})
+    else
+      data = %{league_code => %{"sub" => "true"}}
+
+      {first_name, last_name} =
+        case String.split(name, " ", parts: 2) do
+          [first_name, last_name] -> {first_name, last_name}
+          [first_name] -> {first_name, ""}
+        end
+
+      Keila.Contacts.create_contact(
+        project_id,
+        %{
+          email: email,
+          first_name: first_name,
+          data: data,
+          last_name: last_name
+        }
+      )
+    end
+  end
+
+  @doc """
+  Unsubscribe the given email address from the given region or league in Keila
+  """
+  @spec unsubscribe_email(String.t(), RM.FIRST.Region.t() | RM.Local.League.t()) ::
+          {:ok, Keila.Contacts.Contact.t()}
+          | {:error, Ecto.Changeset.t(Keila.Contacts.Contact.t()) | :not_found}
+  def unsubscribe_email(email, %RM.FIRST.Region{} = region) do
+    project_id = region.metadata.keila_project_id
+    region_code = String.downcase(region.code)
+
+    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
+      data =
+        (contact.data || %{})
+        |> put_in([Access.key(region_code, %{}), "sub"], "false")
+
+      Keila.Contacts.update_contact(contact.id, %{data: data})
+    else
+      {:error, :not_found}
+    end
+  end
+
+  def unsubscribe_email(email, %RM.Local.League{} = league) do
+    project_id = league.region.metadata.keila_project_id
+    league_code = String.downcase(league.region.code <> league.code)
+
+    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
+      data =
+        (contact.data || %{})
+        |> put_in([Access.key(league_code, %{}), "sub"], "false")
+
+      Keila.Contacts.update_contact(contact.id, %{data: data})
+    else
+      {:error, :not_found}
+    end
+  end
 end
