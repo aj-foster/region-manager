@@ -1,0 +1,40 @@
+{
+  "name": "Region Manager",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && ${containerWorkspaceFolder}/.devcontainer/post-start.sh",
+  "features": {
+    "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+      "packages": "inotify-tools"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": "true",
+      "username": "vscode",
+      "userUid": "1000",
+      "userGid": "1000",
+      "upgradePackages": "false"
+    },
+    "ghcr.io/devcontainers-extra/features/cmake:1": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/node:2": {
+      "version": "24"
+    },
+    "ghcr.io/robbert229/devcontainer-features/postgresql-client:1": {
+      "version": "17"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "expertlsp.expert",
+        "phoenixframework.phoenix",
+        "pgourlain.erlang"
+      ]
+    }
+  },
+  "forwardPorts": [
+    4000,
+    "db:5432"
+  ]
+}

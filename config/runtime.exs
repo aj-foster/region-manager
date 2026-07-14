@@ -4,6 +4,22 @@ if System.get_env("PHX_SERVER") do
   config :rm, RMWeb.Endpoint, server: true
 end
 
+if pgsql_url = System.get_env("PGSQL_URL") do
+  if config_env() == :test do
+    config :rm, RM.Repo, url: String.replace(pgsql_url, "_dev", "_test")
+  else
+    config :rm, RM.Repo, url: pgsql_url
+  end
+end
+
+if pgsql_keila_url = System.get_env("PGSQL_KEILA_URL") do
+  if config_env() == :test do
+    config :keila, Keila.Repo, url: String.replace(pgsql_keila_url, "_dev", "_test")
+  else
+    config :keila, Keila.Repo, url: pgsql_keila_url
+  end
+end
+
 if config_env() == :prod do
   #
   # DB

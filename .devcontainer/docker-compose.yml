@@ -1,0 +1,27 @@
+services:
+  app:
+    image: hexpm/elixir:1.19.5-erlang-28.4.1-debian-trixie-20260610
+    volumes:
+      - ../:/workspace:cached
+    command: sleep infinity
+    environment:
+      PGSQL_URL: "ecto://postgres:postgres@db:5432/rm_dev"
+      PGSQL_KEILA_URL: "ecto://postgres:postgres@db:5432/rm_keila_dev"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "4000:4000"
+
+  db:
+    image: postgres:17.0
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rm_dev
+    ports:
+      - "${PG_HOST_PORT:-5433}:5432"
+
+volumes:
+  postgres-data:
