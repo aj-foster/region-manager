@@ -397,6 +397,12 @@ defmodule RM.Local do
     end
   end
 
+  @spec create_league(Region.t(), map) :: {:ok, League.t()} | {:error, Changeset.t(League.t())}
+  def create_league(region, params) do
+    League.create_changeset(region, params)
+    |> Repo.insert()
+  end
+
   @spec create_league_from_first(RM.FIRST.League.t()) ::
           {:ok, League.t()} | {:error, Changeset.t(League.t())}
   def create_league_from_first(first_league) do

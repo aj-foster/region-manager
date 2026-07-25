@@ -20,7 +20,7 @@ defmodule RM.Local.League do
 
   @type t :: %__MODULE__{}
 
-  @required_fields [:code, :location, :name, :remote]
+  @required_fields [:code, :location, :name]
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -29,7 +29,7 @@ defmodule RM.Local.League do
     field :code, :string
     field :location, :string
     field :name, :string
-    field :remote, :boolean
+    field :remote, :boolean, default: false
     field :removed_at, :utc_datetime_usec
 
     belongs_to :parent_league, __MODULE__
@@ -60,6 +60,18 @@ defmodule RM.Local.League do
   #
   # Changesets
   #
+
+  @doc """
+  Create a changeset for creating a new league
+  """
+  @spec create_changeset(RM.FIRST.Region.t(), map) :: Changeset.t(t)
+  def create_changeset(%RM.FIRST.Region{} = region, params) do
+    %__MODULE__{}
+    |> Changeset.cast(params, [:code, :location, :name, :remote])
+    |> Changeset.put_assoc(:region, region)
+    |> Changeset.validate_required(@required_fields)
+    |> Changeset.unique_constraint([:code, :region_id])
+  end
 
   @doc """
   Create a changeset for editing league details
