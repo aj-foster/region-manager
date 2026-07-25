@@ -19,29 +19,37 @@ defmodule RM.Local.EventProposal do
 
   @typedoc "Event type"
   @type type ::
-          :scrimmage
+          :non_advancement
           | :league_meet
           | :qualifier
           | :league_tournament
+          | :super_qualifier
           | :regional_championship
-          | :off_season
           | :kickoff
-          | :workshop
-          | :demo
+          | :demo_workshop
           | :volunteer
+          # Deprecated:
+          | :scrimmage
+          | :off_season
+          | :demo
+          | :workshop
           | :practice
 
   @types [
-    :scrimmage,
+    :non_advancement,
     :league_meet,
     :qualifier,
     :league_tournament,
+    :super_qualifier,
     :regional_championship,
-    :off_season,
     :kickoff,
-    :workshop,
-    :demo,
+    :demo_workshop,
     :volunteer,
+    # Deprecated:
+    :scrimmage,
+    :off_season,
+    :demo,
+    :workshop,
     :practice
   ]
 

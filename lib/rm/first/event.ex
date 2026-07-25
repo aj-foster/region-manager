@@ -13,35 +13,41 @@ defmodule RM.FIRST.Event do
 
   @typedoc "Event type"
   @type type ::
-          :scrimmage
+          :non_advancement
           | :league_meet
           | :qualifier
           | :league_tournament
+          | :super_qualifier
           | :regional_championship
           | :championship
-          | :super_qualifier
-          | :off_season
           | :kickoff
-          | :workshop
-          | :demo
+          | :demo_workshop
           | :volunteer
-          | :practice
           | :unknown
+          # Deprecated:
+          | :scrimmage
+          | :off_season
+          | :demo
+          | :workshop
+          | :practice
   @types [
-    :scrimmage,
+    :non_advancement,
     :league_meet,
     :qualifier,
     :league_tournament,
+    :super_qualifier,
     :regional_championship,
     :championship,
-    :super_qualifier,
-    :off_season,
     :kickoff,
-    :workshop,
-    :demo,
+    :demo_workshop,
     :volunteer,
-    :practice,
-    :unknown
+    :unknown,
+    # Deprecated:
+    :scrimmage,
+    :off_season,
+    :demo,
+    :workshop,
+    :practice
   ]
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -296,20 +302,23 @@ defmodule RM.FIRST.Event do
 
   @doc "Human-readable name of the given event type"
   @spec type_name(type) :: String.t()
-  def type_name(:scrimmage), do: "Scrimmage"
+  def type_name(:non_advancement), do: "Non-Advancement"
   def type_name(:league_meet), do: "League Meet"
   def type_name(:qualifier), do: "Qualifier"
   def type_name(:league_tournament), do: "League Tournament"
+  def type_name(:super_qualifier), do: "Super-Qualifier"
   def type_name(:regional_championship), do: "Regional Championship"
   def type_name(:championship), do: "FIRST Championship"
-  def type_name(:super_qualifier), do: "Super-Qualifier"
-  def type_name(:off_season), do: "Off-Season"
   def type_name(:kickoff), do: "Kickoff"
-  def type_name(:workshop), do: "Workshop"
-  def type_name(:demo), do: "Demo / Exhibition"
+  def type_name(:demo_workshop), do: "Demo or Workshop"
   def type_name(:volunteer), do: "Volunteer Signup"
-  def type_name(:practice), do: "Practice Day"
   def type_name(:unknown), do: "Unknown"
+  # Deprecated
+  def type_name(:scrimmage), do: "Scrimmage"
+  def type_name(:off_season), do: "Off-Season"
+  def type_name(:demo), do: "Demo / Exhibition"
+  def type_name(:workshop), do: "Workshop"
+  def type_name(:practice), do: "Practice Day"
 
   #
   # Protocols

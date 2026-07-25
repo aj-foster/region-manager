@@ -222,22 +222,26 @@ defmodule RM.Local.EventBatch do
   end
 
   @spec event_type(EventProposal.t()) :: String.t()
-  defp event_type(%EventProposal{type: :scrimmage}), do: "Non-Advancement"
+  defp event_type(%EventProposal{type: :non_advancement}), do: "Non-Advancement"
   defp event_type(%EventProposal{type: :league_meet}), do: "League Meet"
   defp event_type(%EventProposal{type: :qualifier}), do: "Qualifier"
   defp event_type(%EventProposal{type: :league_tournament}), do: "League Tournament"
   defp event_type(%EventProposal{type: :super_qualifier}), do: "Super Qualifier"
   defp event_type(%EventProposal{type: :regional_championship}), do: "Championship"
-  defp event_type(%EventProposal{type: :off_season}), do: "Non-Advancement"
   defp event_type(%EventProposal{type: :kickoff}), do: "Kickoff"
-  defp event_type(%EventProposal{type: :workshop}), do: "Demonstration or Workshop"
-  defp event_type(%EventProposal{type: :demo}), do: "Demonstration or Workshop"
+  defp event_type(%EventProposal{type: :demo_workshop}), do: "Demonstration or Workshop"
   defp event_type(%EventProposal{type: :volunteer}), do: "Volunteer Signup"
+  # Deprecated
+  defp event_type(%EventProposal{type: :scrimmage}), do: "Non-Advancement"
+  defp event_type(%EventProposal{type: :off_season}), do: "Non-Advancement"
+  defp event_type(%EventProposal{type: :demo}), do: "Demonstration or Workshop"
+  defp event_type(%EventProposal{type: :workshop}), do: "Demonstration or Workshop"
   defp event_type(%EventProposal{type: :practice}), do: "Non-Advancement"
 
   @spec event_style(EventProposal.t()) :: String.t()
   defp event_style(%EventProposal{format: :traditional}), do: "TRADITIONAL"
   defp event_style(%EventProposal{format: :hybrid}), do: "HYBRID"
+  # Deprecated
   defp event_style(%EventProposal{format: :remote}), do: "REMOTE"
 
   @spec league(EventProposal.t()) :: String.t()

@@ -269,7 +269,7 @@ defmodule RMWeb.ProposalLive.New do
   @spec proposal_normalize_format(map) :: map
   defp proposal_normalize_format(params) do
     cond do
-      params["type"] in ["kickoff", "league_meet", "demo", "workshop"] ->
+      params["type"] in ["kickoff", "league_meet", "demo_workshop"] ->
         Map.put(params, "format", "traditional")
 
       params["format"] in [nil, ""] ->
@@ -356,12 +356,11 @@ defmodule RMWeb.ProposalLive.New do
   defp event_type_options(nil) do
     [
       :kickoff,
-      :scrimmage,
+      :non_advancement,
       :qualifier,
+      :super_qualifier,
       :regional_championship,
-      :off_season,
-      :workshop,
-      :demo
+      :demo_workshop
     ]
     |> Enum.map(fn type ->
       {RM.FIRST.Event.type_name(type), to_string(type)}
@@ -371,12 +370,10 @@ defmodule RMWeb.ProposalLive.New do
   defp event_type_options(_league) do
     [
       :kickoff,
-      :scrimmage,
+      :non_advancement,
       :league_meet,
       :league_tournament,
-      :off_season,
-      :workshop,
-      :demo
+      :demo_workshop
     ]
     |> Enum.map(fn type ->
       {RM.FIRST.Event.type_name(type), to_string(type)}
