@@ -14,6 +14,15 @@
     @first_league,
     @region
   )}
+
+  <:action>
+    <.link_button
+      :if={can?(@current_user, :league_create, @region)}
+      navigate={url_for([@season, @region, :leagues, :new])}
+    >
+      Create...
+    </.link_button>
+  </:action>
 </.title>
 
 <.card :if={@leagues_count > 0} flush spaced>

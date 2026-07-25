@@ -32,6 +32,7 @@ defmodule RMWeb.RegionLive.Util do
       </.nav_item>
       <.nav_item
         :if={@region.has_leagues}
+        children={[LeagueLive.New]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/leagues"}
         target={LeagueLive.Index}

@@ -147,6 +147,10 @@ defmodule RM.Account.Auth do
     league.region_id in region_ids(user) or league.id in league_ids_with_users(user)
   end
 
+  def can?(%User{} = user, :league_create, %Region{id: region_id}) do
+    region_id in region_ids(user)
+  end
+
   # Update default registration settings for a league
   def can?(%User{} = user, :league_settings_update, %Local.League{} = league) do
     league.region_id in region_ids(user) or league.id in league_ids_with_events(user)
