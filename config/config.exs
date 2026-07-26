@@ -51,6 +51,7 @@ config :phoenix, :json_library, Jason
 
 config :rm, Oban,
   engine: Oban.Engines.Basic,
+  notifier: Oban.Notifiers.PG,
   plugins: [
     {Oban.Plugins.Cron,
      crontab: [
