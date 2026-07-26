@@ -138,7 +138,7 @@ if config_env() == :prod do
 
   config :keila, Keila.Repo,
     url: keila_database_url,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    pool_size: String.to_integer(System.get_env("KEILA_POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
     ssl: [
       verify: :verify_peer,

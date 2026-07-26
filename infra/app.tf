@@ -132,6 +132,13 @@ resource "digitalocean_app" "this" {
       }
 
       env {
+        key   = "KEILA_POOL_SIZE"
+        value = "4"
+        scope = "RUN_TIME"
+        type  = "GENERAL"
+      }
+
+      env {
         key   = "PHX_HOST"
         value = var.domain
         scope = "RUN_TIME"
@@ -140,7 +147,7 @@ resource "digitalocean_app" "this" {
 
       env {
         key   = "POOL_SIZE"
-        value = "10"
+        value = "6"
         scope = "RUN_TIME"
         type  = "GENERAL"
       }
