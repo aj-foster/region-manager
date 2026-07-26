@@ -20,6 +20,9 @@ config :rm, RMWeb.Endpoint,
 
 config :rm, RM.Mailer, adapter: Swoosh.Adapters.Local, hostname: "rm.local"
 
+# Support PgBouncer
+config :rm, RM.Repo, prepare: :unnamed
+
 config :rm, External.FTCEvents.API, client: External.FTCEvents.API.Client
 
 #
@@ -93,6 +96,9 @@ config :waffle,
 #
 # Keila
 #
+
+# Support PgBouncer
+config :keila, Keila.Repo, prepare: :unnamed
 
 config :keila, ecto_repos: [Keila.Repo]
 config :keila, KeilaWeb.ContactsCsvExport, chunk_size: 100

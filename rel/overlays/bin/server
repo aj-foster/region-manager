@@ -1,4 +1,5 @@
 #!/bin/sh
 cd -P -- "$(dirname -- "$0")"
-./rm eval RM.Repo.migrate_up
+DATABASE_URL="$DATABASE_DIRECT_URL" POOL_SIZE=1 ./rm eval "RM.Repo.migrate_up()"
+KEILA_DATABASE_URL="$KEILA_DATABASE_DIRECT_URL" KEILA_POOL_SIZE=1 ./rm eval "Keila.ReleaseTasks.init()"
 PHX_SERVER=true exec ./rm start

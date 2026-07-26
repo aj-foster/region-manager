@@ -6,7 +6,6 @@ defmodule RM.Application do
   def start(_type, _args) do
     # Disabled due to Keila cron job logs
     # Oban.Telemetry.attach_default_logger(events: [:job, :notifier, :peer, :queue, :stager])
-    maybe_run_keila_migrations()
 
     children =
       [
@@ -44,11 +43,5 @@ defmodule RM.Application do
   else
     defp keila_scheduler, do: [{Keila.Mailings.Scheduler, []}]
     defp tz_children, do: [{Tz.UpdatePeriodically, [interval_in_days: 5]}]
-  end
-
-  defp maybe_run_keila_migrations do
-    unless Application.get_env(:keila, :skip_migrations) do
-      Keila.ReleaseTasks.init()
-    end
   end
 end
