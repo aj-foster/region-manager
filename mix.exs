@@ -10,7 +10,7 @@ defmodule RM.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      releases: [rm: [steps: [:assemble, :tar]]],
+      releases: [rm: [applications: [keila: :load], steps: [:assemble, :tar]]],
       listeners: listeners(),
       dialyzer: [
         plt_add_apps: [:keila]
