@@ -90,6 +90,13 @@ resource "digitalocean_app" "this" {
       }
 
       env {
+        key   = "DATABASE_DIRECT_URL"
+        value = var.rm_database_direct_url
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
+
+      env {
         key   = "DATABASE_URL"
         value = var.rm_database_url
         scope = "RUN_TIME"
@@ -125,6 +132,13 @@ resource "digitalocean_app" "this" {
       }
 
       env {
+        key   = "KEILA_DATABASE_DIRECT_URL"
+        value = var.rm_keila_database_direct_url
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
+
+      env {
         key   = "KEILA_DATABASE_URL"
         value = var.rm_keila_database_url
         scope = "RUN_TIME"
@@ -133,7 +147,7 @@ resource "digitalocean_app" "this" {
 
       env {
         key   = "KEILA_POOL_SIZE"
-        value = "4"
+        value = "5"
         scope = "RUN_TIME"
         type  = "GENERAL"
       }
@@ -147,7 +161,7 @@ resource "digitalocean_app" "this" {
 
       env {
         key   = "POOL_SIZE"
-        value = "6"
+        value = "10"
         scope = "RUN_TIME"
         type  = "GENERAL"
       }

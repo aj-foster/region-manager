@@ -28,6 +28,8 @@ variable "rm_database_cacert" { sensitive = true }
 
 # "ecto://username:password@host:port/database_name"
 variable "rm_database_url" { sensitive = true }
+# Similar to `rm_database_url`, but bypasses the PgBouncer connection pool.
+variable "rm_database_direct_url" { sensitive = true }
 
 # UUID supplied by the FTC Events API developers
 variable "rm_ftc_events_api_key" { sensitive = true }
@@ -41,6 +43,8 @@ variable "rm_hcaptcha_site_key" { sensitive = true }
 
 # "ecto://username:password@host:port/database_name"
 variable "rm_keila_database_url" { sensitive = true }
+# Similar to `rm_keila_database_url`, but bypasses the PgBouncer connection pool.
+variable "rm_keila_database_direct_url" { sensitive = true }
 
 # Use `mix phx.gen.secret` in the root of this project to generate a secret
 variable "rm_secret_key_base" { sensitive = true }
