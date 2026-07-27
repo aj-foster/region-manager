@@ -5,6 +5,10 @@ defmodule RM.EmailTest do
   alias RM.Email.Address
   alias RM.Email.List
 
+  #
+  # Addresses
+  #
+
   describe "known_address?/1" do
     test "returns true for a known address" do
       address = Factory.insert(:address)
@@ -107,6 +111,10 @@ defmodule RM.EmailTest do
     end
   end
 
+  #
+  # Lists
+  #
+
   describe "create_list/1" do
     test "creates a list with valid data" do
       params = %{
@@ -153,6 +161,24 @@ defmodule RM.EmailTest do
 
       assert {:error, changeset} = Email.create_list(params)
       assert %{auto_subscribe: %{admins: ["is invalid"]}} = errors_on(changeset)
+    end
+  end
+
+  #
+  # Keila: Regions
+  #
+
+  describe "get_keila_project/1" do
+    test "returns the Keila project for a region with a valid project ID" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+
+      assert Email.get_keila_project(region).id == keila_project.id
+    end
+
+    test "returns nil for a region without a Keila project ID" do
+      region = Factory.insert(:region, metadata: %{keila_project_id: nil})
+      assert Email.get_keila_project(region) == nil
     end
   end
 
@@ -227,6 +253,10 @@ defmodule RM.EmailTest do
     end
   end
 
+  #
+  # Keila: Leagues
+  #
+
   describe "sync_segment_for_league/1" do
     test "syncs the segment for a given league" do
       keila_project = Factory.insert_keila_project()
@@ -292,6 +322,10 @@ defmodule RM.EmailTest do
     end
   end
 
+  #
+  # Keila: Users
+  #
+
   describe "sync_coach_contacts_for_team/1" do
     test "syncs the coach contacts for a given team" do
       keila_project = Factory.insert_keila_project()
@@ -308,6 +342,10 @@ defmodule RM.EmailTest do
       assert MapSet.new([contact1.email, contact2.email]) == MapSet.new([ut1.email, ut2.email])
     end
   end
+
+  #
+  # Keila: Subscription Management
+  #
 
   describe "list_contacts_by_email/1" do
     test "returns contacts with the given email across all projects" do

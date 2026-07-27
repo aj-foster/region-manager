@@ -198,6 +198,16 @@ defmodule RM.Email do
   #
 
   @doc """
+  Get the Keila project for a region, if any
+  """
+  @spec get_keila_project(RM.FIRST.Region.t()) :: Keila.Projects.Project.t() | nil
+  def get_keila_project(%RM.FIRST.Region{metadata: %{keila_project_id: nil}}), do: nil
+
+  def get_keila_project(%RM.FIRST.Region{metadata: %{keila_project_id: project_id}}) do
+    Keila.Projects.get_project(project_id)
+  end
+
+  @doc """
   Sync a single region to Keila, creating or updating the corresponding project as needed
   """
   @spec sync_project_for_region(RM.FIRST.Region.t()) ::
@@ -544,6 +554,10 @@ defmodule RM.Email do
       )
     end
   end
+
+  #
+  # Keila: Subscription Management
+  #
 
   @doc """
   List all contacts in Keila with the given email address, across all projects
