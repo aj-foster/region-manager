@@ -77,6 +77,9 @@ defmodule RM.FIRST.Region do
       # Default state/province, if any, for event proposals in this region
       field :default_state_province, :string
 
+      # [Tag] prefix for email subjects
+      field :email_prefix, :string
+
       # Keila project ID for this region, if any
       field :keila_project_id, :string
 

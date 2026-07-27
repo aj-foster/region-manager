@@ -46,6 +46,7 @@ defmodule RM.Local.League do
     has_many :venues, Venue
 
     embeds_one :metadata, Metadata, on_replace: :update, primary_key: false do
+      field :email_prefix, :string
       field :keila_segment_id, :string
       field :keila_coach_segment_id, :string
       field :keila_extended_coach_segment_id, :string
