@@ -129,16 +129,10 @@ if config_env() == :prod do
   # Keila
   #
 
-  keila_database_url =
-    System.get_env("KEILA_DATABASE_URL") ||
-      raise """
-      environment variable KEILA_DATABASE_URL is missing.
-      For example: ecto://USER:PASS@HOST/DATABASE
-      """
-
+  # Keila scheduler requires a direct connection.
   config :keila, Keila.Repo,
-    url: keila_database_url,
-    pool_size: String.to_integer(System.get_env("KEILA_POOL_SIZE") || "10"),
+    url: System.fetch_env!("KEILA_DATABASE_DIRECT_URL"),
+    pool_size: String.to_integer(System.get_env("KEILA_POOL_SIZE") || "5"),
     socket_options: maybe_ipv6,
     ssl: [
       verify: :verify_peer,
