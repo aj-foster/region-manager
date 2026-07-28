@@ -53,3 +53,8 @@
   border-top: 1px solid #cbd5e1;
   margin: 1rem 0;
 }
+
+#wysiwyg .ProseMirror a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
