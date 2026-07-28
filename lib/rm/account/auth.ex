@@ -37,6 +37,18 @@ defmodule RM.Account.Auth do
   end
 
   #
+  # Email Messages
+  #
+
+  def can?(%User{} = user, :email_message_send, %Region{id: region_id}) do
+    region_id in region_ids(user)
+  end
+
+  def can?(%User{} = user, :email_message_send, %Local.League{id: league_id, region_id: region_id}) do
+    region_id in region_ids(user) or league_id in league_ids_with_email(user)
+  end
+
+  #
   # Event Settings
   #
 
