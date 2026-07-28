@@ -33,6 +33,10 @@ defmodule RM.System.Console do
   end
 
   def sync_projects_to_keila do
+    unless Keila.Repo.get_by(Keila.Auth.Group, name: "root") do
+      Keila.Repo.insert!(%Keila.Auth.Group{name: "root"})
+    end
+
     RM.FIRST.Region
     |> RM.Repo.all()
     |> Enum.each(fn region ->
