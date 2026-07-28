@@ -12,6 +12,86 @@ let Hooks = {
   MarkdownEditor,
 };
 
+Hooks.MarkdownLinkDialog = {
+  mounted() {
+    this.dialog = this.el.querySelector("dialog");
+    this.form = this.el.querySelector("form");
+    this.hrefInput = this.el.querySelector("[name='href']");
+    this.titleInput = this.el.querySelector("[name='title']");
+    this.cancelButton = this.el.querySelector("[data-action='cancel']");
+    this.skipCancelDispatch = false;
+
+    if (!this.dialog || !this.form || !this.hrefInput || !this.titleInput || !this.cancelButton) return;
+
+    this.dispatchUpdateLink = (detail) => {
+      window.dispatchEvent(new CustomEvent("update-link", { detail }));
+    };
+
+    this.handleShow = (event) => {
+      const detail = event.detail || {};
+
+      this.hrefInput.value = detail.href || "";
+      this.titleInput.value = detail.title || "";
+
+      if (!this.dialog.open) {
+        this.dialog.showModal();
+      }
+
+      this.hrefInput.focus();
+      this.hrefInput.select();
+    };
+
+    this.handleSubmit = (event) => {
+      event.preventDefault();
+
+      const href = this.hrefInput.value.trim();
+      const title = this.titleInput.value.trim();
+
+      this.dispatchUpdateLink({
+        cancel: false,
+        href,
+        title: title === "" ? null : title,
+      });
+
+      this.skipCancelDispatch = true;
+      this.dialog.close();
+    };
+
+    this.handleCancelClick = (event) => {
+      event.preventDefault();
+      this.dialog.close();
+    };
+
+    this.handleClose = () => {
+      if (this.skipCancelDispatch) {
+        this.skipCancelDispatch = false;
+        return;
+      }
+
+      this.dispatchUpdateLink({ cancel: true });
+    };
+
+    this.el.addEventListener("x-show", this.handleShow);
+    this.form.addEventListener("submit", this.handleSubmit);
+    this.cancelButton.addEventListener("click", this.handleCancelClick);
+    this.dialog.addEventListener("close", this.handleClose);
+  },
+
+  destroyed() {
+    if (this.dialog?.open) {
+      this.skipCancelDispatch = true;
+      this.dialog.close();
+    }
+
+    if (this.el && this.handleShow) this.el.removeEventListener("x-show", this.handleShow);
+    if (this.form && this.handleSubmit) this.form.removeEventListener("submit", this.handleSubmit);
+    if (this.cancelButton && this.handleCancelClick) {
+      this.cancelButton.removeEventListener("click", this.handleCancelClick);
+    }
+    if (this.dialog && this.handleClose) this.dialog.removeEventListener("close", this.handleClose);
+  },
+};
+
 Hooks.DragDropStyle = {
   mounted() {
     this.el.addEventListener("dragover", () => {
