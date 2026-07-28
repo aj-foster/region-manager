@@ -11,6 +11,20 @@ defmodule RMWeb.Live.Util do
   alias RM.Local
 
   @doc """
+  Wrap the socket in a `{:cont, socket}` tuple
+
+  This function is purely cosmetic, allowing most LiveView on_mount callbacks to be completed with
+  a pipeline:
+
+      socket
+      |> assign(...)
+      |> cont()
+
+  """
+  @spec cont(Socket.t()) :: {:cont, Socket.t()}
+  def cont(socket), do: {:cont, socket}
+
+  @doc """
   Copy data to the browser's clipboard
 
   This function allows an action (such as `phx-click`) to initiate copying data to the clipboard.
@@ -69,6 +83,20 @@ defmodule RMWeb.Live.Util do
   def copy(js \\ %JS{}, target) do
     JS.dispatch(js, "phx:copy", to: target)
   end
+
+  @doc """
+  Wrap the socket in a `{:halt, socket}` tuple
+
+  This function is purely cosmetic, allowing most LiveView on_mount callbacks to be completed with
+  a pipeline:
+
+      socket
+      |> assign(...)
+      |> halt()
+
+  """
+  @spec halt(Socket.t()) :: {:halt, Socket.t()}
+  def halt(socket), do: {:halt, socket}
 
   @doc """
   Send a `Phoenix.LiveView.JS.exec/1` call to the client
