@@ -1,4 +1,5 @@
 @import "_font.css";
+@import "_markdown.css";
 
 @import "tailwindcss/base";
 @import "tailwindcss/components";
