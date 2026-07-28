@@ -1245,17 +1245,6 @@ defmodule RMWeb.CoreComponents do
   end
 
   @doc """
-  Add "League" to the end of a league name if it is missing
-  """
-  @spec format_league_name(String.t()) :: String.t()
-  def format_league_name(league_name) do
-    if String.match?(league_name, ~r/league\s*/i) do
-      league_name
-    else
-    end
-  end
-
-  @doc """
   Construct a URL with the given segments
   """
   @spec url_for([term]) :: String.t()
