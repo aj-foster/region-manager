@@ -1,1 +1,72 @@
 <.title>Edit Draft</.title>
+
+<.card>
+  <.form
+    :let={f}
+    for={@changeset}
+    id="campaign"
+    class="space-y-4"
+    phx-change="update"
+    phx-submit="save"
+  >
+    <.input
+      field={f[:subject]}
+      label="Subject"
+      required
+      phx-debounce="250"
+    />
+
+    <input
+      id="campaign_text_body"
+      type="hidden"
+      name={f[:text_body].name}
+      value={f[:text_body].value || ""}
+    />
+
+    <div
+      id="wysiwyg-container"
+      phx-hook="MarkdownEditor"
+      class="border rounded-md overflow-hidden"
+    >
+      <div id="wysiwyg" phx-update="ignore">
+        <div class="wysiwyg--menu bg-white border-b flex flex-wrap">
+          <button type="button" data-action="strong" class="px-3 py-2 text-sm font-semibold">B</button>
+          <button type="button" data-action="em" class="px-3 py-2 text-sm italic">I</button>
+          <button type="button" data-action="indent-decrease" class="px-3 py-2 text-sm">Outdent</button>
+          <button type="button" data-action="indent-increase" class="px-3 py-2 text-sm">Indent</button>
+          <button type="button" data-action="ul" class="px-3 py-2 text-sm">UL</button>
+          <button type="button" data-action="ol" class="px-3 py-2 text-sm">OL</button>
+          <button type="button" data-action="h1" class="px-3 py-2 text-sm">H1</button>
+          <button type="button" data-action="h2" class="px-3 py-2 text-sm">H2</button>
+          <button type="button" data-action="h3" class="px-3 py-2 text-sm">H3</button>
+          <button type="button" data-action="link" class="px-3 py-2 text-sm">Link</button>
+          <button type="button" data-action="img" class="px-3 py-2 text-sm">Image</button>
+          <button type="button" data-action="button" class="px-3 py-2 text-sm">Button</button>
+          <button type="button" data-action="hr" class="px-3 py-2 text-sm">Rule</button>
+          <button type="button" data-action="liquid" class="px-3 py-2 text-sm">Liquid</button>
+          <div class="grow"></div>
+          <button type="button" data-action="toggle-preview" class="px-3 py-2 text-sm">Preview</button>
+        </div>
+
+        <div class="editor min-h-80 bg-white p-4"></div>
+      </div>
+    </div>
+
+    <.input
+      field={f[:preview_text]}
+      label="Preview Text"
+      explanation="Summarize the contents of your message in 50 characters or less"
+      phx-debounce="250"
+      required
+    />
+
+    <div class="flex justify-end">
+      <.button phx-disable-with="Saving...">Save Draft</.button>
+    </div>
+  </.form>
+</.card>
+
+<div class="hidden" data-dialog-for="link"></div>
+<div class="hidden" data-dialog-for="image"></div>
+<div class="hidden" data-dialog-for="button"></div>
+<div class="hidden" data-dialog-for="liquid"></div>
