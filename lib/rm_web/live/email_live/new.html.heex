@@ -1,0 +1,41 @@
+<.title>New Email Message</.title>
+
+<.card>
+  <.form
+    for={@new_email_form}
+    phx-submit="create_email"
+    phx-change="validate_email"
+    class="space-y-4"
+  >
+    <.input
+      field={@new_email_form[:segment_id]}
+      label="Choose recipients"
+      options={segment_options(@keila_segments)}
+      type="select"
+    />
+    <.input
+      field={@new_email_form[:subject]}
+      label="Subject"
+      explanation={
+        if @subject_prefix,
+          do:
+            "Full subject will be #{@subject_prefix} #{text_or_placeholder(@new_email_form[:subject].value)}"
+      }
+      phx-debounce="250"
+      required
+    />
+    <.input
+      field={@new_email_form[:preview_text]}
+      label="Preview Text"
+      explanation="Summarize the contents of your message in 50 characters or less"
+      phx-debounce="250"
+      required
+    />
+
+    <p class="text-right">
+      <.button phx-disable-with="Saving...">
+        Compose Message
+      </.button>
+    </p>
+  </.form>
+</.card>
