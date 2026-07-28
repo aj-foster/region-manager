@@ -2,12 +2,15 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
+import { MarkdownEditor } from "../../deps/keila/assets/js/hooks/campaign-edit-live.js";
 
 //
 // Hooks
 //
 
-let Hooks = {};
+let Hooks = {
+  MarkdownEditor,
+};
 
 Hooks.DragDropStyle = {
   mounted() {

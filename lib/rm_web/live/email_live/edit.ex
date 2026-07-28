@@ -1,6 +1,8 @@
 defmodule RMWeb.EmailLive.Edit do
   use RMWeb, :live_view
 
+  alias Keila.Mailings
+
   #
   # Lifecycle
   #
@@ -13,6 +15,7 @@ defmodule RMWeb.EmailLive.Edit do
   @impl true
   def mount(_params, _session, socket) do
     socket
+    |> assign_changeset()
     |> ok()
   end
 
@@ -112,6 +115,52 @@ defmodule RMWeb.EmailLive.Edit do
   # Events
   #
 
-  # @impl true
-  # def handle_event(event, unsigned_params, socket)
+  @impl true
+  def handle_event(event, unsigned_params, socket)
+
+  def handle_event("update", %{"campaign" => params}, socket) do
+    socket
+    |> assign(:changeset, merged_changeset(socket, params))
+    |> noreply()
+  end
+
+  def handle_event("save", %{"campaign" => params}, socket) do
+    changeset = merged_changeset(socket, params)
+    merged_params = changeset.params || %{}
+
+    case Mailings.update_campaign(socket.assigns.campaign.id, merged_params, false) do
+      {:ok, campaign} ->
+        socket
+        |> assign(:campaign, campaign)
+        |> assign(:changeset, Keila.Mailings.Campaign.preview_changeset(campaign, %{}))
+        |> put_flash(:info, "Draft saved.")
+        |> noreply()
+
+      {:error, changeset} ->
+        socket
+        |> assign(:changeset, %{changeset | action: :update})
+        |> noreply()
+    end
+  end
+
+  #
+  # Helpers
+  #
+
+  defp assign_changeset(socket) do
+    assign(
+      socket,
+      :changeset,
+      Keila.Mailings.Campaign.preview_changeset(socket.assigns.campaign, %{})
+    )
+  end
+
+  defp merged_changeset(socket, params) do
+    merged_params =
+      Keila.Mailings.Campaign.preview_changeset(socket.assigns.changeset, params)
+      |> Map.fetch!(:params)
+      |> then(fn params -> params || %{} end)
+
+    Keila.Mailings.Campaign.preview_changeset(socket.assigns.campaign, merged_params)
+  end
 end
