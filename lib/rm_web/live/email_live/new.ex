@@ -189,11 +189,13 @@ defmodule RMWeb.EmailLive.New do
 
     case Keila.Mailings.create_campaign(project_id, params) do
       {:ok, campaign} ->
+        season = socket.assigns[:season]
+        region = socket.assigns[:region]
+        league = socket.assigns[:local_league]
+
         socket
         |> put_flash(:info, "Email created successfully.")
-        |> push_navigate(
-          to: url_for([socket.assigns[:season], socket.assigns[:region], campaign])
-        )
+        |> push_navigate(to: url_for([season, region, league, campaign, :edit]))
 
       {:error, changeset} ->
         assign(socket, new_email_form: to_form(changeset))

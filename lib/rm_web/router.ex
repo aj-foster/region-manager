@@ -116,6 +116,7 @@ defmodule RMWeb.Router do
       ] do
       live "/a/s/new", SeasonLive.New
       live "/s/:season/r/:region/messages/new", EmailLive.New
+      live "/s/:season/r/:region/l/:league/messages/new", EmailLive.New
     end
   end
 
