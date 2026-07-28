@@ -29,23 +29,52 @@
       class="border rounded-md overflow-hidden"
     >
       <div id="wysiwyg" phx-update="ignore">
-        <div class="wysiwyg--menu bg-white border-b flex flex-wrap">
-          <button type="button" data-action="strong" class="px-3 py-2 text-sm font-semibold">B</button>
-          <button type="button" data-action="em" class="px-3 py-2 text-sm italic">I</button>
-          <button type="button" data-action="indent-decrease" class="px-3 py-2 text-sm">Outdent</button>
-          <button type="button" data-action="indent-increase" class="px-3 py-2 text-sm">Indent</button>
-          <button type="button" data-action="ul" class="px-3 py-2 text-sm">UL</button>
-          <button type="button" data-action="ol" class="px-3 py-2 text-sm">OL</button>
-          <button type="button" data-action="h1" class="px-3 py-2 text-sm">H1</button>
-          <button type="button" data-action="h2" class="px-3 py-2 text-sm">H2</button>
-          <button type="button" data-action="h3" class="px-3 py-2 text-sm">H3</button>
-          <button type="button" data-action="link" class="px-3 py-2 text-sm">Link</button>
-          <button type="button" data-action="img" class="px-3 py-2 text-sm">Image</button>
-          <button type="button" data-action="button" class="px-3 py-2 text-sm">Button</button>
-          <button type="button" data-action="hr" class="px-3 py-2 text-sm">Rule</button>
-          <button type="button" data-action="liquid" class="px-3 py-2 text-sm">Liquid</button>
+        <div class="wysiwyg--menu bg-white border-b flex flex-wrap leading-none">
+          <button type="button" data-action="strong" class="p-2">
+            <.icon name="hero-bold" title="Bold" />
+          </button>
+          <button type="button" data-action="em" class="p-2"><.icon
+            name="hero-italic"
+            title="Italic"
+          /></button>
+          <button type="button" data-action="ul" class="p-2">
+            <.icon name="hero-list-bullet" title="Bullet List" />
+          </button>
+          <button type="button" data-action="ol" class="px-2">
+            <.icon name="hero-numbered-list" title="Numbered List" />
+          </button>
+          <button type="button" data-action="indent-decrease" class="p-2">
+            <.icon name="hero-arrow-left-start-on-rectangle" title="Outdent" />
+          </button>
+          <button type="button" data-action="indent-increase" class="p-2">
+            <.icon name="hero-arrow-right-start-on-rectangle" title="Indent" />
+          </button>
+          <button type="button" data-action="h1" class="p-2">
+            <.icon name="hero-h1" title="Heading 1" />
+          </button>
+          <button type="button" data-action="h2" class="p-2">
+            <.icon name="hero-h2" title="Heading 2" />
+          </button>
+          <button type="button" data-action="h3" class="p-2">
+            <.icon name="hero-h3" title="Heading 3" />
+          </button>
+          <button type="button" data-action="link" class="p-2">
+            <.icon name="hero-link" title="Link" />
+          </button>
+          <button type="button" data-action="img" class="p-2">
+            <.icon name="hero-photo" title="Image" />
+          </button>
+          <button type="button" data-action="button" class="p-2">
+            <.icon name="hero-rectangle-stack" title="Button" />
+          </button>
+          <button type="button" data-action="hr" class="p-2">
+            <.icon name="hero-divide" title="Horizontal Rule" />
+          </button>
+          <button type="button" data-action="liquid" class="p-2">
+            <.icon name="hero-code-bracket-square" title="Liquid" />
+          </button>
           <div class="grow"></div>
-          <button type="button" data-action="toggle-preview" class="px-3 py-2 text-sm">Preview</button>
+          <button type="button" data-action="toggle-preview" class="p-2">Preview</button>
         </div>
 
         <div class="editor min-h-80 bg-white p-4"></div>
