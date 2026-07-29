@@ -223,6 +223,7 @@ defmodule RMWeb.EmailLive.New do
   @spec validate_params(Socket.t(), map) :: map
   defp validate_params(socket, params) do
     project_id = socket.assigns[:keila_project].id
+    template_id = socket.assigns[:region].metadata.keila_template_id
     segment_ids = Enum.map(socket.assigns[:keila_segments], fn {_, info} -> info.segment.id end)
     params = Map.put_new(params, "segment_id", List.first(segment_ids))
 
@@ -234,6 +235,7 @@ defmodule RMWeb.EmailLive.New do
     |> Map.merge(%{
       "project_id" => project_id,
       "public_link_enabled" => true,
+      "template_id" => template_id,
       "settings" => %{"type" => "markdown", "do_not_track" => true}
     })
   end
