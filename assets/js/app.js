@@ -13,21 +13,62 @@ let Hooks = {
 };
 
 const putHtmlPreview = (el) => {
-  const content = el.innerText;
-  if (!content) return;
+  const content = el.innerText || "";
 
   const iframes = document.querySelectorAll(el.dataset.iframe);
   if (!iframes.length) return;
 
   for (let i = 0; i < iframes.length; i++) {
     const iframe = iframes[i];
-    const scrollX = iframe.contentWindow.scrollX;
-    const scrollY = iframe.contentWindow.scrollY;
+    const resizeIframe = () => {
+      const doc = iframe.contentDocument;
+      if (!doc || !doc.body || !doc.documentElement) return;
+
+      const body = doc.body;
+      const html = doc.documentElement;
+      const contentHeight = Math.max(
+        body.scrollHeight,
+        body.offsetHeight,
+        body.clientHeight,
+        html.scrollHeight,
+        html.offsetHeight,
+        html.clientHeight,
+      );
+
+      const heightPx = Math.max(contentHeight, 320);
+      iframe.style.height = `${heightPx}px`;
+      iframe.setAttribute("height", String(heightPx));
+    };
+
+    // Avoid the browser fallback default iframe height (150px) while content is written.
+    iframe.style.height = "320px";
+    iframe.setAttribute("height", "320");
+
     const doc = iframe.contentDocument;
     doc.open();
     doc.write(content);
     doc.close();
-    iframe.contentWindow.scrollTo(scrollX, scrollY);
+
+    // Ensure iframe document root can grow with content.
+    if (doc.head) {
+      const style = doc.createElement("style");
+      style.textContent = "html, body { height: auto !important; min-height: 0 !important; }";
+      doc.head.appendChild(style);
+    }
+
+    // Resize immediately and on later layout changes (images/fonts).
+    resizeIframe();
+    iframe.contentWindow.requestAnimationFrame(resizeIframe);
+    iframe.contentWindow.setTimeout(resizeIframe, 50);
+    iframe.contentWindow.setTimeout(resizeIframe, 200);
+
+    const images = doc.images ? Array.from(doc.images) : [];
+    images.forEach((img) => {
+      if (!img.complete) {
+        img.addEventListener("load", resizeIframe, { once: true });
+        img.addEventListener("error", resizeIframe, { once: true });
+      }
+    });
   }
 };
 
