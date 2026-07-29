@@ -61,7 +61,7 @@ hr {
 }
 
 .block--button .button-td {
-    background-color: #1d4ed8;
+    background-color: #f57e24;
     display: block;
     cursor: pointer;
     text-align: center;
@@ -138,7 +138,7 @@ body.keila--markdown-campaign .email-container {
 }
 
 .block > td {
-    padding: 0 20px;
+    padding: 0 16px;
     line-height: 28px;
     mso-line-height-rule: exactly;
 }
@@ -149,15 +149,15 @@ body.keila--markdown-campaign .email-container {
 }
 
 .block + .block > td {
-    padding-top: 20px;
+    padding-top: 16px;
 }
 
 #content > tbody > .block:first-of-type > td {
-    padding-top: 20px;
+    padding-top: 16px;
 }
 
 #content > tbody > .block:last-of-type > td {
-    padding-bottom: 20px;
+    padding-bottom: 16px;
 }
 
 .block--paragraph + .block--paragraph > td,
@@ -189,6 +189,15 @@ body.keila--markdown-campaign .email-container {
 }
 
 h1, h2, h3, h4, h5 {
+    margin: 0;
+}
+
+ul, ol {
+    margin: 16px 0;
+    padding-left: 24px;
+}
+
+li > p {
     margin: 0;
 }
 
