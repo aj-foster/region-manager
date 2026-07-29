@@ -12,6 +12,34 @@ let Hooks = {
   MarkdownEditor,
 };
 
+const putHtmlPreview = (el) => {
+  const content = el.innerText;
+  if (!content) return;
+
+  const iframes = document.querySelectorAll(el.dataset.iframe);
+  if (!iframes.length) return;
+
+  for (let i = 0; i < iframes.length; i++) {
+    const iframe = iframes[i];
+    const scrollX = iframe.contentWindow.scrollX;
+    const scrollY = iframe.contentWindow.scrollY;
+    const doc = iframe.contentDocument;
+    doc.open();
+    doc.write(content);
+    doc.close();
+    iframe.contentWindow.scrollTo(scrollX, scrollY);
+  }
+};
+
+Hooks.HtmlPreview = {
+  mounted() {
+    putHtmlPreview(this.el);
+  },
+  updated() {
+    putHtmlPreview(this.el);
+  },
+};
+
 Hooks.MarkdownLinkDialog = {
   mounted() {
     this.dialog = this.el.querySelector("dialog");
