@@ -5,8 +5,8 @@ defmodule RMWeb.EmailLive.Edit do
   alias Keila.Mailings
   alias Keila.Mailings.Renderer.Input
   alias Keila.Mailings.Renderer.Output
-  alias Keila.Mailings.Renderer.BodyRenderer.Markdown, as: MarkdownBodyRenderer
   alias Keila.Mailings.Renderer.LiquidRenderer
+  alias RM.Email.Renderer, as: MarkdownBodyRenderer
 
   #
   # Lifecycle
