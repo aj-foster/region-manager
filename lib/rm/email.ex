@@ -339,39 +339,29 @@ defmodule RM.Email do
     end
   end
 
-  @default_template_styles ".email-bg{background-color:#f3f4f6} body{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"} #content{color:#1f2937;background-color:#ffffff;font-family:inherit;line-height:28px} h1{color:#333333;font-family:inherit;font-style:normal;font-weight:bold;text-decoration:none} h2{color:#333333;font-family:inherit;font-style:normal;font-weight:bold;text-decoration:none} h3{color:#000000;font-family:inherit;font-style:normal;font-weight:bold;text-decoration:none} a{color:#1d4ed8;text-decoration:underline} .block--button .button-a{color:#ffffff} .block--button .button-td{background-color:#f57e24;font-family:inherit;font-style:normal;font-weight:bold;text-decoration:none} .block--quote blockquote, .block--quote figcaption{border-color:#e5e7eb} .block--quote blockquote{font-family:inherit;color:#000000} .block--quote figcaption{font-family:inherit;color:#000000} hr{border-color:#000000;opacity:0.1;border-style:solid;margin:15px 0} #footer td{color:#4b5563;text-align:center;font-family:inherit;font-style:normal;font-weight:bold;text-decoration:none} #footer td a{color:#374151;text-decoration:underline}"
-  @default_template_assigns %{
-    signature:
-      "This _FIRST_ Tech Challenge region uses [Region Manager](https://ftcregion.com) to send messages.\r\n\r\n[Unsubscribe]({{ unsubscribe_link }})"
-  }
-
   @doc """
   Sync a template for a single region to Keila, creating or updating the corresponding template as needed
   """
   @spec sync_template_for_region(RM.FIRST.Region.t()) ::
-          {:ok, Keila.Templates.Template.t()}
-          | {:error, Ecto.Changeset.t(Keila.Templates.Template.t())}
+          :ok | {:error, Ecto.Changeset.t(Keila.Templates.Template.t())}
   def sync_template_for_region(region) do
     params = %{
       name: "#{region.name} Region Template (#{region.code})",
       project_id: region.metadata.keila_project_id,
       type: :hybrid,
-      styles: @default_template_styles,
-      assigns: @default_template_assigns
+      styles: "",
+      assigns: %{}
     }
 
     if region.metadata.keila_template_id do
-      Keila.Templates.update_template(
-        region.metadata.keila_template_id,
-        Map.delete(params, :assigns)
-      )
+      :ok
     else
       case Keila.Templates.create_template(region.metadata.keila_project_id, params) do
         {:ok, template} ->
           Ecto.Changeset.change(region, %{metadata: %{keila_template_id: template.id}})
           |> RM.Repo.update!()
 
-          {:ok, template}
+          :ok
 
         {:error, changeset} ->
           {:error, changeset}

@@ -19,9 +19,9 @@ defmodule RM.Email.Renderer do
   @styles File.read!(@default_css_path) |> Css.parse!()
 
   @signature """
-  [Unsubscribe]({{ unsubscribe_link }})
+  This _FIRST_ Tech Challenge region uses [Region Manager](https://ftcregion.com) to send messages.
 
-  Powered by [Keila - OpenSource Newsletters](https://www.keila.io/)
+  [Unsubscribe]({{ unsubscribe_link }})
   """
 
   @impl true
