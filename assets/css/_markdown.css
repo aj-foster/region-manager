@@ -58,3 +58,25 @@
   color: #3b82f6;
   text-decoration: underline;
 }
+
+/* Keila-inspired button treatment for inserted markdown buttons (rendered as h4 + link). */
+#wysiwyg .ProseMirror h4 {
+  margin: 1.12em 0;
+}
+
+#wysiwyg .ProseMirror h4 a {
+  display: inline-block;
+  background-color: #1d4ed8;
+  border-radius: 5px;
+  padding: 13px 17px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 15px;
+  line-height: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#wysiwyg .ProseMirror h4 a:hover {
+  background-color: #1e40af;
+}
