@@ -144,5 +144,53 @@
   </dialog>
 </div>
 <div class="hidden" data-dialog-for="image"></div>
-<div class="hidden" data-dialog-for="button"></div>
+<div
+  id="markdown-button-dialog"
+  data-dialog-for="button"
+  phx-hook="MarkdownButtonDialog"
+  phx-update="ignore"
+>
+  <dialog class="w-full max-w-lg rounded-lg border border-slate-300 p-0 shadow-xl backdrop:bg-slate-900/40">
+    <form class="p-4 space-y-4" method="dialog">
+      <h2 class="text-lg font-semibold">Insert Button</h2>
+
+      <div class="space-y-1">
+        <label for="markdown-button-href" class="block text-sm font-medium">URL</label>
+        <input
+          id="markdown-button-href"
+          name="href"
+          type="url"
+          class="w-full rounded-md border border-slate-300 px-3 py-2"
+          placeholder="https://example.com"
+          required
+        />
+      </div>
+
+      <div class="space-y-1">
+        <label for="markdown-button-text" class="block text-sm font-medium">Button Text</label>
+        <input
+          id="markdown-button-text"
+          name="text"
+          type="text"
+          class="w-full rounded-md border border-slate-300 px-3 py-2"
+          placeholder="Button"
+          required
+        />
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button
+          type="button"
+          data-action="cancel"
+          class="px-3 py-2 border rounded-md border-slate-300"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="px-3 py-2 rounded-md bg-sky-600 text-white">
+          Insert Button
+        </button>
+      </div>
+    </form>
+  </dialog>
+</div>
 <div class="hidden" data-dialog-for="liquid"></div>
