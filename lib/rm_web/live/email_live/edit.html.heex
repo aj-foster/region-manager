@@ -78,7 +78,23 @@
         </div>
 
         <div class="editor min-h-80 bg-white p-4"></div>
-        <div class="markdown-preview min-h-80 bg-white p-4 hidden"></div>
+      </div>
+
+      <div class="markdown-preview min-h-80 bg-white hidden">
+        <iframe
+          id="campaign-html-preview"
+          src="about:blank"
+          class="w-full min-h-80 border-0"
+        ></iframe>
+      </div>
+
+      <div
+        id="campaign-html-preview-data"
+        phx-hook="HtmlPreview"
+        data-iframe="#campaign-html-preview"
+        class="hidden"
+      >
+        {@preview}
       </div>
     </div>
 

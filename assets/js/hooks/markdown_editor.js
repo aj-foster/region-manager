@@ -1,27 +1,19 @@
 import { MarkdownEditor as KeilaMarkdownEditor } from "../../../deps/keila/assets/js/campaign-editors/markdown/index.js";
-import markdownit from "markdown-it";
 
 const MarkdownEditor = {
   mounted() {
-    const place = this.el.querySelector(".editor");
     const source = document.querySelector("#campaign_text_body");
-    const preview = this.el.querySelector(".markdown-preview");
 
-    if (!place || !source || !preview) return;
+    this.place = this.el.querySelector(".editor");
+    this.preview = this.el.querySelector(".markdown-preview");
 
-    this.place = place;
-    this.source = source;
-    this.preview = preview;
+    if (!this.place || !source || !this.preview) return;
+
     this.previewVisible = false;
-    this.md = markdownit("commonmark", { html: false, linkify: true });
-    this.editor = new KeilaMarkdownEditor(place, source);
+    this.editor = new KeilaMarkdownEditor(this.place, source);
 
-    this.handleTogglePreview = () => {
-      this.previewVisible = !this.previewVisible;
-
-      if (this.previewVisible) {
-        this.preview.innerHTML = this.md.render(this.source.value || "");
-      }
+    this.applyPreviewState = () => {
+      if (!this.place || !this.preview) return;
 
       this.place.classList.toggle("hidden", this.previewVisible);
       this.preview.classList.toggle("hidden", !this.previewVisible);
@@ -32,7 +24,23 @@ const MarkdownEditor = {
       }
     };
 
+    this.handleTogglePreview = () => {
+      this.previewVisible = !this.previewVisible;
+      this.applyPreviewState();
+    };
+
     this.el.addEventListener("x-toggle-preview", this.handleTogglePreview);
+  },
+
+  updated() {
+    // LiveView patches can reset classes on the preview pane.
+    // Re-query elements and reapply visibility state.
+    this.place = this.el.querySelector(".editor");
+    this.preview = this.el.querySelector(".markdown-preview");
+
+    if (this.applyPreviewState) {
+      this.applyPreviewState();
+    }
   },
 
   destroyed() {
