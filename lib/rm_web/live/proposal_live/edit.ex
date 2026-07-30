@@ -362,12 +362,11 @@ defmodule RMWeb.ProposalLive.Edit do
   defp event_type_options(%RM.Local.EventProposal{first_event: %RM.FIRST.Event{league_id: nil}}) do
     [
       :kickoff,
-      :scrimmage,
+      :non_advancement,
       :qualifier,
+      :super_qualifier,
       :regional_championship,
-      :off_season,
-      :workshop,
-      :demo
+      :demo_workshop
     ]
     |> Enum.map(fn type ->
       {RM.FIRST.Event.type_name(type), to_string(type)}
@@ -377,12 +376,11 @@ defmodule RMWeb.ProposalLive.Edit do
   defp event_type_options(%RM.Local.EventProposal{first_event: nil, league_id: nil}) do
     [
       :kickoff,
-      :scrimmage,
+      :non_advancement,
       :qualifier,
+      :super_qualifier,
       :regional_championship,
-      :off_season,
-      :workshop,
-      :demo
+      :demo_workshop
     ]
     |> Enum.map(fn type ->
       {RM.FIRST.Event.type_name(type), to_string(type)}
@@ -392,12 +390,10 @@ defmodule RMWeb.ProposalLive.Edit do
   defp event_type_options(_proposal) do
     [
       :kickoff,
-      :scrimmage,
+      :non_advancement,
       :league_meet,
       :league_tournament,
-      :off_season,
-      :workshop,
-      :demo
+      :demo_workshop
     ]
     |> Enum.map(fn type ->
       {RM.FIRST.Event.type_name(type), to_string(type)}
