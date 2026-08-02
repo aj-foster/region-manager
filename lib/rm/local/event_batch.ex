@@ -13,6 +13,8 @@ defmodule RM.Local.EventBatch do
   alias RM.Local.League
 
   @batch_filename "EventRequests.xlsx"
+  # Limits higher than 36 require approval from FIRST HQ
+  @default_team_limit 36
 
   @typedoc "Generated batch event submission"
   @type t :: %__MODULE__{
@@ -196,7 +198,7 @@ defmodule RM.Local.EventBatch do
     |> Sheet.set_at(row, 11, proposal.venue.address_2 || "")
     |> Sheet.set_at(row, 12, proposal.venue.postal_code || "")
     |> Sheet.set_at(row, 13, proposal.venue.website || "")
-    |> Sheet.set_at(row, 14, proposal.registration_settings.team_limit || 50)
+    |> Sheet.set_at(row, 14, proposal.registration_settings.team_limit || @default_team_limit)
     |> Sheet.set_at(row, 15, "")
     |> Sheet.set_at(row, 16, proposal.website || "")
     |> Sheet.set_at(row, 17, proposal.live_stream_url || "")
