@@ -199,7 +199,7 @@ defmodule RM.Import.Team do
         _else -> 0
       end
 
-    hour = if ampm in ["PM", "pm"], do: hour + 12, else: hour
+    hour = if ampm in ["PM", "pm"] and hour < 12, do: hour + 12, else: hour
 
     DateTime.new!(Date.new!(year, month, day), Time.new!(hour, minute, second, 0))
   end
