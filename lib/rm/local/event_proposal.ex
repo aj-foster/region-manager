@@ -266,18 +266,28 @@ defmodule RM.Local.EventProposal do
   @doc "Whether the given event originated from the given proposal"
   @spec event_matches?(t, RM.FIRST.Event.t()) :: boolean
   def event_matches?(proposal, event)
-
-  def event_matches?(%__MODULE__{first_event_id: a}, %RM.FIRST.Event{id: b}) when not is_nil(a) do
-    a == b
-  end
+  def event_matches?(%__MODULE__{first_event_id: id}, %RM.FIRST.Event{id: id}), do: true
 
   def event_matches?(proposal, event) do
     proposal.region_id == event.region_id and
       proposal.date_end == event.date_end and
-      proposal.type == event.type and
+      type_match?(proposal.type, event.type) and
       loose_match?(proposal.venue.city, event.location.city)
   end
 
+  @spec type_match?(type, RM.FIRST.Event.type()) :: boolean
+  defp type_match?(type, type), do: true
+  defp type_match?(:non_advancement, :scrimmage), do: true
+  defp type_match?(:non_advancement, :off_season), do: true
+  defp type_match?(:scrimmage, :non_advancement), do: true
+  defp type_match?(:off_season, :non_advancement), do: true
+  defp type_match?(:demo_workshop, :demo), do: true
+  defp type_match?(:demo_workshop, :workshop), do: true
+  defp type_match?(:demo, :demo_workshop), do: true
+  defp type_match?(:workshop, :demo_workshop), do: true
+  defp type_match?(_type, _other_type), do: false
+
+  @spec loose_match?(String.t() | nil, String.t() | nil) :: boolean
   defp loose_match?(nil, nil), do: true
   defp loose_match?(_, nil), do: false
   defp loose_match?(nil, _), do: false
