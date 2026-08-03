@@ -139,11 +139,16 @@ defmodule RM.Local.League do
 
   @doc """
   Query to update cached event statistics for leagues with the given IDs
+
+  ## Options
+
+    * `import`: When `true`, update the `events_imported_at` timestamp to the current time.
+      Defaults to `false`.
+
   """
   @spec event_stats_update_query([Ecto.UUID.t()]) :: Ecto.Query.t()
-  def event_stats_update_query(league_ids) do
-    now = DateTime.utc_now()
-
+  @spec event_stats_update_query([Ecto.UUID.t()], keyword) :: Ecto.Query.t()
+  def event_stats_update_query(league_ids, opts \\ []) do
     count_query =
       from(__MODULE__, as: :league)
       |> where([league: l], l.id in ^league_ids)
@@ -155,6 +160,17 @@ defmodule RM.Local.League do
       |> group_by([league: l], l.id)
       |> select([league: l, event: e], %{id: l.id, count: count(e.id)})
 
+    if opts[:import] do
+      event_stats_update_count_and_time(count_query)
+    else
+      event_stats_update_count_only(count_query)
+    end
+  end
+
+  @spec event_stats_update_count_and_time(Ecto.Query.t()) :: Ecto.Query.t()
+  defp event_stats_update_count_and_time(count_query) do
+    now = DateTime.utc_now()
+
     from(__MODULE__, as: :league)
     |> join(:inner, [league: l], s in subquery(count_query), on: s.id == l.id, as: :counts)
     |> update([league: l, counts: c],
@@ -165,6 +181,22 @@ defmodule RM.Local.League do
             l.stats,
             c.count,
             ^now
+          )
+      ]
+    )
+  end
+
+  @spec event_stats_update_count_only(Ecto.Query.t()) :: Ecto.Query.t()
+  defp event_stats_update_count_only(count_query) do
+    from(__MODULE__, as: :league)
+    |> join(:inner, [league: l], s in subquery(count_query), on: s.id == l.id, as: :counts)
+    |> update([league: l, counts: c],
+      set: [
+        stats:
+          fragment(
+            "jsonb_set(?, '{event_count}', ?::varchar::jsonb)",
+            l.stats,
+            c.count
           )
       ]
     )

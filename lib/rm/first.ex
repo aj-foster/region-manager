@@ -391,6 +391,10 @@ defmodule RM.FIRST do
       update_region_event_counts(region)
       update_region_published_league_counts(region)
 
+      region = Repo.preload(region, [:leagues])
+      RM.Local.update_league_event_counts(region.leagues)
+      RM.Local.update_league_team_counts(region.leagues)
+
       # Future: Set all of the regions teams to inactive.
 
       {:ok, region}
