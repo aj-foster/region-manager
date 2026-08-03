@@ -87,6 +87,9 @@
           <span :if={event.remote or event.hybrid}>
             &bull; {RM.FIRST.Event.format_name(event)}
           </span>
+          <span :if={event.location.city && !event.settings.virtual}>
+            &bull; {event.location.city}
+          </span>
         </p>
       </:link>
     </.list>
