@@ -294,8 +294,16 @@ defmodule RM.Factory do
   #
 
   @doc false
+  def insert_keila_auth_group do
+    Keila.Repo.get_by(Keila.Auth.Group, name: "root") ||
+      Keila.Repo.insert!(%Keila.Auth.Group{name: "root"})
+  end
+
+  @doc false
   def insert_keila_project do
-    %{name: "Test Project", group_id: Keila.Auth.root_group().id}
+    auth_group = insert_keila_auth_group()
+
+    %{name: "Test Project", group_id: auth_group.id}
     |> Keila.Projects.Project.creation_changeset()
     |> Keila.Repo.insert!()
   end

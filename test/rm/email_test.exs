@@ -184,6 +184,7 @@ defmodule RM.EmailTest do
 
   describe "sync_project_for_region/1" do
     test "syncs the project for a given region" do
+      Factory.insert_keila_auth_group()
       region = Factory.insert(:region)
 
       Email.sync_project_for_region(region)
