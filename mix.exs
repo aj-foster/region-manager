@@ -61,7 +61,7 @@ defmodule RM.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.2.6"},
       {:postgrex, ">= 0.0.0"},
-      {:req, "~> 0.6.2"},
+      {:req, "~> 0.7.2"},
       {:sweet_xml, "~> 0.7.4"},
       {:swoosh, "~> 1.3"},
       # Keila wants 0.4.1
