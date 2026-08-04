@@ -10,6 +10,7 @@ defmodule RMWeb.EmailLive.New do
       |> assign_area_name()
       |> assign_project()
       |> assign_segments()
+      |> assign_sender_id()
       |> assign_subject_prefix()
       |> new_email_form()
       |> ok()
@@ -173,6 +174,26 @@ defmodule RMWeb.EmailLive.New do
     "Registered #{area_name} coaches from this season and last season"
   end
 
+  @spec assign_sender_id(Socket.t()) :: Socket.t()
+  defp assign_sender_id(socket) do
+    league = socket.assigns[:local_league]
+    region = socket.assigns[:region]
+
+    if keila_sender_id = (league || region).metadata.keila_sender_id do
+      assign(socket, :keila_sender_id, keila_sender_id)
+    else
+      season = socket.assigns[:season]
+      area_name = socket.assigns[:area_name]
+
+      socket
+      |> put_flash(
+        :error,
+        "No email sender found for #{area_name}. Please contact an administrator."
+      )
+      |> push_navigate(to: url_for([season, region]))
+    end
+  end
+
   @spec assign_subject_prefix(Socket.t()) :: Socket.t()
   defp assign_subject_prefix(socket) do
     league = socket.assigns[:local_league]
@@ -223,8 +244,10 @@ defmodule RMWeb.EmailLive.New do
   @spec validate_params(Socket.t(), map) :: map
   defp validate_params(socket, params) do
     project_id = socket.assigns[:keila_project].id
-    template_id = socket.assigns[:region].metadata.keila_template_id
     segment_ids = Enum.map(socket.assigns[:keila_segments], fn {_, info} -> info.segment.id end)
+    sender_id = socket.assigns[:keila_sender_id]
+    template_id = socket.assigns[:region].metadata.keila_template_id
+
     params = Map.put_new(params, "segment_id", List.first(segment_ids))
 
     if params["segment_id"] not in segment_ids do
@@ -235,6 +258,7 @@ defmodule RMWeb.EmailLive.New do
     |> Map.merge(%{
       "project_id" => project_id,
       "public_link_enabled" => true,
+      "sender_id" => sender_id,
       "template_id" => template_id,
       "settings" => %{"type" => "markdown", "do_not_track" => true}
     })
