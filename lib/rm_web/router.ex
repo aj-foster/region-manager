@@ -115,8 +115,10 @@ defmodule RMWeb.Router do
         {RMWeb.Live.Util, :check_league}
       ] do
       live "/a/s/new", SeasonLive.New
+      live "/s/:season/r/:region/messages", EmailLive.Index
       live "/s/:season/r/:region/messages/new", EmailLive.New
       live "/s/:season/r/:region/m/:message/edit", EmailLive.Edit
+      live "/s/:season/r/:region/l/:league/messages", EmailLive.Index
       live "/s/:season/r/:region/l/:league/messages/new", EmailLive.New
       live "/s/:season/r/:region/l/:league/m/:message/edit", EmailLive.Edit
     end
