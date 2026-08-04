@@ -45,7 +45,9 @@ defmodule RM.System.Console do
       {:ok, _segment} = RM.Email.sync_segment_for_region(region)
       {:ok, _segment} = RM.Email.sync_coach_segment_for_region(region)
       {:ok, _segment} = RM.Email.sync_extended_coach_segment_for_region(region)
-      {:ok, _template} = RM.Email.sync_template_for_region(region)
+      :ok = RM.Email.sync_template_for_region(region)
+      :ok = RM.Email.sync_shared_sender_for_region(region)
+      :ok = RM.Email.sync_sender_for_region(region)
 
       region =
         RM.Repo.reload!(region)
@@ -56,6 +58,7 @@ defmodule RM.System.Console do
         {:ok, _segment} = RM.Email.sync_segment_for_league(region, league)
         {:ok, _segment} = RM.Email.sync_coach_segment_for_league(region, league)
         {:ok, _segment} = RM.Email.sync_extended_coach_segment_for_league(region, league)
+        :ok = RM.Email.sync_sender_for_league(region, league)
       end)
 
       region

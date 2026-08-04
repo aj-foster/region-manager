@@ -50,6 +50,7 @@ defmodule RM.Local.League do
       field :keila_segment_id, :string
       field :keila_coach_segment_id, :string
       field :keila_extended_coach_segment_id, :string
+      field :keila_sender_id, :string
     end
 
     embeds_one :stats, Stats, on_replace: :update, primary_key: false do
