@@ -1,3 +1,29 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+/>
+
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league) and is_nil(@first_league)}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<RMWeb.LeagueLive.Util.league_nav
+  :if={@local_league || @first_league}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
 <.title>Edit Draft</.title>
 
 <.card>
@@ -5,7 +31,6 @@
     :let={f}
     for={@changeset}
     id="campaign"
-    class="space-y-4"
     phx-change="update"
     phx-submit="save"
   >
@@ -14,6 +39,7 @@
       label="Subject"
       required
       phx-debounce="250"
+      wrapper="mb-4"
     />
 
     <input
@@ -26,7 +52,7 @@
     <div
       id="wysiwyg-container"
       phx-hook="MarkdownEditor"
-      class="border rounded-md overflow-hidden"
+      class="border rounded-md mb-4 overflow-hidden"
     >
       <div id="wysiwyg" phx-update="ignore">
         <div class="wysiwyg--menu bg-white border-b flex flex-wrap leading-none">
@@ -104,6 +130,7 @@
       explanation="Summarize the contents of your message in 50 characters or less"
       phx-debounce="250"
       required
+      wrapper="mb-4"
     />
 
     <div class="flex justify-end">
