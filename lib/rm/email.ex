@@ -796,4 +796,41 @@ defmodule RM.Email do
       {:error, :not_found}
     end
   end
+
+  #
+  # Keila: Campaigns
+  #
+
+  @doc """
+  List all campaigns in Keila for the given region or league
+  """
+  @spec list_campaigns_for_region_or_league(RM.FIRST.Region.t() | RM.Local.League.t()) :: [
+          Keila.Mailings.Campaign.t()
+        ]
+  @spec list_campaigns_for_region_or_league(RM.FIRST.Region.t() | RM.Local.League.t(), keyword) ::
+          [Keila.Mailings.Campaign.t()]
+  def list_campaigns_for_region_or_league(region_or_league, opts \\ []) do
+    sender_id =
+      case region_or_league do
+        %RM.FIRST.Region{metadata: %{keila_sender_id: id}} -> id
+        %RM.Local.League{metadata: %{keila_sender_id: id}} -> id
+      end
+
+    from(Keila.Mailings.Campaign, as: :campaign)
+    |> where([campaign: c], c.sender_id == ^sender_id)
+    |> then(fn query ->
+      if opts[:draft] do
+        query
+        |> where([campaign: c], is_nil(c.sent_at))
+        |> order_by([campaign: c], desc: c.updated_at)
+      else
+        query
+        |> where([campaign: c], not is_nil(c.sent_at))
+        |> order_by([campaign: c], desc: c.sent_at)
+      end
+    end)
+    |> join(:inner, [campaign: c], s in assoc(c, :segment), as: :segment)
+    |> preload([segment: s], segment: s)
+    |> Keila.Repo.all()
+  end
 end
