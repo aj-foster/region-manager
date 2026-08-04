@@ -369,6 +369,66 @@ defmodule RM.Email do
     end
   end
 
+  @doc """
+  Sync a shared sender for a single region to Keila, creating or updating the corresponding sender as needed
+  """
+  @spec sync_shared_sender_for_region(RM.FIRST.Region.t()) ::
+          :ok | {:error, Ecto.Changeset.t(Keila.Mailings.SharedSender.t())}
+  def sync_shared_sender_for_region(region) do
+    params = %{
+      name: "#{region.name} Region (#{region.code})",
+      config: %{type: "local"}
+    }
+
+    if region.metadata.keila_shared_sender_id do
+      :ok
+    else
+      case Keila.Mailings.create_shared_sender(params) do
+        {:ok, sender} ->
+          Ecto.Changeset.change(region, %{metadata: %{keila_shared_sender_id: sender.id}})
+          |> RM.Repo.update!()
+
+          :ok
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
+  Sync a sender for a single region to Keila, creating or updating the corresponding sender as needed
+  """
+  @spec sync_sender_for_region(RM.FIRST.Region.t()) ::
+          :ok | {:error, Ecto.Changeset.t(Keila.Mailings.Sender.t())}
+  def sync_sender_for_region(region) do
+    params = %{
+      project_id: region.metadata.keila_project_id,
+      name: "#{region.name} Region (#{region.code})",
+      from_email: "#{region.code}@ftcregion.com",
+      from_name: "#{region.name} Region",
+      config: %{type: "local"},
+      shared_sender_id: region.metadata.keila_shared_sender_id
+    }
+
+    if region.metadata.keila_sender_id do
+      :ok
+    else
+      changeset = Keila.Mailings.Sender.creation_changeset(params)
+
+      case Keila.Repo.insert(changeset) do
+        {:ok, sender} ->
+          Ecto.Changeset.change(region, %{metadata: %{keila_sender_id: sender.id}})
+          |> RM.Repo.update!()
+
+          :ok
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
   #
   # Keila: Leagues
   #
@@ -470,6 +530,39 @@ defmodule RM.Email do
           |> RM.Repo.update!()
 
           {:ok, segment}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
+  Sync a sender for a single league to Keila, creating or updating the corresponding sender as needed
+  """
+  @spec sync_sender_for_league(RM.FIRST.Region.t(), RM.Local.League.t()) ::
+          :ok | {:error, Ecto.Changeset.t(Keila.Mailings.Sender.t())}
+  def sync_sender_for_league(region, league) do
+    params = %{
+      project_id: region.metadata.keila_project_id,
+      name: "#{region.name} #{league.name} League (#{region.code}#{league.code})",
+      from_email: "#{region.code}#{league.code}@ftcregion.com",
+      from_name: "#{region.name} #{league.name} League",
+      config: %{type: "local"},
+      shared_sender_id: region.metadata.keila_shared_sender_id
+    }
+
+    if league.metadata.keila_sender_id do
+      :ok
+    else
+      changeset = Keila.Mailings.Sender.creation_changeset(params)
+
+      case Keila.Repo.insert(changeset) do
+        {:ok, sender} ->
+          Ecto.Changeset.change(league, %{metadata: %{keila_sender_id: sender.id}})
+          |> RM.Repo.update!()
+
+          :ok
 
         {:error, changeset} ->
           {:error, changeset}

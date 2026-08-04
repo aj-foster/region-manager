@@ -254,6 +254,45 @@ defmodule RM.EmailTest do
     end
   end
 
+  describe "sync_template_for_region/1" do
+    test "syncs the template for a given region" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+
+      assert :ok = Email.sync_template_for_region(region)
+      assert [template] = Keila.Repo.all(Keila.Templates.Template)
+      assert template.name == "#{region.name} Region Template (#{region.code})"
+
+      region = Repo.reload!(region)
+      assert region.metadata.keila_template_id == template.id
+    end
+  end
+
+  describe "sync_shared_sender_for_region/1" do
+    test "syncs the shared sender for a given region" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+
+      assert :ok = Email.sync_shared_sender_for_region(region)
+      assert [sender] = Keila.Repo.all(Keila.Mailings.SharedSender)
+      assert sender.name == "#{region.name} Region (#{region.code})"
+    end
+  end
+
+  describe "sync_sender_for_region/1" do
+    test "syncs the sender for a given region" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+
+      assert :ok = Email.sync_sender_for_region(region)
+      assert [sender] = Keila.Repo.all(Keila.Mailings.Sender)
+      assert sender.name == "#{region.name} Region (#{region.code})"
+
+      region = Repo.reload!(region)
+      assert region.metadata.keila_sender_id == sender.id
+    end
+  end
+
   #
   # Keila: Leagues
   #
@@ -320,6 +359,21 @@ defmodule RM.EmailTest do
 
       assert segment.name ==
                "#{region.name} Updated Name League Coaches Extended (#{region.code}#{league.code})"
+    end
+  end
+
+  describe "sync_sender_for_league/1" do
+    test "syncs the sender for a given league" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+      league = Factory.insert(:league, region: region)
+
+      assert :ok = Email.sync_sender_for_league(region, league)
+      assert [sender] = Keila.Repo.all(Keila.Mailings.Sender)
+      assert sender.name == "#{region.name} #{league.name} League (#{region.code}#{league.code})"
+
+      league = Repo.reload!(league)
+      assert league.metadata.keila_sender_id == sender.id
     end
   end
 
