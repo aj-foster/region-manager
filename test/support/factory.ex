@@ -294,6 +294,25 @@ defmodule RM.Factory do
   #
 
   @doc false
+  def with_keila(%RM.FIRST.Region{} = region) do
+    project = insert_keila_project()
+    segment = insert_keila_segment(%{region | metadata: %{keila_project_id: project.id}})
+    sender = insert_keila_sender(%{region | metadata: %{keila_project_id: project.id}})
+    template = insert_keila_template(%{region | metadata: %{keila_project_id: project.id}})
+
+    region
+    |> Ecto.Changeset.change(%{
+      metadata: %{
+        keila_project_id: project.id,
+        keila_segment_id: segment.id,
+        keila_sender_id: sender.id,
+        keila_template_id: template.id
+      }
+    })
+    |> RM.Repo.update!()
+  end
+
+  @doc false
   def insert_keila_auth_group do
     Keila.Repo.get_by(Keila.Auth.Group, name: "root") ||
       Keila.Repo.insert!(%Keila.Auth.Group{name: "root"})
@@ -312,6 +331,116 @@ defmodule RM.Factory do
   def insert_keila_contact(project, email) do
     %{email: email}
     |> Keila.Contacts.Contact.creation_changeset(project.id)
+    |> Keila.Repo.insert!()
+  end
+
+  @doc false
+  def insert_keila_segment(%RM.FIRST.Region{} = region) do
+    %{
+      name: "#{region.name} (All)",
+      project_id: region.metadata.keila_project_id,
+      filter: %{"data.#{region.code}.sub" => "true"}
+    }
+    |> Keila.Contacts.Segment.creation_changeset()
+    |> Keila.Repo.insert!()
+  end
+
+  def insert_keila_segment(%RM.Local.League{} = league) do
+    %{
+      name: "#{league.region.name} #{league.name} (All)",
+      project_id: league.region.metadata.keila_project_id,
+      filter: %{"data.#{league.region.code}#{league.code}.sub" => "true"}
+    }
+    |> Keila.Contacts.Segment.creation_changeset()
+    |> Keila.Repo.insert!()
+  end
+
+  @doc false
+  def insert_keila_sender(%RM.FIRST.Region{} = region) do
+    %{
+      project_id: region.metadata.keila_project_id,
+      name: "#{region.name} Region (#{region.code})",
+      from_email: "#{region.code}@ftcregion.com",
+      from_name: "#{region.name} Region",
+      config: %{type: "local"}
+    }
+    |> Keila.Mailings.Sender.creation_changeset()
+    |> Keila.Repo.insert!()
+  end
+
+  def insert_keila_sender(%RM.Local.League{} = league) do
+    %{
+      project_id: league.region.metadata.keila_project_id,
+      name: "#{league.region.name} #{league.name} League (#{league.region.code}#{league.code})",
+      from_email: "#{league.region.code}#{league.code}@ftcregion.com",
+      from_name: "#{league.region.name} #{league.name} League",
+      config: %{type: "local"}
+    }
+    |> Keila.Mailings.Sender.creation_changeset()
+    |> Keila.Repo.insert!()
+  end
+
+  @doc false
+  def insert_keila_template(%RM.FIRST.Region{} = region) do
+    %{
+      name: "#{region.name} Region Template (#{region.code})",
+      project_id: region.metadata.keila_project_id,
+      type: :hybrid,
+      styles: "",
+      assigns: %{}
+    }
+    |> Keila.Templates.Template.creation_changeset()
+    |> Keila.Repo.insert!()
+  end
+
+  @doc false
+  def insert_keila_campaign(region_or_league, attrs \\ %{})
+
+  def insert_keila_campaign(%RM.FIRST.Region{} = region, attrs) do
+    attrs = Map.new(attrs)
+
+    %{
+      subject: "New Message",
+      project_id: region.metadata.keila_project_id,
+      public_link_enabled: true,
+      segment_id: region.metadata.keila_segment_id,
+      sender_id: region.metadata.keila_sender_id,
+      template_id: region.metadata.keila_template_id,
+      settings: %{type: "markdown", do_not_track: true}
+    }
+    |> Map.merge(attrs)
+    |> Keila.Mailings.Campaign.creation_changeset()
+    |> then(fn changeset ->
+      if Map.get(attrs, :sent_at) do
+        Ecto.Changeset.put_change(changeset, :sent_at, attrs.sent_at)
+      else
+        changeset
+      end
+    end)
+    |> Keila.Repo.insert!()
+  end
+
+  def insert_keila_campaign(%RM.Local.League{} = league, attrs) do
+    attrs = Map.new(attrs)
+
+    %{
+      subject: "New Message",
+      project_id: league.region.metadata.keila_project_id,
+      public_link_enabled: true,
+      segment_id: league.metadata.keila_segment_id,
+      sender_id: league.metadata.keila_sender_id,
+      template_id: league.region.metadata.keila_template_id,
+      settings: %{type: "markdown", do_not_track: true}
+    }
+    |> Map.merge(attrs)
+    |> Keila.Mailings.Campaign.creation_changeset()
+    |> then(fn changeset ->
+      if Map.get(attrs, :sent_at) do
+        Ecto.Changeset.put_change(changeset, :sent_at, attrs.sent_at)
+      else
+        changeset
+      end
+    end)
     |> Keila.Repo.insert!()
   end
 end

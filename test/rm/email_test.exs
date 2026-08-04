@@ -481,4 +481,26 @@ defmodule RM.EmailTest do
                "false"
     end
   end
+
+  #
+  # Keila: Campaigns
+  #
+
+  describe "list_campaigns_for_region_or_league/2" do
+    test "returns campaigns for a region" do
+      region =
+        Factory.insert(:region)
+        |> Factory.with_keila()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      m1 = Factory.insert_keila_campaign(region, sent_at: nil)
+      m2 = Factory.insert_keila_campaign(region, sent_at: now)
+
+      [message] = Email.list_campaigns_for_region_or_league(region, draft: true)
+      assert message.id == m1.id
+
+      [message] = Email.list_campaigns_for_region_or_league(region, draft: false)
+      assert message.id == m2.id
+    end
+  end
 end
