@@ -207,14 +207,14 @@ defmodule RM.EmailTest do
 
       Email.sync_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "#{region.name} Region (#{region.code})"
+      assert segment.name == "#{region.name} (All)"
 
       Ecto.Changeset.change(region, name: "Updated Name") |> Repo.update!()
       region = Repo.reload!(region)
 
       Email.sync_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "Updated Name Region (#{region.code})"
+      assert segment.name == "Updated Name (All)"
     end
   end
 
@@ -225,14 +225,14 @@ defmodule RM.EmailTest do
 
       Email.sync_coach_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "#{region.name} Region Coaches (#{region.code})"
+      assert segment.name == "#{region.name} Coaches"
 
       Ecto.Changeset.change(region, name: "Updated Name") |> Repo.update!()
       region = Repo.reload!(region)
 
       Email.sync_coach_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "Updated Name Region Coaches (#{region.code})"
+      assert segment.name == "Updated Name Coaches"
     end
   end
 
@@ -243,14 +243,14 @@ defmodule RM.EmailTest do
 
       Email.sync_extended_coach_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "#{region.name} Region Coaches Extended (#{region.code})"
+      assert segment.name == "#{region.name} Coaches (Extended)"
 
       Ecto.Changeset.change(region, name: "Updated Name") |> Repo.update!()
       region = Repo.reload!(region)
 
       Email.sync_extended_coach_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "Updated Name Region Coaches Extended (#{region.code})"
+      assert segment.name == "Updated Name Coaches (Extended)"
     end
   end
 
@@ -305,14 +305,14 @@ defmodule RM.EmailTest do
 
       Email.sync_segment_for_league(region, league)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "#{region.name} #{league.name} League (#{region.code}#{league.code})"
+      assert segment.name == "#{league.name} (All)"
 
       Ecto.Changeset.change(league, name: "Updated Name") |> Repo.update!()
       league = Repo.reload!(league)
 
       Email.sync_segment_for_league(region, league)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "#{region.name} Updated Name League (#{region.code}#{league.code})"
+      assert segment.name == "Updated Name (All)"
     end
   end
 
@@ -324,18 +324,14 @@ defmodule RM.EmailTest do
 
       Email.sync_coach_segment_for_league(region, league)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-
-      assert segment.name ==
-               "#{region.name} #{league.name} League Coaches (#{region.code}#{league.code})"
+      assert segment.name == "#{league.name} Coaches"
 
       Ecto.Changeset.change(league, name: "Updated Name") |> Repo.update!()
       league = Repo.reload!(league)
 
       Email.sync_coach_segment_for_league(region, league)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-
-      assert segment.name ==
-               "#{region.name} Updated Name League Coaches (#{region.code}#{league.code})"
+      assert segment.name == "Updated Name Coaches"
     end
   end
 
@@ -349,16 +345,14 @@ defmodule RM.EmailTest do
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
 
       assert segment.name ==
-               "#{region.name} #{league.name} League Coaches Extended (#{region.code}#{league.code})"
+               "#{league.name} Coaches (Extended)"
 
       Ecto.Changeset.change(league, name: "Updated Name") |> Repo.update!()
       league = Repo.reload!(league)
 
       Email.sync_extended_coach_segment_for_league(region, league)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-
-      assert segment.name ==
-               "#{region.name} Updated Name League Coaches Extended (#{region.code}#{league.code})"
+      assert segment.name == "Updated Name Coaches (Extended)"
     end
   end
 
