@@ -49,7 +49,7 @@ const MarkdownEditor = {
     }
 
     if (this.editor) {
-      this.editor.destroy();
+      this.editor.view.destroy();
       delete this.editor;
     }
   },
