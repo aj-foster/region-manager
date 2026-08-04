@@ -133,8 +133,14 @@
       wrapper="mb-4"
     />
 
-    <div class="flex justify-end">
-      <.button phx-disable-with="Saving...">Save Draft</.button>
+    <div class="flex gap-4 justify-end">
+      <.link_button
+        navigate={url_for([@season, @region, @local_league, :messages])}
+        style="tertiary"
+      >
+        Cancel
+      </.link_button>
+      <.button phx-disable-with="Saving..." style="secondary" type="submit">Save Draft</.button>
     </div>
   </.form>
 </.card>
