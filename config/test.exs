@@ -65,6 +65,7 @@ config :keila, Keila.Mailings, min_campaign_schedule_offset: -10
 # Only use test and smtp Sender Adapters
 config :keila, Keila.Mailings.SenderAdapters,
   adapters: [
+    Keila.Mailings.SenderAdapters.Local,
     Keila.Mailings.SenderAdapters.SMTP,
     Keila.Mailings.SenderAdapters.SES
     # Disabled due to Keila not including this module when compiling as a dependency.
