@@ -246,7 +246,7 @@ defmodule RM.Email do
     region_code = String.downcase(region.code)
 
     params = %{
-      name: "#{region.name} Region (#{region.code})",
+      name: "#{region.name} (All)",
       project_id: region.metadata.keila_project_id,
       filter: %{"data.#{region_code}.sub" => "true"}
     }
@@ -278,7 +278,7 @@ defmodule RM.Email do
     season = to_string(region.current_season)
 
     params = %{
-      name: "#{region.name} Region Coaches (#{region.code})",
+      name: "#{region.name} Coaches",
       project_id: region.metadata.keila_project_id,
       filter: %{"data.#{region_code}.coach.#{season}" => "true"}
     }
@@ -311,7 +311,7 @@ defmodule RM.Email do
     last_season = to_string(region.current_season - 1)
 
     params = %{
-      name: "#{region.name} Region Coaches Extended (#{region.code})",
+      name: "#{region.name} Coaches (Extended)",
       project_id: region.metadata.keila_project_id,
       filter: %{
         "$or" => [
@@ -443,7 +443,7 @@ defmodule RM.Email do
     league_code = String.downcase(region.code <> league.code)
 
     params = %{
-      name: "#{region.name} #{league.name} League (#{region.code}#{league.code})",
+      name: "#{league.name} (All)",
       project_id: region.metadata.keila_project_id,
       filter: %{"data.#{league_code}.sub" => "true"}
     }
@@ -475,7 +475,7 @@ defmodule RM.Email do
     season = to_string(region.current_season)
 
     params = %{
-      name: "#{region.name} #{league.name} League Coaches (#{region.code}#{league.code})",
+      name: "#{league.name} Coaches",
       project_id: region.metadata.keila_project_id,
       filter: %{"data.#{league_code}.coach.#{season}" => "true"}
     }
@@ -508,8 +508,7 @@ defmodule RM.Email do
     last_season = to_string(region.current_season - 1)
 
     params = %{
-      name:
-        "#{region.name} #{league.name} League Coaches Extended (#{region.code}#{league.code})",
+      name: "#{league.name} Coaches (Extended)",
       project_id: region.metadata.keila_project_id,
       filter: %{
         "$or" => [
