@@ -25,7 +25,14 @@
 />
 
 <%= if can?(@current_user, :email_message_send, @local_league || @region) do %>
-  <.title>Draft Messages</.title>
+  <.title>
+    Draft Messages
+    <:action>
+      <.link_button navigate={url_for([@season, @region, @local_league, :messages, :new])}>
+        Create...
+      </.link_button>
+    </:action>
+  </.title>
 
   <.card :if={@drafts != []} flush spaced>
     <.list>
