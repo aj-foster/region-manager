@@ -1,5 +1,6 @@
 defmodule RMWeb.EmailLive.Edit do
   use RMWeb, :live_view
+  import RMWeb.EmailLive.Util, only: [segment_options: 1, validate_params: 2]
 
   alias Keila.Contacts
   alias Keila.Mailings
@@ -14,8 +15,8 @@ defmodule RMWeb.EmailLive.Edit do
 
   on_mount {RMWeb.EmailLive.Util, :require_current_season}
   on_mount {RMWeb.EmailLive.Util, :require_permission}
+  on_mount {RMWeb.EmailLive.Util, :require_keila_records}
   on_mount {__MODULE__, :preload_message}
-  on_mount {__MODULE__, :require_correct_segment}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -29,12 +30,14 @@ defmodule RMWeb.EmailLive.Edit do
     season = socket.assigns[:season]
     region = socket.assigns[:region]
     league = socket.assigns[:local_league]
-    project_id = socket.assigns[:region].metadata.keila_project_id
+    project_id = socket.assigns[:keila_project].id
 
     case Keila.Mailings.get_project_campaign(project_id, campaign_id) do
       %Keila.Mailings.Campaign{sent_at: nil} = campaign ->
+        campaign = Keila.Repo.preload(campaign, :segment)
+
         socket
-        |> assign(campaign: campaign)
+        |> assign(campaign: campaign, segment: campaign.segment)
         |> cont()
 
       %Keila.Mailings.Campaign{} = campaign ->
@@ -46,30 +49,8 @@ defmodule RMWeb.EmailLive.Edit do
       nil ->
         socket
         |> put_flash(:error, "Could not load email message.")
-        |> push_navigate(to: ~p"/dashboard")
+        |> push_navigate(to: url_for([season, region, league]))
         |> halt()
-    end
-  end
-
-  def on_mount(:require_correct_segment, _params, _session, socket) do
-    season = socket.assigns[:season]
-    region = socket.assigns[:region]
-    league = socket.assigns[:local_league]
-    campaign = socket.assigns[:campaign]
-
-    segment_ids = [
-      (league || region).metadata.keila_segment_id,
-      (league || region).metadata.keila_coach_segment_id,
-      (league || region).metadata.keila_extended_coach_segment_id
-    ]
-
-    if campaign.segment_id in segment_ids do
-      {:cont, socket}
-    else
-      socket
-      |> put_flash(:error, "An error occurred. Please contact support (incorrect_segment).")
-      |> push_navigate(to: url_for([season, region, league, campaign]))
-      |> halt()
     end
   end
 
@@ -88,13 +69,16 @@ defmodule RMWeb.EmailLive.Edit do
   end
 
   def handle_event("save", %{"campaign" => params}, socket) do
+    params = validate_params(socket, params) |> Map.delete("settings")
     changeset = merged_changeset(socket, params)
     merged_params = changeset.params || %{}
 
     case Mailings.update_campaign(socket.assigns.campaign.id, merged_params, false) do
       {:ok, campaign} ->
+        campaign = Keila.Repo.preload(campaign, :segment)
+
         socket
-        |> assign(:campaign, campaign)
+        |> assign(campaign: campaign, segment: campaign.segment)
         |> assign(:changeset, Keila.Mailings.Campaign.preview_changeset(campaign, %{}))
         |> put_campaign_preview()
         |> put_flash(:info, "Draft saved.")
@@ -106,6 +90,26 @@ defmodule RMWeb.EmailLive.Edit do
         |> put_campaign_preview()
         |> noreply()
     end
+  end
+
+  def handle_event("send_init", _params, socket) do
+    socket
+    |> push_js("#send-modal", "data-show")
+    |> noreply()
+  end
+
+  def handle_event("send", _params, socket) do
+    season = socket.assigns[:season]
+    region = socket.assigns[:region]
+    league = socket.assigns[:local_league]
+    campaign = socket.assigns[:campaign]
+
+    Mailings.deliver_campaign_async(campaign.id) |> IO.inspect()
+
+    socket
+    |> put_flash(:info, "Email is being sent.")
+    |> push_navigate(to: url_for([season, region, league, :messages]))
+    |> noreply()
   end
 
   #

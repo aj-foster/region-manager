@@ -35,6 +35,14 @@
     phx-submit="save"
   >
     <.input
+      field={f[:segment_id]}
+      label="Recipients"
+      options={segment_options(@keila_segments)}
+      required
+      type="select"
+      wrapper="mb-4"
+    />
+    <.input
       field={f[:subject]}
       label="Subject"
       required
@@ -141,6 +149,7 @@
         Cancel
       </.link_button>
       <.button phx-disable-with="Saving..." style="secondary" type="submit">Save Draft</.button>
+      <.button form="" phx-click="send_init">Send...</.button>
     </div>
   </.form>
 </.card>
@@ -244,3 +253,20 @@
   </dialog>
 </div>
 <div class="hidden" data-dialog-for="liquid"></div>
+
+<.modal id="send-modal">
+  <.title flush class="mb-4">Ready to send?</.title>
+
+  <.table class="mb-4">
+    <:row title="Recipients">{@segment.name}</:row>
+    <:row title="Subject">{@campaign.subject}</:row>
+    <:row title="Preview">{@campaign.preview_text}</:row>
+  </.table>
+
+  <p class="italic mb-4 text-sm">
+    This message will be sent gradually over the next few minutes.
+  </p>
+  <p class="text-right">
+    <.button phx-click="send" phx-disable-with="Sending..." style="primary">Send Now</.button>
+  </p>
+</.modal>
