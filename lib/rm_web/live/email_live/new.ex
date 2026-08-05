@@ -1,56 +1,25 @@
 defmodule RMWeb.EmailLive.New do
   use RMWeb, :live_view
+  import RMWeb.EmailLive.Util
 
   alias RM.Email
 
+  #
+  # Lifecycle
+  #
+
+  on_mount {RMWeb.EmailLive.Util, :require_current_season}
+  on_mount {RMWeb.EmailLive.Util, :require_permission}
+
   @impl true
   def mount(_params, _session, socket) do
-    with :ok <- require_permission(socket) do
-      socket
-      |> assign_area_name()
-      |> assign_project()
-      |> assign_segments()
-      |> assign_sender_id()
-      |> assign_subject_prefix()
-      |> new_email_form()
-      |> ok()
-    end
-  end
-
-  @spec require_permission(Socket.t()) :: :ok | Socket.t()
-  defp require_permission(socket) do
-    league = socket.assigns[:local_league]
-    region = socket.assigns[:region]
-    season = socket.assigns[:season]
-    user = socket.assigns[:current_user]
-
-    redirect_target = url_for([season, region, league])
-
-    cond do
-      season > region.current_season ->
-        socket
-        |> put_flash(:error, "Messaging for #{season} is not yet available.")
-        |> push_navigate(to: redirect_target)
-        |> ok()
-
-      season < region.current_season ->
-        socket
-        |> put_flash(:error, "Messaging for #{season} is no longer available.")
-        |> push_navigate(to: redirect_target)
-        |> ok()
-
-      can?(user, :email_message_send, league || region) ->
-        :ok
-
-      :else ->
-        socket
-        |> put_flash(
-          :error,
-          "You do not have permission to send messages for this #{if league, do: "league", else: "region"}."
-        )
-        |> push_navigate(to: redirect_target)
-        |> ok()
-    end
+    socket
+    |> assign_project()
+    |> assign_segments()
+    |> assign_sender_id()
+    |> assign_subject_prefix()
+    |> new_email_form()
+    |> ok()
   end
 
   #
@@ -76,21 +45,6 @@ defmodule RMWeb.EmailLive.New do
   # Helpers
   #
 
-  @spec assign_area_name(Socket.t()) :: Socket.t()
-  defp assign_area_name(socket) do
-    league = socket.assigns[:local_league]
-    region = socket.assigns[:region]
-
-    area_name =
-      if league do
-        "#{league.name} League"
-      else
-        "#{region.name} Region"
-      end
-
-    assign(socket, :area_name, area_name)
-  end
-
   @spec assign_project(Socket.t()) :: Socket.t()
   defp assign_project(socket) do
     season = socket.assigns[:season]
@@ -108,72 +62,6 @@ defmodule RMWeb.EmailLive.New do
     end
   end
 
-  @spec assign_segments(Socket.t()) :: Socket.t()
-  defp assign_segments(socket) do
-    keila_segments =
-      %{
-        all: get_segment(socket, :all),
-        coach: get_segment(socket, :coach),
-        coach_ext: get_segment(socket, :coach_ext)
-      }
-      |> Map.reject(fn {_key, value} -> is_nil(value) end)
-
-    if map_size(keila_segments) == 3 do
-      assign(socket, :keila_segments, keila_segments)
-    else
-      season = socket.assigns[:season]
-      region = socket.assigns[:region]
-      area_name = socket.assigns[:area_name]
-
-      socket
-      |> put_flash(
-        :error,
-        "One or more email segments are missing for #{area_name}. Please contact an administrator."
-      )
-      |> push_navigate(to: url_for([season, region]))
-    end
-  end
-
-  @spec get_segment(Socket.t(), atom) :: {Keila.Contacts.Segment.t(), integer} | nil
-  defp get_segment(socket, segment_type) do
-    league = socket.assigns[:local_league]
-    region = socket.assigns[:region]
-    project_id = socket.assigns[:keila_project].id
-    segment_id = segment_id(league || region, segment_type)
-
-    if segment = Keila.Contacts.get_project_segment(project_id, segment_id) do
-      segment_filter = segment.filter || %{}
-      filter = %{"$and" => [segment_filter, %{"status" => "active"}]}
-      contact_count = Keila.Contacts.get_project_contacts_count(project_id, filter: filter)
-
-      %{
-        count: contact_count,
-        name: segment_name(socket.assigns[:area_name], segment_type),
-        segment: segment
-      }
-    end
-  end
-
-  @spec segment_id(RM.Local.League.t() | RM.FIRST.Region.t(), atom) :: String.t() | nil
-  defp segment_id(league_or_region, segment_type) do
-    case {league_or_region, segment_type} do
-      {%RM.Local.League{metadata: %{keila_segment_id: id}}, :all} -> id
-      {%RM.Local.League{metadata: %{keila_coach_segment_id: id}}, :coach} -> id
-      {%RM.Local.League{metadata: %{keila_extended_coach_segment_id: id}}, :coach_ext} -> id
-      {%RM.FIRST.Region{metadata: %{keila_segment_id: id}}, :all} -> id
-      {%RM.FIRST.Region{metadata: %{keila_coach_segment_id: id}}, :coach} -> id
-      {%RM.FIRST.Region{metadata: %{keila_extended_coach_segment_id: id}}, :coach_ext} -> id
-    end
-  end
-
-  @spec segment_name(String.t(), atom) :: String.t()
-  defp segment_name(area_name, :all), do: "Everyone subscribed to #{area_name} news"
-  defp segment_name(area_name, :coach), do: "Registered #{area_name} coaches"
-
-  defp segment_name(area_name, :coach_ext) do
-    "Registered #{area_name} coaches from this season and last season"
-  end
-
   @spec assign_sender_id(Socket.t()) :: Socket.t()
   defp assign_sender_id(socket) do
     league = socket.assigns[:local_league]
@@ -183,12 +71,11 @@ defmodule RMWeb.EmailLive.New do
       assign(socket, :keila_sender_id, keila_sender_id)
     else
       season = socket.assigns[:season]
-      area_name = socket.assigns[:area_name]
 
       socket
       |> put_flash(
         :error,
-        "No email sender found for #{area_name}. Please contact an administrator."
+        "No email sender found. Please contact an administrator."
       )
       |> push_navigate(to: url_for([season, region]))
     end

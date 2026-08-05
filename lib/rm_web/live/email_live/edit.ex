@@ -12,10 +12,10 @@ defmodule RMWeb.EmailLive.Edit do
   # Lifecycle
   #
 
-  on_mount {__MODULE__, :require_current_season}
+  on_mount {RMWeb.EmailLive.Util, :require_current_season}
+  on_mount {RMWeb.EmailLive.Util, :require_permission}
   on_mount {__MODULE__, :preload_message}
   on_mount {__MODULE__, :require_correct_segment}
-  on_mount {__MODULE__, :require_permission}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -23,31 +23,6 @@ defmodule RMWeb.EmailLive.Edit do
     |> assign_changeset()
     |> put_campaign_preview()
     |> ok()
-  end
-
-  def on_mount(:require_current_season, _params, _session, socket) do
-    season = socket.assigns[:season]
-    region = socket.assigns[:region]
-    league = socket.assigns[:local_league]
-
-    redirect_target = url_for([season, region, league])
-
-    cond do
-      season > region.current_season ->
-        socket
-        |> put_flash(:error, "Messaging for #{season} is not yet available.")
-        |> push_navigate(to: redirect_target)
-        |> halt()
-
-      season < region.current_season ->
-        socket
-        |> put_flash(:error, "Messaging for #{season} is no longer available.")
-        |> push_navigate(to: redirect_target)
-        |> halt()
-
-      :else ->
-        {:cont, socket}
-    end
   end
 
   def on_mount(:preload_message, %{"message" => campaign_id}, _session, socket) do
@@ -94,25 +69,6 @@ defmodule RMWeb.EmailLive.Edit do
       socket
       |> put_flash(:error, "An error occurred. Please contact support (incorrect_segment).")
       |> push_navigate(to: url_for([season, region, league, campaign]))
-      |> halt()
-    end
-  end
-
-  def on_mount(:require_permission, _params, _session, socket) do
-    league = socket.assigns[:local_league]
-    region = socket.assigns[:region]
-    season = socket.assigns[:season]
-    user = socket.assigns[:current_user]
-
-    if can?(user, :email_message_send, league || region) do
-      {:cont, socket}
-    else
-      socket
-      |> put_flash(
-        :error,
-        "You do not have permission to send messages for this #{if league, do: "league", else: "region"}."
-      )
-      |> push_navigate(to: url_for([season, region, league]))
       |> halt()
     end
   end
