@@ -104,12 +104,18 @@ defmodule RMWeb.EmailLive.Edit do
     league = socket.assigns[:local_league]
     campaign = socket.assigns[:campaign]
 
-    Mailings.deliver_campaign_async(campaign.id) |> IO.inspect()
+    case RM.Email.Mailings.deliver_campaign(campaign.id) do
+      :ok ->
+        socket
+        |> put_flash(:info, "Email is being sent.")
+        |> push_navigate(to: url_for([season, region, league, :messages]))
+        |> noreply()
 
-    socket
-    |> put_flash(:info, "Email is being sent.")
-    |> push_navigate(to: url_for([season, region, league, :messages]))
-    |> noreply()
+      {:error, reason} ->
+        socket
+        |> put_flash(:error, "Failed to send email: #{inspect(reason)}")
+        |> noreply()
+    end
   end
 
   #
