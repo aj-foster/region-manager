@@ -1,0 +1,198 @@
+defmodule RM.Email.CampaignRenderWorker do
+  @moduledoc """
+  Analogue to `Keila.Mailings.CampaignRenderWorker` with customization
+  """
+
+  use Oban.Worker,
+    queue: :campaign_renderer,
+    unique: [
+      period: :infinity,
+      states: :incomplete,
+      keys: [:campaign_id]
+    ]
+
+  use Keila.Repo
+  require Logger
+  alias Keila.Mailings.Message
+  alias Keila.Contacts
+  alias Keila.Contacts.Contact
+  alias RM.Email.CampaignRenderer
+
+  @batch_size 500
+  @render_timeout 5_000
+  @max_attempts 5
+
+  @impl true
+  def perform(%Oban.Job{args: %{"campaign_id" => campaign_id}}) do
+    campaign = Keila.Mailings.get_campaign(campaign_id)
+
+    if is_nil(campaign) do
+      {:cancel, :campaign_not_found}
+    else
+      render_messages(campaign)
+    end
+  end
+
+  defp render_messages(campaign) do
+    from(m in Message,
+      where: m.campaign_id == ^campaign.id and m.status == :unrendered,
+      left_join: c in assoc(m, :contact),
+      select: %{m | contact: c},
+      limit: @batch_size
+    )
+    |> Repo.all()
+    |> async_render_messages(campaign)
+    |> tap(&update_rendered_messages/1)
+    |> tap(&update_failed_messages/1)
+    |> tap(&update_messages_for_retry/1)
+    |> tap(fn results ->
+      if length(results) == @batch_size or Enum.any?(results, &retryable?/1) do
+        Oban.insert!(new(%{"campaign_id" => campaign.id}))
+      end
+    end)
+
+    :ok
+  end
+
+  defp async_render_messages(messages, campaign) do
+    messages
+    |> Task.async_stream(&render_message(&1, campaign),
+      timeout: @render_timeout,
+      on_timeout: :kill_task,
+      zip_input_on_exit: true
+    )
+    |> Enum.map(fn
+      {:ok, result} ->
+        result
+
+      {:exit, {message, :timeout}} ->
+        Logger.warning("CampaignRenderWorker: render timeout for message #{message.id}")
+        {message, :timeout}
+    end)
+  end
+
+  defp render_message(message, campaign) do
+    with %Contact{} <- message.contact,
+         %{valid?: true} = output <- CampaignRenderer.render(campaign, message) do
+      {message, {:ok, output}}
+    else
+      nil ->
+        Logger.warning("CampaignRenderWorker: message #{message.id} has no contact")
+        {message, :error}
+
+      %{valid?: false} = output ->
+        Logger.warning(
+          "CampaignRenderWorker: render error for message #{message.id}: #{inspect(output.errors)}"
+        )
+
+        {message, :error}
+    end
+  rescue
+    e ->
+      Logger.error(
+        "CampaignRenderWorker: exception rendering message #{message.id}: #{Exception.message(e)}"
+      )
+
+      {message, :error}
+  end
+
+  @message_update_types %{
+    message_id: Message.Id,
+    subject: :string,
+    html_body: :string,
+    text_body: :string,
+    recipient_email: :string,
+    recipient_name: :string
+  }
+
+  defp update_rendered_messages(results) do
+    message_updates =
+      results
+      |> Enum.filter(fn {_message, result} -> match?({:ok, _}, result) end)
+      |> Enum.map(fn {message, {:ok, output}} ->
+        %{
+          message_id: message.id,
+          subject: output.subject,
+          html_body: output.html_body,
+          text_body: output.text_body,
+          recipient_email: message.contact.email,
+          recipient_name: Contacts.display_name(message.contact)
+        }
+      end)
+
+    if Enum.any?(message_updates) do
+      from(m in Message,
+        join: mu in values(message_updates, @message_update_types),
+        on: m.id == mu.message_id,
+        where: m.status == :unrendered,
+        update: [
+          set: [
+            status: :ready,
+            subject: mu.subject,
+            html_body: mu.html_body,
+            text_body: mu.text_body,
+            recipient_email: mu.recipient_email,
+            recipient_name: mu.recipient_name,
+            updated_at: fragment("NOW()")
+          ]
+        ]
+      )
+      |> Repo.update_all([])
+    end
+  end
+
+  defp update_failed_messages(results) do
+    message_ids =
+      results
+      |> Enum.filter(fn {message, result} ->
+        result == :error or (result == :timeout and message.render_attempt >= @max_attempts)
+      end)
+      |> Enum.map(fn {message, _} -> message.id end)
+
+    if Enum.any?(message_ids) do
+      from(m in Message,
+        where: m.id in ^message_ids and m.status == :unrendered,
+        update: [
+          set: [status: :failed, failed_at: fragment("NOW()"), updated_at: fragment("NOW()")]
+        ]
+      )
+      |> Repo.update_all([])
+    end
+  end
+
+  @message_retry_update_types %{
+    message_id: Message.Id,
+    render_attempt: :integer
+  }
+
+  defp update_messages_for_retry(results) do
+    message_updates =
+      results
+      |> Enum.filter(&retryable?/1)
+      |> Enum.map(fn {message, _} ->
+        %{
+          message_id: message.id,
+          render_attempt: message.render_attempt + 1
+        }
+      end)
+
+    if Enum.any?(message_updates) do
+      from(m in Message,
+        join: mu in values(message_updates, @message_retry_update_types),
+        on: m.id == mu.message_id,
+        where: m.status == :unrendered,
+        update: [
+          set: [
+            render_attempt: mu.render_attempt,
+            updated_at: fragment("NOW()")
+          ]
+        ]
+      )
+      |> Repo.update_all([])
+    end
+  end
+
+  defp retryable?({message, result}) do
+    result == :timeout and message.render_attempt < @max_attempts
+  end
+end

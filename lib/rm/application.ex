@@ -41,7 +41,7 @@ defmodule RM.Application do
     defp keila_scheduler, do: []
     defp tz_children, do: []
   else
-    defp keila_scheduler, do: [{Keila.Mailings.Scheduler, []}]
+    defp keila_scheduler, do: [{RM.Email.Scheduler, []}]
     defp tz_children, do: [{Tz.UpdatePeriodically, [interval_in_days: 5]}]
   end
 end
