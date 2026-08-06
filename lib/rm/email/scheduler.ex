@@ -142,7 +142,6 @@ defmodule RM.Email.Scheduler do
     schedule_persist()
 
     if state.leading? do
-      Logger.debug("Scheduler: persisting rate limiter state")
       RateLimiter.persist(state.table)
     end
 
@@ -206,17 +205,11 @@ defmodule RM.Email.Scheduler do
         n when is_integer(n) -> n
       end
 
-    Logger.debug("Got #{tokens} partition tokens for #{adapter}")
     schedule_partition_messages(table, adapter, senders, rr_offset, tokens)
   end
 
-  defp schedule_partition_messages(_table, adapter, _, _, 0) do
-    Logger.debug("No partition tokens left for #{adapter}")
-  end
-
-  defp schedule_partition_messages(_table, adapter, [], _, _) do
-    Logger.debug("No senders with tokens left for #{adapter}")
-  end
+  defp schedule_partition_messages(_table, _adapter, _, _, 0), do: :ok
+  defp schedule_partition_messages(_table, _adapter, [], _, _), do: :ok
 
   defp schedule_partition_messages(table, adapter, senders, rr_offset, partition_tokens) do
     sender = Enum.at(senders, rem(rr_offset, length(senders)))
@@ -227,8 +220,6 @@ defmodule RM.Email.Scheduler do
       schedule_partition_messages(table, adapter, senders, rr_offset + 1, partition_tokens - 1)
     else
       :error ->
-        Logger.debug("Error scheduling a message for sender #{sender.id}")
-
         schedule_partition_messages(
           table,
           adapter,
@@ -243,14 +234,12 @@ defmodule RM.Email.Scheduler do
     Keila.Repo.transact(fn ->
       case set_next_message_queued(sender) do
         {0, _} ->
-          Logger.debug("No message ready for sender #{sender.id}")
           {:error, :error}
 
         {1, [message_id]} ->
           RM.Email.DeliveryWorker.new(%{"message_id" => message_id})
           |> Oban.insert!()
 
-          Logger.debug("Inserted delivery job for sender #{sender.id}: message #{message_id}")
           {:ok, message_id}
       end
     end)
