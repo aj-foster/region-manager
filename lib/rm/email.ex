@@ -833,4 +833,64 @@ defmodule RM.Email do
     |> preload([segment: s], segment: s)
     |> Keila.Repo.all()
   end
+
+  #
+  # Unsubscribe Links
+  #
+
+  @spec fetch_keila_project(String.t()) ::
+          {:ok, Keila.Projects.Project.t()} | {:error, :not_found}
+  def fetch_keila_project(project_id) do
+    if project = Keila.Projects.get_project(project_id) do
+      {:ok, project}
+    else
+      {:error, :not_found}
+    end
+  end
+
+  @spec fetch_keila_message(String.t()) ::
+          {:ok, Keila.Mailings.Message.t()} | {:error, :not_found}
+  def fetch_keila_message(message_id) do
+    if message = Keila.Mailings.get_message(message_id) do
+      {:ok, message}
+    else
+      {:error, :not_found}
+    end
+  end
+
+  @spec fetch_keila_contact(String.t()) ::
+          {:ok, Keila.Contacts.Contact.t()} | {:error, :not_found}
+  def fetch_keila_contact(contact_id) do
+    if contact = Keila.Contacts.get_contact(contact_id) do
+      {:ok, contact}
+    else
+      {:error, :not_found}
+    end
+  end
+
+  @spec validate_unsubscribe_token(
+          Keila.Projects.Project.t(),
+          Keila.Mailings.Message.t(),
+          String.t()
+        ) :: :ok | {:error, :invalid_token}
+  def validate_unsubscribe_token(project, message, token) do
+    expected_token = unsubscribe_token(project, message)
+
+    if :crypto.hash_equals(token, expected_token) do
+      :ok
+    else
+      {:error, :invalid_token}
+    end
+  rescue
+    _ -> {:error, :invalid_token}
+  end
+
+  @spec unsubscribe_token(Keila.Projects.Project.t(), Keila.Mailings.Message.t()) :: String.t()
+  def unsubscribe_token(project, message) do
+    key = Application.get_env(:rm, RMWeb.Endpoint) |> Keyword.fetch!(:secret_key_base)
+    message = "unsubscribe:" <> project.id <> ":" <> message.id
+
+    :crypto.mac(:hmac, :sha256, key, message)
+    |> Base.url_encode64(padding: false)
+  end
 end

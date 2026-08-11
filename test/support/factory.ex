@@ -443,4 +443,22 @@ defmodule RM.Factory do
     end)
     |> Keila.Repo.insert!()
   end
+
+  def insert_keila_message(campaign, contact, attrs \\ %{}) do
+    attrs = Map.new(attrs)
+
+    %{
+      recipient_email: contact.email,
+      recipient_name: contact.first_name,
+      project_id: campaign.project_id,
+      contact_id: contact.id,
+      campaign_id: campaign.id,
+      sender_id: campaign.sender_id,
+      form_id: nil,
+      form_params_id: nil
+    }
+    |> Map.merge(attrs)
+    |> Keila.Mailings.Message.changeset()
+    |> Keila.Repo.insert!()
+  end
 end

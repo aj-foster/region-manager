@@ -503,4 +503,72 @@ defmodule RM.EmailTest do
       assert message.id == m2.id
     end
   end
+
+  #
+  # Unsubscribe Links
+  #
+
+  describe "fetch_keila_project/1" do
+    test "returns a Keila project by ID" do
+      keila_project = Factory.insert_keila_project()
+      assert {:ok, project} = Email.fetch_keila_project(keila_project.id)
+      assert project.id == keila_project.id
+    end
+  end
+
+  describe "fetch_keila_message/1" do
+    test "returns a Keila message by ID" do
+      region = Factory.insert(:region) |> Factory.with_keila()
+      keila_campaign = Factory.insert_keila_campaign(region)
+      {:ok, keila_project} = Email.fetch_keila_project(region.metadata.keila_project_id)
+
+      keila_contact =
+        Factory.insert_keila_contact(keila_project, "test-#{System.unique_integer()}@example.com")
+
+      keila_message = Factory.insert_keila_message(keila_campaign, keila_contact)
+
+      assert {:ok, fetched_message} = Email.fetch_keila_message(keila_message.id)
+      assert fetched_message.id == keila_message.id
+    end
+  end
+
+  describe "fetch_keila_contact/1" do
+    test "returns a Keila contact by ID" do
+      keila_project = Factory.insert_keila_project()
+
+      keila_contact =
+        Factory.insert_keila_contact(keila_project, "test-#{System.unique_integer()}@example.com")
+
+      assert {:ok, fetched_contact} = Email.fetch_keila_contact(keila_contact.id)
+      assert fetched_contact.id == keila_contact.id
+    end
+  end
+
+  describe "unsubscribe_token/2 and validate_unsubscribe_token/3" do
+    test "generates and validates an unsubscribe token" do
+      region = Factory.insert(:region) |> Factory.with_keila()
+      keila_campaign = Factory.insert_keila_campaign(region)
+      {:ok, keila_project} = Email.fetch_keila_project(region.metadata.keila_project_id)
+
+      keila_contact =
+        Factory.insert_keila_contact(keila_project, "test-#{System.unique_integer()}@example.com")
+
+      keila_message = Factory.insert_keila_message(keila_campaign, keila_contact)
+      token = Email.unsubscribe_token(keila_project, keila_message)
+
+      assert :ok =
+               Email.validate_unsubscribe_token(
+                 keila_project,
+                 keila_message,
+                 token
+               )
+
+      assert {:error, :invalid_token} =
+               Email.validate_unsubscribe_token(
+                 keila_project,
+                 keila_message,
+                 "invalidtoken"
+               )
+    end
+  end
 end
