@@ -173,7 +173,8 @@ defmodule RM.Email do
       on_conflict: [
         set: [unsubscribed_at: now, updated_at: now]
       ],
-      conflict_target: [:email]
+      conflict_target: [:email],
+      returning: true
     )
   end
 
