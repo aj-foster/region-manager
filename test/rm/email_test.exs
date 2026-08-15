@@ -28,6 +28,18 @@ defmodule RM.EmailTest do
     end
   end
 
+  describe "fetch_address/1" do
+    test "returns address for a known email" do
+      address = Factory.insert(:address)
+      assert {:ok, fetched_address} = Email.fetch_address(address.email)
+      assert fetched_address.id == address.id
+    end
+
+    test "returns error for an unknown email" do
+      assert {:error, :not_found} = Email.fetch_address("unknown@example.com")
+    end
+  end
+
   describe "get_address_by_hashed_id/1" do
     test "returns the address for a known hashed_id" do
       address = Factory.insert(:address)
