@@ -21,6 +21,13 @@ defmodule RMWeb.EmailLive.Manage do
     |> noreply()
   end
 
+  def handle_params(%{"project" => prj_id, "message" => msg_id, "token" => token}, _uri, socket) do
+    socket
+    |> assign_address(prj_id, msg_id, token)
+    |> assign_subscriptions()
+    |> noreply()
+  end
+
   def handle_params(_unsigned_params, _uri, socket) do
     socket
     |> put_flash(
@@ -185,6 +192,25 @@ defmodule RMWeb.EmailLive.Manage do
         |> put_flash(
           :error,
           "Invalid email management link. If you believe this is an error, please contact support."
+        )
+        |> redirect(to: ~p"/")
+    end
+  end
+
+  @spec assign_address(Socket.t(), String.t(), String.t(), String.t()) :: Socket.t()
+  defp assign_address(socket, project_id, message_id, token) do
+    with {:ok, project} <- Email.fetch_keila_project(project_id),
+         {:ok, message} <- Email.fetch_keila_message(message_id),
+         {:ok, contact} <- Email.fetch_keila_contact(message.contact_id),
+         :ok <- Email.validate_unsubscribe_token(project, message, token),
+         {:ok, address} <- Email.fetch_address(contact.email) do
+      assign(socket, :address, address)
+    else
+      {:error, _reason} ->
+        socket
+        |> put_flash(
+          :error,
+          "The unsubscribe link is invalid or has expired."
         )
         |> redirect(to: ~p"/")
     end
