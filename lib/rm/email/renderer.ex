@@ -18,7 +18,7 @@ defmodule RM.Email.Renderer do
   @html_template File.read!(@html_template_path) |> Solid.parse!()
   @styles File.read!(@default_css_path) |> Css.parse!()
 
-  @signature """
+  @default_signature """
   This _FIRST_ Tech Challenge region uses [Region Manager](https://ftcregion.com) to send messages.
 
   [Unsubscribe]({{ unsubscribe_link }})
@@ -114,7 +114,7 @@ defmodule RM.Email.Renderer do
 
   defp get_signature(assigns) do
     case assigns["signature"] do
-      empty when empty in [nil, ""] -> @signature
+      empty when empty in [nil, ""] -> @default_signature
       signature -> signature
     end
   end
