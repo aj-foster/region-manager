@@ -224,7 +224,7 @@ defmodule RMWeb.EmailLive.Manage do
     regions =
       RM.FIRST.list_regions()
       |> Enum.reject(fn region -> is_nil(region.metadata.keila_project_id) end)
-      |> RM.Repo.preload(:leagues)
+      |> RM.Repo.preload(leagues: :settings)
 
     regions_by_code =
       Map.new(regions, fn region -> {String.downcase(region.code), region} end)
@@ -259,6 +259,7 @@ defmodule RMWeb.EmailLive.Manage do
 
         leagues =
           region.leagues
+          |> Enum.filter(&(&1.settings && &1.settings.enable_email))
           |> Enum.map(fn league ->
             league_code = region_code <> String.downcase(league.code)
 
