@@ -29,7 +29,7 @@
     Draft Messages
     <:action>
       <.link_button navigate={url_for([@season, @region, @local_league, :messages, :new])}>
-        Create...
+        Compose...
       </.link_button>
     </:action>
   </.title>
@@ -54,3 +54,31 @@
     </p>
   </.card>
 <% end %>
+
+<.title>
+  {messages_page_title(
+    @local_league,
+    @first_league,
+    @region
+  )} News Archive
+</.title>
+
+<.card :if={@sent != []} flush spaced>
+  <.list>
+    <:link
+      :for={message <- @sent}
+      navigate={url_for([@season, @region, @local_league || @first_league, message])}
+    >
+      <p class="font-semibold">{message.subject}</p>
+      <p class="text-sm">
+        {format_date(message.sent_at, :date)} &bull; {message.segment.name}
+      </p>
+    </:link>
+  </.list>
+</.card>
+
+<.card :if={@sent == []} spaced>
+  <p class="italic text-sm">
+    There are no messages.
+  </p>
+</.card>
