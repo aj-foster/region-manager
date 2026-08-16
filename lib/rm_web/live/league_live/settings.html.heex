@@ -11,7 +11,7 @@
 
 <%= if can?(@current_user, :league_update, @local_league) do %>
   <.title>
-    {@local_league.name} League Settings
+    {@local_league.name} League Setup
     <:action>
       <.button phx-click="edit_league_init">
         {if @edit_league, do: "Cancel", else: "Edit..."}
@@ -166,6 +166,97 @@
       </p>
     </.form>
   </.card>
+
+  <.title>League Settings</.title>
+
+  <.card spaced>
+    <.form
+      for={@league_settings_form}
+      phx-change="league_settings_change"
+      phx-submit="league_settings_submit"
+    >
+      <.switch
+        explanation="When enabled, league administrators can send emails to coaches and subscribed members of the community. This will also enable public email archives and include the league on subscription management pages."
+        field={@league_settings_form[:enable_email]}
+        label="Enable Email Sending"
+        wrapper="mb-4"
+      />
+
+      <p class="text-right">
+        <.button disabled={@league_settings_success} type="submit">
+          Update Settings
+          <.icon :if={@league_settings_success} class="h-4 w-4" name="hero-check" />
+        </.button>
+      </p>
+    </.form>
+  </.card>
+<% end %>
+
+<%= if can?(@current_user, :league_add_user, @local_league) do %>
+  <.title>
+    League Administrators
+    <:action>
+      <.button phx-click={show_modal("league-add-user-modal")}>Add...</.button>
+    </:action>
+  </.title>
+
+  <.card flush spaced>
+    <.list>
+      <:item
+        :for={assignment <- @local_league.user_assignments}
+        class="flex items-center px-4 py-2 relative"
+      >
+        <div class="grow">
+          <p class="flex gap-2 items-center">
+            <span class="font-semibold">
+              <%= if assignment.user do %>
+                {assignment.user.profile.name}
+              <% else %>
+                <em>Unregistered User</em>
+              <% end %>
+            </span>
+
+            <%= cond do %>
+              <% assignment.permissions.users -> %>
+                <.tag class="bg-emerald-100 border-emerald-300">All Permissions</.tag>
+              <% assignment.permissions.contact || assignment.permissions.email || assignment.permissions.events -> %>
+                <.tag
+                  :if={assignment.permissions.contact}
+                  class="bg-orange-100 border-orange-300"
+                >
+                  Contacts
+                </.tag>
+                <.tag :if={assignment.permissions.email} class="bg-orange-100 border-orange-300">
+                  Email
+                </.tag>
+                <.tag
+                  :if={assignment.permissions.events}
+                  class="bg-orange-100 border-orange-300"
+                >
+                  Events
+                </.tag>
+              <% :else -> %>
+                <.tag class="bg-rose-100 border-rose-300">No Permissions</.tag>
+            <% end %>
+          </p>
+          <p class="text-sm">{assignment.email}</p>
+        </div>
+
+        <div>
+          <button
+            class="leading-none ml-2 p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
+            phx-click="remove_user_init"
+            phx-value-assignment={assignment.id}
+          >
+            <.icon name="hero-trash" />
+          </button>
+        </div>
+      </:item>
+    </.list>
+    <p :if={length(@local_league.user_assignments) == 0} class="italic px-4 py-2 text-sm">
+      This league currently has no administrators assigned.
+    </p>
+  </.card>
 <% end %>
 
 <.title>
@@ -270,73 +361,6 @@
     </p>
   </.form>
 </.card>
-
-<%= if can?(@current_user, :league_add_user, @local_league) do %>
-  <.title>
-    League Administrators
-    <:action>
-      <.button phx-click={show_modal("league-add-user-modal")}>Add...</.button>
-    </:action>
-  </.title>
-
-  <.card flush spaced>
-    <.list>
-      <:item
-        :for={assignment <- @local_league.user_assignments}
-        class="flex items-center px-4 py-2 relative"
-      >
-        <div class="grow">
-          <p class="flex gap-2 items-center">
-            <span class="font-semibold">
-              <%= if assignment.user do %>
-                {assignment.user.profile.name}
-              <% else %>
-                <em>Unregistered User</em>
-              <% end %>
-            </span>
-
-            <%= cond do %>
-              <% assignment.permissions.users -> %>
-                <.tag class="bg-emerald-100 border-emerald-300">All Permissions</.tag>
-              <% assignment.permissions.contact || assignment.permissions.email || assignment.permissions.events -> %>
-                <.tag
-                  :if={assignment.permissions.contact}
-                  class="bg-orange-100 border-orange-300"
-                >
-                  Contacts
-                </.tag>
-                <.tag :if={assignment.permissions.email} class="bg-orange-100 border-orange-300">
-                  Email
-                </.tag>
-                <.tag
-                  :if={assignment.permissions.events}
-                  class="bg-orange-100 border-orange-300"
-                >
-                  Events
-                </.tag>
-              <% :else -> %>
-                <.tag class="bg-rose-100 border-rose-300">No Permissions</.tag>
-            <% end %>
-          </p>
-          <p class="text-sm">{assignment.email}</p>
-        </div>
-
-        <div>
-          <button
-            class="leading-none ml-2 p-1 rounded text-neutral-800 transition-colors hover:bg-neutral-200"
-            phx-click="remove_user_init"
-            phx-value-assignment={assignment.id}
-          >
-            <.icon name="hero-trash" />
-          </button>
-        </div>
-      </:item>
-    </.list>
-    <p :if={length(@local_league.user_assignments) == 0} class="italic px-4 py-2 text-sm">
-      This league currently has no administrators assigned.
-    </p>
-  </.card>
-<% end %>
 
 <.modal id="event-proposal-info">
   <.title class="mb-4" flush>Event Proposal Info</.title>
