@@ -2,6 +2,7 @@ defmodule RM.Email.CampaignRenderer do
   @moduledoc """
   Analogue to `Keila.Mailings.CampaignRenderer` with customization
   """
+  use RMWeb, :verified_routes
   require Logger
 
   alias Keila.Contacts.Contact
@@ -15,8 +16,10 @@ defmodule RM.Email.CampaignRenderer do
   """
   @spec render(Campaign.t(), Message.t()) :: Output.t()
   def render(%Campaign{} = campaign, %Message{} = message) do
-    # TODO
-    unsubscribe_link = "/"
+    unsubscribe_token = RM.Email.unsubscribe_token(campaign.project_id, message)
+
+    unsubscribe_link =
+      url(~p"/email/unsub/#{campaign.project_id}/#{message.id}/#{unsubscribe_token}")
 
     campaign
     |> to_input(message.contact, %{"unsubscribe_link" => unsubscribe_link})

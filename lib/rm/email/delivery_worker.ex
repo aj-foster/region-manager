@@ -12,6 +12,7 @@ defmodule RM.Email.DeliveryWorker do
     ]
 
   use Keila.Repo
+  use RMWeb, :verified_routes
   require Logger
   import Ecto.Query
   alias Keila.EmailAddress
@@ -83,9 +84,8 @@ defmodule RM.Email.DeliveryWorker do
   defp put_headers(email, message) do
     email
     |> put_custom_headers(message)
-    # TODO
-    # |> maybe_put_list_unsubscribe(message)
-    # |> maybe_put_list_unsubscribe_post()
+    |> maybe_put_list_unsubscribe(message)
+    |> maybe_put_list_unsubscribe_post()
     |> maybe_put_bulk_header(message)
   end
 
@@ -102,32 +102,35 @@ defmodule RM.Email.DeliveryWorker do
     end)
   end
 
-  # # TODO: When automations are implemented, this function should also return true for
-  # # messages from automations
-  # defp maybe_put_list_unsubscribe(email, message) do
-  #   requires_unsubscribe_header? =
-  #     not is_nil(message.contact_id) and
-  #       not (is_nil(message.campaign_id) and
-  #              is_nil(message.form_id) and
-  #              is_nil(message.form_params_id))
+  defp maybe_put_list_unsubscribe(email, message) do
+    requires_unsubscribe_header? =
+      not is_nil(message.contact_id) and
+        not (is_nil(message.campaign_id) and
+               is_nil(message.form_id) and
+               is_nil(message.form_params_id))
 
-  #   if requires_unsubscribe_header? and not has_header?(email, "List-Unsubscribe") do
-  #     value = "<#{Keila.Mailings.get_unsubscribe_link(message.project_id, message.id)}>"
-  #     Swoosh.Email.header(email, "List-Unsubscribe", value)
-  #   else
-  #     email
-  #   end
-  # end
+    if requires_unsubscribe_header? and not has_header?(email, "List-Unsubscribe") do
+      unsubscribe_token = RM.Email.unsubscribe_token(message.project_id, message)
 
-  # defp maybe_put_list_unsubscribe_post(email) do
-  #   https? = match?("<https://" <> _, get_header(email, "List-Unsubscribe"))
+      unsubscribe_link =
+        url(~p"/email/unsub/#{message.project_id}/#{message.id}/#{unsubscribe_token}")
 
-  #   if https? and not has_header?(email, "List-Unsubscribe-Post") do
-  #     Swoosh.Email.header(email, "List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
-  #   else
-  #     email
-  #   end
-  # end
+      value = "<#{unsubscribe_link}>"
+      Swoosh.Email.header(email, "List-Unsubscribe", value)
+    else
+      email
+    end
+  end
+
+  defp maybe_put_list_unsubscribe_post(email) do
+    https? = match?("<https://" <> _, get_header(email, "List-Unsubscribe"))
+
+    if https? and not has_header?(email, "List-Unsubscribe-Post") do
+      Swoosh.Email.header(email, "List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
+    else
+      email
+    end
+  end
 
   defp maybe_put_bulk_header(email, %{campaign_id: campaign_id}) when not is_nil(campaign_id) do
     if Application.get_env(:keila, Keila.Mailings)[:enable_precedence_header] do
@@ -139,18 +142,18 @@ defmodule RM.Email.DeliveryWorker do
 
   defp maybe_put_bulk_header(email, _message), do: email
 
-  # defp has_header?(email, key) do
-  #   key = String.downcase(key)
-  #   Enum.any?(email.headers, fn {existing, _value} -> String.downcase(existing) == key end)
-  # end
+  defp has_header?(email, key) do
+    key = String.downcase(key)
+    Enum.any?(email.headers, fn {existing, _value} -> String.downcase(existing) == key end)
+  end
 
-  # defp get_header(email, key) do
-  #   key = String.downcase(key)
+  defp get_header(email, key) do
+    key = String.downcase(key)
 
-  #   Enum.find_value(email.headers, fn {existing, value} ->
-  #     if String.downcase(existing) == key, do: value
-  #   end)
-  # end
+    Enum.find_value(email.headers, fn {existing, value} ->
+      if String.downcase(existing) == key, do: value
+    end)
+  end
 
   # Email was sent successfully
   defp handle_result({:ok, raw_receipt}, message) do
