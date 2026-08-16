@@ -71,24 +71,21 @@
 
 /* Keila-inspired button treatment for inserted markdown buttons (rendered as h4 + link). */
 #wysiwyg .ProseMirror h4 {
-  margin: 1.12em 0;
+  margin: 1em 0;
+  padding: 1em 0;
 }
 
 #wysiwyg .ProseMirror h4 a {
-  display: inline-block;
-  background-color: #1d4ed8;
+  background-color: #f57e24;
   border-radius: 5px;
-  padding: 13px 17px;
   color: #ffffff;
-  text-decoration: none;
+  display: block;
   font-size: 15px;
-  line-height: 15px;
   font-weight: 600;
-  cursor: pointer;
-}
-
-#wysiwyg .ProseMirror h4 a:hover {
-  background-color: #1e40af;
+  line-height: 15px;
+  padding: 13px 17px;
+  text-align: center;
+  text-decoration: none;
 }
 
 #wysiwyg .markdown-preview {
@@ -151,21 +148,19 @@
 }
 
 #wysiwyg .markdown-preview h4 {
-  margin: 1.12em 0;
+  margin: 1em 0;
+  padding: 1em 0;
 }
 
 #wysiwyg .markdown-preview h4 a {
-  display: inline-block;
-  background-color: #1d4ed8;
+  background-color: #f57e24;
   border-radius: 5px;
-  padding: 13px 17px;
   color: #ffffff;
-  text-decoration: none;
+  display: block;
   font-size: 15px;
-  line-height: 15px;
   font-weight: 600;
-}
-
-#wysiwyg .markdown-preview h4 a:hover {
-  background-color: #1e40af;
+  line-height: 15px;
+  padding: 13px 17px;
+  text-align: center;
+  text-decoration: none;
 }
