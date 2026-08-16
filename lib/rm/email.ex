@@ -897,12 +897,29 @@ defmodule RM.Email do
     _ -> {:error, :invalid_token}
   end
 
-  @spec unsubscribe_token(Keila.Projects.Project.t(), Keila.Mailings.Message.t()) :: String.t()
-  def unsubscribe_token(project, message) do
-    key = Application.get_env(:rm, RMWeb.Endpoint) |> Keyword.fetch!(:secret_key_base)
-    message = "unsubscribe:" <> project.id <> ":" <> message.id
+  @spec unsubscribe_token(
+          Keila.Projects.Project.t() | Keila.Projects.Project.id(),
+          Keila.Mailings.Message.t() | Keila.Mailings.Message.id()
+        ) :: String.t()
+  def unsubscribe_token(project_or_project_id, message_or_message_id) do
+    project_id =
+      if is_struct(project_or_project_id, Keila.Projects.Project) do
+        project_or_project_id.id
+      else
+        project_or_project_id
+      end
 
-    :crypto.mac(:hmac, :sha256, key, message)
+    message_id =
+      if is_struct(message_or_message_id, Keila.Mailings.Message) do
+        message_or_message_id.id
+      else
+        message_or_message_id
+      end
+
+    key = Application.get_env(:rm, RMWeb.Endpoint) |> Keyword.fetch!(:secret_key_base)
+    data = "unsubscribe:" <> project_id <> ":" <> message_id
+
+    :crypto.mac(:hmac, :sha256, key, data)
     |> Base.url_encode64(padding: false)
   end
 end
