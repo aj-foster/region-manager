@@ -14,11 +14,39 @@ defmodule RMWeb.EmailLive.Manage do
   end
 
   @impl true
-  def handle_params(%{"email" => hashed_id}, _uri, socket) do
-    socket
-    |> assign_address(hashed_id)
-    |> assign_subscriptions()
-    |> noreply()
+  def handle_params(%{"email" => email}, _uri, socket) do
+    email = email |> String.trim() |> String.downcase()
+    user = socket.assigns[:current_user]
+    connected_email_records = if user, do: user.emails, else: []
+    confirmed_email_records = Enum.filter(connected_email_records, & &1.confirmed_at)
+    connected_emails = Enum.map(connected_email_records, & &1.email)
+    confirmed_emails = Enum.map(confirmed_email_records, & &1.email)
+
+    cond do
+      is_nil(user) ->
+        socket
+        |> put_flash(:error, "You must be logged in to manage emails.")
+        |> redirect(to: ~p"/login")
+        |> noreply()
+
+      email in confirmed_emails ->
+        socket
+        |> assign_address(email)
+        |> assign_subscriptions()
+        |> noreply()
+
+      email in connected_emails ->
+        socket
+        |> put_flash(:error, "Please confirm your email address before managing subscriptions.")
+        |> redirect(to: ~p"/user/settings")
+        |> noreply()
+
+      :else ->
+        socket
+        |> put_flash(:error, "You do not have permission to manage this email address.")
+        |> redirect(to: ~p"/user/settings")
+        |> noreply()
+    end
   end
 
   def handle_params(%{"project" => prj_id, "message" => msg_id, "token" => token}, _uri, socket) do
@@ -182,12 +210,12 @@ defmodule RMWeb.EmailLive.Manage do
   #
 
   @spec assign_address(Socket.t(), String.t()) :: Socket.t()
-  defp assign_address(socket, hashed_id) do
-    case Email.fetch_address_by_hashed_id(hashed_id) do
+  defp assign_address(socket, email) do
+    case Email.fetch_address(email) do
       {:ok, address} ->
         assign(socket, :address, address)
 
-      :error ->
+      {:error, :not_found} ->
         socket
         |> put_flash(
           :error,
@@ -217,7 +245,7 @@ defmodule RMWeb.EmailLive.Manage do
   end
 
   @spec assign_subscriptions(Socket.t()) :: Socket.t()
-  defp assign_subscriptions(socket) do
+  defp assign_subscriptions(%Socket{redirected: nil} = socket) do
     email = socket.assigns.address.email
 
     # Future: If region count grows, refactor this.
@@ -293,6 +321,8 @@ defmodule RMWeb.EmailLive.Manage do
       subscriptions: subscriptions
     )
   end
+
+  defp assign_subscriptions(socket), do: socket
 
   #
   # Template

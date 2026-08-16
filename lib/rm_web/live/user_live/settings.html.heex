@@ -23,19 +23,26 @@
       class="border-b flex gap-2 items-center py-2 first:-mt-2 last:border-0 last:-mb-2"
     >
       <div class="grow">
-        <span class="mr-2">{email.email}</span>
-        <span
-          :if={email.confirmed_at}
-          class="bg-green-100 border border-green-300 mr-2 px-1 py-0.5 rounded text-xs"
-        >
-          Confirmed
-        </span>
-        <span
-          :if={is_nil(email.confirmed_at)}
-          class="bg-red-100 border border-red-200 mr-2 px-1 py-0.5 rounded text-xs"
-        >
-          Unconfirmed
-        </span>
+        <div>
+          <span class="font-mono mr-2">{email.email}</span>
+          <span
+            :if={email.confirmed_at}
+            class="bg-green-100 border border-green-300 mr-2 px-1 py-0.5 rounded text-xs"
+          >
+            Confirmed
+          </span>
+          <span
+            :if={is_nil(email.confirmed_at)}
+            class="bg-red-100 border border-red-200 mr-2 px-1 py-0.5 rounded text-xs"
+          >
+            Unconfirmed
+          </span>
+        </div>
+        <div :if={email.confirmed_at} class="text-sm">
+          <.link class="underline" navigate={~p"/email/manage?email=#{email.email}"}>
+            Manage Subscriptions
+          </.link>
+        </div>
       </div>
       <button
         :if={is_nil(email.confirmed_at)}
