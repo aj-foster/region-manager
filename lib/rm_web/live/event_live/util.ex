@@ -13,7 +13,13 @@ defmodule RMWeb.EventLive.Util do
 
   def event_index_nav(assigns) do
     ~H"""
-    <div class={["flex font-title italic overflow-x-auto px-4 small-caps", @class]}>
+    <div
+      :if={
+        @season == @region.current_season and
+          (can?(@user, :proposal_index, @region) or can?(@user, :venue_index, @region))
+      }
+      class={["flex font-title italic overflow-x-auto px-4 small-caps", @class]}
+    >
       <.sub_nav_item
         current={@view}
         navigate={

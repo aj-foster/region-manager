@@ -18,10 +18,6 @@
 />
 
 <RMWeb.EventLive.Util.event_index_nav
-  :if={
-    @season == @region.current_season and
-      (can?(@current_user, :proposal_index, @region) or can?(@current_user, :venue_index, @region))
-  }
   season={@season}
   region={@region}
   league={@local_league || @first_league}
