@@ -15,6 +15,7 @@ defmodule RM.Account do
   alias RM.Account.Query
   alias RM.Account.Team
   alias RM.Account.User
+  alias RM.Email.Address
   alias RM.Repo
 
   @doc """
@@ -64,6 +65,9 @@ defmodule RM.Account do
           {:ok, Identity.Schema.Email.t()} | {:error, :invalid | :not_found}
   def confirm_email(token) do
     with {:ok, email} <- Identity.confirm_email(token) do
+      Address.new(email.email)
+      |> Repo.insert(on_conflict: :nothing, conflict_target: [:email])
+
       League.user_update_by_email_query(email.email)
       |> Repo.update_all([])
 
