@@ -7,7 +7,6 @@
 
 <RMWeb.RegionLive.Util.region_nav
   :if={is_nil(@local_league)}
-  class="mb-8"
   season={@season}
   region={@region}
   user={@current_user}
@@ -16,7 +15,6 @@
 
 <RMWeb.LeagueLive.Util.league_nav
   :if={@local_league}
-  class="mb-8"
   season={@season}
   region={@region}
   league={@local_league}
@@ -24,7 +22,19 @@
   view={@socket.view}
 />
 
-<.title>Add Venue</.title>
+<RMWeb.EventLive.Util.event_index_nav
+  :if={
+    @season == @region.current_season and
+      (can?(@current_user, :proposal_index, @region) or can?(@current_user, :venue_index, @region))
+  }
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title wrapper="mt-8">Add Venue</.title>
 
 <.card spaced>
   <p class="text-sm">
