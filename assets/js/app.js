@@ -49,6 +49,12 @@ const putHtmlPreview = (el) => {
     doc.write(content);
     doc.close();
 
+    // Force previewed links to open in a new tab rather than navigating the iframe/parent.
+    doc.querySelectorAll("a[href]").forEach((link) => {
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+    });
+
     // Ensure iframe document root can grow with content.
     if (doc.head) {
       const style = doc.createElement("style");
