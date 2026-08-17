@@ -188,7 +188,7 @@ defmodule RMWeb.EmailLive.Edit do
       recipient_name: "#{contact.first_name} #{contact.last_name}",
       assigns: %{
         "campaign" => Map.take(campaign, [:data, :subject, :preview_text]),
-        "unsubscribe_link" => "#unsubscribe-preview-link",
+        "unsubscribe_link" => "/user/settings",
         "assets_url" => "/"
       }
     }
