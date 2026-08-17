@@ -1,6 +1,7 @@
 defmodule RMWeb.RegionLive.Util do
   use RMWeb, :html
 
+  alias RMWeb.EmailLive
   alias RMWeb.EventLive
   alias RMWeb.LeagueLive
   alias RMWeb.ProposalLive
@@ -56,6 +57,14 @@ defmodule RMWeb.RegionLive.Util do
         target={TeamLive.Index}
       >
         Teams
+      </.nav_item>
+      <.nav_item
+        children={[EmailLive.New, EmailLive.Show, EmailLive.Edit]}
+        current={@view}
+        navigate={~p"/s/#{@season}/r/#{@region}/messages"}
+        target={EmailLive.Index}
+      >
+        News
       </.nav_item>
     </.top_nav>
     """
