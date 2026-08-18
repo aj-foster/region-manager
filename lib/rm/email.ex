@@ -4,8 +4,8 @@ defmodule RM.Email do
   """
   import Ecto.Query
 
+  alias RM.Email
   alias RM.Email.Address
-  alias RM.Email.List
   alias RM.Repo
 
   #
@@ -201,7 +201,7 @@ defmodule RM.Email do
   @doc "Create a new email list"
   @spec create_list(map) :: {:ok, List.t()} | {:error, Ecto.Changeset.t(List.t())}
   def create_list(params) do
-    List.create_changeset(params)
+    Email.List.create_changeset(params)
     |> Repo.insert()
   end
 
@@ -841,9 +841,31 @@ defmodule RM.Email do
         |> order_by([campaign: c], desc: c.sent_at)
       end
     end)
+    |> then(fn query ->
+      if opts[:page] || opts[:page_size] do
+        limit = opts[:page_size] || 10
+        offset = (opts[:page] || 0) * limit
+
+        query
+        |> limit(^limit)
+        |> offset(^offset)
+      else
+        query
+      end
+    end)
     |> join(:inner, [campaign: c], s in assoc(c, :segment), as: :segment)
     |> preload([segment: s], segment: s)
     |> Keila.Repo.all()
+  end
+
+  @doc """
+  Get the latest campaign in Keila for the given region or league, if any
+  """
+  @spec get_latest_campaign_for_region_or_league(RM.FIRST.Region.t() | RM.Local.League.t()) ::
+          Keila.Mailings.Campaign.t() | nil
+  def get_latest_campaign_for_region_or_league(region_or_league) do
+    list_campaigns_for_region_or_league(region_or_league, draft: false, page: 0, page_size: 1)
+    |> List.first()
   end
 
   #

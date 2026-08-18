@@ -312,6 +312,20 @@ defmodule RM.Factory do
     |> RM.Repo.update!()
   end
 
+  def with_keila(%RM.Local.League{} = league) do
+    segment = insert_keila_segment(league)
+    sender = insert_keila_sender(league)
+
+    league
+    |> Ecto.Changeset.change(%{
+      metadata: %{
+        keila_segment_id: segment.id,
+        keila_sender_id: sender.id
+      }
+    })
+    |> RM.Repo.update!()
+  end
+
   @doc false
   def insert_keila_auth_group do
     Keila.Repo.get_by(Keila.Auth.Group, name: "root") ||

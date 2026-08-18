@@ -514,6 +514,74 @@ defmodule RM.EmailTest do
       [message] = Email.list_campaigns_for_region_or_league(region, draft: false)
       assert message.id == m2.id
     end
+
+    test "returns campaigns for a league" do
+      region =
+        Factory.insert(:region)
+        |> Factory.with_keila()
+
+      league =
+        Factory.insert(:league, region: region)
+        |> Factory.with_keila()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      m1 = Factory.insert_keila_campaign(league, sent_at: nil)
+      m2 = Factory.insert_keila_campaign(league, sent_at: now)
+
+      [message] = Email.list_campaigns_for_region_or_league(league, draft: true)
+      assert message.id == m1.id
+
+      [message] = Email.list_campaigns_for_region_or_league(league, draft: false)
+      assert message.id == m2.id
+    end
+
+    test "accepts pagination options" do
+      region =
+        Factory.insert(:region)
+        |> Factory.with_keila()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      m1 = Factory.insert_keila_campaign(region, sent_at: now)
+      m2 = Factory.insert_keila_campaign(region, sent_at: DateTime.shift(now, minute: 10))
+
+      assert [message] = Email.list_campaigns_for_region_or_league(region, page_size: 1)
+      assert message.id == m2.id
+
+      assert [message] = Email.list_campaigns_for_region_or_league(region, page: 1, page_size: 1)
+      assert message.id == m1.id
+
+      assert [_, _] = Email.list_campaigns_for_region_or_league(region, page_size: 2)
+    end
+  end
+
+  describe "get_latest_campaign_for_region_or_league/1" do
+    test "returns the latest campaign for a region" do
+      region =
+        Factory.insert(:region)
+        |> Factory.with_keila()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      m2 = Factory.insert_keila_campaign(region, sent_at: DateTime.shift(now, minute: 10))
+      Factory.insert_keila_campaign(region, sent_at: now)
+
+      assert Email.get_latest_campaign_for_region_or_league(region).id == m2.id
+    end
+
+    test "returns the latest campaign for a league" do
+      region =
+        Factory.insert(:region)
+        |> Factory.with_keila()
+
+      league =
+        Factory.insert(:league, region: region)
+        |> Factory.with_keila()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      Factory.insert_keila_campaign(league, sent_at: now)
+      m2 = Factory.insert_keila_campaign(league, sent_at: DateTime.shift(now, minute: 10))
+
+      assert Email.get_latest_campaign_for_region_or_league(league).id == m2.id
+    end
   end
 
   #
