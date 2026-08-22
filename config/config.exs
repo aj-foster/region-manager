@@ -19,6 +19,7 @@ config :rm, RMWeb.Endpoint,
   live_view: [signing_salt: "RApVjbt+"]
 
 config :rm, RM.Mailer, adapter: Swoosh.Adapters.Local, hostname: "rm.local"
+config :rm, RM.Util.Captcha, enabled: false
 
 # Support PgBouncer
 config :rm, RM.Repo, prepare: :unnamed
