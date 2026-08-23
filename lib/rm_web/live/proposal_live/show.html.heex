@@ -8,7 +8,6 @@
 
 <RMWeb.RegionLive.Util.region_nav
   :if={is_nil(@local_league)}
-  class="mb-8"
   season={@season}
   region={@region}
   user={@current_user}
@@ -17,7 +16,6 @@
 
 <RMWeb.LeagueLive.Util.league_nav
   :if={@local_league}
-  class="mb-8"
   season={@season}
   region={@region}
   league={@local_league}
@@ -25,7 +23,15 @@
   view={@socket.view}
 />
 
-<.title>
+<RMWeb.EventLive.Util.event_index_nav
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title wrapper="mt-8">
   {@proposal.name}
 
   <:action>

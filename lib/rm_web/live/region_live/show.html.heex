@@ -61,3 +61,24 @@
     <.icon name="hero-arrow-right" />
   </div>
 </.link_card>
+
+<%= if @latest_news != [] do %>
+  <.title class="mt-8">Latest News from {@region.name}</.title>
+
+  <.card flush spaced>
+    <.list>
+      <:link
+        :for={message <- @latest_news}
+        navigate={url_for([@season, @region, message])}
+      >
+        <p class="font-semibold">{message.subject}</p>
+        <p class="text-sm">
+          {format_date(message.sent_at, :date)} &bull; {message.segment.name}
+        </p>
+      </:link>
+      <:link navigate={~p"/s/#{@season}/r/#{@region}/messages"}>
+        <p class="italic py-2">See More</p>
+      </:link>
+    </.list>
+  </.card>
+<% end %>

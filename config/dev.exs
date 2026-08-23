@@ -50,11 +50,11 @@ config :keila, Keila.Repo,
   log: false
 
 config :keila, Keila.Mailings.SenderAdapters,
-  adapters: [],
+  adapters: [Keila.Mailings.SenderAdapters.Local],
   shared_adapters: [Keila.Mailings.SenderAdapters.Shared.Local]
 
 config :keila, Keila.Mailer, adapter: Swoosh.Adapters.Local
-config :keila, Keila.Accounts, credits_enabled: true
+config :keila, Keila.Accounts, credits_enabled: false
 
 config :logger,
   compile_time_purge_matching: [

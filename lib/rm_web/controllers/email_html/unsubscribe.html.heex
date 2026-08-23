@@ -1,0 +1,39 @@
+<.title>
+  <%= if @success do %>
+    You are Unsubscribed
+  <% else %>
+    Unsubscribe
+  <% end %>
+</.title>
+
+<.card :if={@success}>
+  <p class="mb-4">
+    You have been unsubscribed from all <strong>Region Manager</strong> emails.
+    This includes all region, league, and event emails.
+    You will continue to receive important notifications regarding your account.
+  </p>
+  <p class="mb-4">
+    If you wish to unsubscribe from all <em>FIRST</em>-related emails, please modify your email preferences in the <a
+      class="text-orange-600 underline"
+      href="https://my.firstinspires.org/"
+    >FIRST Dashboard</a>.
+  </p>
+  <p class="text-right">
+    <.link_button href="">
+      Manage Email Preferences
+    </.link_button>
+  </p>
+</.card>
+
+<.card :if={!@success}>
+  <p class="mb-4">
+    <strong>Error:</strong>
+    There was an error processing your unsubscribe request. {@error} Please contact your local Program Delivery Partner for assistance.
+  </p>
+
+  <p class="text-right">
+    <.link_button href="">
+      Manage Email Preferences
+    </.link_button>
+  </p>
+</.card>

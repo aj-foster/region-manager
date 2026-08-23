@@ -209,6 +209,7 @@ defmodule RM.FIRST do
 
     region_ids = Util.extract_ids(leagues, :region_id) ++ Util.extract_ids(opts[:delete_region])
     update_region_published_league_counts(region_ids)
+    update_region_league_counts(region_ids)
 
     leagues
   end

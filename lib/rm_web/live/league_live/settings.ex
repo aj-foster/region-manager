@@ -14,6 +14,7 @@ defmodule RMWeb.LeagueLive.Settings do
       socket
       |> add_user_form()
       |> edit_league_form()
+      |> league_settings_form()
       |> registration_settings_form()
       |> assign_first_league()
       |> assign_teams()
@@ -130,6 +131,18 @@ defmodule RMWeb.LeagueLive.Settings do
       |> put_flash(:error, "You do not have permission to perform this action.")
       |> noreply()
     end
+  end
+
+  def handle_event("league_settings_change", %{"league_settings" => params}, socket) do
+    socket
+    |> league_settings_form(params)
+    |> noreply()
+  end
+
+  def handle_event("league_settings_submit", %{"league_settings" => params}, socket) do
+    socket
+    |> league_settings_submit(params)
+    |> noreply()
   end
 
   def handle_event("registration_settings_change", %{"league_settings" => params}, socket) do
@@ -283,6 +296,33 @@ defmodule RMWeb.LeagueLive.Settings do
 
       {:error, changeset} ->
         assign(socket, edit_league_form: to_form(changeset))
+    end
+  end
+
+  @spec league_settings_form(Socket.t()) :: Socket.t()
+  @spec league_settings_form(Socket.t(), map) :: Socket.t()
+  defp league_settings_form(socket, params \\ %{}) do
+    league = socket.assigns[:local_league]
+    form = RM.Local.change_league_settings(league, params) |> to_form()
+
+    assign(socket, league_settings_form: form, league_settings_success: false)
+  end
+
+  @spec league_settings_submit(Socket.t(), map) :: Socket.t()
+  defp league_settings_submit(socket, params) do
+    league = socket.assigns[:local_league]
+
+    case RM.Local.update_league_settings(league, params) do
+      {:ok, _settings} ->
+        league = RM.Repo.preload(league, :settings, force: true)
+
+        socket
+        |> assign(local_league: league)
+        |> league_settings_form()
+        |> assign(league_settings_success: true)
+
+      {:error, changeset} ->
+        assign(socket, league_settings_form: to_form(changeset))
     end
   end
 

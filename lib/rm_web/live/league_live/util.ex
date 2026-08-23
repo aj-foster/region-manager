@@ -19,7 +19,7 @@ defmodule RMWeb.LeagueLive.Util do
 
   def league_nav(assigns) do
     ~H"""
-    <.top_nav class="mb-8">
+    <.top_nav class={@class}>
       <.nav_item
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}"}
@@ -28,6 +28,16 @@ defmodule RMWeb.LeagueLive.Util do
         Overview
       </.nav_item>
       <.nav_item
+        children={[
+          ProposalLive.Index,
+          ProposalLive.New,
+          ProposalLive.Show,
+          ProposalLive.Edit,
+          VenueLive.Index,
+          VenueLive.New,
+          VenueLive.Show,
+          VenueLive.Edit
+        ]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/events"}
         target={EventLive.Index}
@@ -51,22 +61,13 @@ defmodule RMWeb.LeagueLive.Util do
         Teams
       </.nav_item>
       <.nav_item
-        :if={@season == @region.current_season and can?(@user, :proposal_index, @league)}
-        children={[ProposalLive.New, ProposalLive.Show, ProposalLive.Edit]}
+        :if={@league.settings && @league.settings.enable_email}
+        children={[RMWeb.EmailLive.New, RMWeb.EmailLive.Show, RMWeb.EmailLive.Edit]}
         current={@view}
-        navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/proposals"}
-        target={ProposalLive.Index}
+        navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/messages"}
+        target={RMWeb.EmailLive.Index}
       >
-        Proposals
-      </.nav_item>
-      <.nav_item
-        :if={@season == @region.current_season and can?(@user, :venue_index, @league)}
-        children={[VenueLive.New, VenueLive.Show, VenueLive.Edit]}
-        current={@view}
-        navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/venues"}
-        target={VenueLive.Index}
-      >
-        Venues
+        News
       </.nav_item>
       <.nav_item
         :if={@season == @region.current_season and can?(@user, :league_settings_update, @league)}

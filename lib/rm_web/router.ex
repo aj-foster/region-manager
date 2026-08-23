@@ -34,6 +34,18 @@ defmodule RMWeb.Router do
   # Browser Traffic
   #
 
+  # Email Management
+
+  scope "/", RMWeb do
+    pipe_through [:browser, :app_layout]
+
+    get "/email/sub/:region", EmailController, :subscribe
+    post "/email/sub/:region", EmailController, :subscribe
+    post "/email/unsub/:project/:message/:token", EmailController, :unsubscribe
+  end
+
+  # Main Routes
+
   scope "/", RMWeb do
     pipe_through :browser
 
@@ -103,6 +115,7 @@ defmodule RMWeb.Router do
         {RMWeb.Live.Util, :preload_user}
       ] do
       live "/email/manage", EmailLive.Manage
+      live "/email/unsub/:project/:message/:token", EmailLive.Manage
     end
 
     live_session :admin,
@@ -115,12 +128,18 @@ defmodule RMWeb.Router do
         {RMWeb.Live.Util, :check_league}
       ] do
       live "/a/s/new", SeasonLive.New
+      live "/s/:season/r/:region/messages", EmailLive.Index
       live "/s/:season/r/:region/messages/new", EmailLive.New
+      live "/s/:season/r/:region/m/:message", EmailLive.Show
       live "/s/:season/r/:region/m/:message/edit", EmailLive.Edit
+      live "/s/:season/r/:region/l/:league/messages", EmailLive.Index
       live "/s/:season/r/:region/l/:league/messages/new", EmailLive.New
+      live "/s/:season/r/:region/l/:league/m/:message", EmailLive.Show
       live "/s/:season/r/:region/l/:league/m/:message/edit", EmailLive.Edit
     end
   end
+
+  # Identity
 
   scope "/" do
     pipe_through [:browser, :app_layout]

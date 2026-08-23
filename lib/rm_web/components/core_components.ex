@@ -341,6 +341,40 @@ defmodule RMWeb.CoreComponents do
   end
 
   @doc """
+  Second-level navigation item
+  """
+  attr :children, :list, default: [], doc: "LiveView modules where this link is active + enabled"
+  attr :current, :atom, required: true, doc: "`@socket.view`"
+  attr :navigate, :string, required: true, doc: "link destination"
+  attr :target, :atom, default: nil, doc: "LiveView module where this link is disabled"
+  slot :inner_block, required: true
+
+  def sub_nav_item(assigns) do
+    ~H"""
+    <%= cond do %>
+      <% @current == @target -> %>
+        <div class="px-4 py-2 text-orange-600">
+          {render_slot(@inner_block)}
+        </div>
+      <% @current in @children -> %>
+        <.link
+          class="px-4 py-2 text-orange-600 hover:text-orange-800"
+          navigate={@navigate}
+        >
+          {render_slot(@inner_block)}
+        </.link>
+      <% :else -> %>
+        <.link
+          class="px-4 py-2 transition-colors hover:text-orange-600"
+          navigate={@navigate}
+        >
+          {render_slot(@inner_block)}
+        </.link>
+    <% end %>
+    """
+  end
+
+  @doc """
   Renders a modal.
 
   ## Examples

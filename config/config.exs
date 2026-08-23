@@ -19,6 +19,7 @@ config :rm, RMWeb.Endpoint,
   live_view: [signing_salt: "RApVjbt+"]
 
 config :rm, RM.Mailer, adapter: Swoosh.Adapters.Local, hostname: "rm.local"
+config :rm, RM.Util.Captcha, enabled: false
 
 # Support PgBouncer
 config :rm, RM.Repo, prepare: :unnamed
@@ -37,7 +38,16 @@ config :esbuild,
     args:
       ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+    env: %{
+      "NODE_PATH" =>
+        Enum.join(
+          [
+            Path.expand("../assets/node_modules", __DIR__),
+            Path.expand("../deps", __DIR__)
+          ],
+          ":"
+        )
+    }
   ]
 
 config :ex_aws, json_codec: Jason

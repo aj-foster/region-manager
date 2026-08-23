@@ -7,19 +7,22 @@ defmodule RM.Local.LeagueSettings do
 
   @typedoc "Settings for an event"
   @type t :: %__MODULE__{
+          enable_email: boolean,
           id: Ecto.UUID.t(),
           league: League.t(),
           league_id: Ecto.UUID.t(),
           registration: RegistrationSettings.t()
         }
 
-  @required_fields []
+  @required_fields [:enable_email]
   @optional_fields []
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
   schema "league_settings" do
+    field :enable_email, :boolean, default: false
+
     embeds_one :registration, RegistrationSettings, on_replace: :update
 
     belongs_to :league, League
@@ -30,7 +33,11 @@ defmodule RM.Local.LeagueSettings do
   """
   @spec default_params(League.t()) :: map
   def default_params(league) do
-    %{league_id: league.id, registration: %RegistrationSettings{enabled: true, pool: :league}}
+    %{
+      enable_email: false,
+      league_id: league.id,
+      registration: %RegistrationSettings{enabled: true, pool: :league}
+    }
   end
 
   @doc """

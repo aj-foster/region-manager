@@ -1,6 +1,7 @@
 defmodule RMWeb.RegionLive.Util do
   use RMWeb, :html
 
+  alias RMWeb.EmailLive
   alias RMWeb.EventLive
   alias RMWeb.LeagueLive
   alias RMWeb.ProposalLive
@@ -19,11 +20,21 @@ defmodule RMWeb.RegionLive.Util do
 
   def region_nav(assigns) do
     ~H"""
-    <.top_nav class="mb-8">
+    <.top_nav class={@class}>
       <.nav_item current={@view} navigate={~p"/s/#{@season}/r/#{@region}"} target={RegionLive.Show}>
         Overview
       </.nav_item>
       <.nav_item
+        children={[
+          ProposalLive.Index,
+          ProposalLive.New,
+          ProposalLive.Show,
+          ProposalLive.Edit,
+          VenueLive.Index,
+          VenueLive.New,
+          VenueLive.Show,
+          VenueLive.Edit
+        ]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/events"}
         target={EventLive.Index}
@@ -48,22 +59,12 @@ defmodule RMWeb.RegionLive.Util do
         Teams
       </.nav_item>
       <.nav_item
-        :if={@season == @region.current_season and can?(@user, :proposal_index, @region)}
-        children={[ProposalLive.New, ProposalLive.Show, ProposalLive.Edit]}
+        children={[EmailLive.New, EmailLive.Show, EmailLive.Edit]}
         current={@view}
-        navigate={~p"/s/#{@season}/r/#{@region}/proposals"}
-        target={ProposalLive.Index}
+        navigate={~p"/s/#{@season}/r/#{@region}/messages"}
+        target={EmailLive.Index}
       >
-        Proposals
-      </.nav_item>
-      <.nav_item
-        :if={@season == @region.current_season and can?(@user, :venue_index, @region)}
-        children={[VenueLive.New, VenueLive.Show, VenueLive.Edit]}
-        current={@view}
-        navigate={~p"/s/#{@season}/r/#{@region}/venues"}
-        target={VenueLive.Index}
-      >
-        Venues
+        News
       </.nav_item>
     </.top_nav>
     """

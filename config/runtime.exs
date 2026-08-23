@@ -20,6 +20,13 @@ if pgsql_keila_url = System.get_env("PGSQL_KEILA_URL") do
   end
 end
 
+if hcaptcha_site_key = System.get_env("HCAPTCHA_SITE_KEY") do
+  config :rm, RM.Util.Captcha,
+    enabled: true,
+    secret_key: System.get_env("HCAPTCHA_SECRET_KEY"),
+    site_key: hcaptcha_site_key
+end
+
 if config_env() == :prod do
   #
   # DB

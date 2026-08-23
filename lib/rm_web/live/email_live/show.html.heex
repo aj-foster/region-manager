@@ -1,0 +1,56 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+/>
+
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league) and is_nil(@first_league)}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<RMWeb.LeagueLive.Util.league_nav
+  :if={@local_league || @first_league}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title>{@campaign.subject}</.title>
+
+<.card spaced>
+  <.table>
+    <:row title="Sent">{format_date(@campaign.sent_at, :date)}</:row>
+    <:row title="Recipients">{@segment.name}</:row>
+    <:row title="Subject">{@campaign.subject}</:row>
+    <:row title="Preview">{@campaign.preview_text}</:row>
+  </.table>
+</.card>
+
+<div class="bg-white border border-slate-200 rounded shadow">
+  <div id="markdown-preview-pane" class="markdown-preview bg-white" phx-update="ignore">
+    <iframe
+      id="campaign-html-preview"
+      src="about:blank"
+      sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin"
+      class="block w-full border-0"
+    ></iframe>
+  </div>
+
+  <div
+    id="campaign-html-preview-data"
+    phx-hook="HtmlPreview"
+    data-iframe="#campaign-html-preview"
+    class="hidden"
+  >
+    {@preview}
+  </div>
+</div>

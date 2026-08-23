@@ -1,0 +1,84 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+/>
+
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league) and is_nil(@first_league)}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<RMWeb.LeagueLive.Util.league_nav
+  :if={@local_league || @first_league}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<%= if can?(@current_user, :email_message_send, @local_league || @region) do %>
+  <.title>
+    Draft Messages
+    <:action>
+      <.link_button navigate={url_for([@season, @region, @local_league, :messages, :new])}>
+        Compose...
+      </.link_button>
+    </:action>
+  </.title>
+
+  <.card :if={@drafts != []} flush spaced>
+    <.list>
+      <:link
+        :for={draft <- @drafts}
+        navigate={url_for([@season, @region, @local_league || @first_league, draft, :edit])}
+      >
+        <p class="font-semibold">{draft.subject}</p>
+        <p class="text-sm">
+          {draft.segment.name} &bull; Updated {format_date(draft.updated_at, :date)}
+        </p>
+      </:link>
+    </.list>
+  </.card>
+
+  <.card :if={@drafts == []} spaced>
+    <p class="italic text-sm">
+      There are no draft messages.
+    </p>
+  </.card>
+<% end %>
+
+<.title>
+  {messages_page_title(
+    @local_league,
+    @first_league,
+    @region
+  )} News Archive
+</.title>
+
+<.card :if={@sent != []} flush spaced>
+  <.list>
+    <:link
+      :for={message <- @sent}
+      navigate={url_for([@season, @region, @local_league || @first_league, message])}
+    >
+      <p class="font-semibold">{message.subject}</p>
+      <p class="text-sm">
+        {format_date(message.sent_at, :date)} &bull; {message.segment.name}
+      </p>
+    </:link>
+  </.list>
+</.card>
+
+<.card :if={@sent == []} spaced>
+  <p class="italic text-sm">
+    There are no messages.
+  </p>
+</.card>

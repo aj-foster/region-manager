@@ -1,1 +1,273 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+/>
+
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league) and is_nil(@first_league)}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<RMWeb.LeagueLive.Util.league_nav
+  :if={@local_league || @first_league}
+  class="mb-8"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
 <.title>Edit Draft</.title>
+
+<.card>
+  <.form
+    :let={f}
+    for={@changeset}
+    id="campaign"
+    phx-change="update"
+    phx-submit="save"
+  >
+    <.input
+      field={f[:segment_id]}
+      label="Recipients"
+      options={segment_options(@keila_segments)}
+      required
+      type="select"
+      wrapper="mb-4"
+    />
+    <.input
+      field={f[:subject]}
+      label="Subject"
+      required
+      phx-debounce="250"
+      wrapper="mb-4"
+    />
+
+    <input
+      id="campaign_text_body"
+      type="hidden"
+      name={f[:text_body].name}
+      value={f[:text_body].value || ""}
+    />
+
+    <div
+      id="wysiwyg-container"
+      phx-hook="MarkdownEditor"
+      class="border rounded-md mb-4 overflow-hidden"
+    >
+      <div id="wysiwyg" phx-update="ignore">
+        <div class="wysiwyg--menu bg-white border-b flex flex-wrap leading-none">
+          <button type="button" data-action="strong" class="p-2">
+            <.icon name="hero-bold" title="Bold" />
+          </button>
+          <button type="button" data-action="em" class="p-2"><.icon
+            name="hero-italic"
+            title="Italic"
+          /></button>
+          <button type="button" data-action="ul" class="p-2">
+            <.icon name="hero-list-bullet" title="Bullet List" />
+          </button>
+          <button type="button" data-action="ol" class="px-2">
+            <.icon name="hero-numbered-list" title="Numbered List" />
+          </button>
+          <button type="button" data-action="indent-decrease" class="p-2">
+            <.icon name="hero-arrow-left-start-on-rectangle" title="Outdent" />
+          </button>
+          <button type="button" data-action="indent-increase" class="p-2">
+            <.icon name="hero-arrow-right-start-on-rectangle" title="Indent" />
+          </button>
+          <button type="button" data-action="h1" class="p-2">
+            <.icon name="hero-h1" title="Heading 1" />
+          </button>
+          <button type="button" data-action="h2" class="p-2">
+            <.icon name="hero-h2" title="Heading 2" />
+          </button>
+          <button type="button" data-action="h3" class="p-2">
+            <.icon name="hero-h3" title="Heading 3" />
+          </button>
+          <button type="button" data-action="link" class="p-2">
+            <.icon name="hero-link" title="Link" />
+          </button>
+          <button type="button" data-action="img" class="p-2">
+            <.icon name="hero-photo" title="Image" />
+          </button>
+          <button type="button" data-action="button" class="p-2">
+            <.icon name="hero-rectangle-stack" title="Button" />
+          </button>
+          <button type="button" data-action="hr" class="p-2">
+            <.icon name="hero-divide" title="Horizontal Rule" />
+          </button>
+          <button type="button" data-action="liquid" class="p-2">
+            <.icon name="hero-code-bracket-square" title="Liquid" />
+          </button>
+          <div class="grow"></div>
+          <button type="button" data-action="toggle-preview" class="p-2">Preview</button>
+        </div>
+
+        <div class="editor min-h-80 bg-white p-4"></div>
+      </div>
+
+      <div id="markdown-preview-pane" class="markdown-preview bg-white hidden" phx-update="ignore">
+        <iframe
+          id="campaign-html-preview"
+          src="about:blank"
+          sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin"
+          class="block w-full border-0"
+        ></iframe>
+      </div>
+
+      <div
+        id="campaign-html-preview-data"
+        phx-hook="HtmlPreview"
+        data-iframe="#campaign-html-preview"
+        class="hidden"
+      >
+        {@preview}
+      </div>
+    </div>
+
+    <.input
+      field={f[:preview_text]}
+      label="Preview Text"
+      explanation="Summarize the contents of your message in 50 characters or less"
+      phx-debounce="250"
+      required
+      wrapper="mb-4"
+    />
+
+    <div class="flex gap-4 justify-end">
+      <.link_button
+        navigate={url_for([@season, @region, @local_league, :messages])}
+        style="tertiary"
+      >
+        Cancel
+      </.link_button>
+      <.button phx-disable-with="Saving..." style="secondary" type="submit">Save Draft</.button>
+      <.button form="" phx-click="send_init">Send...</.button>
+    </div>
+  </.form>
+</.card>
+
+<div
+  id="markdown-link-dialog"
+  data-dialog-for="link"
+  phx-hook="MarkdownLinkDialog"
+  phx-update="ignore"
+>
+  <dialog class="w-full max-w-lg rounded-lg border border-slate-300 p-0 shadow-xl backdrop:bg-slate-900/40">
+    <form class="p-4 space-y-4" method="dialog">
+      <h2 class="text-lg font-semibold">Insert Link</h2>
+
+      <div class="space-y-1">
+        <label for="markdown-link-href" class="block text-sm font-medium">URL</label>
+        <input
+          id="markdown-link-href"
+          name="href"
+          type="url"
+          class="w-full rounded-md border border-slate-300 px-3 py-2"
+          placeholder="https://example.com"
+          required
+        />
+      </div>
+
+      <div class="space-y-1">
+        <label for="markdown-link-title" class="block text-sm font-medium">Title (Optional)</label>
+        <input
+          id="markdown-link-title"
+          name="title"
+          type="text"
+          class="w-full rounded-md border border-slate-300 px-3 py-2"
+          placeholder="Link title"
+        />
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button
+          type="button"
+          data-action="cancel"
+          class="px-3 py-2 border rounded-md border-slate-300"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="px-3 py-2 rounded-md bg-sky-600 text-white">
+          Insert Link
+        </button>
+      </div>
+    </form>
+  </dialog>
+</div>
+<div class="hidden" data-dialog-for="image"></div>
+<div
+  id="markdown-button-dialog"
+  data-dialog-for="button"
+  phx-hook="MarkdownButtonDialog"
+  phx-update="ignore"
+>
+  <dialog class="w-full max-w-lg rounded-lg border border-slate-300 p-0 shadow-xl backdrop:bg-slate-900/40">
+    <form class="p-4 space-y-4" method="dialog">
+      <h2 class="text-lg font-semibold">Insert Button</h2>
+
+      <div class="space-y-1">
+        <label for="markdown-button-href" class="block text-sm font-medium">URL</label>
+        <input
+          id="markdown-button-href"
+          name="href"
+          type="url"
+          class="w-full rounded-md border border-slate-300 px-3 py-2"
+          placeholder="https://example.com"
+          required
+        />
+      </div>
+
+      <div class="space-y-1">
+        <label for="markdown-button-text" class="block text-sm font-medium">Button Text</label>
+        <input
+          id="markdown-button-text"
+          name="text"
+          type="text"
+          class="w-full rounded-md border border-slate-300 px-3 py-2"
+          placeholder="Button"
+          required
+        />
+      </div>
+
+      <div class="flex justify-end gap-2">
+        <button
+          type="button"
+          data-action="cancel"
+          class="px-3 py-2 border rounded-md border-slate-300"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="px-3 py-2 rounded-md bg-sky-600 text-white">
+          Insert Button
+        </button>
+      </div>
+    </form>
+  </dialog>
+</div>
+<div class="hidden" data-dialog-for="liquid"></div>
+
+<.modal id="send-modal">
+  <.title flush class="mb-4">Ready to send?</.title>
+
+  <.table class="mb-4">
+    <:row title="Recipients">{@segment.name}</:row>
+    <:row title="Subject">{@campaign.subject}</:row>
+    <:row title="Preview">{@campaign.preview_text}</:row>
+  </.table>
+
+  <p class="italic mb-4 text-sm">
+    This message will be sent gradually over the next few minutes.
+  </p>
+  <p class="text-right">
+    <.button phx-click="send" phx-disable-with="Sending..." style="primary">Send Now</.button>
+  </p>
+</.modal>

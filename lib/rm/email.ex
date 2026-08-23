@@ -4,8 +4,8 @@ defmodule RM.Email do
   """
   import Ecto.Query
 
+  alias RM.Email
   alias RM.Email.Address
-  alias RM.Email.List
   alias RM.Repo
 
   #
@@ -31,6 +31,32 @@ defmodule RM.Email do
   end
 
   @doc """
+  Create a new address record for the given email address, if one does not already exist
+  """
+  @spec create_address(String.t()) :: {:ok, Address.t()} | {:error, Ecto.Changeset.t(Address.t())}
+  def create_address(email) do
+    %Address{email: email}
+    |> Repo.insert(
+      on_conflict: [
+        set: [updated_at: DateTime.utc_now()]
+      ],
+      conflict_target: [:email],
+      returning: true
+    )
+  end
+
+  @doc """
+  Get or create an address record for the given email address
+  """
+  @spec get_or_create_address(String.t()) ::
+          {:ok, Address.t()} | {:error, Ecto.Changeset.t(Address.t())}
+  def get_or_create_address(email) do
+    with {:error, :not_found} <- fetch_address(email) do
+      create_address(email)
+    end
+  end
+
+  @doc """
   Get an address record by the string address
   """
   @spec get_address(String.t()) :: Address.t() | nil
@@ -38,6 +64,17 @@ defmodule RM.Email do
     address_string
     |> Address.by_email_query()
     |> Repo.one()
+  end
+
+  @doc """
+  Get an address record by the string address, returning a tagged tuple
+  """
+  @spec fetch_address(String.t()) :: {:ok, Address.t()} | {:error, :not_found}
+  def fetch_address(address_string) do
+    case get_address(address_string) do
+      nil -> {:error, :not_found}
+      address -> {:ok, address}
+    end
   end
 
   @doc """
@@ -162,7 +199,8 @@ defmodule RM.Email do
       on_conflict: [
         set: [unsubscribed_at: now, updated_at: now]
       ],
-      conflict_target: [:email]
+      conflict_target: [:email],
+      returning: true
     )
   end
 
@@ -189,7 +227,7 @@ defmodule RM.Email do
   @doc "Create a new email list"
   @spec create_list(map) :: {:ok, List.t()} | {:error, Ecto.Changeset.t(List.t())}
   def create_list(params) do
-    List.create_changeset(params)
+    Email.List.create_changeset(params)
     |> Repo.insert()
   end
 
@@ -246,7 +284,7 @@ defmodule RM.Email do
     region_code = String.downcase(region.code)
 
     params = %{
-      name: "#{region.name} Region (#{region.code})",
+      name: "#{region.name} (All)",
       project_id: region.metadata.keila_project_id,
       filter: %{"data.#{region_code}.sub" => "true"}
     }
@@ -278,7 +316,7 @@ defmodule RM.Email do
     season = to_string(region.current_season)
 
     params = %{
-      name: "#{region.name} Region Coaches (#{region.code})",
+      name: "#{region.name} Coaches",
       project_id: region.metadata.keila_project_id,
       filter: %{"data.#{region_code}.coach.#{season}" => "true"}
     }
@@ -311,7 +349,7 @@ defmodule RM.Email do
     last_season = to_string(region.current_season - 1)
 
     params = %{
-      name: "#{region.name} Region Coaches Extended (#{region.code})",
+      name: "#{region.name} Coaches (Extended)",
       project_id: region.metadata.keila_project_id,
       filter: %{
         "$or" => [
@@ -339,6 +377,96 @@ defmodule RM.Email do
     end
   end
 
+  @doc """
+  Sync a template for a single region to Keila, creating or updating the corresponding template as needed
+  """
+  @spec sync_template_for_region(RM.FIRST.Region.t()) ::
+          :ok | {:error, Ecto.Changeset.t(Keila.Templates.Template.t())}
+  def sync_template_for_region(region) do
+    params = %{
+      name: "#{region.name} Region Template (#{region.code})",
+      project_id: region.metadata.keila_project_id,
+      type: :hybrid,
+      styles: "",
+      assigns: %{}
+    }
+
+    if region.metadata.keila_template_id do
+      :ok
+    else
+      case Keila.Templates.create_template(region.metadata.keila_project_id, params) do
+        {:ok, template} ->
+          Ecto.Changeset.change(region, %{metadata: %{keila_template_id: template.id}})
+          |> RM.Repo.update!()
+
+          :ok
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
+  Sync a shared sender for a single region to Keila, creating or updating the corresponding sender as needed
+  """
+  @spec sync_shared_sender_for_region(RM.FIRST.Region.t()) ::
+          :ok | {:error, Ecto.Changeset.t(Keila.Mailings.SharedSender.t())}
+  def sync_shared_sender_for_region(region) do
+    params = %{
+      name: "#{region.name} Region (#{region.code})",
+      config: %{type: "local"}
+    }
+
+    if region.metadata.keila_shared_sender_id do
+      :ok
+    else
+      case Keila.Mailings.create_shared_sender(params) do
+        {:ok, sender} ->
+          Ecto.Changeset.change(region, %{metadata: %{keila_shared_sender_id: sender.id}})
+          |> RM.Repo.update!()
+
+          :ok
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
+  Sync a sender for a single region to Keila, creating or updating the corresponding sender as needed
+  """
+  @spec sync_sender_for_region(RM.FIRST.Region.t()) ::
+          :ok | {:error, Ecto.Changeset.t(Keila.Mailings.Sender.t())}
+  def sync_sender_for_region(region) do
+    params = %{
+      project_id: region.metadata.keila_project_id,
+      name: "#{region.name} Region (#{region.code})",
+      from_email: "#{region.code}@ftcregion.com",
+      from_name: "#{region.name} Region",
+      config: %{type: "local"},
+      shared_sender_id: region.metadata.keila_shared_sender_id
+    }
+
+    if region.metadata.keila_sender_id do
+      :ok
+    else
+      changeset = Keila.Mailings.Sender.creation_changeset(params)
+
+      case Keila.Repo.insert(changeset) do
+        {:ok, sender} ->
+          Ecto.Changeset.change(region, %{metadata: %{keila_sender_id: sender.id}})
+          |> RM.Repo.update!()
+
+          :ok
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
   #
   # Keila: Leagues
   #
@@ -353,7 +481,7 @@ defmodule RM.Email do
     league_code = String.downcase(region.code <> league.code)
 
     params = %{
-      name: "#{region.name} #{league.name} League (#{region.code}#{league.code})",
+      name: "#{league.name} (All)",
       project_id: region.metadata.keila_project_id,
       filter: %{"data.#{league_code}.sub" => "true"}
     }
@@ -385,7 +513,7 @@ defmodule RM.Email do
     season = to_string(region.current_season)
 
     params = %{
-      name: "#{region.name} #{league.name} League Coaches (#{region.code}#{league.code})",
+      name: "#{league.name} Coaches",
       project_id: region.metadata.keila_project_id,
       filter: %{"data.#{league_code}.coach.#{season}" => "true"}
     }
@@ -418,8 +546,7 @@ defmodule RM.Email do
     last_season = to_string(region.current_season - 1)
 
     params = %{
-      name:
-        "#{region.name} #{league.name} League Coaches Extended (#{region.code}#{league.code})",
+      name: "#{league.name} Coaches (Extended)",
       project_id: region.metadata.keila_project_id,
       filter: %{
         "$or" => [
@@ -440,6 +567,39 @@ defmodule RM.Email do
           |> RM.Repo.update!()
 
           {:ok, segment}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
+  Sync a sender for a single league to Keila, creating or updating the corresponding sender as needed
+  """
+  @spec sync_sender_for_league(RM.FIRST.Region.t(), RM.Local.League.t()) ::
+          :ok | {:error, Ecto.Changeset.t(Keila.Mailings.Sender.t())}
+  def sync_sender_for_league(region, league) do
+    params = %{
+      project_id: region.metadata.keila_project_id,
+      name: "#{region.name} #{league.name} League (#{region.code}#{league.code})",
+      from_email: "#{region.code}#{league.code}@ftcregion.com",
+      from_name: "#{region.name} #{league.name} League",
+      config: %{type: "local"},
+      shared_sender_id: region.metadata.keila_shared_sender_id
+    }
+
+    if league.metadata.keila_sender_id do
+      :ok
+    else
+      changeset = Keila.Mailings.Sender.creation_changeset(params)
+
+      case Keila.Repo.insert(changeset) do
+        {:ok, sender} ->
+          Ecto.Changeset.change(league, %{metadata: %{keila_sender_id: sender.id}})
+          |> RM.Repo.update!()
+
+          :ok
 
         {:error, changeset} ->
           {:error, changeset}
@@ -491,12 +651,7 @@ defmodule RM.Email do
           {:ok, Keila.Contacts.Contact.t()}
           | {:error, Ecto.Changeset.t(Keila.Contacts.Contact.t())}
   defp sync_coach_contact(project_id, email, season, region_code, league_code, name) do
-    status =
-      case get_address(email) do
-        %Address{unsubscribed_at: %DateTime{}} -> :unsubscribed
-        %Address{sendable: false} -> :bounced
-        _else -> :active
-      end
+    status = get_address(email) |> translate_keila_status()
 
     # New coach contacts get subscribed to the league and region by default, unless they are
     # already marked as unsubscribed or bounced.
@@ -555,6 +710,11 @@ defmodule RM.Email do
     end
   end
 
+  @spec translate_keila_status(Address.t() | nil) :: atom
+  def translate_keila_status(%Address{unsubscribed_at: %DateTime{}}), do: :unsubscribed
+  def translate_keila_status(%Address{sendable: false}), do: :unreachable
+  def translate_keila_status(_), do: :active
+
   #
   # Keila: Subscription Management
   #
@@ -574,21 +734,25 @@ defmodule RM.Email do
   @doc """
   Subscribe the given email address to the given region or league in Keila
   """
-  @spec subscribe_email(String.t(), String.t(), RM.FIRST.Region.t() | RM.Local.League.t()) ::
+  @spec subscribe_email(
+          Address.t(),
+          String.t(),
+          String.t(),
+          [RM.FIRST.Region.t() | RM.Local.League.t()]
+        ) ::
           {:ok, Keila.Contacts.Contact.t()}
           | {:error, Ecto.Changeset.t(Keila.Contacts.Contact.t())}
-  def subscribe_email(email, name, %RM.FIRST.Region{} = region) do
-    project_id = region.metadata.keila_project_id
-    region_code = String.downcase(region.code)
+  def subscribe_email(%Address{} = email, name, project_id, regions_and_leagues) do
+    status = translate_keila_status(email)
 
-    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
-      data =
-        (contact.data || %{})
-        |> put_in([Access.key(region_code, %{}), "sub"], "true")
+    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email.email) do
+      data = construct_data(contact.data || %{}, regions_and_leagues)
 
-      Keila.Contacts.update_contact(contact.id, %{data: data})
+      Keila.Contacts.update_contact(contact.id, %{data: data, status: status},
+        update_status: true
+      )
     else
-      data = %{region_code => %{"sub" => "true"}}
+      data = construct_data(%{}, regions_and_leagues)
 
       {first_name, last_name} =
         case String.split(name, " ", parts: 2) do
@@ -599,44 +763,30 @@ defmodule RM.Email do
       Keila.Contacts.create_contact(
         project_id,
         %{
-          email: email,
+          email: email.email,
           first_name: first_name,
           data: data,
-          last_name: last_name
-        }
+          last_name: last_name,
+          status: status
+        },
+        set_status: true
       )
     end
   end
 
-  def subscribe_email(email, name, %RM.Local.League{} = league) do
-    project_id = league.region.metadata.keila_project_id
-    league_code = String.downcase(league.region.code <> league.code)
+  defp construct_data(current_data, regions_and_leagues) do
+    Enum.reduce(regions_and_leagues, current_data, fn region_or_league, acc ->
+      code =
+        case region_or_league do
+          %RM.FIRST.Region{code: code} ->
+            String.downcase(code)
 
-    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
-      data =
-        (contact.data || %{})
-        |> put_in([Access.key(league_code, %{}), "sub"], "true")
-
-      Keila.Contacts.update_contact(contact.id, %{data: data})
-    else
-      data = %{league_code => %{"sub" => "true"}}
-
-      {first_name, last_name} =
-        case String.split(name, " ", parts: 2) do
-          [first_name, last_name] -> {first_name, last_name}
-          [first_name] -> {first_name, ""}
+          %RM.Local.League{region: %RM.FIRST.Region{code: region_code}, code: code} ->
+            String.downcase(region_code <> code)
         end
 
-      Keila.Contacts.create_contact(
-        project_id,
-        %{
-          email: email,
-          first_name: first_name,
-          data: data,
-          last_name: last_name
-        }
-      )
-    end
+      put_in(acc, [Access.key(code, %{}), "sub"], "true")
+    end)
   end
 
   @doc """
@@ -673,5 +823,141 @@ defmodule RM.Email do
     else
       {:error, :not_found}
     end
+  end
+
+  #
+  # Keila: Campaigns
+  #
+
+  @doc """
+  List all campaigns in Keila for the given region or league
+  """
+  @spec list_campaigns_for_region_or_league(RM.FIRST.Region.t() | RM.Local.League.t()) :: [
+          Keila.Mailings.Campaign.t()
+        ]
+  @spec list_campaigns_for_region_or_league(RM.FIRST.Region.t() | RM.Local.League.t(), keyword) ::
+          [Keila.Mailings.Campaign.t()]
+  def list_campaigns_for_region_or_league(region_or_league, opts \\ []) do
+    sender_id =
+      case region_or_league do
+        %RM.FIRST.Region{metadata: %{keila_sender_id: id}} -> id
+        %RM.Local.League{metadata: %{keila_sender_id: id}} -> id
+      end
+
+    from(Keila.Mailings.Campaign, as: :campaign)
+    |> where([campaign: c], c.sender_id == ^sender_id)
+    |> then(fn query ->
+      if opts[:draft] do
+        query
+        |> where([campaign: c], is_nil(c.sent_at))
+        |> order_by([campaign: c], desc: c.updated_at)
+      else
+        query
+        |> where([campaign: c], not is_nil(c.sent_at))
+        |> order_by([campaign: c], desc: c.sent_at)
+      end
+    end)
+    |> then(fn query ->
+      if opts[:page] || opts[:page_size] do
+        limit = opts[:page_size] || 10
+        offset = (opts[:page] || 0) * limit
+
+        query
+        |> limit(^limit)
+        |> offset(^offset)
+      else
+        query
+      end
+    end)
+    |> join(:inner, [campaign: c], s in assoc(c, :segment), as: :segment)
+    |> preload([segment: s], segment: s)
+    |> Keila.Repo.all()
+  end
+
+  @doc """
+  Get the latest campaign in Keila for the given region or league, if any
+  """
+  @spec get_latest_campaign_for_region_or_league(RM.FIRST.Region.t() | RM.Local.League.t()) ::
+          Keila.Mailings.Campaign.t() | nil
+  def get_latest_campaign_for_region_or_league(region_or_league) do
+    list_campaigns_for_region_or_league(region_or_league, draft: false, page: 0, page_size: 1)
+    |> List.first()
+  end
+
+  #
+  # Unsubscribe Links
+  #
+
+  @spec fetch_keila_project(String.t()) ::
+          {:ok, Keila.Projects.Project.t()} | {:error, :not_found}
+  def fetch_keila_project(project_id) do
+    if project = Keila.Projects.get_project(project_id) do
+      {:ok, project}
+    else
+      {:error, :not_found}
+    end
+  end
+
+  @spec fetch_keila_message(String.t()) ::
+          {:ok, Keila.Mailings.Message.t()} | {:error, :not_found}
+  def fetch_keila_message(message_id) do
+    if message = Keila.Mailings.get_message(message_id) do
+      {:ok, message}
+    else
+      {:error, :not_found}
+    end
+  end
+
+  @spec fetch_keila_contact(String.t()) ::
+          {:ok, Keila.Contacts.Contact.t()} | {:error, :not_found}
+  def fetch_keila_contact(contact_id) do
+    if contact = Keila.Contacts.get_contact(contact_id) do
+      {:ok, contact}
+    else
+      {:error, :not_found}
+    end
+  end
+
+  @spec validate_unsubscribe_token(
+          Keila.Projects.Project.t(),
+          Keila.Mailings.Message.t(),
+          String.t()
+        ) :: :ok | {:error, :invalid_token}
+  def validate_unsubscribe_token(project, message, token) do
+    expected_token = unsubscribe_token(project, message)
+
+    if :crypto.hash_equals(token, expected_token) do
+      :ok
+    else
+      {:error, :invalid_token}
+    end
+  rescue
+    _ -> {:error, :invalid_token}
+  end
+
+  @spec unsubscribe_token(
+          Keila.Projects.Project.t() | Keila.Projects.Project.id(),
+          Keila.Mailings.Message.t() | Keila.Mailings.Message.id()
+        ) :: String.t()
+  def unsubscribe_token(project_or_project_id, message_or_message_id) do
+    project_id =
+      if is_struct(project_or_project_id, Keila.Projects.Project) do
+        project_or_project_id.id
+      else
+        project_or_project_id
+      end
+
+    message_id =
+      if is_struct(message_or_message_id, Keila.Mailings.Message) do
+        message_or_message_id.id
+      else
+        message_or_message_id
+      end
+
+    key = Application.get_env(:rm, RMWeb.Endpoint) |> Keyword.fetch!(:secret_key_base)
+    data = "unsubscribe:" <> project_id <> ":" <> message_id
+
+    :crypto.mac(:hmac, :sha256, key, data)
+    |> Base.url_encode64(padding: false)
   end
 end

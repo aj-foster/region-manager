@@ -1,0 +1,7 @@
+Someone recently subscribed this email address to updates from a FIRST Tech
+Challenge region. If you don't wish to receive these emails, you can
+unsubscribe or manage your subscriptions at any time using the link below.
+
+  <%= @url %>
+
+If you have any questions, contact support@ftcregion.io

@@ -17,6 +17,37 @@ defmodule RM.EmailTest do
     end
   end
 
+  describe "create_address/1" do
+    test "creates an address with valid data" do
+      email = "new-#{System.unique_integer()}@example.com"
+
+      assert {:ok, %Address{} = address} = Email.create_address(email)
+      assert address.email == email
+    end
+
+    test "is idempotent for the same email" do
+      email = "new-#{System.unique_integer()}@example.com"
+
+      assert {:ok, %Address{} = address1} = Email.create_address(email)
+      assert {:ok, %Address{} = address2} = Email.create_address(email)
+      assert address1.id == address2.id
+    end
+  end
+
+  describe "get_or_create_address/1" do
+    test "returns an existing address if it exists" do
+      address = Factory.insert(:address)
+      assert {:ok, fetched_address} = Email.get_or_create_address(address.email)
+      assert fetched_address.id == address.id
+    end
+
+    test "creates a new address if it does not exist" do
+      email = "new-#{System.unique_integer()}@example.com"
+      assert {:ok, %Address{} = new_address} = Email.get_or_create_address(email)
+      assert new_address.email == email
+    end
+  end
+
   describe "get_address/1" do
     test "returns the address for a known email" do
       address = Factory.insert(:address)
@@ -25,6 +56,18 @@ defmodule RM.EmailTest do
 
     test "returns nil for an unknown email" do
       refute Email.get_address("unknown@example.com")
+    end
+  end
+
+  describe "fetch_address/1" do
+    test "returns address for a known email" do
+      address = Factory.insert(:address)
+      assert {:ok, fetched_address} = Email.fetch_address(address.email)
+      assert fetched_address.id == address.id
+    end
+
+    test "returns error for an unknown email" do
+      assert {:error, :not_found} = Email.fetch_address("unknown@example.com")
     end
   end
 
@@ -207,14 +250,14 @@ defmodule RM.EmailTest do
 
       Email.sync_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "#{region.name} Region (#{region.code})"
+      assert segment.name == "#{region.name} (All)"
 
       Ecto.Changeset.change(region, name: "Updated Name") |> Repo.update!()
       region = Repo.reload!(region)
 
       Email.sync_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "Updated Name Region (#{region.code})"
+      assert segment.name == "Updated Name (All)"
     end
   end
 
@@ -225,14 +268,14 @@ defmodule RM.EmailTest do
 
       Email.sync_coach_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "#{region.name} Region Coaches (#{region.code})"
+      assert segment.name == "#{region.name} Coaches"
 
       Ecto.Changeset.change(region, name: "Updated Name") |> Repo.update!()
       region = Repo.reload!(region)
 
       Email.sync_coach_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "Updated Name Region Coaches (#{region.code})"
+      assert segment.name == "Updated Name Coaches"
     end
   end
 
@@ -243,14 +286,53 @@ defmodule RM.EmailTest do
 
       Email.sync_extended_coach_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "#{region.name} Region Coaches Extended (#{region.code})"
+      assert segment.name == "#{region.name} Coaches (Extended)"
 
       Ecto.Changeset.change(region, name: "Updated Name") |> Repo.update!()
       region = Repo.reload!(region)
 
       Email.sync_extended_coach_segment_for_region(region)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "Updated Name Region Coaches Extended (#{region.code})"
+      assert segment.name == "Updated Name Coaches (Extended)"
+    end
+  end
+
+  describe "sync_template_for_region/1" do
+    test "syncs the template for a given region" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+
+      assert :ok = Email.sync_template_for_region(region)
+      assert [template] = Keila.Repo.all(Keila.Templates.Template)
+      assert template.name == "#{region.name} Region Template (#{region.code})"
+
+      region = Repo.reload!(region)
+      assert region.metadata.keila_template_id == template.id
+    end
+  end
+
+  describe "sync_shared_sender_for_region/1" do
+    test "syncs the shared sender for a given region" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+
+      assert :ok = Email.sync_shared_sender_for_region(region)
+      assert [sender] = Keila.Repo.all(Keila.Mailings.SharedSender)
+      assert sender.name == "#{region.name} Region (#{region.code})"
+    end
+  end
+
+  describe "sync_sender_for_region/1" do
+    test "syncs the sender for a given region" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+
+      assert :ok = Email.sync_sender_for_region(region)
+      assert [sender] = Keila.Repo.all(Keila.Mailings.Sender)
+      assert sender.name == "#{region.name} Region (#{region.code})"
+
+      region = Repo.reload!(region)
+      assert region.metadata.keila_sender_id == sender.id
     end
   end
 
@@ -266,14 +348,14 @@ defmodule RM.EmailTest do
 
       Email.sync_segment_for_league(region, league)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "#{region.name} #{league.name} League (#{region.code}#{league.code})"
+      assert segment.name == "#{league.name} (All)"
 
       Ecto.Changeset.change(league, name: "Updated Name") |> Repo.update!()
       league = Repo.reload!(league)
 
       Email.sync_segment_for_league(region, league)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-      assert segment.name == "#{region.name} Updated Name League (#{region.code}#{league.code})"
+      assert segment.name == "Updated Name (All)"
     end
   end
 
@@ -285,18 +367,14 @@ defmodule RM.EmailTest do
 
       Email.sync_coach_segment_for_league(region, league)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-
-      assert segment.name ==
-               "#{region.name} #{league.name} League Coaches (#{region.code}#{league.code})"
+      assert segment.name == "#{league.name} Coaches"
 
       Ecto.Changeset.change(league, name: "Updated Name") |> Repo.update!()
       league = Repo.reload!(league)
 
       Email.sync_coach_segment_for_league(region, league)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
-
-      assert segment.name ==
-               "#{region.name} Updated Name League Coaches (#{region.code}#{league.code})"
+      assert segment.name == "Updated Name Coaches"
     end
   end
 
@@ -310,16 +388,29 @@ defmodule RM.EmailTest do
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
 
       assert segment.name ==
-               "#{region.name} #{league.name} League Coaches Extended (#{region.code}#{league.code})"
+               "#{league.name} Coaches (Extended)"
 
       Ecto.Changeset.change(league, name: "Updated Name") |> Repo.update!()
       league = Repo.reload!(league)
 
       Email.sync_extended_coach_segment_for_league(region, league)
       assert [segment] = Keila.Repo.all(Keila.Contacts.Segment)
+      assert segment.name == "Updated Name Coaches (Extended)"
+    end
+  end
 
-      assert segment.name ==
-               "#{region.name} Updated Name League Coaches Extended (#{region.code}#{league.code})"
+  describe "sync_sender_for_league/1" do
+    test "syncs the sender for a given league" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+      league = Factory.insert(:league, region: region)
+
+      assert :ok = Email.sync_sender_for_league(region, league)
+      assert [sender] = Keila.Repo.all(Keila.Mailings.Sender)
+      assert sender.name == "#{region.name} #{league.name} League (#{region.code}#{league.code})"
+
+      league = Repo.reload!(league)
+      assert league.metadata.keila_sender_id == sender.id
     end
   end
 
@@ -362,15 +453,15 @@ defmodule RM.EmailTest do
     end
   end
 
-  describe "subscribe_email/3" do
+  describe "subscribe_email/4" do
     test "subscribes an email to a region" do
       keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
-      email = "subscribe-#{System.unique_integer()}@example.com"
+      email = Factory.insert(:address)
       name = "Test User"
 
-      assert {:ok, contact} = Email.subscribe_email(email, name, region)
-      assert contact.email == email
+      assert {:ok, contact} = Email.subscribe_email(email, name, keila_project.id, [region])
+      assert contact.email == email.email
       assert contact.first_name == "Test"
       assert contact.last_name == "User"
 
@@ -383,15 +474,35 @@ defmodule RM.EmailTest do
       keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
       league = Factory.insert(:league, region: region)
-      email = "subscribe-#{System.unique_integer()}@example.com"
+      email = Factory.insert(:address)
       name = "League User"
 
-      assert {:ok, contact} = Email.subscribe_email(email, name, league)
-      assert contact.email == email
+      assert {:ok, contact} = Email.subscribe_email(email, name, keila_project.id, [league])
+      assert contact.email == email.email
       assert contact.first_name == "League"
       assert contact.last_name == "User"
 
       assert contact.data == %{
+               String.downcase(region.code <> String.downcase(league.code)) => %{"sub" => "true"}
+             }
+    end
+
+    test "subscribes an email to a region and league" do
+      keila_project = Factory.insert_keila_project()
+      region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
+      league = Factory.insert(:league, region: region)
+      email = Factory.insert(:address)
+      name = "Test User"
+
+      assert {:ok, contact} =
+               Email.subscribe_email(email, name, keila_project.id, [region, league])
+
+      assert contact.email == email.email
+      assert contact.first_name == "Test"
+      assert contact.last_name == "User"
+
+      assert contact.data == %{
+               String.downcase(region.code) => %{"sub" => "true"},
                String.downcase(region.code <> String.downcase(league.code)) => %{"sub" => "true"}
              }
     end
@@ -401,15 +512,15 @@ defmodule RM.EmailTest do
     test "unsubscribes an email from a region" do
       keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
-      email = "unsubscribe-#{System.unique_integer()}@example.com"
+      email = Factory.insert(:address)
       name = "Unsubscribe User"
 
-      assert {:error, :not_found} = Email.unsubscribe_email(email, region)
+      assert {:error, :not_found} = Email.unsubscribe_email(email.email, region)
 
-      {:ok, contact} = Email.subscribe_email(email, name, region)
+      {:ok, contact} = Email.subscribe_email(email, name, keila_project.id, [region])
       assert contact.data[String.downcase(region.code)]["sub"] == "true"
 
-      assert {:ok, contact} = Email.unsubscribe_email(email, region)
+      assert {:ok, contact} = Email.unsubscribe_email(email.email, region)
       assert contact.data[String.downcase(region.code)]["sub"] == "false"
     end
 
@@ -417,20 +528,178 @@ defmodule RM.EmailTest do
       keila_project = Factory.insert_keila_project()
       region = Factory.insert(:region, metadata: %{keila_project_id: keila_project.id})
       league = Factory.insert(:league, region: region)
-      email = "unsubscribe-#{System.unique_integer()}@example.com"
+      email = Factory.insert(:address)
       name = "Unsubscribe League User"
 
-      assert {:error, :not_found} = Email.unsubscribe_email(email, league)
+      assert {:error, :not_found} = Email.unsubscribe_email(email.email, league)
 
-      {:ok, contact} = Email.subscribe_email(email, name, league)
+      {:ok, contact} = Email.subscribe_email(email, name, keila_project.id, [league])
 
       assert contact.data[String.downcase(region.code <> String.downcase(league.code))]["sub"] ==
                "true"
 
-      assert {:ok, contact} = Email.unsubscribe_email(email, league)
+      assert {:ok, contact} = Email.unsubscribe_email(email.email, league)
 
       assert contact.data[String.downcase(region.code <> String.downcase(league.code))]["sub"] ==
                "false"
+    end
+  end
+
+  #
+  # Keila: Campaigns
+  #
+
+  describe "list_campaigns_for_region_or_league/2" do
+    test "returns campaigns for a region" do
+      region =
+        Factory.insert(:region)
+        |> Factory.with_keila()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      m1 = Factory.insert_keila_campaign(region, sent_at: nil)
+      m2 = Factory.insert_keila_campaign(region, sent_at: now)
+
+      [message] = Email.list_campaigns_for_region_or_league(region, draft: true)
+      assert message.id == m1.id
+
+      [message] = Email.list_campaigns_for_region_or_league(region, draft: false)
+      assert message.id == m2.id
+    end
+
+    test "returns campaigns for a league" do
+      region =
+        Factory.insert(:region)
+        |> Factory.with_keila()
+
+      league =
+        Factory.insert(:league, region: region)
+        |> Factory.with_keila()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      m1 = Factory.insert_keila_campaign(league, sent_at: nil)
+      m2 = Factory.insert_keila_campaign(league, sent_at: now)
+
+      [message] = Email.list_campaigns_for_region_or_league(league, draft: true)
+      assert message.id == m1.id
+
+      [message] = Email.list_campaigns_for_region_or_league(league, draft: false)
+      assert message.id == m2.id
+    end
+
+    test "accepts pagination options" do
+      region =
+        Factory.insert(:region)
+        |> Factory.with_keila()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      m1 = Factory.insert_keila_campaign(region, sent_at: now)
+      m2 = Factory.insert_keila_campaign(region, sent_at: DateTime.shift(now, minute: 10))
+
+      assert [message] = Email.list_campaigns_for_region_or_league(region, page_size: 1)
+      assert message.id == m2.id
+
+      assert [message] = Email.list_campaigns_for_region_or_league(region, page: 1, page_size: 1)
+      assert message.id == m1.id
+
+      assert [_, _] = Email.list_campaigns_for_region_or_league(region, page_size: 2)
+    end
+  end
+
+  describe "get_latest_campaign_for_region_or_league/1" do
+    test "returns the latest campaign for a region" do
+      region =
+        Factory.insert(:region)
+        |> Factory.with_keila()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      m2 = Factory.insert_keila_campaign(region, sent_at: DateTime.shift(now, minute: 10))
+      Factory.insert_keila_campaign(region, sent_at: now)
+
+      assert Email.get_latest_campaign_for_region_or_league(region).id == m2.id
+    end
+
+    test "returns the latest campaign for a league" do
+      region =
+        Factory.insert(:region)
+        |> Factory.with_keila()
+
+      league =
+        Factory.insert(:league, region: region)
+        |> Factory.with_keila()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      Factory.insert_keila_campaign(league, sent_at: now)
+      m2 = Factory.insert_keila_campaign(league, sent_at: DateTime.shift(now, minute: 10))
+
+      assert Email.get_latest_campaign_for_region_or_league(league).id == m2.id
+    end
+  end
+
+  #
+  # Unsubscribe Links
+  #
+
+  describe "fetch_keila_project/1" do
+    test "returns a Keila project by ID" do
+      keila_project = Factory.insert_keila_project()
+      assert {:ok, project} = Email.fetch_keila_project(keila_project.id)
+      assert project.id == keila_project.id
+    end
+  end
+
+  describe "fetch_keila_message/1" do
+    test "returns a Keila message by ID" do
+      region = Factory.insert(:region) |> Factory.with_keila()
+      keila_campaign = Factory.insert_keila_campaign(region)
+      {:ok, keila_project} = Email.fetch_keila_project(region.metadata.keila_project_id)
+
+      keila_contact =
+        Factory.insert_keila_contact(keila_project, "test-#{System.unique_integer()}@example.com")
+
+      keila_message = Factory.insert_keila_message(keila_campaign, keila_contact)
+
+      assert {:ok, fetched_message} = Email.fetch_keila_message(keila_message.id)
+      assert fetched_message.id == keila_message.id
+    end
+  end
+
+  describe "fetch_keila_contact/1" do
+    test "returns a Keila contact by ID" do
+      keila_project = Factory.insert_keila_project()
+
+      keila_contact =
+        Factory.insert_keila_contact(keila_project, "test-#{System.unique_integer()}@example.com")
+
+      assert {:ok, fetched_contact} = Email.fetch_keila_contact(keila_contact.id)
+      assert fetched_contact.id == keila_contact.id
+    end
+  end
+
+  describe "unsubscribe_token/2 and validate_unsubscribe_token/3" do
+    test "generates and validates an unsubscribe token" do
+      region = Factory.insert(:region) |> Factory.with_keila()
+      keila_campaign = Factory.insert_keila_campaign(region)
+      {:ok, keila_project} = Email.fetch_keila_project(region.metadata.keila_project_id)
+
+      keila_contact =
+        Factory.insert_keila_contact(keila_project, "test-#{System.unique_integer()}@example.com")
+
+      keila_message = Factory.insert_keila_message(keila_campaign, keila_contact)
+      token = Email.unsubscribe_token(keila_project, keila_message)
+
+      assert :ok =
+               Email.validate_unsubscribe_token(
+                 keila_project,
+                 keila_message,
+                 token
+               )
+
+      assert {:error, :invalid_token} =
+               Email.validate_unsubscribe_token(
+                 keila_project,
+                 keila_message,
+                 "invalidtoken"
+               )
     end
   end
 end

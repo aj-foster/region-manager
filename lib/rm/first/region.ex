@@ -87,6 +87,15 @@ defmodule RM.FIRST.Region do
       field :keila_segment_id, :string
       field :keila_coach_segment_id, :string
       field :keila_extended_coach_segment_id, :string
+
+      # Keila template ID for messages sent in this region, if any
+      field :keila_template_id, :string
+
+      # Keila shared sender for the region and all leagues, if any
+      field :keila_shared_sender_id, :string
+
+      # Keila sender for the region itself, if any
+      field :keila_sender_id, :string
     end
 
     embeds_one :stats, Stats, on_replace: :update, primary_key: false do

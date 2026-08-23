@@ -7,7 +7,6 @@
 
 <RMWeb.RegionLive.Util.region_nav
   :if={is_nil(@local_league) and is_nil(@first_league)}
-  class="mb-8"
   season={@season}
   region={@region}
   user={@current_user}
@@ -16,7 +15,6 @@
 
 <RMWeb.LeagueLive.Util.league_nav
   :if={@local_league || @first_league}
-  class="mb-8"
   season={@season}
   region={@region}
   league={@local_league || @first_league}
@@ -24,7 +22,15 @@
   view={@socket.view}
 />
 
-<div class="flex flex-wrap gap-4 items-center justify-between mb-4 pl-6">
+<RMWeb.EventLive.Util.event_index_nav
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<div class="flex flex-wrap gap-4 items-center justify-between mb-4 mt-8 pl-6">
   <.title flush>
     Events in {events_page_title(
       @local_league,
