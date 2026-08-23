@@ -21,6 +21,11 @@ variable "spf" {
   default     = "\"v=spf1 a include:_spf.google.com ~all\""
 }
 
+variable "dkim" {
+  description = "Optional override for the DKIM record value"
+  default     = ""
+}
+
 #
 # Providers
 #
@@ -99,4 +104,14 @@ resource "digitalocean_record" "verification" {
   ttl    = 3600
   type   = "TXT"
   value  = "google-site-verification=${var.verification}"
+}
+
+resource "digitalocean_record" "dkim" {
+  count = var.dkim == "" ? 0 : 1
+
+  domain = var.domain
+  name   = "google._domainkey"
+  ttl    = 3600
+  type   = "TXT"
+  value  = var.dkim
 }
