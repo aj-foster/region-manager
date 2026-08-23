@@ -4,6 +4,7 @@ defmodule RMWeb.EmailController do
 
   alias RM.Email
   alias RM.FIRST
+  alias RM.Mailer
 
   @doc """
   GET + POST /email/sub/:region
@@ -17,6 +18,7 @@ defmodule RMWeb.EmailController do
          :ok <- verify_params(conn, params),
          {:ok, conn} <- maybe_load_address(conn, params),
          {:ok, conn} <- maybe_subscribe(conn, params) do
+      maybe_send_confirmation_email(conn, params)
       render(conn, "subscribe.html")
     end
   end
@@ -88,14 +90,20 @@ defmodule RMWeb.EmailController do
   defp verify_params(_conn, _params), do: :ok
 
   defp maybe_load_address(conn, %{"subscribe" => %{"email" => email}}) do
-    case Email.get_or_create_address(email) do
-      {:ok, address} ->
-        {:ok, assign(conn, address: address)}
+    if address = Email.get_address(email) do
+      {:ok, assign(conn, address: address, confirm: false)}
+    else
+      case Email.create_address(email) do
+        {:ok, address} ->
+          {:ok, assign(conn, address: address, confirm: true)}
 
-      {:error, _reason} ->
-        conn
-        |> assign(error: "Invalid email address format.")
-        |> render("subscribe.html")
+        {:error, reason} ->
+          Logger.warning("Failed to create address for email #{email}: #{inspect(reason)}")
+
+          conn
+          |> assign(error: "Unable to subscribe email address.")
+          |> render("subscribe.html")
+      end
     end
   end
 
@@ -135,6 +143,29 @@ defmodule RMWeb.EmailController do
   end
 
   defp maybe_subscribe(conn, _params), do: {:ok, conn}
+
+  defp maybe_send_confirmation_email(
+         %{assigns: %{success: <<_::binary>>, error: nil, confirm: true}, method: "POST"} = conn,
+         params
+       ) do
+    address = conn.assigns.address
+
+    case Mailer.confirm_sub(address.email, url(~p"/email/manage?hash=#{address.hashed_id}")) do
+      :ok ->
+        conn
+
+      {:error, reason} ->
+        Logger.warning(
+          "Failed to send confirmation email to #{params["email"]}: #{inspect(reason)}"
+        )
+
+        conn
+        |> assign(error: "There was an error sending the confirmation email.")
+        |> render("subscribe.html")
+    end
+  end
+
+  defp maybe_send_confirmation_email(conn, _params), do: conn
 
   @doc """
   POST /email/unsub/:project/:message/:token

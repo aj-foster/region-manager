@@ -23,6 +23,22 @@ defmodule RM.Mailer do
     end
   end
 
+  def confirm_sub(email, url) do
+    base()
+    |> Swoosh.Email.to([email])
+    |> Swoosh.Email.subject("You've been subscribed to updates")
+    |> render_body(:confirm_sub,
+      preview: "You've been subscribed to updates from a FIRST Tech Challenge region.",
+      title: "You've been subscribed to updates from a FIRST Tech Challenge region.",
+      url: url
+    )
+    |> deliver()
+    |> case do
+      {:ok, _email} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   @impl Identity.Notifier
   def reset_password(user, url) do
     emails = Identity.list_emails(user)
