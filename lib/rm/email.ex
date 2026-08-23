@@ -651,12 +651,7 @@ defmodule RM.Email do
           {:ok, Keila.Contacts.Contact.t()}
           | {:error, Ecto.Changeset.t(Keila.Contacts.Contact.t())}
   defp sync_coach_contact(project_id, email, season, region_code, league_code, name) do
-    status =
-      case get_address(email) do
-        %Address{unsubscribed_at: %DateTime{}} -> :unsubscribed
-        %Address{sendable: false} -> :bounced
-        _else -> :active
-      end
+    status = get_address(email) |> translate_keila_status()
 
     # New coach contacts get subscribed to the league and region by default, unless they are
     # already marked as unsubscribed or bounced.
@@ -715,6 +710,11 @@ defmodule RM.Email do
     end
   end
 
+  @spec translate_keila_status(Address.t() | nil) :: atom
+  def translate_keila_status(%Address{unsubscribed_at: %DateTime{}}), do: :unsubscribed
+  def translate_keila_status(%Address{sendable: false}), do: :unreachable
+  def translate_keila_status(_), do: :active
+
   #
   # Keila: Subscription Management
   #
@@ -734,21 +734,25 @@ defmodule RM.Email do
   @doc """
   Subscribe the given email address to the given region or league in Keila
   """
-  @spec subscribe_email(String.t(), String.t(), RM.FIRST.Region.t() | RM.Local.League.t()) ::
+  @spec subscribe_email(
+          Address.t(),
+          String.t(),
+          String.t(),
+          [RM.FIRST.Region.t() | RM.Local.League.t()]
+        ) ::
           {:ok, Keila.Contacts.Contact.t()}
           | {:error, Ecto.Changeset.t(Keila.Contacts.Contact.t())}
-  def subscribe_email(email, name, %RM.FIRST.Region{} = region) do
-    project_id = region.metadata.keila_project_id
-    region_code = String.downcase(region.code)
+  def subscribe_email(%Address{} = email, name, project_id, regions_and_leagues) do
+    status = translate_keila_status(email)
 
-    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
-      data =
-        (contact.data || %{})
-        |> put_in([Access.key(region_code, %{}), "sub"], "true")
+    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email.email) do
+      data = construct_data(contact.data || %{}, regions_and_leagues)
 
-      Keila.Contacts.update_contact(contact.id, %{data: data})
+      Keila.Contacts.update_contact(contact.id, %{data: data, status: status},
+        update_status: true
+      )
     else
-      data = %{region_code => %{"sub" => "true"}}
+      data = construct_data(%{}, regions_and_leagues)
 
       {first_name, last_name} =
         case String.split(name, " ", parts: 2) do
@@ -759,44 +763,30 @@ defmodule RM.Email do
       Keila.Contacts.create_contact(
         project_id,
         %{
-          email: email,
+          email: email.email,
           first_name: first_name,
           data: data,
-          last_name: last_name
-        }
+          last_name: last_name,
+          status: status
+        },
+        set_status: true
       )
     end
   end
 
-  def subscribe_email(email, name, %RM.Local.League{} = league) do
-    project_id = league.region.metadata.keila_project_id
-    league_code = String.downcase(league.region.code <> league.code)
+  defp construct_data(current_data, regions_and_leagues) do
+    Enum.reduce(regions_and_leagues, current_data, fn region_or_league, acc ->
+      code =
+        case region_or_league do
+          %RM.FIRST.Region{code: code} ->
+            String.downcase(code)
 
-    if contact = Keila.Contacts.get_project_contact_by_email(project_id, email) do
-      data =
-        (contact.data || %{})
-        |> put_in([Access.key(league_code, %{}), "sub"], "true")
-
-      Keila.Contacts.update_contact(contact.id, %{data: data})
-    else
-      data = %{league_code => %{"sub" => "true"}}
-
-      {first_name, last_name} =
-        case String.split(name, " ", parts: 2) do
-          [first_name, last_name] -> {first_name, last_name}
-          [first_name] -> {first_name, ""}
+          %RM.Local.League{region: %RM.FIRST.Region{code: region_code}, code: code} ->
+            String.downcase(region_code <> code)
         end
 
-      Keila.Contacts.create_contact(
-        project_id,
-        %{
-          email: email,
-          first_name: first_name,
-          data: data,
-          last_name: last_name
-        }
-      )
-    end
+      put_in(acc, [Access.key(code, %{}), "sub"], "true")
+    end)
   end
 
   @doc """
