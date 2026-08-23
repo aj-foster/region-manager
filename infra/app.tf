@@ -61,19 +61,33 @@ resource "digitalocean_app" "this" {
       # Env
       #
 
-      # env {
-      #   key   = "APPSIGNAL_ENV"
-      #   value = var.nq_appsignal_env
-      #   scope = "RUN_TIME"
-      #   type  = "GENERAL"
-      # }
+      env {
+        key   = "APPSIGNAL_APP_ENV"
+        value = "prod"
+        scope = "RUN_TIME"
+        type  = "GENERAL"
+      }
 
-      # env {
-      #   key   = "APPSIGNAL_KEY"
-      #   value = var.nq_appsignal_key
-      #   scope = "RUN_TIME"
-      #   type  = "SECRET"
-      # }
+      env {
+        key   = "APPSIGNAL_APP_NAME"
+        value = "Region Manager"
+        scope = "RUN_TIME"
+        type  = "GENERAL"
+      }
+
+      env {
+        key   = "APPSIGNAL_OTP_APP"
+        value = "rm"
+        scope = "RUN_TIME"
+        type  = "GENERAL"
+      }
+
+      env {
+        key   = "APPSIGNAL_PUSH_API_KEY"
+        value = var.rm_appsignal_key
+        scope = "RUN_TIME"
+        type  = "SECRET"
+      }
 
       env {
         key   = "ASSET_HOST"

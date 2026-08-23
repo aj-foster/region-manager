@@ -20,6 +20,9 @@ terraform {
   }
 }
 
+# AppSignal Key
+variable "rm_appsignal_key" { sensitive = true }
+
 # Hostname, such as "assets.ftcregion.com"
 variable "rm_asset_host" {}
 
