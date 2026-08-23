@@ -31,7 +31,7 @@ defmodule RMWeb.EmailLive.Manage do
 
       email in confirmed_emails ->
         socket
-        |> assign_address(email)
+        |> assign_address_by_email(email)
         |> assign_subscriptions()
         |> noreply()
 
@@ -49,9 +49,16 @@ defmodule RMWeb.EmailLive.Manage do
     end
   end
 
+  def handle_params(%{"hash" => hash}, _uri, socket) do
+    socket
+    |> assign_address_by_hash(hash)
+    |> assign_subscriptions()
+    |> noreply()
+  end
+
   def handle_params(%{"project" => prj_id, "message" => msg_id, "token" => token}, _uri, socket) do
     socket
-    |> assign_address(prj_id, msg_id, token)
+    |> assign_address_by_message(prj_id, msg_id, token)
     |> assign_subscriptions()
     |> noreply()
   end
@@ -209,8 +216,8 @@ defmodule RMWeb.EmailLive.Manage do
   # Helpers
   #
 
-  @spec assign_address(Socket.t(), String.t()) :: Socket.t()
-  defp assign_address(socket, email) do
+  @spec assign_address_by_email(Socket.t(), String.t()) :: Socket.t()
+  defp assign_address_by_email(socket, email) do
     case Email.fetch_address(email) do
       {:ok, address} ->
         assign(socket, :address, address)
@@ -225,8 +232,24 @@ defmodule RMWeb.EmailLive.Manage do
     end
   end
 
-  @spec assign_address(Socket.t(), String.t(), String.t(), String.t()) :: Socket.t()
-  defp assign_address(socket, project_id, message_id, token) do
+  @spec assign_address_by_hash(Socket.t(), String.t()) :: Socket.t()
+  defp assign_address_by_hash(socket, hash) do
+    case Email.fetch_address_by_hashed_id(hash) do
+      {:ok, address} ->
+        assign(socket, :address, address)
+
+      :error ->
+        socket
+        |> put_flash(
+          :error,
+          "Invalid email management link. If you believe this is an error, please contact support."
+        )
+        |> redirect(to: ~p"/")
+    end
+  end
+
+  @spec assign_address_by_message(Socket.t(), String.t(), String.t(), String.t()) :: Socket.t()
+  defp assign_address_by_message(socket, project_id, message_id, token) do
     with {:ok, project} <- Email.fetch_keila_project(project_id),
          {:ok, message} <- Email.fetch_keila_message(message_id),
          {:ok, contact} <- Email.fetch_keila_contact(message.contact_id),
