@@ -17,6 +17,37 @@ defmodule RM.EmailTest do
     end
   end
 
+  describe "create_address/1" do
+    test "creates an address with valid data" do
+      email = "new-#{System.unique_integer()}@example.com"
+
+      assert {:ok, %Address{} = address} = Email.create_address(email)
+      assert address.email == email
+    end
+
+    test "is idempotent for the same email" do
+      email = "new-#{System.unique_integer()}@example.com"
+
+      assert {:ok, %Address{} = address1} = Email.create_address(email)
+      assert {:ok, %Address{} = address2} = Email.create_address(email)
+      assert address1.id == address2.id
+    end
+  end
+
+  describe "get_or_create_address/1" do
+    test "returns an existing address if it exists" do
+      address = Factory.insert(:address)
+      assert {:ok, fetched_address} = Email.get_or_create_address(address.email)
+      assert fetched_address.id == address.id
+    end
+
+    test "creates a new address if it does not exist" do
+      email = "new-#{System.unique_integer()}@example.com"
+      assert {:ok, %Address{} = new_address} = Email.get_or_create_address(email)
+      assert new_address.email == email
+    end
+  end
+
   describe "get_address/1" do
     test "returns the address for a known email" do
       address = Factory.insert(:address)

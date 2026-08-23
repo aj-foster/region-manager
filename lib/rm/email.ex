@@ -31,6 +31,32 @@ defmodule RM.Email do
   end
 
   @doc """
+  Create a new address record for the given email address, if one does not already exist
+  """
+  @spec create_address(String.t()) :: {:ok, Address.t()} | {:error, Ecto.Changeset.t(Address.t())}
+  def create_address(email) do
+    %Address{email: email}
+    |> Repo.insert(
+      on_conflict: [
+        set: [updated_at: DateTime.utc_now()]
+      ],
+      conflict_target: [:email],
+      returning: true
+    )
+  end
+
+  @doc """
+  Get or create an address record for the given email address
+  """
+  @spec get_or_create_address(String.t()) ::
+          {:ok, Address.t()} | {:error, Ecto.Changeset.t(Address.t())}
+  def get_or_create_address(email) do
+    with {:error, :not_found} <- fetch_address(email) do
+      create_address(email)
+    end
+  end
+
+  @doc """
   Get an address record by the string address
   """
   @spec get_address(String.t()) :: Address.t() | nil
