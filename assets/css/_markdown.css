@@ -52,10 +52,11 @@
 }
 
 #wysiwyg .ProseMirror blockquote {
-  border-left: 4px solid #cbd5e1;
-  padding-left: 0.75rem;
-  color: #334155;
-  margin: 0.75rem 0;
+  border-left: 5px solid #e5e7eb;
+  margin: 0;
+  padding-bottom: 1px;
+  padding-left: 16px;
+  padding-top: 1px;
 }
 
 #wysiwyg .ProseMirror hr {
