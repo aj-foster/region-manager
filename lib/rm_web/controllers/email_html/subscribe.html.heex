@@ -60,6 +60,14 @@
       </div>
     </div>
 
+    <input
+      aria-hidden="true"
+      name="access[url]"
+      style="width: 1px; height: 1px; position: absolute; left: -1000px;"
+      tabindex="-1"
+      type="text"
+    />
+
     <RM.Util.Captcha.component />
 
     <p :if={@error} class="mt-4 text-red-600">{@error}</p>

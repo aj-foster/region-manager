@@ -16,6 +16,7 @@ defmodule RMWeb.EmailController do
     with {:ok, conn} <- load_region_and_leagues(conn, params),
          :ok <- verify_post_captcha(conn, params),
          :ok <- verify_params(conn, params),
+         :ok <- observe_honeypot(conn, params),
          {:ok, conn} <- maybe_load_address(conn, params),
          {:ok, conn} <- maybe_subscribe(conn, params) do
       maybe_send_confirmation_email(conn, params)
@@ -93,6 +94,16 @@ defmodule RMWeb.EmailController do
   end
 
   defp verify_params(_conn, _params), do: :ok
+
+  defp observe_honeypot(_conn, %{"access" => %{"url" => <<_::binary>>}} = params) do
+    Logger.warning(
+      "Honeypot triggered for email subscription form: #{inspect(params["remote_ip"])} filled in #{inspect(params["access"]["url"])}"
+    )
+
+    :ok
+  end
+
+  defp observe_honeypot(_conn, _params), do: :ok
 
   defp maybe_load_address(conn, %{"subscribe" => %{"email" => email}}) do
     if address = Email.get_address(email) do
