@@ -17,10 +17,11 @@ defmodule RMWeb.RegionLive.Show do
 
   @spec assign_latest_news(Socket.t()) :: Socket.t()
   defp assign_latest_news(socket) do
+    season = socket.assigns[:season]
     region = socket.assigns[:region]
 
     latest_news =
-      if region.metadata.keila_sender_id do
+      if season == region.current_season && region.metadata.keila_sender_id do
         RM.Email.list_campaigns_for_region_or_league(region, page_size: 3)
       else
         []
