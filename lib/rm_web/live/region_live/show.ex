@@ -20,7 +20,7 @@ defmodule RMWeb.RegionLive.Show do
     region = socket.assigns[:region]
 
     latest_news =
-      if region.metadata.keila_project_id do
+      if region.metadata.keila_sender_id do
         RM.Email.list_campaigns_for_region_or_league(region, page_size: 3)
       else
         []

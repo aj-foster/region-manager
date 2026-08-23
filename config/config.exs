@@ -126,7 +126,10 @@ config :keila, Keila.Mailings,
   message_retention_days: 30
 
 config :keila, Keila.Mailings.SenderAdapters,
-  adapters: [],
+  adapters: [
+    Keila.Mailings.SenderAdapters.Local,
+    Keila.Mailings.SenderAdapters.SES
+  ],
   shared_adapters: [
     Keila.Mailings.SenderAdapters.Shared.Local,
     Keila.Mailings.SenderAdapters.Shared.SES
