@@ -61,7 +61,7 @@ defmodule RMWeb.LeagueLive.Util do
         Teams
       </.nav_item>
       <.nav_item
-        :if={@league.settings && @league.settings.enable_email}
+        :if={is_struct(@league, RM.Local.League) && @league.settings && @league.settings.enable_email}
         children={[RMWeb.EmailLive.New, RMWeb.EmailLive.Show, RMWeb.EmailLive.Edit]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/messages"}
