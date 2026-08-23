@@ -27,6 +27,7 @@ defmodule RM.MixProject do
 
   defp deps do
     [
+      {:appsignal_phoenix, "~> 2.0"},
       {:bandit, ">= 0.0.0"},
       {:castore, "~> 1.0"},
       # Keila wants 2.x

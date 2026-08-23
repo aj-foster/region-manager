@@ -6,6 +6,7 @@ defmodule RM.Application do
   def start(_type, _args) do
     # Disabled due to Keila cron job logs
     # Oban.Telemetry.attach_default_logger(events: [:job, :notifier, :peer, :queue, :stager])
+    Appsignal.Phoenix.LiveView.attach()
 
     children =
       [
