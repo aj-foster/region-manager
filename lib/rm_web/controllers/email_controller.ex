@@ -34,6 +34,11 @@ defmodule RMWeb.EmailController do
           |> Enum.sort_by(& &1.name)
           |> Enum.map(&%{&1 | region: region})
 
+        pre_checked_leagues =
+          (params["precheck"] || "")
+          |> String.split(",", trim: true)
+          |> Map.new(fn league_code -> {league_code, true} end)
+
         submitted_params =
           params
           |> Map.get("subscribe", %{})
@@ -41,7 +46,7 @@ defmodule RMWeb.EmailController do
 
         form_params =
           Map.merge(
-            %{"email" => "", "name" => "", "region" => false, "leagues" => %{}},
+            %{"email" => "", "name" => "", "region" => true, "leagues" => pre_checked_leagues},
             submitted_params
           )
 
