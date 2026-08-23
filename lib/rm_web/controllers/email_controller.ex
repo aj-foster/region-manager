@@ -15,8 +15,8 @@ defmodule RMWeb.EmailController do
     with {:ok, conn} <- load_region_and_leagues(conn, params),
          :ok <- verify_post_captcha(conn, params),
          :ok <- verify_params(conn, params),
-         {:ok, conn} <- maybe_subscribe_region(conn, params),
-         {:ok, conn} <- maybe_subscribe_leagues(conn, params) do
+         {:ok, conn} <- maybe_load_address(conn, params),
+         {:ok, conn} <- maybe_subscribe(conn, params) do
       render(conn, "subscribe.html")
     end
   end
@@ -87,11 +87,39 @@ defmodule RMWeb.EmailController do
 
   defp verify_params(_conn, _params), do: :ok
 
-  defp maybe_subscribe_region(
-         %{assigns: %{region: region}, method: "POST"} = conn,
-         %{"subscribe" => %{"region" => "true"} = params}
-       ) do
-    case Email.subscribe_email(params["email"], params["name"], region) do
+  defp maybe_load_address(conn, %{"subscribe" => %{"email" => email}}) do
+    case Email.get_or_create_address(email) do
+      {:ok, address} ->
+        {:ok, assign(conn, address: address)}
+
+      {:error, _reason} ->
+        conn
+        |> assign(error: "Invalid email address format.")
+        |> render("subscribe.html")
+    end
+  end
+
+  defp maybe_load_address(conn, _params), do: {:ok, conn}
+
+  defp maybe_subscribe(%{method: "POST"} = conn, %{"subscribe" => params}) do
+    %{address: address, leagues: leagues, region: region} = conn.assigns
+
+    leagues =
+      Enum.filter(leagues, fn league -> Map.get(params["leagues"], league.code) == "true" end)
+
+    subscribed_entities =
+      if params["region"] == "true" do
+        [region | leagues]
+      else
+        leagues
+      end
+
+    case Email.subscribe_email(
+           address,
+           params["name"],
+           region.metadata.keila_project_id,
+           subscribed_entities
+         ) do
       {:ok, _} ->
         {:ok, assign(conn, success: "You have successfully subscribed to email updates.")}
 
@@ -106,38 +134,7 @@ defmodule RMWeb.EmailController do
     end
   end
 
-  defp maybe_subscribe_region(conn, _params), do: {:ok, conn}
-
-  defp maybe_subscribe_leagues(
-         %{assigns: %{leagues: leagues}, method: "POST"} = conn,
-         %{"subscribe" => %{"leagues" => league_params} = params}
-       ) do
-    Enum.reduce_while(leagues, {:ok, conn}, fn league, {:ok, conn} ->
-      if league_params[league.code] == "true" do
-        case Email.subscribe_email(params["email"], params["name"], league) do
-          {:ok, _} ->
-            {:cont,
-             {:ok, assign(conn, success: "You have successfully subscribed to email updates.")}}
-
-          {:error, %Ecto.Changeset{} = changeset} ->
-            Logger.warning(
-              "Failed to subscribe email for league #{league.code}: #{inspect(changeset)}"
-            )
-
-            conn =
-              conn
-              |> assign(error: "There was an error subscribing your email address.")
-              |> render("subscribe.html")
-
-            {:halt, conn}
-        end
-      else
-        {:cont, {:ok, conn}}
-      end
-    end)
-  end
-
-  defp maybe_subscribe_leagues(conn, _params), do: {:ok, conn}
+  defp maybe_subscribe(conn, _params), do: {:ok, conn}
 
   @doc """
   POST /email/unsub/:project/:message/:token

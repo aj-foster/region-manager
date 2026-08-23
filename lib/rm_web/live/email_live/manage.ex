@@ -101,10 +101,11 @@ defmodule RMWeb.EmailLive.Manage do
   end
 
   def handle_event("subscribe_region", %{"code" => region_code}, socket) do
-    email = socket.assigns.address.email
+    email = socket.assigns.address
 
     with {:ok, region} <- Map.fetch(socket.assigns.regions_by_code, String.downcase(region_code)),
-         {:ok, _contact} <- RM.Email.subscribe_email(email, "", region) do
+         {:ok, _contact} <-
+           RM.Email.subscribe_email(email, "", region.metadata.keila_project_id, [region]) do
       socket
       |> assign_subscriptions()
       |> put_flash(:info, "You have been subscribed to emails from #{region.name} Region.")
@@ -120,10 +121,11 @@ defmodule RMWeb.EmailLive.Manage do
   end
 
   def handle_event("subscribe_league", %{"code" => league_code}, socket) do
-    email = socket.assigns.address.email
+    email = socket.assigns.address
 
     with {:ok, league} <- Map.fetch(socket.assigns.leagues_by_code, String.downcase(league_code)),
-         {:ok, _contact} <- RM.Email.subscribe_email(email, "", league) do
+         {:ok, _contact} <-
+           RM.Email.subscribe_email(email, "", league.region.metadata.keila_project_id, [league]) do
       socket
       |> assign_subscriptions()
       |> put_flash(:info, "You have been subscribed to emails from #{league.name} League.")
