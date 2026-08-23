@@ -127,7 +127,10 @@ config :keila, Keila.Mailings,
 
 config :keila, Keila.Mailings.SenderAdapters,
   adapters: [],
-  shared_adapters: [Keila.Mailings.SenderAdapters.Shared.SES]
+  shared_adapters: [
+    Keila.Mailings.SenderAdapters.Shared.Local,
+    Keila.Mailings.SenderAdapters.Shared.SES
+  ]
 
 config :keila, Keila.Accounts, credits_enabled: false
 
