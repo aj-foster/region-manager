@@ -39,6 +39,8 @@ defmodule RMWeb.Router do
   scope "/", RMWeb do
     pipe_through [:browser, :app_layout]
 
+    get "/email/sub/:region", EmailController, :subscribe
+    post "/email/sub/:region", EmailController, :subscribe
     post "/email/unsub/:project/:message/:token", EmailController, :unsubscribe
   end
 

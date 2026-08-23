@@ -1,0 +1,72 @@
+<.title>Subscribe to {@region.name} Emails</.title>
+
+<.card :if={@success}>
+  <p class="mb-4 text-green-600">{@success}</p>
+  <p class="text-right">
+    <.link_button navigate={~p"/"}>
+      Back to Home
+    </.link_button>
+  </p>
+</.card>
+
+<.card :if={!@success}>
+  <p :if={@region.has_leagues} class="mb-4 text-sm">
+    Use the form below to subscribe to emails for the <em>FIRST</em><sup>®</sup>
+    Tech Challenge {@region.name} Region and any leagues that use Region Manager for communication.
+  </p>
+  <p :if={not @region.has_leagues} class="mb-4 text-sm">
+    Use the form below to subscribe to emails for the <em>FIRST</em><sup>®</sup>
+    Tech Challenge {@region.name} Region.
+  </p>
+
+  <.form
+    for={@form}
+    action={~p"/email/sub/#{@region.code}"}
+    method="post"
+  >
+    <.input
+      field={@form[:email]}
+      type="email"
+      label="Email Address"
+      required
+      wrapper="mb-4"
+    />
+    <.input
+      explanation="Optional"
+      field={@form[:name]}
+      label="Your Name"
+      wrapper="mb-8"
+    />
+
+    <div class="mb-8">
+      <.switch
+        explanation={@region.description}
+        field={@form[:region]}
+        label={"#{@region.name} Region Emails"}
+        wrapper="mb-4"
+      />
+      <div :if={@region.has_leagues} class="pl-8">
+        <.inputs_for :let={l} field={@form[:leagues]}>
+          <%= for league <- @leagues do %>
+            <.switch
+              explanation={league.location}
+              field={l[league.code]}
+              label={"#{league.name} League Emails"}
+              wrapper="mb-4"
+            />
+          <% end %>
+        </.inputs_for>
+      </div>
+    </div>
+
+    <RM.Util.Captcha.component />
+
+    <p :if={@error} class="mt-4 text-red-600">{@error}</p>
+
+    <p class="mt-4 text-right">
+      <.button type="submit">
+        Subscribe
+      </.button>
+    </p>
+  </.form>
+</.card>
