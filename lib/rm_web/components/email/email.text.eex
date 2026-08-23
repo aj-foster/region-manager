@@ -3,10 +3,11 @@
 <%= @inner_content %>
 ---
 
-You received this email because you have an account on Region Manager. You can
-adjust your email preferences, but you may also need to change your email
-address in the FIRST Dashboard and communicate the change to your FIRST Tech
-Challenge region's Program Delivery Partner.
+You received this email because you have an account on or subscribed to
+notifications from Region Manager. You can adjust your email preferences, but
+you may also need to change your email address in the FIRST Dashboard and
+communicate the change to your FIRST Tech Challenge region's Program Delivery
+Partner.
 
 Region Manager is not affiliated with FIRST, and FIRST provides no warranty or
 support. Your information may have been provided by your Program Delivery
