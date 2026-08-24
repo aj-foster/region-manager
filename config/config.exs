@@ -107,6 +107,12 @@ config :waffle,
 # Keila
 #
 
+config :rm, RM.Email.Adapter,
+  adapter_rate_limits: [
+    {:second, 20},
+    {:hour, 4000}
+  ]
+
 # Support PgBouncer
 config :keila, Keila.Repo, prepare: :unnamed
 
@@ -128,11 +134,11 @@ config :keila, Keila.Mailings,
 config :keila, Keila.Mailings.SenderAdapters,
   adapters: [
     Keila.Mailings.SenderAdapters.Local,
-    Keila.Mailings.SenderAdapters.SES
+    RM.Email.Adapter
   ],
   shared_adapters: [
     Keila.Mailings.SenderAdapters.Shared.Local,
-    Keila.Mailings.SenderAdapters.Shared.SES
+    RM.Email.SharedAdapter
   ]
 
 config :keila, Keila.Accounts, credits_enabled: false
