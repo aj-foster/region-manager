@@ -1,6 +1,8 @@
 defmodule RMWeb.EmailLive.Index do
   use RMWeb, :live_view
 
+  on_mount {RMWeb.EmailLive.Util, :require_current_season}
+
   @impl true
   def mount(_params, _session, socket) do
     socket

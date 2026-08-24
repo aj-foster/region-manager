@@ -18,7 +18,7 @@ defmodule RMWeb.EmailLive.Util do
     region = socket.assigns[:region]
     league = socket.assigns[:local_league]
 
-    redirect_target = url_for([season, region, league, :messages])
+    redirect_target = url_for([season, region, league])
 
     cond do
       season > region.current_season ->
