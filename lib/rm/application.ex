@@ -7,6 +7,7 @@ defmodule RM.Application do
     # Disabled due to Keila cron job logs
     # Oban.Telemetry.attach_default_logger(events: [:job, :notifier, :peer, :queue, :stager])
     Appsignal.Phoenix.LiveView.attach()
+    Appsignal.Logger.Handler.add("rm")
 
     children =
       [
