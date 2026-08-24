@@ -12,14 +12,12 @@ defmodule RM.Email.Scheduler do
   alias Keila.Mailings.Message
   alias Keila.Mailings.Sender
   alias Keila.Mailings.SenderAdapters
-  alias Keila.Mailings.RateLimiter
+
+  @global_send_rate_limit_per_second 20
 
   @lock_id 3114
-  @max_partition_tokens 500
-  @max_sender_tokens 500
   @tick_interval 1_000
   @leadership_check_interval 10_000
-  @persist_interval 60_000
 
   @doc """
   Starts the Scheduler GenServer.
@@ -53,14 +51,12 @@ defmodule RM.Email.Scheduler do
 
     {:ok, conn} = checkout_postgres_connection()
     leading? = leading?(conn)
-    table = RateLimiter.new_table()
 
     if leading?, do: Logger.info("Scheduler: acquired leadership")
 
     state = %{
       conn: conn,
       leading?: leading?,
-      table: table,
       rr_offset: 0,
       mode: mode
     }
@@ -69,8 +65,7 @@ defmodule RM.Email.Scheduler do
       :default ->
         schedule_tick()
         schedule_leadership_check()
-        schedule_persist()
-        {:ok, state, {:continue, :restore_rate_limiter}}
+        {:ok, state}
 
       :manual ->
         {:ok, state}
@@ -78,21 +73,7 @@ defmodule RM.Email.Scheduler do
   end
 
   @impl true
-  def handle_continue(:restore_rate_limiter, state) do
-    if state.leading?, do: RateLimiter.restore(state.table)
-
-    {:noreply, state}
-  end
-
-  @impl true
   def terminate(_reason, state) do
-    if state.leading? and state.mode == :default do
-      RateLimiter.persist(state.table)
-      Logger.info("Scheduler: rate limiter state persisted")
-    end
-
-    RateLimiter.delete_table(state.table)
-
     if Process.alive?(state.conn) do
       GenServer.stop(state.conn, :normal, 5000)
     end
@@ -130,22 +111,12 @@ defmodule RM.Email.Scheduler do
     case leading?(state.conn) do
       true ->
         Logger.info("Scheduler: acquired leadership")
-        RateLimiter.restore(state.table)
+
         {:noreply, %{state | leading?: true}}
 
       false ->
         {:noreply, state}
     end
-  end
-
-  def handle_info(:persist, state) do
-    schedule_persist()
-
-    if state.leading? do
-      RateLimiter.persist(state.table)
-    end
-
-    {:noreply, state}
   end
 
   def handle_info({:EXIT, conn, reason}, %{conn: conn} = state) do
@@ -164,10 +135,6 @@ defmodule RM.Email.Scheduler do
 
   defp schedule_leadership_check() do
     Process.send_after(self(), :check_leadership, @leadership_check_interval)
-  end
-
-  defp schedule_persist() do
-    Process.send_after(self(), :persist, @persist_interval)
   end
 
   defp checkout_postgres_connection() do
@@ -192,20 +159,20 @@ defmodule RM.Email.Scheduler do
     partitions = fetch_partitions()
 
     for {adapter, senders} <- partitions do
-      schedule_partition_messages(state.table, adapter, senders, rr_offset)
+      schedule_partition_messages(nil, adapter, senders, rr_offset)
     end
 
     %{state | rr_offset: rr_offset}
   end
 
   defp schedule_partition_messages(table, adapter, senders, rr_offset) do
-    tokens =
-      case RateLimiter.get_adapter_tokens(table, adapter) do
-        :infinity -> @max_partition_tokens
-        n when is_integer(n) -> n
-      end
-
-    schedule_partition_messages(table, adapter, senders, rr_offset, tokens)
+    schedule_partition_messages(
+      table,
+      adapter,
+      senders,
+      rr_offset,
+      @global_send_rate_limit_per_second
+    )
   end
 
   defp schedule_partition_messages(_table, _adapter, _, _, 0), do: :ok
@@ -214,9 +181,7 @@ defmodule RM.Email.Scheduler do
   defp schedule_partition_messages(table, adapter, senders, rr_offset, partition_tokens) do
     sender = Enum.at(senders, rem(rr_offset, length(senders)))
 
-    with :ok <- RateLimiter.consume_sender_tokens(table, sender),
-         :ok <- insert_delivery_job(sender),
-         :ok <- RateLimiter.consume_adapter_tokens(table, adapter) do
+    with :ok <- insert_delivery_job(sender) do
       schedule_partition_messages(table, adapter, senders, rr_offset + 1, partition_tokens - 1)
     else
       :error ->
@@ -284,49 +249,9 @@ defmodule RM.Email.Scheduler do
       |> Keila.Repo.all()
 
     senders
-    |> reject_senders_above_capacity()
     |> Enum.reduce(%{}, fn sender, partitions ->
       adapter = SenderAdapters.get_adapter(sender.config.type)
       Map.update(partitions, adapter, [sender], &[sender | &1])
     end)
-  end
-
-  defp reject_senders_above_capacity([]), do: []
-
-  defp reject_senders_above_capacity(senders) do
-    sender_capacities =
-      Enum.map(senders, fn sender ->
-        %{sender_id: sender.id, capacity: sender_capacity(sender)}
-      end)
-
-    too_many_queued =
-      from(m in Message,
-        where: m.sender_id == parent_as(:sc).sender_id and m.status == :queued,
-        offset: parent_as(:sc).capacity - 1,
-        limit: 1
-      )
-
-    senders_above_capacity =
-      from(c in values(sender_capacities, %{sender_id: Sender.Id, capacity: :integer}),
-        as: :sc,
-        where: exists(too_many_queued),
-        select: c.sender_id
-      )
-      |> Keila.Repo.all()
-      |> MapSet.new()
-
-    Enum.reject(senders, fn sender -> sender.id in senders_above_capacity end)
-  end
-
-  defp sender_capacity(sender) do
-    adapter = SenderAdapters.get_adapter(sender.config.type)
-
-    [
-      RateLimiter.get_sender_capacity(sender),
-      RateLimiter.get_adapter_capacity(adapter),
-      @max_sender_tokens
-    ]
-    |> Enum.reject(&(&1 == :infinity))
-    |> Enum.min()
   end
 end
