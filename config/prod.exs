@@ -14,7 +14,9 @@ config :appsignal, :config,
   ignore_actions: [
     "RMWeb.RegionController#events",
     "RMWeb.RegionController#teams",
-    "RMWeb.RegionController#videos"
+    "RMWeb.RegionController#videos",
+    "Keila.Mailings.CampaignRenderRescueWorker#perform",
+    "Keila.Mailings.DeliverScheduledCampaignsWorker#perform"
   ]
 
 config :logger, level: :info
