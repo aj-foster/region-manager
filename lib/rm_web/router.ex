@@ -67,6 +67,10 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/e/:event/awards", EventLive.Awards
       live "/s/:season/r/:region/e/:event/registration", EventLive.Registration
       live "/s/:season/r/:region/e/:event/settings", EventLive.Settings
+      live "/s/:season/r/:region/messages", EmailLive.Index
+      live "/s/:season/r/:region/messages/new", EmailLive.New
+      live "/s/:season/r/:region/m/:message", EmailLive.Show
+      live "/s/:season/r/:region/m/:message/edit", EmailLive.Edit
       live "/s/:season/r/:region/proposals", ProposalLive.Index
       live "/s/:season/r/:region/proposals/new", ProposalLive.New
       live "/s/:season/r/:region/p/:proposal", ProposalLive.Show
@@ -85,6 +89,10 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/l/:league/e/:event/awards", EventLive.Awards
       live "/s/:season/r/:region/l/:league/e/:event/registration", EventLive.Registration
       live "/s/:season/r/:region/l/:league/e/:event/settings", EventLive.Settings
+      live "/s/:season/r/:region/l/:league/messages", EmailLive.Index
+      live "/s/:season/r/:region/l/:league/messages/new", EmailLive.New
+      live "/s/:season/r/:region/l/:league/m/:message", EmailLive.Show
+      live "/s/:season/r/:region/l/:league/m/:message/edit", EmailLive.Edit
       live "/s/:season/r/:region/l/:league/proposals", ProposalLive.Index
       live "/s/:season/r/:region/l/:league/proposals/new", ProposalLive.New
       live "/s/:season/r/:region/l/:league/p/:proposal", ProposalLive.Show
@@ -128,14 +136,6 @@ defmodule RMWeb.Router do
         {RMWeb.Live.Util, :check_league}
       ] do
       live "/a/s/new", SeasonLive.New
-      live "/s/:season/r/:region/messages", EmailLive.Index
-      live "/s/:season/r/:region/messages/new", EmailLive.New
-      live "/s/:season/r/:region/m/:message", EmailLive.Show
-      live "/s/:season/r/:region/m/:message/edit", EmailLive.Edit
-      live "/s/:season/r/:region/l/:league/messages", EmailLive.Index
-      live "/s/:season/r/:region/l/:league/messages/new", EmailLive.New
-      live "/s/:season/r/:region/l/:league/m/:message", EmailLive.Show
-      live "/s/:season/r/:region/l/:league/m/:message/edit", EmailLive.Edit
     end
   end
 
