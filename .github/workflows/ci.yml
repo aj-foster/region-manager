@@ -19,6 +19,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Calculate Short SHA
+        run: echo "APP_REVISION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
