@@ -29,24 +29,24 @@ a {
 }
 
 h1 {
-    font-size: 31px;
-    line-height: 41px;
+    font-size: 24px;
+    line-height: 29px;
     font-weight: bold;
     color: #333333;
     mso-line-height-rule: exactly;
 }
 
 h2 {
-    font-size: 25px;
-    line-height: 33px;
+    font-size: 20px;
+    line-height: 25px;
     font-weight: bold;
     color: #333333;
     mso-line-height-rule: exactly;
 }
 
 h3 {
-    font-size: 20px;
-    line-height: 26px;
+    font-size: 18px;
+    line-height: 24px;
     font-weight: bold;
     mso-line-height-rule: exactly;
 }
