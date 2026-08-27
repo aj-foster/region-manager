@@ -8,6 +8,42 @@ defmodule RMWeb.EmailLive.Util do
   import RMWeb.Live.Util
 
   alias Phoenix.LiveView.Socket
+  alias RMWeb.EmailLive
+
+  @doc """
+  Second-level navigation for event index views
+  """
+  attr :class, :string, default: nil, doc: "Additional classes for the navigation wrapper"
+  attr :league, :any, required: true, doc: "current league, `@local_league`"
+  attr :region, RM.FIRST.Region, required: true, doc: "current region, `@region`"
+  attr :season, :integer, required: true, doc: "current season, `@season`"
+  attr :user, RM.Account.User, default: nil, doc: "current user, `@current_user`"
+  attr :view, :any, required: true, doc: "`@socket.view`"
+
+  def news_index_nav(assigns) do
+    ~H"""
+    <div
+      :if={@season == @region.current_season and can?(@user, :email_message_send, @league || @region)}
+      class={["flex font-title italic overflow-x-auto px-4 small-caps", @class]}
+    >
+      <.sub_nav_item
+        children={[EmailLive.New, EmailLive.Show, EmailLive.Edit]}
+        current={@view}
+        navigate={url_for([@season, @region, @league, :messages])}
+        target={EmailLive.Index}
+      >
+        Messages
+      </.sub_nav_item>
+      <.sub_nav_item
+        current={@view}
+        navigate={url_for([@season, @region, @league, :m, :subscriptions])}
+        target={EmailLive.Subscriptions}
+      >
+        Subscriptions
+      </.sub_nav_item>
+    </div>
+    """
+  end
 
   @doc false
   @spec on_mount(term, map, map, Socket.t()) :: {:cont, Socket.t()}
