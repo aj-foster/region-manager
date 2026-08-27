@@ -220,7 +220,7 @@ defmodule RM.Local.League do
       |> where([league: l], l.id in ^league_ids)
       |> join(:inner, [league: l], r in assoc(l, :region), as: :region)
       |> join(:left, [league: l, region: r], t in assoc(l, :teams),
-        on: t.active and t.season == r.current_season,
+        on: t.active and t.season == r.current_season and is_nil(t.hidden_at),
         as: :team
       )
       |> group_by([league: l], l.id)
