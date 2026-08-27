@@ -1,0 +1,65 @@
+<.breadcrumbs
+  class="mb-4"
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+/>
+
+<RMWeb.RegionLive.Util.region_nav
+  :if={is_nil(@local_league) and is_nil(@first_league)}
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<RMWeb.LeagueLive.Util.league_nav
+  :if={@local_league || @first_league}
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<RMWeb.EmailLive.Util.news_index_nav
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title class="mt-8">Manually Subscribe</.title>
+
+<.card spaced>
+  <p class="mb-4 text-sm">
+    Use this form to manually subscribe users to {(@local_league || @region).name} email messages.
+    Any addresses that are already subscribed, undeliverable, or unsubscribed will be ignored.
+  </p>
+  <.form
+    for={@subscribe_form}
+    phx-change="subscribe_change"
+    phx-submit="subscribe"
+  >
+    <.input
+      explanation="Separate multiple email addresses using commas, spaces, or new lines."
+      field={@subscribe_form[:addresses]}
+      label="Email Addresses"
+      phx-debounce="blur"
+      placeholder="Enter email addresses here..."
+      type="textarea"
+      wrapper="mb-4"
+    />
+
+    <p class="text-right">
+      <.button
+        disabled={@subscribe_success}
+        phx-disable-with="Subscribing..."
+        type="submit"
+      >
+        Subscribe
+      </.button>
+    </p>
+  </.form>
+</.card>

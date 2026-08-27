@@ -69,6 +69,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/e/:event/settings", EventLive.Settings
       live "/s/:season/r/:region/messages", EmailLive.Index
       live "/s/:season/r/:region/messages/new", EmailLive.New
+      live "/s/:season/r/:region/m/subscriptions", EmailLive.Subscriptions
       live "/s/:season/r/:region/m/:message", EmailLive.Show
       live "/s/:season/r/:region/m/:message/edit", EmailLive.Edit
       live "/s/:season/r/:region/proposals", ProposalLive.Index
@@ -91,6 +92,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/l/:league/e/:event/settings", EventLive.Settings
       live "/s/:season/r/:region/l/:league/messages", EmailLive.Index
       live "/s/:season/r/:region/l/:league/messages/new", EmailLive.New
+      live "/s/:season/r/:region/l/:league/m/subscriptions", EmailLive.Subscriptions
       live "/s/:season/r/:region/l/:league/m/:message", EmailLive.Show
       live "/s/:season/r/:region/l/:league/m/:message/edit", EmailLive.Edit
       live "/s/:season/r/:region/l/:league/proposals", ProposalLive.Index
