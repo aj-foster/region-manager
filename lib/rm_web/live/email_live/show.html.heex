@@ -7,7 +7,6 @@
 
 <RMWeb.RegionLive.Util.region_nav
   :if={is_nil(@local_league) and is_nil(@first_league)}
-  class="mb-8"
   season={@season}
   region={@region}
   user={@current_user}
@@ -16,7 +15,6 @@
 
 <RMWeb.LeagueLive.Util.league_nav
   :if={@local_league || @first_league}
-  class="mb-8"
   season={@season}
   region={@region}
   league={@local_league || @first_league}
@@ -24,7 +22,15 @@
   view={@socket.view}
 />
 
-<.title>{@campaign.subject}</.title>
+<RMWeb.EmailLive.Util.news_index_nav
+  season={@season}
+  region={@region}
+  league={@local_league || @first_league}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title class="mt-8">{@campaign.subject}</.title>
 
 <.card spaced>
   <.table>
