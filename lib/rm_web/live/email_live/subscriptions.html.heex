@@ -63,3 +63,37 @@
     </p>
   </.form>
 </.card>
+
+<.title>Manually Unsubscribe</.title>
+
+<.card spaced>
+  <p class="mb-4 text-sm">
+    Use this form to manually unsubscribe users from {(@local_league || @region).name} email messages.
+    Any addresses that are already unsubscribed or undeliverable will be ignored.
+  </p>
+  <.form
+    for={@unsubscribe_form}
+    phx-change="unsubscribe_change"
+    phx-submit="unsubscribe"
+  >
+    <.input
+      explanation="Separate multiple email addresses using commas, spaces, or new lines."
+      field={@unsubscribe_form[:addresses]}
+      label="Email Addresses"
+      phx-debounce="blur"
+      placeholder="Enter email addresses here..."
+      type="textarea"
+      wrapper="mb-4"
+    />
+
+    <p class="text-right">
+      <.button
+        disabled={@unsubscribe_success}
+        phx-disable-with="Unsubscribing..."
+        type="submit"
+      >
+        Unsubscribe
+      </.button>
+    </p>
+  </.form>
+</.card>
