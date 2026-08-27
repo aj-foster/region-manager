@@ -16,43 +16,32 @@ defmodule RMWeb.EventLive.Util do
     <div
       :if={
         @season == @region.current_season and
-          (can?(@user, :proposal_index, @region) or can?(@user, :venue_index, @region))
+          (can?(@user, :proposal_index, @league || @region) or
+             can?(@user, :venue_index, @league || @region))
       }
       class={["flex font-title italic overflow-x-auto px-4 small-caps", @class]}
     >
       <.sub_nav_item
         current={@view}
-        navigate={
-          if @league,
-            do: ~p"/s/#{@season}/r/#{@region}/l/#{@league}/events",
-            else: ~p"/s/#{@season}/r/#{@region}/events"
-        }
+        navigate={url_for([@season, @region, @league, :events])}
         target={RMWeb.EventLive.Index}
       >
         Published
       </.sub_nav_item>
       <.sub_nav_item
-        :if={@season == @region.current_season and can?(@user, :proposal_index, @region)}
+        :if={@season == @region.current_season and can?(@user, :proposal_index, @league || @region)}
         children={[RMWeb.ProposalLive.New, RMWeb.ProposalLive.Show, RMWeb.ProposalLive.Edit]}
         current={@view}
-        navigate={
-          if @league,
-            do: ~p"/s/#{@season}/r/#{@region}/l/#{@league}/proposals",
-            else: ~p"/s/#{@season}/r/#{@region}/proposals"
-        }
+        navigate={url_for([@season, @region, @league, :proposals])}
         target={RMWeb.ProposalLive.Index}
       >
         Proposals
       </.sub_nav_item>
       <.sub_nav_item
-        :if={@season == @region.current_season and can?(@user, :venue_index, @region)}
+        :if={@season == @region.current_season and can?(@user, :venue_index, @league || @region)}
         children={[RMWeb.VenueLive.New, RMWeb.VenueLive.Show, RMWeb.VenueLive.Edit]}
         current={@view}
-        navigate={
-          if @league,
-            do: ~p"/s/#{@season}/r/#{@region}/l/#{@league}/venues",
-            else: ~p"/s/#{@season}/r/#{@region}/venues"
-        }
+        navigate={url_for([@season, @region, @league, :venues])}
         target={RMWeb.VenueLive.Index}
       >
         Venues
