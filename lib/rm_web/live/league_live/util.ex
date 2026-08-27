@@ -1,6 +1,7 @@
 defmodule RMWeb.LeagueLive.Util do
   use RMWeb, :html
 
+  alias RMWeb.EmailLive
   alias RMWeb.EventLive
   alias RMWeb.LeagueLive
   alias RMWeb.ProposalLive
@@ -62,10 +63,10 @@ defmodule RMWeb.LeagueLive.Util do
       </.nav_item>
       <.nav_item
         :if={is_struct(@league, RM.Local.League) && @league.settings && @league.settings.enable_email}
-        children={[RMWeb.EmailLive.New, RMWeb.EmailLive.Show, RMWeb.EmailLive.Edit]}
+        children={[EmailLive.New, EmailLive.Show, EmailLive.Edit, EmailLive.Subscriptions]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/l/#{@league}/messages"}
-        target={RMWeb.EmailLive.Index}
+        target={EmailLive.Index}
       >
         News
       </.nav_item>

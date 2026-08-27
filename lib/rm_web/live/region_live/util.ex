@@ -60,7 +60,7 @@ defmodule RMWeb.RegionLive.Util do
       </.nav_item>
       <.nav_item
         :if={@season == @region.current_season}
-        children={[EmailLive.New, EmailLive.Show, EmailLive.Edit]}
+        children={[EmailLive.New, EmailLive.Show, EmailLive.Edit, EmailLive.Subscriptions]}
         current={@view}
         navigate={~p"/s/#{@season}/r/#{@region}/messages"}
         target={EmailLive.Index}
