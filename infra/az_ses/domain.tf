@@ -22,6 +22,32 @@ resource "aws_ses_domain_identity_verification" "ses_verification" {
 }
 
 #
+# MAIL FROM Domain
+#
+
+resource "aws_ses_domain_mail_from" "this" {
+  domain           = var.domain
+  mail_from_domain = "ses.${var.domain}"
+}
+
+resource "digitalocean_record" "ses_mx" {
+  domain   = var.domain
+  name     = "ses"
+  priority = 10
+  ttl      = 3600
+  type     = "MX"
+  value    = "feedback-smtp.us-east-1.amazonses.com."
+}
+
+resource "digitalocean_record" "ses_spf" {
+  domain = var.domain
+  name   = "ses"
+  ttl    = 3600
+  type   = "TXT"
+  value  = "v=spf1 include:amazonses.com ~all"
+}
+
+#
 # DKIM Records
 #
 
