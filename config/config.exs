@@ -69,8 +69,8 @@ config :rm, Oban,
     {Oban.Plugins.Cron,
      crontab: [
        {"30 4 * * *", RM.FIRST.RefreshJob},
-       {"* * * * *", Keila.Mailings.DeliverScheduledCampaignsWorker},
-       {"* * * * *", Keila.Mailings.CampaignRenderRescueWorker},
+       #  {"* * * * *", Keila.Mailings.DeliverScheduledCampaignsWorker},
+       {"* * * * *", RM.Email.CampaignRenderRescueWorker},
        {"0 0 * * *", Keila.Mailings.MessagePruner}
      ],
      timezone: "America/New_York"},
