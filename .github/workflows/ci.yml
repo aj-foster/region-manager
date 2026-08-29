@@ -19,9 +19,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Calculate Short SHA
-        run: echo "APP_REVISION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
@@ -61,7 +58,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
+
+      - name: Calculate Revision
+        id: calculate_revision
+        run: echo "revision=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
@@ -79,7 +80,7 @@ jobs:
 
       - name: Build and Push Image
         run: |
-          docker image build -t registry.digitalocean.com/aj-foster/ftcregion:latest .
+          docker image build --build-arg REVISION=${{ steps.calculate_revision.outputs.revision }} -t registry.digitalocean.com/aj-foster/ftcregion:latest .
           docker image push registry.digitalocean.com/aj-foster/ftcregion:latest
 
       - name: Get Commit Message

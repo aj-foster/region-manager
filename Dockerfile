@@ -1,5 +1,7 @@
 FROM hexpm/erlang:28.4.1-debian-trixie-20260316-slim
 
+ARG REVISION="unset"
+ENV APP_REVISION=$REVISION
 ENV LC_ALL=C.UTF-8
 WORKDIR /srv
 
