@@ -9,6 +9,9 @@ defmodule RMWeb.EventLive.Show do
 
   @impl true
   def mount(%{"event" => event_code}, _session, socket) do
+    # Fix unexplained issue with event codes containing non-alphanumeric characters
+    event_code = String.replace(event_code, ~r/[^a-zA-Z0-9]/, "")
+
     socket
     |> assign_event(event_code)
     |> assign_event_metadata()
@@ -54,7 +57,7 @@ defmodule RMWeb.EventLive.Show do
   end
 
   @spec assign_event_metadata(Socket.t()) :: Socket.t()
-  defp assign_event_metadata(socket) do
+  defp assign_event_metadata(%Socket{redirected: nil} = socket) do
     event = socket.assigns[:event]
 
     assign(socket,
@@ -72,6 +75,8 @@ defmodule RMWeb.EventLive.Show do
         end)
     )
   end
+
+  defp assign_event_metadata(socket), do: socket
 
   #
   # Template Helpers
