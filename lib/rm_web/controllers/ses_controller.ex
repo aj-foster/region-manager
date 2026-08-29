@@ -51,8 +51,17 @@ defmodule RMWeb.SESController do
   defp handle_notifications(_), do: :ok
 
   @spec handle_bounce(map) :: :ok
-  defp handle_bounce(%{"bouncedRecipients" => recipients, "bounceType" => "Permanent"}) do
-    for recipient <- recipients do
+  defp handle_bounce(%{"bounceType" => "Undetermined"} = bounce) do
+    for recipient <- Map.get(bounce, "bouncedRecipients", []) do
+      email = Map.fetch!(recipient, "emailAddress")
+      Logger.info("[SES] Undetermined bounce for: #{email}")
+    end
+
+    :ok
+  end
+
+  defp handle_bounce(%{"bounceType" => "Permanent"} = bounce) do
+    for recipient <- Map.get(bounce, "bouncedRecipients", []) do
       email = Map.fetch!(recipient, "emailAddress")
       Logger.info("[SES] Marking email as permanently bounced: #{email}")
       RM.Email.mark_email_undeliverable(email, :permanent_bounce)
@@ -61,8 +70,24 @@ defmodule RMWeb.SESController do
     :ok
   end
 
-  defp handle_bounce(%{"bouncedRecipients" => recipients, "bounceType" => "Temporary"}) do
-    for recipient <- recipients do
+  defp handle_bounce(%{"bounceType" => "Transient", "bounceSubType" => "General"} = bounce) do
+    for recipient <- Map.get(bounce, "bouncedRecipients", []) do
+      email = Map.fetch!(recipient, "emailAddress")
+      action = Map.get(recipient, "action")
+
+      if is_binary(action) and action =~ ~r/^failed$/i do
+        Logger.info("[SES] Marking email as temporarily bounced: #{email}")
+        RM.Email.mark_email_undeliverable(email, :temporary_bounce)
+      else
+        Logger.info("[SES] General transient bounce for: #{email}")
+      end
+    end
+
+    :ok
+  end
+
+  defp handle_bounce(%{"bounceType" => "Transient"} = bounce) do
+    for recipient <- Map.get(bounce, "bouncedRecipients", []) do
       email = Map.fetch!(recipient, "emailAddress")
       Logger.info("[SES] Marking email as temporarily bounced: #{email}")
       RM.Email.mark_email_undeliverable(email, :temporary_bounce)
