@@ -23,6 +23,8 @@ defmodule RM.Account.Profile do
     end
 
     embeds_one :settings, Settings, on_replace: :update, primary_key: false do
+      field :email_signature_html, :string
+      field :email_signature_text, :string
     end
 
     belongs_to :user, User
