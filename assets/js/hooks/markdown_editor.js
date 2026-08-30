@@ -18,10 +18,10 @@ const MarkdownEditor = {
       this.place.classList.toggle("hidden", this.previewVisible);
       this.preview.classList.toggle("hidden", !this.previewVisible);
 
-      const toggleButton = this.el.querySelector("[data-action='toggle-preview']");
-      if (toggleButton) {
-        toggleButton.textContent = this.previewVisible ? "Edit" : "Preview";
-      }
+      const eyeIcon = this.el.querySelector("#toggle-preview-icon-eye");
+      const pencilIcon = this.el.querySelector("#toggle-preview-icon-pencil");
+      if (eyeIcon) eyeIcon.style.display = this.previewVisible ? "none" : "";
+      if (pencilIcon) pencilIcon.style.display = this.previewVisible ? "" : "none";
     };
 
     this.handleTogglePreview = () => {

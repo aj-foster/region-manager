@@ -115,7 +115,15 @@
             <.icon name="hero-code-bracket-square" title="Liquid" />
           </button>
           <div class="grow"></div>
-          <button type="button" data-action="toggle-preview" class="p-2">Preview</button>
+          <button type="button" data-action="toggle-preview" class="p-2">
+            <.icon id="toggle-preview-icon-eye" name="hero-eye" title="Enable Preview" />
+            <.icon
+              id="toggle-preview-icon-pencil"
+              name="hero-pencil-square"
+              title="Back to Editor"
+              style="display: none;"
+            />
+          </button>
         </div>
 
         <div class="editor min-h-80 bg-white p-4"></div>
