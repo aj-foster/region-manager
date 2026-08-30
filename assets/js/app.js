@@ -109,9 +109,13 @@ const putHtmlPreview = (el) => {
       iframe.setAttribute("height", String(heightPx));
     };
 
-    // Avoid the browser fallback default iframe height (150px) while content is written.
-    iframe.style.height = "320px";
-    iframe.setAttribute("height", "320");
+    // Avoid the browser fallback default iframe height (150px) while content is written, but
+    // don't collapse an already-sized iframe: that causes a visible jump on re-renders (e.g.
+    // autosave) as the page content below briefly snaps up before the iframe re-expands.
+    if (!iframe.style.height) {
+      iframe.style.height = "320px";
+      iframe.setAttribute("height", "320");
+    }
 
     const doc = iframe.contentDocument;
     doc.open();
@@ -150,9 +154,18 @@ const putHtmlPreview = (el) => {
 Hooks.HtmlPreview = {
   mounted() {
     putHtmlPreview(this.el);
+
+    // Some browsers (e.g. Chromium) don't lay out iframe content while an ancestor is
+    // display:none, so the initial measurement can be wrong. Allow callers to ask for
+    // a re-measure once the preview becomes visible.
+    this.handleRefresh = () => putHtmlPreview(this.el);
+    this.el.addEventListener("x-refresh-preview", this.handleRefresh);
   },
   updated() {
     putHtmlPreview(this.el);
+  },
+  destroyed() {
+    this.el.removeEventListener("x-refresh-preview", this.handleRefresh);
   },
 };
 

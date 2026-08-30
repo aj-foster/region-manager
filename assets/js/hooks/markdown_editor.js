@@ -22,6 +22,13 @@ const MarkdownEditor = {
       const pencilIcon = this.el.querySelector("#toggle-preview-icon-pencil");
       if (eyeIcon) eyeIcon.style.display = this.previewVisible ? "none" : "";
       if (pencilIcon) pencilIcon.style.display = this.previewVisible ? "" : "none";
+
+      // Some browsers don't lay out iframe content while it was previously display:none,
+      // so ask the HtmlPreview hook to re-measure now that the pane is visible.
+      if (this.previewVisible) {
+        const previewData = document.getElementById("campaign-html-preview-data");
+        previewData?.dispatchEvent(new CustomEvent("x-refresh-preview"));
+      }
     };
 
     this.handleTogglePreview = () => {
