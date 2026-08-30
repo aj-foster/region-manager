@@ -68,7 +68,8 @@ defmodule RMWeb.EmailLive.Edit do
     |> noreply()
   end
 
-  def handle_event("save", %{"campaign" => params}, socket) do
+  def handle_event("save", %{"campaign" => params} = full_params, socket) do
+    autosave? = full_params["autosave"] == "true"
     params = validate_params(socket, params) |> Map.delete("settings")
     changeset = merged_changeset(socket, params)
     merged_params = changeset.params || %{}
@@ -81,7 +82,7 @@ defmodule RMWeb.EmailLive.Edit do
         |> assign(campaign: campaign, segment: campaign.segment)
         |> assign(:changeset, Keila.Mailings.Campaign.preview_changeset(campaign, %{}))
         |> put_campaign_preview()
-        |> put_flash(:info, "Draft saved.")
+        |> maybe_flash_saved(autosave?)
         |> noreply()
 
       {:error, changeset} ->
@@ -129,6 +130,10 @@ defmodule RMWeb.EmailLive.Edit do
       Keila.Mailings.Campaign.preview_changeset(socket.assigns.campaign, %{})
     )
   end
+
+  # Autosaves persist quietly; only manual saves surface a confirmation flash.
+  defp maybe_flash_saved(socket, true), do: socket
+  defp maybe_flash_saved(socket, false), do: put_flash(socket, :info, "Draft saved.")
 
   defp merged_changeset(socket, params) do
     merged_params =

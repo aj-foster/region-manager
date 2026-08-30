@@ -12,6 +12,47 @@ let Hooks = {
   MarkdownEditor,
 };
 
+const AUTOSAVE_DELAY_MS = 5000;
+
+Hooks.AutoSave = {
+  mounted() {
+    this.autosaveInput = this.el.querySelector("[name='autosave']");
+    if (!this.autosaveInput) return;
+
+    // Flush the WYSIWYG editor's pending content into its hidden textarea before submitting.
+    this.flushEditor = () => {
+      const wysiwyg = this.el.querySelector("#wysiwyg");
+      if (wysiwyg) wysiwyg.dispatchEvent(new CustomEvent("x-sync", { bubbles: true }));
+    };
+
+    this.triggerAutosave = () => {
+      // Guard against the synthetic "change" from flushEditor() rescheduling ourselves.
+      this.isAutosaving = true;
+      this.flushEditor();
+      this.autosaveInput.value = "true";
+      this.el.requestSubmit();
+      this.autosaveInput.value = "false";
+      this.isAutosaving = false;
+    };
+
+    this.scheduleAutosave = () => {
+      if (this.isAutosaving) return;
+
+      clearTimeout(this.autosaveTimer);
+      this.autosaveTimer = setTimeout(this.triggerAutosave, AUTOSAVE_DELAY_MS);
+    };
+
+    this.el.addEventListener("input", this.scheduleAutosave);
+    this.el.addEventListener("change", this.scheduleAutosave);
+  },
+
+  destroyed() {
+    clearTimeout(this.autosaveTimer);
+    this.el.removeEventListener("input", this.scheduleAutosave);
+    this.el.removeEventListener("change", this.scheduleAutosave);
+  },
+};
+
 const putHtmlPreview = (el) => {
   const content = el.innerText || "";
 

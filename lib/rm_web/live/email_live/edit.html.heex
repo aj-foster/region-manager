@@ -39,7 +39,9 @@
     id="campaign"
     phx-change="update"
     phx-submit="save"
+    phx-hook="AutoSave"
   >
+    <input type="hidden" name="autosave" value="false" />
     <.input
       field={f[:segment_id]}
       label="Recipients"
