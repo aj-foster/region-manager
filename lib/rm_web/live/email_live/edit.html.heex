@@ -37,7 +37,6 @@
     :let={f}
     for={@changeset}
     id="campaign"
-    phx-change="update"
     phx-submit="save"
     phx-hook="AutoSave"
   >
@@ -150,14 +149,20 @@
       wrapper="mb-4"
     />
 
-    <div class="flex gap-4 justify-end">
+    <div class="flex gap-4 items-center justify-end">
+      <div
+        id="autosave-status"
+        class="grow italic text-sm"
+        data-saved={JS.dispatch("autosave:saved")}
+      >
+      </div>
       <.link_button
         navigate={url_for([@season, @region, @local_league, :messages])}
         style="tertiary"
       >
-        Cancel
+        Back
       </.link_button>
-      <.button phx-disable-with="Saving..." style="secondary" type="submit">Save Draft</.button>
+      <.button style="secondary" type="submit">Save</.button>
       <.button form="" phx-click="send_init">Send...</.button>
     </div>
   </.form>

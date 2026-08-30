@@ -61,13 +61,6 @@ defmodule RMWeb.EmailLive.Edit do
   @impl true
   def handle_event(event, unsigned_params, socket)
 
-  def handle_event("update", %{"campaign" => params}, socket) do
-    socket
-    |> assign_changeset(params)
-    |> put_campaign_preview()
-    |> noreply()
-  end
-
   def handle_event("save", %{"campaign" => params} = full_params, socket) do
     autosave? = full_params["autosave"] == "true"
 
@@ -225,6 +218,7 @@ defmodule RMWeb.EmailLive.Edit do
         |> assign_changeset()
         |> put_campaign_preview()
         |> maybe_flash_saved(autosave?)
+        |> push_js("#autosave-status", "data-saved")
 
       {:error, changeset} ->
         socket

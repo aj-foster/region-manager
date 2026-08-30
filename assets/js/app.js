@@ -17,7 +17,12 @@ const AUTOSAVE_DELAY_MS = 5000;
 Hooks.AutoSave = {
   mounted() {
     this.autosaveInput = this.el.querySelector("[name='autosave']");
+    this.status = document.getElementById("autosave-status");
     if (!this.autosaveInput) return;
+
+    this.setStatus = (text) => {
+      if (this.status) this.status.textContent = text;
+    };
 
     // Flush the WYSIWYG editor's pending content into its hidden textarea before submitting.
     this.flushEditor = () => {
@@ -38,20 +43,31 @@ Hooks.AutoSave = {
     this.scheduleAutosave = () => {
       if (this.isAutosaving) return;
 
+      this.setStatus("Pending");
       clearTimeout(this.autosaveTimer);
       this.autosaveTimer = setTimeout(this.triggerAutosave, AUTOSAVE_DELAY_MS);
     };
 
+    // Fires once the server confirms the save via push_js("data-saved").
+    this.handleSaved = () => {
+      clearTimeout(this.autosaveTimer);
+      this.setStatus("Saved");
+    };
+
+    this.setStatus("Saved");
     this.el.addEventListener("input", this.scheduleAutosave);
     this.el.addEventListener("change", this.scheduleAutosave);
+    this.status?.addEventListener("autosave:saved", this.handleSaved);
   },
 
   destroyed() {
     clearTimeout(this.autosaveTimer);
     this.el.removeEventListener("input", this.scheduleAutosave);
     this.el.removeEventListener("change", this.scheduleAutosave);
+    this.status?.removeEventListener("autosave:saved", this.handleSaved);
   },
 };
+
 
 const putHtmlPreview = (el) => {
   const content = el.innerText || "";
