@@ -63,34 +63,18 @@ defmodule RMWeb.EmailLive.Edit do
 
   def handle_event("update", %{"campaign" => params}, socket) do
     socket
-    |> assign(:changeset, merged_changeset(socket, params))
+    |> assign_changeset(params)
     |> put_campaign_preview()
     |> noreply()
   end
 
   def handle_event("save", %{"campaign" => params} = full_params, socket) do
     autosave? = full_params["autosave"] == "true"
-    params = validate_params(socket, params) |> Map.delete("settings")
-    changeset = merged_changeset(socket, params)
-    merged_params = changeset.params || %{}
 
-    case Mailings.update_campaign(socket.assigns.campaign.id, merged_params, false) do
-      {:ok, campaign} ->
-        campaign = Keila.Repo.preload(campaign, :segment)
-
-        socket
-        |> assign(campaign: campaign, segment: campaign.segment)
-        |> assign(:changeset, Keila.Mailings.Campaign.preview_changeset(campaign, %{}))
-        |> put_campaign_preview()
-        |> maybe_flash_saved(autosave?)
-        |> noreply()
-
-      {:error, changeset} ->
-        socket
-        |> assign(:changeset, %{changeset | action: :update})
-        |> put_campaign_preview()
-        |> noreply()
-    end
+    socket
+    |> assign_changeset(params)
+    |> save_campaign(autosave?)
+    |> noreply()
   end
 
   def handle_event("send_init", _params, socket) do
@@ -123,26 +107,31 @@ defmodule RMWeb.EmailLive.Edit do
   # Helpers
   #
 
-  defp assign_changeset(socket) do
-    assign(
-      socket,
-      :changeset,
-      Keila.Mailings.Campaign.preview_changeset(socket.assigns.campaign, %{})
-    )
+  defp assign_changeset(socket, params \\ %{}) do
+    campaign = socket.assigns.campaign
+
+    params =
+      params
+      |> Map.put("data", extract_profile_data(socket))
+      |> Map.put_new("segment_id", campaign.segment_id)
+      |> then(&validate_params(socket, &1))
+      |> Map.delete("settings")
+
+    changeset = Keila.Mailings.Campaign.preview_changeset(campaign, params)
+    assign(socket, changeset: changeset)
+  end
+
+  defp extract_profile_data(socket) do
+    if profile = socket.assigns[:current_user].profile do
+      Map.take(profile.settings || %{}, [:email_signature_html, :email_signature_text])
+    else
+      %{}
+    end
   end
 
   # Autosaves persist quietly; only manual saves surface a confirmation flash.
   defp maybe_flash_saved(socket, true), do: socket
   defp maybe_flash_saved(socket, false), do: put_flash(socket, :info, "Draft saved.")
-
-  defp merged_changeset(socket, params) do
-    merged_params =
-      Keila.Mailings.Campaign.preview_changeset(socket.assigns.changeset, params)
-      |> Map.fetch!(:params)
-      |> then(fn params -> params || %{} end)
-
-    Keila.Mailings.Campaign.preview_changeset(socket.assigns.campaign, merged_params)
-  end
 
   defp put_campaign_preview(socket) do
     campaign = Ecto.Changeset.apply_changes(socket.assigns.changeset)
@@ -222,5 +211,25 @@ defmodule RMWeb.EmailLive.Edit do
     |> Map.merge(input.assigns)
     |> Map.put_new("contact", contact_assigns)
     |> LiquidRenderer.process_assigns()
+  end
+
+  defp save_campaign(socket, autosave?) do
+    merged_params = socket.assigns.changeset.params || %{}
+
+    case Mailings.update_campaign(socket.assigns.campaign.id, merged_params, false) do
+      {:ok, campaign} ->
+        campaign = Keila.Repo.preload(campaign, :segment)
+
+        socket
+        |> assign(campaign: campaign, segment: campaign.segment)
+        |> assign_changeset()
+        |> put_campaign_preview()
+        |> maybe_flash_saved(autosave?)
+
+      {:error, changeset} ->
+        socket
+        |> assign(:changeset, %{changeset | action: :update})
+        |> put_campaign_preview()
+    end
   end
 end

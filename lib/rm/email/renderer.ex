@@ -146,7 +146,14 @@ defmodule RM.Email.Renderer do
   end
 
   defp build_text_body(assigns) do
-    assigns["main_text"] <> "\n\n--  \n" <> assigns["signature_text"]
+    user_signature =
+      if user_signature = assigns["campaign"]["data"]["email_signature_text"] do
+        "\n\n" <> user_signature
+      else
+        ""
+      end
+
+    assigns["main_text"] <> user_signature <> "\n\n--  \n" <> assigns["signature_text"]
   end
 
   defp aliases do
