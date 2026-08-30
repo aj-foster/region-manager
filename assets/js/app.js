@@ -17,6 +17,7 @@ const AUTOSAVE_DELAY_MS = 5000;
 Hooks.AutoSave = {
   mounted() {
     this.autosaveInput = this.el.querySelector("[name='autosave']");
+    this.backInput = this.el.querySelector("[name='back']");
     this.saveButton = document.getElementById("toolbar-save-button");
     this.savedIcon = document.getElementById("toolbar-save-icon-saved");
     this.pendingIcon = document.getElementById("toolbar-save-icon-pending");
@@ -35,12 +36,15 @@ Hooks.AutoSave = {
 
     // Guard against the synthetic "change" from flushEditor() rescheduling ourselves.
     // silent: true suppresses the "Draft saved." flash (used for the idle-debounced autosave).
-    this.performSave = (silent) => {
+    // back: true tells the server to push_navigate back to the message list once saved.
+    this.performSave = (silent, back = false) => {
       this.isAutosaving = true;
       this.flushEditor();
       this.autosaveInput.value = silent ? "true" : "false";
+      if (this.backInput) this.backInput.value = back ? "true" : "false";
       this.el.requestSubmit();
       this.autosaveInput.value = "false";
+      if (this.backInput) this.backInput.value = "false";
       this.isAutosaving = false;
     };
 
@@ -72,6 +76,12 @@ Hooks.AutoSave = {
       this.performSave(true);
     };
 
+    // Used by the Back button: save the latest content, then let the server navigate away.
+    this.handleRequestSaveAndBack = () => {
+      clearTimeout(this.autosaveTimer);
+      this.performSave(true, true);
+    };
+
     // Closing the preview flushes the editor (via x-sync) even though nothing changed, so
     // cancel the resulting autosave and restore the "saved" indicator it just cleared.
     this.handleCancelAutosave = () => {
@@ -83,6 +93,7 @@ Hooks.AutoSave = {
     this.el.addEventListener("input", this.scheduleAutosave);
     this.el.addEventListener("change", this.scheduleAutosave);
     this.el.addEventListener("x-request-save", this.handleRequestSave);
+    this.el.addEventListener("x-request-save-and-back", this.handleRequestSaveAndBack);
     this.el.addEventListener("x-cancel-autosave", this.handleCancelAutosave);
     this.saveButton?.addEventListener("autosave:saved", this.handleSaved);
     this.saveButton?.addEventListener("click", this.handleSaveClick);
@@ -93,6 +104,7 @@ Hooks.AutoSave = {
     this.el.removeEventListener("input", this.scheduleAutosave);
     this.el.removeEventListener("change", this.scheduleAutosave);
     this.el.removeEventListener("x-request-save", this.handleRequestSave);
+    this.el.removeEventListener("x-request-save-and-back", this.handleRequestSaveAndBack);
     this.el.removeEventListener("x-cancel-autosave", this.handleCancelAutosave);
     this.saveButton?.removeEventListener("autosave:saved", this.handleSaved);
     this.saveButton?.removeEventListener("click", this.handleSaveClick);

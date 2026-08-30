@@ -41,6 +41,7 @@
     phx-hook="AutoSave"
   >
     <input type="hidden" name="autosave" value="false" />
+    <input type="hidden" name="back" value="false" />
     <.input
       field={f[:segment_id]}
       label="Recipients"
@@ -174,13 +175,12 @@
   </.form>
 
   <div class="flex gap-4 items-center justify-end">
-    <.link_button
-      navigate={url_for([@season, @region, @local_league, :messages])}
-      style="tertiary"
-    >
+    <.button phx-click={JS.dispatch("x-request-save-and-back", to: "#campaign")} style="tertiary">
       Back
-    </.link_button>
-    <.button phx-click="send_init">Send...</.button>
+    </.button>
+    <.button phx-click={JS.push("send_init") |> JS.dispatch("x-request-save", to: "#campaign")}>
+      Send...
+    </.button>
   </div>
 </.card>
 

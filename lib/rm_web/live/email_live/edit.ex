@@ -63,10 +63,12 @@ defmodule RMWeb.EmailLive.Edit do
 
   def handle_event("save", %{"campaign" => params} = full_params, socket) do
     autosave? = full_params["autosave"] == "true"
+    back? = full_params["back"] == "true"
 
     socket
     |> assign_changeset(params)
     |> save_campaign(autosave?)
+    |> maybe_navigate_back(back?)
     |> noreply()
   end
 
@@ -125,6 +127,16 @@ defmodule RMWeb.EmailLive.Edit do
   # Autosaves persist quietly; only manual saves surface a confirmation flash.
   defp maybe_flash_saved(socket, true), do: socket
   defp maybe_flash_saved(socket, false), do: put_flash(socket, :info, "Draft saved.")
+
+  defp maybe_navigate_back(socket, false), do: socket
+
+  defp maybe_navigate_back(socket, true) do
+    season = socket.assigns[:season]
+    region = socket.assigns[:region]
+    league = socket.assigns[:local_league]
+
+    push_navigate(socket, to: url_for([season, region, league, :messages]))
+  end
 
   defp put_campaign_preview(socket) do
     campaign = Ecto.Changeset.apply_changes(socket.assigns.changeset)
