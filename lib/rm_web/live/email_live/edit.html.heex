@@ -124,6 +124,21 @@
               style="display: none;"
             />
           </button>
+          <button
+            type="button"
+            id="toolbar-save-button"
+            data-action="save"
+            class="p-2"
+            data-saved={JS.dispatch("autosave:saved")}
+          >
+            <.icon id="toolbar-save-icon-saved" name="hero-check-circle" title="Saved" />
+            <.icon
+              id="toolbar-save-icon-pending"
+              name="hero-inbox-arrow-down"
+              title="Unsaved changes"
+              style="display: none;"
+            />
+          </button>
         </div>
 
         <div class="editor min-h-80 bg-white p-4"></div>
@@ -156,24 +171,17 @@
       required
       wrapper="mb-4"
     />
-
-    <div class="flex gap-4 items-center justify-end">
-      <div
-        id="autosave-status"
-        class="grow italic text-sm"
-        data-saved={JS.dispatch("autosave:saved")}
-      >
-      </div>
-      <.link_button
-        navigate={url_for([@season, @region, @local_league, :messages])}
-        style="tertiary"
-      >
-        Back
-      </.link_button>
-      <.button style="secondary" type="submit">Save</.button>
-      <.button form="" phx-click="send_init">Send...</.button>
-    </div>
   </.form>
+
+  <div class="flex gap-4 items-center justify-end">
+    <.link_button
+      navigate={url_for([@season, @region, @local_league, :messages])}
+      style="tertiary"
+    >
+      Back
+    </.link_button>
+    <.button phx-click="send_init">Send...</.button>
+  </div>
 </.card>
 
 <div

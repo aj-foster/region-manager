@@ -17,11 +17,14 @@ const AUTOSAVE_DELAY_MS = 5000;
 Hooks.AutoSave = {
   mounted() {
     this.autosaveInput = this.el.querySelector("[name='autosave']");
-    this.status = document.getElementById("autosave-status");
+    this.saveButton = document.getElementById("toolbar-save-button");
+    this.savedIcon = document.getElementById("toolbar-save-icon-saved");
+    this.pendingIcon = document.getElementById("toolbar-save-icon-pending");
     if (!this.autosaveInput) return;
 
-    this.setStatus = (text) => {
-      if (this.status) this.status.textContent = text;
+    this.setStatus = (saved) => {
+      if (this.savedIcon) this.savedIcon.style.display = saved ? "" : "none";
+      if (this.pendingIcon) this.pendingIcon.style.display = saved ? "none" : "";
     };
 
     // Flush the WYSIWYG editor's pending content into its hidden textarea before submitting.
@@ -30,20 +33,28 @@ Hooks.AutoSave = {
       if (wysiwyg) wysiwyg.dispatchEvent(new CustomEvent("x-sync", { bubbles: true }));
     };
 
-    this.triggerAutosave = () => {
-      // Guard against the synthetic "change" from flushEditor() rescheduling ourselves.
+    // Guard against the synthetic "change" from flushEditor() rescheduling ourselves.
+    // silent: true suppresses the "Draft saved." flash (used for the idle-debounced autosave).
+    this.performSave = (silent) => {
       this.isAutosaving = true;
       this.flushEditor();
-      this.autosaveInput.value = "true";
+      this.autosaveInput.value = silent ? "true" : "false";
       this.el.requestSubmit();
       this.autosaveInput.value = "false";
       this.isAutosaving = false;
     };
 
+    this.triggerAutosave = () => this.performSave(true);
+
+    this.handleSaveClick = () => {
+      clearTimeout(this.autosaveTimer);
+      this.performSave(false);
+    };
+
     this.scheduleAutosave = () => {
       if (this.isAutosaving) return;
 
-      this.setStatus("Pending");
+      this.setStatus(false);
       clearTimeout(this.autosaveTimer);
       this.autosaveTimer = setTimeout(this.triggerAutosave, AUTOSAVE_DELAY_MS);
     };
@@ -51,23 +62,24 @@ Hooks.AutoSave = {
     // Fires once the server confirms the save via push_js("data-saved").
     this.handleSaved = () => {
       clearTimeout(this.autosaveTimer);
-      this.setStatus("Saved");
+      this.setStatus(true);
     };
 
-    this.setStatus("Saved");
+    this.setStatus(true);
     this.el.addEventListener("input", this.scheduleAutosave);
     this.el.addEventListener("change", this.scheduleAutosave);
-    this.status?.addEventListener("autosave:saved", this.handleSaved);
+    this.saveButton?.addEventListener("autosave:saved", this.handleSaved);
+    this.saveButton?.addEventListener("click", this.handleSaveClick);
   },
 
   destroyed() {
     clearTimeout(this.autosaveTimer);
     this.el.removeEventListener("input", this.scheduleAutosave);
     this.el.removeEventListener("change", this.scheduleAutosave);
-    this.status?.removeEventListener("autosave:saved", this.handleSaved);
+    this.saveButton?.removeEventListener("autosave:saved", this.handleSaved);
+    this.saveButton?.removeEventListener("click", this.handleSaveClick);
   },
 };
-
 
 const putHtmlPreview = (el) => {
   const content = el.innerText || "";

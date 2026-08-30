@@ -218,7 +218,7 @@ defmodule RMWeb.EmailLive.Edit do
         |> assign_changeset()
         |> put_campaign_preview()
         |> maybe_flash_saved(autosave?)
-        |> push_js("#autosave-status", "data-saved")
+        |> push_js("#toolbar-save-button", "data-saved")
 
       {:error, changeset} ->
         socket
