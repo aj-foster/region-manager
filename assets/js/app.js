@@ -65,9 +65,25 @@ Hooks.AutoSave = {
       this.setStatus(true);
     };
 
+    // Opening the preview flushes the editor (via x-sync), which schedules a debounced
+    // autosave; save right away instead of waiting. Closing the preview shouldn't save at all.
+    this.handleRequestSave = () => {
+      clearTimeout(this.autosaveTimer);
+      this.performSave(true);
+    };
+
+    // Closing the preview flushes the editor (via x-sync) even though nothing changed, so
+    // cancel the resulting autosave and restore the "saved" indicator it just cleared.
+    this.handleCancelAutosave = () => {
+      clearTimeout(this.autosaveTimer);
+      this.setStatus(true);
+    };
+
     this.setStatus(true);
     this.el.addEventListener("input", this.scheduleAutosave);
     this.el.addEventListener("change", this.scheduleAutosave);
+    this.el.addEventListener("x-request-save", this.handleRequestSave);
+    this.el.addEventListener("x-cancel-autosave", this.handleCancelAutosave);
     this.saveButton?.addEventListener("autosave:saved", this.handleSaved);
     this.saveButton?.addEventListener("click", this.handleSaveClick);
   },
@@ -76,6 +92,8 @@ Hooks.AutoSave = {
     clearTimeout(this.autosaveTimer);
     this.el.removeEventListener("input", this.scheduleAutosave);
     this.el.removeEventListener("change", this.scheduleAutosave);
+    this.el.removeEventListener("x-request-save", this.handleRequestSave);
+    this.el.removeEventListener("x-cancel-autosave", this.handleCancelAutosave);
     this.saveButton?.removeEventListener("autosave:saved", this.handleSaved);
     this.saveButton?.removeEventListener("click", this.handleSaveClick);
   },

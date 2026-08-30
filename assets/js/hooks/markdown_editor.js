@@ -34,6 +34,12 @@ const MarkdownEditor = {
     this.handleTogglePreview = () => {
       this.previewVisible = !this.previewVisible;
       this.applyPreviewState();
+
+      // Toggling the preview flushes the editor (via x-sync), which would otherwise just
+      // schedule a debounced autosave. Opening the preview should save immediately so it
+      // reflects the latest content; closing it back to the editor shouldn't save at all.
+      const eventName = this.previewVisible ? "x-request-save" : "x-cancel-autosave";
+      this.el.dispatchEvent(new CustomEvent(eventName, { bubbles: true }));
     };
 
     this.el.addEventListener("x-toggle-preview", this.handleTogglePreview);
