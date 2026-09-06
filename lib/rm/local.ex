@@ -533,6 +533,8 @@ defmodule RM.Local do
       [league.id, team.league_assignment && team.league_assignment.league_id]
       |> update_league_team_counts()
 
+      RM.Email.sync_coach_contacts_for_team(team)
+
       {:ok, assignment}
     end
   end
