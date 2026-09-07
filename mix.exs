@@ -32,7 +32,7 @@ defmodule RM.MixProject do
       {:castore, "~> 1.0"},
       # Keila wants 2.x
       {:decimal, "~> 3.1", override: true},
-      {:dns_cluster, "~> 0.2.0"},
+      {:dns_cluster, "~> 0.3.0"},
       {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
       {:ecto_sql, "~> 3.10"},
       {:elixlsx, "~> 0.6.0"},
@@ -50,7 +50,7 @@ defmodule RM.MixProject do
       {:hackney, "~> 4.0", override: true},
       {:identity, github: "aj-foster/identity", branch: "main"},
       {:jason, "~> 1.2"},
-      {:keila, github: "pentacent/keila", ref: "v0.30.2", runtime: false},
+      {:keila, github: "pentacent/keila", ref: "v0.30.3", runtime: false},
       {:nimble_csv, "~> 1.3.0"},
       {:nimble_totp, "~> 1.0"},
       {:oban, "~> 2.17"},
@@ -72,7 +72,7 @@ defmodule RM.MixProject do
       {:tz, "~> 0.28"},
       {:tz_extra, "~> 0.45.0"},
       {:ua_parser, "~> 1.10"},
-      {:waffle, "~> 1.1"},
+      {:waffle, "~> 2.0"},
       {:waffle_ecto, "~> 0.0.12"}
     ]
   end
