@@ -65,18 +65,17 @@ config :phoenix, :json_library, Jason
 config :rm, Oban,
   engine: Oban.Engines.Basic,
   notifier: Oban.Notifiers.PG,
-  plugins: [
-    {Oban.Plugins.Cron,
-     crontab: [
-       {"30 4 * * *", RM.FIRST.RefreshJob},
-       #  {"* * * * *", Keila.Mailings.DeliverScheduledCampaignsWorker},
-       {"* * * * *", RM.Email.CampaignRenderRescueWorker},
-       {"0 0 * * *", Keila.Mailings.MessagePruner}
-     ],
-     timezone: "America/New_York"},
-    {Oban.Plugins.Lifeline, rescue_after: :timer.minutes(60)},
-    {Oban.Plugins.Pruner, max_age: 60 * 60 * 24 * 7}
+  cron: [
+    crontab: [
+      {"30 4 * * *", RM.FIRST.RefreshJob},
+      #  {"* * * * *", Keila.Mailings.DeliverScheduledCampaignsWorker},
+      {"* * * * *", RM.Email.CampaignRenderRescueWorker},
+      {"0 0 * * *", Keila.Mailings.MessagePruner}
+    ],
+    timezone: "America/New_York"
   ],
+  lifeline: Oban.Lifeline,
+  pruner: [max_age: 60 * 60 * 24 * 7],
   queues: [
     default: 10,
     # Keila
