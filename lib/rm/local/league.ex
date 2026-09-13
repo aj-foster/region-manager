@@ -5,7 +5,7 @@ defmodule RM.Local.League do
   While `RM.FIRST.League` mirrors the data available from the FTC Events API for a particular
   season, this data persists season-to-season. Maintaining both sets of data allows Region Manager
   to inform region administrators what data is missing from FIRST at the beginning of the season
-  (when all league data must be re-entered in the FTC Cloud Scoring system).
+  (when all league data must be re-entered in the FIRST Event Portal).
   """
   use Ecto.Schema
   import Ecto.Query

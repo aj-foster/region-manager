@@ -26,10 +26,10 @@
     <p>
       Please copy the league into the
       <a
-        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/"}
+        href={"https://event-portal.firstinspires.org/ftc/#{@season + 1}/region/#{@region.code}/league/"}
         target="blank"
       >
-        <span class="underline">Cloud Scoring System</span>
+        <span class="underline">Event Portal</span>
         <.icon name="hero-arrow-top-right-on-square" class="h-4 w-4 align-text-top" />
       </a>
       when available.
@@ -39,10 +39,10 @@
   <.information :if={is_struct(@first_league) and not @first_matches} class="mb-4">
     <p class="font-bold">
       This league has data that does not match the <a
-        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/"}
+        href={"https://event-portal.firstinspires.org/ftc/#{@season + 1}/region/#{@region.code}/league/#{@first_league.code}/edit/"}
         target="blank"
       >
-      <span class="underline">Cloud Scoring System</span>
+      <span class="underline">Event Portal</span>
       <.icon
           name="hero-arrow-top-right-on-square"
           class="h-4 w-4 align-text-top"
@@ -109,7 +109,7 @@
       </.button>
 
       <.link_button
-        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/#{@local_league.code}/"}
+        href={"https://event-portal.firstinspires.org/ftc/#{@season + 1}/region/#{@region.code}/league/#{@local_league.code}/"}
         style="tertiary"
         target="_blank"
       >
@@ -123,9 +123,9 @@
       Use this form to update league information in <strong>Region Manager</strong>.
       Afterwards, these changes must be copied to the <a
         class="text-orange-600"
-        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/#leagues"}
+        href={"https://event-portal.firstinspires.org/ftc/#{@season + 1}/region/#{@region.code}/#leagues"}
         target="blank"
-      ><span class="underline"><em>FIRST</em> Cloud Scoring System</span>
+      ><span class="underline"><em>FIRST</em> Event Portal</span>
     <.icon
           name="hero-arrow-top-right-on-square"
           class="h-4 w-4 align-text-top"
@@ -453,9 +453,8 @@
   <.title class="mb-4" flush>Sync League Assignments</.title>
 
   <p class="mb-4">
-    League assignments in <strong>Region Manager</strong>
-    must be copied to the Cloud Scoring System.
-    Luckily, the Cloud Scoring System provides an interface for bulk-adding teams to leagues using a file upload.
+    League assignments in <strong>Region Manager</strong> must be copied to the Event Portal.
+    Luckily, the Event Portal provides an interface for bulk-adding teams to leagues using a file upload.
     To use it, follow these steps:
   </p>
 
@@ -480,7 +479,7 @@
     <li class="mb-4">
       Go to the
       <.link
-        href={"https://ftc-scoring.firstinspires.org/region/#{@region.code}/league/#{@local_league.code}/teams/"}
+        href={"https://event-portal.firstinspires.org/ftc/#{@season + 1}/region/#{@region.code}/league/#{@local_league.code}/teams/"}
         target="_blank"
       >
         <span class="underline">Team Assignment Page</span>
@@ -491,8 +490,7 @@
   </ol>
 
   <p class="mb-4">
-    This process <strong>will not</strong>
-    remove any existing assignments in the Cloud Scoring System.
+    This process <strong>will not</strong> remove any existing assignments in the Event Portal.
     If a team has moved leagues, be sure to manually remove their assignment first.
   </p>
   <p class="mb-4">

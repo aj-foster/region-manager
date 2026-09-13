@@ -40,7 +40,7 @@
     </.link_button>
     <.link_button
       :if={is_nil(@local_league) and can?(@current_user, :proposal_submit, @region)}
-      href={"https://ftc-scoring.firstinspires.org/region/#{String.upcase(@region.code)}/request/batch?cmpYear=#{@region.current_season + 1}"}
+      href={"https://event-portal.firstinspires.org/ftc/#{@region.current_season + 1}/region/#{String.upcase(@region.code)}/request/batch"}
       style="secondary"
       target="blank"
     >
