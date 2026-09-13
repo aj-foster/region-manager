@@ -31,7 +31,7 @@ defmodule RM.Email.CampaignRenderer do
   def to_input(%Campaign{} = campaign, contact, assigns \\ %{}) do
     assigns =
       assigns
-      |> Map.put_new("campaign", Map.take(campaign, [:data, :subject, :preview_text]))
+      |> Map.put_new("campaign", Map.take(campaign, [:id, :data, :subject, :preview_text]))
       # TODO
       |> put_in(["campaign", "public_link"], "/")
 

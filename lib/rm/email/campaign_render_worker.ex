@@ -18,7 +18,7 @@ defmodule RM.Email.CampaignRenderWorker do
   alias Keila.Contacts.Contact
   alias RM.Email.CampaignRenderer
 
-  @batch_size 500
+  @batch_size 50
   @render_timeout 5_000
   @max_attempts 5
 
@@ -47,7 +47,7 @@ defmodule RM.Email.CampaignRenderWorker do
     |> tap(&update_messages_for_retry/1)
     |> tap(fn results ->
       if length(results) == @batch_size or Enum.any?(results, &retryable?/1) do
-        Oban.insert!(new(%{"campaign_id" => campaign.id}))
+        Oban.insert!(new(%{"campaign_id" => campaign.id}, unique: false))
       end
     end)
 
