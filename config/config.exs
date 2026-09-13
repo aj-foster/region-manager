@@ -50,7 +50,7 @@ config :esbuild,
     }
   ]
 
-config :ex_aws, json_codec: Jason
+config :ex_aws, http_client: ExAws.Request.Req, json_codec: Jason
 
 config :identity, notifier: RM.Mailer, repo: RM.Repo, user: RM.Account.User
 
@@ -99,6 +99,7 @@ config :tailwind,
 
 config :waffle,
   asset_host: "http://localhost:4000/waffle",
+  http_client: Waffle.HTTPClient.Req,
   storage: Waffle.Storage.Local,
   storage_dir_prefix: "priv/static/waffle"
 
