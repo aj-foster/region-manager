@@ -27,9 +27,8 @@ defmodule RMWeb.SESController do
       {:ok, %{"notificationType" => "Bounce", "bounce" => bounce}} ->
         handle_bounce(bounce)
 
-      {:ok, %{"notificationType" => "Complaint"}} ->
-        # We don't currently handle complaints
-        :ok
+      {:ok, %{"notificationType" => "Complaint", "complaint" => complaint}} ->
+        handle_complaint(complaint)
 
       {:ok, %{"notificationType" => other} = message} ->
         Logger.warning("[SES] Ignoring unknown notification type: #{other}")
@@ -53,7 +52,7 @@ defmodule RMWeb.SESController do
   @spec handle_bounce(map) :: :ok
   defp handle_bounce(%{"bounceType" => "Undetermined"} = bounce) do
     for recipient <- Map.get(bounce, "bouncedRecipients", []) do
-      email = Map.fetch!(recipient, "emailAddress")
+      email = Map.fetch!(recipient, "emailAddress") |> extract_email()
       Logger.info("[SES] Undetermined bounce for: #{email}")
     end
 
@@ -62,7 +61,7 @@ defmodule RMWeb.SESController do
 
   defp handle_bounce(%{"bounceType" => "Permanent"} = bounce) do
     for recipient <- Map.get(bounce, "bouncedRecipients", []) do
-      email = Map.fetch!(recipient, "emailAddress")
+      email = Map.fetch!(recipient, "emailAddress") |> extract_email()
       Logger.info("[SES] Marking email as permanently bounced: #{email}")
       RM.Email.mark_email_undeliverable(email, :permanent_bounce)
     end
@@ -72,7 +71,7 @@ defmodule RMWeb.SESController do
 
   defp handle_bounce(%{"bounceType" => "Transient", "bounceSubType" => "General"} = bounce) do
     for recipient <- Map.get(bounce, "bouncedRecipients", []) do
-      email = Map.fetch!(recipient, "emailAddress")
+      email = Map.fetch!(recipient, "emailAddress") |> extract_email()
       action = Map.get(recipient, "action")
 
       if is_binary(action) and action =~ ~r/^failed$/i do
@@ -88,12 +87,33 @@ defmodule RMWeb.SESController do
 
   defp handle_bounce(%{"bounceType" => "Transient"} = bounce) do
     for recipient <- Map.get(bounce, "bouncedRecipients", []) do
-      email = Map.fetch!(recipient, "emailAddress")
+      email = Map.fetch!(recipient, "emailAddress") |> extract_email()
       Logger.info("[SES] Marking email as temporarily bounced: #{email}")
       RM.Email.mark_email_undeliverable(email, :temporary_bounce)
     end
 
     :ok
+  end
+
+  @spec handle_complaint(map) :: :ok
+  defp handle_complaint(complaint) do
+    for recipient <- Map.get(complaint, "complainedRecipients", []) do
+      email = Map.fetch!(recipient, "emailAddress") |> extract_email()
+      Logger.info("[SES] Complaint received for: #{email}")
+      RM.Email.mark_email_undeliverable(email, :complaint)
+    end
+
+    :ok
+  end
+
+  @spec extract_email(nil) :: nil
+  defp extract_email(nil), do: nil
+
+  @spec extract_email(String.t()) :: String.t()
+  defp extract_email(email_string) do
+    email_string
+    |> String.replace(~r/(?:"?([^"]*)"?\s)?(?:<?(.+@[^>]+)>?)/, "\\2")
+    |> String.downcase()
   end
 
   #
