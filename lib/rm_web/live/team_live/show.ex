@@ -13,7 +13,29 @@ defmodule RMWeb.TeamLive.Show do
     |> ok()
   end
 
+  on_mount {__MODULE__, :check_team_number}
   on_mount {__MODULE__, :preload_team}
+
+  def on_mount(:check_team_number, %{"team" => number}, _session, socket) do
+    case Integer.parse(number) do
+      {number, ""} ->
+        {:cont, assign(socket, team_number: number)}
+
+      :error ->
+        redirect_target =
+          url_for([
+            socket.assigns[:season],
+            socket.assigns[:region],
+            socket.assigns[:local_league] || socket.assigns[:first_league],
+            :teams
+          ])
+
+        {:halt,
+         socket
+         |> put_flash(:error, "Invalid team number")
+         |> redirect(to: redirect_target)}
+    end
+  end
 
   def on_mount(:preload_team, %{"team" => number}, _session, socket) do
     league = socket.assigns[:local_league]
