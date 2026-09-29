@@ -2,7 +2,7 @@
   "name": "rm-assets",
   "private": true,
   "dependencies": {
-    "markdown-it": "15.0.0",
+    "markdown-it": "15.0.2",
     "punycode": "2.1.1",
     "prosemirror-commands": "1.1.12",
     "prosemirror-history": "1.2.0",
