@@ -37,6 +37,15 @@ defmodule RM.Factory do
   end
 
   @doc false
+  def user_event_factory do
+    %RM.Account.Event{
+      email: sequence("email", &"user-#{&1}@example.com"),
+      proposal: fn -> build(:event_proposal) end,
+      user: fn -> build(:user) end
+    }
+  end
+
+  @doc false
   def with_region(%RM.Account.User{} = user, overrides \\ %{}) do
     %{region: region, user: user} =
       insert(:user_region, region: build(:region, overrides), user: user)
