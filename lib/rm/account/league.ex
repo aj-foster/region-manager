@@ -115,10 +115,6 @@ defmodule RM.Account.League do
   end
 
   def compare(a, b) do
-    cond do
-      a.inserted_at < b.inserted_at -> :lt
-      a.inserted_at > b.inserted_at -> :gt
-      :else -> :eq
-    end
+    DateTime.compare(a.inserted_at, b.inserted_at)
   end
 end
