@@ -9,7 +9,7 @@ defmodule RM.Local.EventSubmission do
 
   @doc false
   def filename(_version, _file_and_scope) do
-    "EventRequests.xlsx"
+    "#{Calendar.strftime(Date.utc_today(), "%Y-%m-%d")}-EventRequests.xlsx"
   end
 
   @doc false
