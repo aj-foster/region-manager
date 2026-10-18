@@ -5,7 +5,7 @@ defmodule RM.Local.EventAttachment do
   use Ecto.Schema
 
   alias Ecto.Changeset
-  alias RM.Local.EventFile
+  alias RM.Local.EventAttachmentFile
   alias RM.Local.EventProposal
 
   @typedoc "Role of the attachment in the context of the event"
@@ -30,7 +30,7 @@ defmodule RM.Local.EventAttachment do
   @foreign_key_type :binary_id
 
   schema "event_attachments" do
-    field :file, EventFile.Type
+    field :file, EventAttachmentFile.Type
     field :name, :string
     field :season, :integer
     field :type, Ecto.Enum, values: @types
@@ -76,6 +76,6 @@ defmodule RM.Local.EventAttachment do
 
   @spec url(t) :: String.t()
   def url(attachment) do
-    EventFile.url({attachment.file, attachment})
+    EventAttachmentFile.url({attachment.file, attachment})
   end
 end

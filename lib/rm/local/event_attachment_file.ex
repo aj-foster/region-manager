@@ -1,4 +1,4 @@
-defmodule RM.Local.EventFile do
+defmodule RM.Local.EventAttachmentFile do
   @moduledoc """
   File attachment and archive storage for uploaded PDF files
   """
