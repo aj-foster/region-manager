@@ -131,6 +131,10 @@ defmodule RM.Local.Query do
     )
   end
 
+  @doc "Filter hidden teams"
+  @spec team_not_hidden(query) :: query
+  def team_not_hidden(query), do: where(query, [team: t], is_nil(t.hidden_at))
+
   @doc "Filter videos by related region"
   @spec video_region(query, Region.t() | nil) :: query
   def video_region(query, nil), do: query

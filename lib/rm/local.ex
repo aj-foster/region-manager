@@ -629,6 +629,7 @@ defmodule RM.Local do
   def list_teams_by_number(numbers, opts \\ []) do
     Query.from_team()
     |> Query.active_team(opts[:active])
+    |> Query.team_not_hidden()
     |> Query.season(opts[:season])
     |> where([team: t], t.number in ^numbers)
     |> Query.preload_assoc(:team, opts[:preload])
@@ -640,6 +641,7 @@ defmodule RM.Local do
   def list_teams_by_league(league, opts \\ []) do
     Query.from_team()
     |> Query.active_team(opts[:active])
+    |> Query.team_not_hidden()
     |> Query.season(opts[:season] || league.region.current_season)
     |> Query.team_league(league)
     |> Query.preload_assoc(:team, opts[:preload])
@@ -653,6 +655,7 @@ defmodule RM.Local do
   def list_teams_by_region(region, opts \\ []) do
     Query.from_team()
     |> Query.active_team(opts[:active])
+    |> Query.team_not_hidden()
     |> Query.season(opts[:season] || region.current_season)
     |> where([team: t], t.region_id == ^region.id)
     |> Query.preload_assoc(:team, opts[:preload])
