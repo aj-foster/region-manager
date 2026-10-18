@@ -11,9 +11,11 @@ defmodule RM.Repo.Migrations.CreateUserEvents do
       add :proposal_id, references(:event_proposals, type: :uuid, on_delete: :delete_all),
         null: false
 
-      add :user_id, references(:users, type: :uuid, on_delete: :delete_all), null: false
+      add :user_id, references(:users, type: :uuid, on_delete: :delete_all)
 
       timestamps type: :utc_datetime_usec
     end
+
+    create_if_not_exists unique_index(:user_events, [:proposal_id])
   end
 end

@@ -197,15 +197,35 @@ defmodule RM.Local do
   @spec create_proposal_from_event(Event.t(), map) ::
           {:ok, EventProposal.t()} | {:error, Changeset.t(EventProposal.t())}
   def create_proposal_from_event(event, params) do
-    EventProposal.retroactive_changeset(event, params)
-    |> Repo.insert()
+    changeset = EventProposal.retroactive_changeset(event, params)
+
+    Repo.transact(fn ->
+      case Repo.insert(changeset) do
+        {:ok, proposal} ->
+          relink_event_director(proposal)
+          {:ok, proposal}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end)
   end
 
   @spec update_event(EventProposal.t(), map) ::
           {:ok, EventProposal.t()} | {:error, Changeset.t(EventProposal.t())}
   def update_event(proposal, params) do
-    EventProposal.update_changeset(proposal, params)
-    |> Repo.update()
+    changeset = EventProposal.update_changeset(proposal, params)
+
+    Repo.transact(fn ->
+      case Repo.update(changeset) do
+        {:ok, proposal} ->
+          relink_event_director(proposal)
+          {:ok, proposal}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end)
   end
 
   @spec create_or_update_attachment(EventProposal.t(), map) ::
@@ -219,6 +239,19 @@ defmodule RM.Local do
           {:ok, EventAttachment.t()} | {:error, Changeset.t(EventAttachment.t())}
   def delete_attachment(attachment) do
     Repo.delete(attachment)
+  end
+
+  @spec relink_event_director(EventProposal.t()) :: :ok
+  defp relink_event_director(proposal) do
+    if email = proposal.contact.email do
+      proposal
+      |> RM.Account.Event.create_changeset(%{email: email})
+      |> Repo.insert(on_conflict: :replace_all, conflict_target: [:proposal_id], returning: true)
+
+      :ok
+    else
+      :ok
+    end
   end
 
   @doc """
