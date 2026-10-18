@@ -8,6 +8,8 @@ defmodule RM.Account.User do
   @typedoc "User record"
   @type t :: %__MODULE__{
           id: Ecto.UUID.t(),
+          event_assignments: Ecto.Schema.has_many(Account.Event.t()),
+          events: Ecto.Schema.has_many(RM.Local.Event.t()),
           league_assignments: Ecto.Schema.has_many(Account.League.t()),
           leagues: Ecto.Schema.has_many(RM.Local.League.t()),
           region_assignments: Ecto.Schema.has_many(Account.Region.t()),
@@ -25,6 +27,9 @@ defmodule RM.Account.User do
 
     has_one :admin, Account.Admin
     has_one :profile, Account.Profile
+
+    has_many :event_assignments, Account.Event
+    has_many :events, through: [:event_assignments, :event]
 
     has_many :league_assignments, Account.League
     has_many :leagues, through: [:league_assignments, :league]
