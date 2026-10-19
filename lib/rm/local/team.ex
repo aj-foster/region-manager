@@ -136,6 +136,8 @@ defmodule RM.Local.Team do
     |> Changeset.cast_embed(:location, with: &cast_location/2)
     |> Changeset.cast_embed(:notices, with: &cast_notices/2)
     |> Changeset.validate_required(@required_fields)
+    |> Changeset.unique_constraint([:number, :season])
+    |> Changeset.unique_constraint([:team_id, :season])
   end
 
   @spec cast_location(%__MODULE__.Location{}, map) :: Changeset.t(%__MODULE__.Location{})

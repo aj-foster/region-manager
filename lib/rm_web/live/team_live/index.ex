@@ -152,12 +152,15 @@ defmodule RMWeb.TeamLive.Index do
           RM.Local.list_teams_by_region(region, preload: [:league])
         end
 
-      {active_teams, inactive_teams} = Enum.split_with(teams, & &1.active)
+      {visible_teams, hidden_teams} = Enum.split_with(teams, &is_nil(&1.hidden_at))
+      {active_teams, inactive_teams} = Enum.split_with(visible_teams, & &1.active)
       intend_to_return = Enum.filter(inactive_teams, & &1.intend_to_return)
 
       assign(socket,
         active_teams: active_teams,
         active_teams_count: length(active_teams),
+        hidden_teams: hidden_teams,
+        hidden_teams_count: length(hidden_teams),
         inactive_teams: inactive_teams,
         inactive_teams_count: length(inactive_teams),
         intend_to_return_teams: intend_to_return,
