@@ -141,7 +141,7 @@ defmodule RMWeb.ProposalLive.Index do
   @spec download_batch(Socket.t(), String.t()) :: Socket.t()
   defp download_batch(socket, batch_id) do
     if batch = Enum.find(socket.assigns[:event_batches], &(&1.id == batch_id)) do
-      url = RM.Local.EventSubmission.url({"", batch}, signed: true)
+      url = RM.Local.EventBatchFile.url({"", batch}, signed: true)
 
       socket
       |> push_event("window-open", %{url: url})

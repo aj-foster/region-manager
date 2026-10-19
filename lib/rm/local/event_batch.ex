@@ -9,7 +9,7 @@ defmodule RM.Local.EventBatch do
   alias Elixlsx.Sheet
   alias RM.FIRST.Region
   alias RM.Local.EventProposal
-  alias RM.Local.EventSubmission
+  alias RM.Local.EventBatchFile
   alias RM.Local.League
 
   @batch_filename "EventRequests.xlsx"
@@ -30,7 +30,7 @@ defmodule RM.Local.EventBatch do
 
   schema "event_batches" do
     field :event_count, :integer
-    field :file, EventSubmission.Type
+    field :file, EventBatchFile.Type
     field :generated_at, :utc_datetime_usec
     field :generated_by, Ecto.UUID
 

@@ -293,7 +293,7 @@ defmodule RM.Local do
       EventProposal.update_submitted_at_query(proposals)
       |> Repo.update_all([])
 
-      url = RM.Local.EventSubmission.url({"", event_batch}, signed: true)
+      url = RM.Local.EventBatchFile.url({"", event_batch}, signed: true)
       {:ok, url}
     end
   end

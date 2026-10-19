@@ -1,4 +1,4 @@
-defmodule RM.Local.EventSubmission do
+defmodule RM.Local.EventBatchFile do
   @moduledoc """
   File attachment and archive storage for uploaded CSV files
   """
