@@ -34,6 +34,19 @@ defmodule RMWeb.RegionController do
     end
   end
 
+  def news(conn, %{"region" => abbreviation}) do
+    with {:ok, region} <- RM.FIRST.fetch_region_by_abbreviation(abbreviation) do
+      news =
+        if region.metadata.keila_sender_id do
+          RM.Email.list_campaigns_for_region_or_league(region, page_size: 3)
+        else
+          []
+        end
+
+      render(conn, :news, news: news, region: region)
+    end
+  end
+
   def teams(conn, %{"region" => abbreviation}) do
     season = conn.assigns[:season]
 

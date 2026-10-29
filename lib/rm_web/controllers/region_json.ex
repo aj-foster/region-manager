@@ -264,6 +264,37 @@ defmodule RMWeb.RegionJSON do
   end
 
   #
+  # News
+  #
+
+  @spec news(%{news: [Keila.Mailings.Campaign.t()], region: RM.FIRST.Region.t()}) ::
+          RMWeb.JSON.success(map)
+  def news(%{news: news, region: region}) do
+    success(%{
+      news_count: length(news),
+      news: Enum.map(news, fn item -> news_item(item, region) end)
+    })
+  end
+
+  @spec news_item(Keila.Mailings.Campaign.t(), RM.FIRST.Region.t()) :: map
+  defp news_item(
+         %Keila.Mailings.Campaign{
+           id: id,
+           subject: subject,
+           preview_text: preview_text,
+           sent_at: sent_at
+         },
+         region
+       ) do
+    %{
+      url: url(~p"/r/#{region}/m/#{id}"),
+      subject: subject,
+      preview_text: preview_text,
+      sent_at: sent_at
+    }
+  end
+
+  #
   # Teams
   #
 
