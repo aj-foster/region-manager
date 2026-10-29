@@ -50,6 +50,7 @@ defmodule RMWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/r/:region/*rest", PageController, :redirect_to_current_season
 
     live_session :ambiguous,
       on_mount: [
