@@ -156,6 +156,13 @@ defmodule RMWeb.TeamLive.Index do
       {active_teams, inactive_teams} = Enum.split_with(visible_teams, & &1.active)
       intend_to_return = Enum.filter(inactive_teams, & &1.intend_to_return)
 
+      unassigned_teams =
+        if is_nil(local_league) and is_nil(first_league) and region.has_leagues do
+          Enum.filter(active_teams, &is_nil(&1.league))
+        else
+          []
+        end
+
       assign(socket,
         active_teams: active_teams,
         active_teams_count: length(active_teams),
@@ -166,7 +173,9 @@ defmodule RMWeb.TeamLive.Index do
         intend_to_return_teams: intend_to_return,
         intend_to_return_teams_count: length(intend_to_return),
         teams: teams,
-        teams_count: length(teams)
+        teams_count: length(teams),
+        unassigned_teams: unassigned_teams,
+        unassigned_teams_count: length(unassigned_teams)
       )
     else
       teams =
@@ -189,7 +198,9 @@ defmodule RMWeb.TeamLive.Index do
         intend_to_return_teams: [],
         intend_to_return_teams_count: 0,
         teams: teams,
-        teams_count: length(teams)
+        teams_count: length(teams),
+        unassigned_teams: [],
+        unassigned_teams_count: 0
       )
     end
   end

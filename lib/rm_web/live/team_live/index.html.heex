@@ -85,6 +85,34 @@
   </.card>
 <% end %>
 
+<div
+  :if={
+    @region.has_leagues and
+      @unassigned_teams_count > 0 and
+      can?(@current_user, :team_league_update, @region)
+  }
+  id="teams-needing-league-assignments"
+>
+  <.title>Awaiting League Assignment ({@unassigned_teams_count})</.title>
+
+  <.card flush spaced>
+    <.list>
+      <:link
+        :for={team <- @unassigned_teams}
+        navigate={url_for([@season, @region, team])}
+      >
+        <h3 class="flex gap-2 items-center">
+          <strong>{team.number}</strong>
+          <span>{team.name}</span>
+        </h3>
+        <p class="text-sm">
+          {team.location.city || "Unknown City"} • {team.location.county || "Unknown"} County
+        </p>
+      </:link>
+    </.list>
+  </.card>
+</div>
+
 <%= if @season > @region.current_season do %>
   <.card spaced>
     <p class="italic text-sm">Team listing is not yet available for this season.</p>
