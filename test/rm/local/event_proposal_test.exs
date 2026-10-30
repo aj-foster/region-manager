@@ -4,6 +4,106 @@ defmodule RM.Local.EventProposalTest do
   alias RM.Account.Event
   alias RM.Local
 
+  describe "published event detail updates" do
+    test "tracks the first proposal edit that differs from its published event" do
+      region = Factory.insert(:region)
+      date = Date.utc_today()
+
+      venue =
+        Factory.insert(:venue,
+          name: "Published Venue",
+          address: "123 Main St.",
+          city: "Some City",
+          country: "United States",
+          state_province: "New State",
+          timezone: "Etc/UTC"
+        )
+
+      event =
+        Factory.insert(:first_event,
+          date_end: date,
+          date_start: date,
+          date_timezone: "Etc/UTC",
+          hybrid: false,
+          name: "Published Event",
+          region: region,
+          remote: false,
+          type: :scrimmage,
+          location: %RM.FIRST.Event.Location{
+            address: venue.address,
+            city: venue.city,
+            country: venue.country,
+            state_province: venue.state_province,
+            venue: venue.name
+          }
+        )
+
+      proposal =
+        Factory.insert(:event_proposal,
+          date_end: date,
+          date_start: date,
+          name: "Original Event",
+          region: region,
+          type: :scrimmage,
+          venue: venue
+        )
+
+      assert is_nil(proposal.details_updated_at)
+
+      assert :ok = Local.update_event_proposal_events([{proposal.id, event.id}])
+      proposal = Repo.reload!(proposal) |> Repo.preload([:venue, :first_event])
+
+      assert %DateTime{} = details_updated_at = proposal.details_updated_at
+      assert proposal.first_event_id == event.id
+
+      assert :ok = Local.update_event_proposal_events([{proposal.id, event.id}])
+      assert Repo.reload!(proposal).details_updated_at == details_updated_at
+
+      assert {:ok, updated_proposal} =
+               Local.update_event(proposal, %{"name" => "Updated Event", "venue" => venue})
+
+      assert updated_proposal.details_updated_at == details_updated_at
+
+      assert {:ok, updated_proposal} =
+               Local.update_event(updated_proposal, %{
+                 "description" => "Additional details",
+                 "name" => "Updated Event",
+                 "venue" => venue
+               })
+
+      assert updated_proposal.details_updated_at == details_updated_at
+
+      assert {:ok, updated_proposal} =
+               Local.update_event(updated_proposal, %{"name" => event.name, "venue" => venue})
+
+      assert is_nil(updated_proposal.details_updated_at)
+
+      assert :ok = Local.update_event_proposal_events([{proposal.id, event.id}])
+      assert is_nil(Repo.reload!(proposal).details_updated_at)
+    end
+
+    test "manual submission clears the detail update marker" do
+      details_updated_at = DateTime.utc_now()
+
+      proposal = Factory.insert(:event_proposal, details_updated_at: details_updated_at)
+
+      assert :ok = Local.mark_event_proposal_submitted(proposal)
+
+      assert %RM.Local.EventProposal{submitted_at: %DateTime{}, details_updated_at: nil} =
+               Repo.reload!(proposal)
+    end
+
+    test "batch submission marking clears the detail update marker" do
+      proposal = Factory.insert(:event_proposal, details_updated_at: DateTime.utc_now())
+
+      RM.Local.EventProposal.mark_submitted_query([proposal])
+      |> Repo.update_all([])
+
+      assert %RM.Local.EventProposal{submitted_at: %DateTime{}, details_updated_at: nil} =
+               Repo.reload!(proposal)
+    end
+  end
+
   describe "director association" do
     test "links a confirmed user when a proposal is created" do
       email = "director@example.com"

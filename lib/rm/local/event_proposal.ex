@@ -249,14 +249,15 @@ defmodule RM.Local.EventProposal do
     |> where([event: e], e.season == ^season)
   end
 
-  @doc "Query to update the provided proposals' submitted_at field to the current time"
-  @spec update_submitted_at_query([t]) :: Ecto.Query.t()
-  def update_submitted_at_query(proposals) do
+  @doc "Query to mark the provided proposals as submitted"
+  @spec mark_submitted_query([t]) :: Ecto.Query.t()
+  def mark_submitted_query(proposals) do
     ids = Enum.map(proposals, & &1.id)
     now = DateTime.utc_now()
 
     Query.from_proposal()
     |> where([proposal: p], p.id in ^ids)
+    |> update(set: [submitted_at: ^now, details_updated_at: nil])
   end
 
   @doc "Changeset to update when the proposal details differ from its published event"

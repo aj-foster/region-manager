@@ -373,12 +373,20 @@ defmodule RM.Local do
     with {:ok, {_name, file_contents}} <- RM.Local.EventBatch.new(region, proposals, id: id),
          changeset <- RM.Local.EventBatch.save(file_contents, params),
          {:ok, event_batch} <- Repo.insert(changeset) do
-      EventProposal.update_submitted_at_query(proposals)
+      EventProposal.mark_submitted_query(proposals)
       |> Repo.update_all([])
 
       url = RM.Local.EventBatchFile.url({"", event_batch}, signed: true)
       {:ok, url}
     end
+  end
+
+  @spec mark_event_proposal_submitted(EventProposal.t()) :: :ok
+  def mark_event_proposal_submitted(proposal) do
+    EventProposal.mark_submitted_query([proposal])
+    |> Repo.update_all([])
+
+    :ok
   end
 
   @spec list_batch_submissions(Region.t()) :: [RM.Local.EventBatch.t()]
