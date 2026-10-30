@@ -114,16 +114,20 @@ defmodule RMWeb.CoreComponents do
   Visual warning with left-side icon and arbitrary contents
   """
   attr :class, :string, default: nil, doc: "additional classes to apply"
+  attr :rest, :global
   slot :inner_block, required: true
 
   def warning(assigns) do
     ~H"""
-    <div class={[
-      "bg-orange-100 border border-orange-400 flex gap-3 items-center justify-start px-4 py-2 rounded text-sm",
-      @class
-    ]}>
+    <div
+      class={[
+        "bg-orange-50 border border-orange-400 flex gap-3 items-center justify-start px-4 py-2 rounded text-sm",
+        @class
+      ]}
+      {@rest}
+    >
       <.icon name="hero-exclamation-triangle" class="shrink-0 text-orange-500" />
-      <div>
+      <div class="grow">
         {render_slot(@inner_block)}
       </div>
     </div>
@@ -134,14 +138,18 @@ defmodule RMWeb.CoreComponents do
   Visual information pane with left-side icon and arbitrary contents
   """
   attr :class, :string, default: nil, doc: "additional classes to apply"
+  attr :rest, :global
   slot :inner_block, required: true
 
   def information(assigns) do
     ~H"""
-    <div class={[
-      "bg-purple-100 border border-purple-400 flex gap-3 items-center justify-start px-4 py-2 rounded text-sm",
-      @class
-    ]}>
+    <div
+      class={[
+        "bg-purple-50 border border-purple-400 flex gap-3 items-center justify-start px-4 py-2 rounded text-sm",
+        @class
+      ]}
+      {@rest}
+    >
       <.icon name="hero-information-circle" class="shrink-0 text-purple-500" />
       <div class="grow">
         {render_slot(@inner_block)}
@@ -154,14 +162,18 @@ defmodule RMWeb.CoreComponents do
   Visual information pane with left-side check mark and arbitrary contents
   """
   attr :class, :string, default: nil, doc: "additional classes to apply"
+  attr :rest, :global
   slot :inner_block, required: true
 
   def confirmation(assigns) do
     ~H"""
-    <div class={[
-      "bg-green-100 border border-green-400 flex gap-3 items-center justify-start px-4 py-2 rounded text-sm",
-      @class
-    ]}>
+    <div
+      class={[
+        "bg-green-50 border border-green-400 flex gap-3 items-center justify-start px-4 py-2 rounded text-sm",
+        @class
+      ]}
+      {@rest}
+    >
       <.icon name="hero-check-circle" class="shrink-0 text-green-500" />
       <div class="grow">
         {render_slot(@inner_block)}

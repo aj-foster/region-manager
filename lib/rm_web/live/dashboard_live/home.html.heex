@@ -15,6 +15,32 @@
 </.information>
 
 <div :if={@region_count > 0}>
+  <.warning
+    :for={task <- @pending_tasks}
+    id={task.id}
+    class="mb-6"
+    phx-mounted={
+      JS.transition(
+        {"transition-all transform ease-out duration-300", "opacity-0 translate-y-2",
+         "opacity-100 translate-y-0"}
+      )
+    }
+  >
+    <.link :if={task.href} class="flex items-center w-full" navigate={task.href}>
+      <div class="grow">
+        <p class="font-bold">{task.title}</p>
+        <p>{task.description}</p>
+      </div>
+      <div class="pl-2"><.icon name="hero-arrow-right" /></div>
+    </.link>
+    <div :if={task.error}>
+      <p class="font-bold">{task.title}</p>
+      <p>{task.description}</p>
+    </div>
+  </.warning>
+</div>
+
+<div :if={@region_count > 0}>
   <.title>Regions you manage</.title>
 
   <.card spaced>

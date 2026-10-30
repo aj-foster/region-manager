@@ -51,6 +51,7 @@ defmodule RM.MixProject do
       {:identity, github: "aj-foster/identity", branch: "main"},
       {:jason, "~> 1.2"},
       {:keila, github: "pentacent/keila", ref: "v0.30.3", runtime: false},
+      {:lazy_html, ">= 0.1.0", only: :test},
       {:nimble_csv, "~> 1.3.0"},
       {:nimble_totp, "~> 1.0"},
       {:oban, "~> 2.17"},
