@@ -72,6 +72,7 @@ defmodule RM.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:tz, "~> 0.28"},
       {:tz_extra, "~> 0.45.0"},
+      {:typster, "~> 0.7.2"},
       {:ua_parser, "~> 1.10"},
       {:waffle, "~> 2.0"},
       {:waffle_ecto, "~> 0.0.12"}
