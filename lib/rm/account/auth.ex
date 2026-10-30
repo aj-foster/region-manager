@@ -14,7 +14,7 @@ defmodule RM.Account.Auth do
   @doc """
   Returns whether the given `user` can perform the given `action`
 
-  The user struct must have region, league, and team associations preloaded.
+  The user struct must have region, league, team, and event-assignment associations preloaded.
 
   Actions are represented as atoms, such as `:event_update`. If the action has a recipient piece
   of `data` (or other important context), it may also be included in the decision. By default, no
@@ -119,13 +119,14 @@ defmodule RM.Account.Auth do
 
   # See an unpublished event proposal
   def can?(%User{} = user, :proposal_show, %EventProposal{first_event_id: nil} = proposal) do
-    proposal.region_id in region_ids(user) or
+    proposal.id in event_proposal_ids(user) or
+      proposal.region_id in region_ids(user) or
       (present?(proposal.league_id) and proposal.league_id in league_ids_with_events(user))
   end
 
   # See the original event proposal for a published event
-  def can?(%User{} = user, :proposal_show, %EventProposal{first_event: event}) do
-    can?(%User{} = user, :proposal_show, event)
+  def can?(%User{} = user, :proposal_show, %EventProposal{first_event: event} = proposal) do
+    proposal.id in event_proposal_ids(user) or can?(user, :proposal_show, event)
   end
 
   # Submit Batch Create events in FTC Scoring
@@ -141,13 +142,14 @@ defmodule RM.Account.Auth do
 
   # Update a proposal for an unpublished event
   def can?(%User{} = user, :proposal_update, %EventProposal{first_event_id: nil} = proposal) do
-    proposal.region_id in region_ids(user) or
+    proposal.id in event_proposal_ids(user) or
+      proposal.region_id in region_ids(user) or
       (present?(proposal.league_id) and proposal.league_id in league_ids_with_events(user))
   end
 
   # Update the original event proposal for a published event
-  def can?(%User{} = user, :proposal_update, %EventProposal{first_event: event}) do
-    can?(%User{} = user, :proposal_update, event)
+  def can?(%User{} = user, :proposal_update, %EventProposal{first_event: event} = proposal) do
+    proposal.id in event_proposal_ids(user) or can?(user, :proposal_update, event)
   end
 
   #
@@ -307,6 +309,9 @@ defmodule RM.Account.Auth do
   #
   # Helpers
   #
+
+  @spec event_proposal_ids(User.t()) :: [Ecto.UUID.t()]
+  defp event_proposal_ids(user), do: Enum.map(user.event_assignments, & &1.proposal_id)
 
   @spec league_ids(User.t()) :: [Ecto.UUID.t()]
   defp league_ids(user), do: Enum.map(user.leagues, & &1.id)
