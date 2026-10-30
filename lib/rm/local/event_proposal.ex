@@ -75,6 +75,7 @@ defmodule RM.Local.EventProposal do
 
     timestamps type: :utc_datetime_usec
     field :submitted_at, :utc_datetime_usec
+    field :details_updated_at, :utc_datetime_usec
     field :removed_at, :utc_datetime_usec
 
     has_many :attachments, EventAttachment, foreign_key: :proposal_id
