@@ -1,5 +1,6 @@
 defmodule RMWeb.Live.Util do
   use RMWeb, :html
+  import Ecto.Query
   import Phoenix.Component
 
   alias Phoenix.Component
@@ -7,6 +8,7 @@ defmodule RMWeb.Live.Util do
   alias Phoenix.LiveView.JS
   alias Phoenix.LiveView.Socket
   alias RM.Account
+  alias RM.Account.Event
   alias RM.FIRST
   alias RM.Local
 
@@ -213,8 +215,21 @@ defmodule RMWeb.Live.Util do
 
   @spec get_user(Ecto.UUID.t()) :: Account.User.t()
   defp get_user(user_id) do
+    event_assignments =
+      from(assignment in Event,
+        join: proposal in assoc(assignment, :proposal),
+        join: region in assoc(proposal, :region),
+        where: proposal.season == region.current_season
+      )
+
     Account.get_user_by_id!(user_id, preload: [:admin, :profile])
-    |> RM.Repo.preload([:emails, :regions, leagues: [:region], teams: [:league, :region]])
+    |> RM.Repo.preload([
+      :emails,
+      :regions,
+      event_assignments: event_assignments,
+      leagues: [:region],
+      teams: [:league, :region]
+    ])
     |> Map.update!(:emails, &sort_emails/1)
     |> Map.update!(:leagues, &sort_leagues/1)
     |> Map.update!(:regions, &sort_regions/1)
