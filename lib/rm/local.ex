@@ -190,8 +190,18 @@ defmodule RM.Local do
 
   @spec create_event(map) :: {:ok, EventProposal.t()} | {:error, Changeset.t(EventProposal.t())}
   def create_event(params) do
-    EventProposal.create_changeset(params)
-    |> Repo.insert()
+    changeset = EventProposal.create_changeset(params)
+
+    Repo.transact(fn ->
+      case Repo.insert(changeset) do
+        {:ok, proposal} ->
+          relink_event_director(proposal)
+          {:ok, proposal}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end)
   end
 
   @spec create_proposal_from_event(Event.t(), map) ::
@@ -243,14 +253,30 @@ defmodule RM.Local do
 
   @spec relink_event_director(EventProposal.t()) :: :ok
   defp relink_event_director(proposal) do
-    if email = proposal.contact.email do
-      proposal
-      |> RM.Account.Event.create_changeset(%{email: email})
-      |> Repo.insert(on_conflict: :replace_all, conflict_target: [:proposal_id], returning: true)
+    case proposal.contact do
+      %EventProposal.Contact{email: email} when is_binary(email) and email != "" ->
+        user_id =
+          from(registered_email in Identity.Schema.Email,
+            where: registered_email.email == ^email and not is_nil(registered_email.confirmed_at),
+            select: registered_email.user_id
+          )
+          |> Repo.one()
 
-      :ok
-    else
-      :ok
+        proposal
+        |> RM.Account.Event.create_changeset(%{email: email})
+        |> Changeset.put_change(:user_id, user_id)
+        |> Repo.insert!(on_conflict: :replace_all, conflict_target: [:proposal_id])
+
+        RM.Account.Event.user_update_by_email_query(email)
+        |> Repo.update_all([])
+
+        :ok
+
+      _contact ->
+        from(user_event in RM.Account.Event, where: user_event.proposal_id == ^proposal.id)
+        |> Repo.delete_all()
+
+        :ok
     end
   end
 

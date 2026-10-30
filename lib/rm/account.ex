@@ -10,6 +10,7 @@ defmodule RM.Account do
 
   """
   alias Ecto.Changeset
+  alias RM.Account.Event
   alias RM.Account.League
   alias RM.Account.Profile
   alias RM.Account.Query
@@ -74,6 +75,9 @@ defmodule RM.Account do
       Team.user_update_by_email_query(email.email)
       |> Repo.update_all([])
 
+      Event.user_update_by_email_query(email.email)
+      |> Repo.update_all([])
+
       {:ok, email}
     end
   end
@@ -88,6 +92,9 @@ defmodule RM.Account do
       |> Repo.update_all([])
 
       Team.user_remove_by_email_query(email)
+      |> Repo.update_all([])
+
+      Event.user_remove_by_email_query(email)
       |> Repo.update_all([])
 
       :ok
