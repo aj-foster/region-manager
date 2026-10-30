@@ -257,7 +257,19 @@ defmodule RM.Local.EventProposal do
 
     Query.from_proposal()
     |> where([proposal: p], p.id in ^ids)
-    |> update(set: [submitted_at: ^now])
+  end
+
+  @doc "Changeset to update when the proposal details differ from its published event"
+  @spec details_updated_changeset(t) :: Changeset.t(t)
+  def details_updated_changeset(proposal) do
+    Changeset.change(proposal, details_updated_at: details_updated_timestamp(proposal))
+  end
+
+  @doc "Add the details-updated timestamp to an update changeset"
+  @spec put_details_updated_at(Changeset.t(t)) :: Changeset.t(t)
+  def put_details_updated_at(changeset) do
+    proposal = Changeset.apply_changes(changeset)
+    Changeset.put_change(changeset, :details_updated_at, details_updated_timestamp(proposal))
   end
 
   #
@@ -275,6 +287,42 @@ defmodule RM.Local.EventProposal do
       type_match?(proposal.type, event.type) and
       loose_match?(proposal.venue.city, event.location.city)
   end
+
+  defp details_updated_timestamp(
+         %__MODULE__{
+           first_event: %RM.FIRST.Event{} = event,
+           details_updated_at: previous_timestamp
+         } = proposal
+       ) do
+    if differs_from_event?(proposal, event) do
+      previous_timestamp || DateTime.utc_now()
+    end
+  end
+
+  defp details_updated_timestamp(_proposal), do: nil
+
+  defp differs_from_event?(proposal, event) do
+    venue = proposal.venue
+    location = event.location
+
+    proposal.date_end != event.date_end or
+      proposal.date_start != event.date_start or
+      proposal.name != event.name or
+      not type_match?(proposal.type, event.type) or
+      not format_matches?(proposal.format, event) or
+      is_nil(venue) or is_nil(location) or
+      venue.name != location.venue or
+      venue.address != location.address or
+      venue.city != location.city or
+      venue.state_province != location.state_province or
+      venue.country != location.country or
+      venue.timezone != event.date_timezone
+  end
+
+  defp format_matches?(:traditional, %{hybrid: false, remote: false}), do: true
+  defp format_matches?(:hybrid, %{hybrid: true, remote: false}), do: true
+  defp format_matches?(:remote, %{remote: true}), do: true
+  defp format_matches?(_format, _event), do: false
 
   @spec type_match?(type, RM.FIRST.Event.type()) :: boolean
   defp type_match?(type, type), do: true

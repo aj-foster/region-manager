@@ -226,7 +226,12 @@ defmodule RM.Local do
   @spec update_event(EventProposal.t(), map) ::
           {:ok, EventProposal.t()} | {:error, Changeset.t(EventProposal.t())}
   def update_event(proposal, params) do
-    changeset = EventProposal.update_changeset(proposal, params)
+    proposal = Repo.preload(proposal, [:first_event, :venue], force: true)
+
+    changeset =
+      proposal
+      |> EventProposal.update_changeset(params)
+      |> EventProposal.put_details_updated_at()
 
     Repo.transact(fn ->
       case Repo.update(changeset) do
@@ -294,22 +299,69 @@ defmodule RM.Local do
   def update_event_proposal_events(updates) do
     {proposal_ids, first_event_ids} = Enum.unzip(updates)
 
-    Query.from_proposal()
-    |> join(
-      :inner,
-      [proposal: p],
-      temp in fragment(
-        "SELECT * FROM unnest(?::uuid[], ?::uuid[]) AS update_table(id, first_event_id)",
-        type(^proposal_ids, {:array, Ecto.UUID}),
-        type(^first_event_ids, {:array, Ecto.UUID})
-      ),
-      on: p.id == temp.id,
-      as: :temp
-    )
-    |> update([temp: t], set: [first_event_id: t.first_event_id])
-    |> Repo.update_all([])
+    Repo.transact(fn ->
+      proposals_by_id =
+        Query.from_proposal()
+        |> where([proposal: p], p.id in ^proposal_ids)
+        |> Repo.all()
+        |> Repo.preload(:venue)
+        |> Map.new(&{&1.id, &1})
 
-    :ok
+      events_by_id =
+        from(event in Event, where: event.id in ^first_event_ids)
+        |> Repo.all()
+        |> Map.new(&{&1.id, &1})
+
+      update_values =
+        Enum.flat_map(updates, fn {proposal_id, first_event_id} ->
+          with %EventProposal{} = proposal <- proposals_by_id[proposal_id],
+               %Event{} = event <- events_by_id[first_event_id] do
+            proposal = %{proposal | first_event: event}
+
+            details_updated_at =
+              proposal
+              |> EventProposal.details_updated_changeset()
+              |> Changeset.apply_changes()
+              |> Map.fetch!(:details_updated_at)
+
+            [{proposal_id, first_event_id, details_updated_at}]
+          else
+            _ -> []
+          end
+        end)
+
+      proposal_ids = Enum.map(update_values, &elem(&1, 0))
+      first_event_ids = Enum.map(update_values, &elem(&1, 1))
+      details_updated_ats = Enum.map(update_values, &elem(&1, 2))
+
+      Query.from_proposal()
+      |> join(
+        :inner,
+        [proposal: p],
+        temp in fragment(
+          "SELECT * FROM unnest(?::uuid[], ?::uuid[], ?) AS update_table(id, first_event_id, details_updated_at)",
+          type(^proposal_ids, {:array, Ecto.UUID}),
+          type(^first_event_ids, {:array, Ecto.UUID}),
+          type(^details_updated_ats, {:array, :utc_datetime_usec})
+        ),
+        on: p.id == temp.id,
+        as: :temp
+      )
+      |> update([temp: t],
+        set: [
+          first_event_id: t.first_event_id,
+          details_updated_at: t.details_updated_at
+        ]
+      )
+      |> Repo.update_all([])
+
+      {:ok, :ok}
+    end)
+    |> case do
+      {:ok, :ok} -> :ok
+      {:error, %_{} = error} -> raise error
+      {:error, reason} -> raise "Failed to update event proposals: #{inspect(reason)}"
+    end
   end
 
   @spec create_batch_submission(Region.t(), [EventProposal.t()], RM.Account.User.t()) ::
