@@ -23,6 +23,8 @@ defmodule RM.Local do
   alias RM.Repo
   alias RM.Util
 
+  @event_director_email_regex ~r/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
   #
   # Events
   #
@@ -253,30 +255,33 @@ defmodule RM.Local do
 
   @spec relink_event_director(EventProposal.t()) :: :ok
   defp relink_event_director(proposal) do
-    case proposal.contact do
-      %EventProposal.Contact{email: email} when is_binary(email) and email != "" ->
-        user_id =
-          from(registered_email in Identity.Schema.Email,
-            where: registered_email.email == ^email and not is_nil(registered_email.confirmed_at),
-            select: registered_email.user_id
-          )
-          |> Repo.one()
+    email = proposal.contact && proposal.contact.email
 
-        proposal
-        |> RM.Account.Event.create_changeset(%{email: email})
-        |> Changeset.put_change(:user_id, user_id)
-        |> Repo.insert!(on_conflict: :replace_all, conflict_target: [:proposal_id])
+    if is_binary(email) and Regex.match?(@event_director_email_regex, email) do
+      RM.Email.Address.new(email)
+      |> Repo.insert!(on_conflict: :nothing, conflict_target: [:email])
 
-        RM.Account.Event.user_update_by_email_query(email)
-        |> Repo.update_all([])
+      user_id =
+        from(registered_email in Identity.Schema.Email,
+          where: registered_email.email == ^email and not is_nil(registered_email.confirmed_at),
+          select: registered_email.user_id
+        )
+        |> Repo.one()
 
-        :ok
+      proposal
+      |> RM.Account.Event.create_changeset(%{email: email})
+      |> Changeset.put_change(:user_id, user_id)
+      |> Repo.insert!(on_conflict: :replace_all, conflict_target: [:proposal_id])
 
-      _contact ->
-        from(user_event in RM.Account.Event, where: user_event.proposal_id == ^proposal.id)
-        |> Repo.delete_all()
+      RM.Account.Event.user_update_by_email_query(email)
+      |> Repo.update_all([])
 
-        :ok
+      :ok
+    else
+      from(user_event in RM.Account.Event, where: user_event.proposal_id == ^proposal.id)
+      |> Repo.delete_all()
+
+      :ok
     end
   end
 
