@@ -9,7 +9,31 @@ import MarkdownEditor from "./hooks/markdown_editor";
 //
 
 let Hooks = {
-  MarkdownEditor,
+  MarkdownEditor: {
+    mounted() {
+      this.isDestroyed = false;
+
+      import("./hooks/markdown_editor")
+        .then(({ default: markdownEditor }) => {
+          if (this.isDestroyed) return;
+
+          this.markdownEditor = markdownEditor;
+          markdownEditor.mounted.call(this);
+        })
+        .catch((error) => {
+          console.error("Failed to load the Markdown editor.", error);
+        });
+    },
+
+    updated() {
+      this.markdownEditor?.updated?.call(this);
+    },
+
+    destroyed() {
+      this.isDestroyed = true;
+      this.markdownEditor?.destroyed?.call(this);
+    },
+  },
 };
 
 const AUTOSAVE_DELAY_MS = 5000;
