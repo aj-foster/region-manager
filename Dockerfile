@@ -1,5 +1,9 @@
 FROM hexpm/erlang:28.4.1-debian-trixie-20260316-slim
 
+RUN apt-get update && \
+    apt-get install --no-install-recommends --yes fonts-montserrat && \
+    rm -rf /var/lib/apt/lists/*
+
 ARG REVISION="unset"
 ENV APP_REVISION=$REVISION
 ENV LC_ALL=C.UTF-8

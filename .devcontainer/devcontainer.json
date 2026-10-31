@@ -6,7 +6,7 @@
   "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && ${containerWorkspaceFolder}/.devcontainer/post-start.sh",
   "features": {
     "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
-      "packages": "inotify-tools"
+      "packages": "inotify-tools,fonts-montserrat"
     },
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": "true",
