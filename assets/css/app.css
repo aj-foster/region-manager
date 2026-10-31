@@ -1,5 +1,6 @@
 @import "_font.css";
 @import "_markdown.css";
+@import "leaflet/dist/leaflet.css";
 
 @import "tailwindcss/base";
 @import "tailwindcss/components";
@@ -11,6 +12,41 @@
   body {
     font-family: "Poppins", sans-serif;
   }
+}
+
+.team-map {
+  height: min(65vh, 720px);
+  min-height: 360px;
+  border-radius: 0.25rem;
+}
+
+.team-map-marker {
+  display: block;
+  box-sizing: border-box;
+  border: 1px solid white;
+  border-radius: 9999px;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 60%);
+}
+
+.team-map-popup {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.team-map-popup li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.team-map-popup-swatch {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
 }
 
 @layer utilities {

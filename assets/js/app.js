@@ -35,6 +35,110 @@ let Hooks = {
   },
 };
 
+Hooks.TeamMap = {
+  mounted() {
+    this.isDestroyed = false;
+
+    import("leaflet")
+      .then(({ default: leaflet }) => {
+        if (this.isDestroyed) return;
+
+        this.leaflet = leaflet;
+        this.map = leaflet.map(this.el);
+        this.markerLayer = leaflet.layerGroup().addTo(this.map);
+
+        leaflet.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(this.map);
+
+        this.renderMarkers();
+      })
+      .catch((error) => {
+        console.error("Failed to load Leaflet for the team map.", error);
+      });
+  },
+
+  updated() {
+    if (this.markerLayer) this.renderMarkers();
+  },
+
+  destroyed() {
+    this.isDestroyed = true;
+    this.map?.remove();
+  },
+
+  renderMarkers() {
+    const markers = JSON.parse(this.el.dataset.markers).sort(
+      (a, b) => b.teams.length - a.teams.length,
+    );
+    this.markerLayer.clearLayers();
+
+    markers.forEach((markerData, index) => {
+      const marker = this.leaflet.marker(
+        [markerData.latitude, markerData.longitude],
+        {
+          icon: this.markerIcon(markerData),
+          title: `${markerData.teams.length} teams`,
+          zIndexOffset: index * 10000,
+        },
+      );
+
+      marker.options.teams = markerData.teams;
+      marker.bindPopup(this.markerPopup(markerData));
+      marker.addTo(this.markerLayer);
+    });
+
+    if (markers.length > 0) {
+      const bounds = this.leaflet.latLngBounds(
+        markers.map((marker) => [marker.latitude, marker.longitude]),
+      );
+      this.map.fitBounds(bounds, { maxZoom: 11, padding: [24, 24] });
+    }
+
+    this.map.invalidateSize();
+  },
+
+  markerIcon(markerData) {
+    const size = 12 * Math.sqrt(markerData.teams.length);
+    const step = 100 / markerData.leagues.length;
+    const segments = markerData.leagues
+      .map(
+        (league, index) =>
+          `${league.color} ${index * step}% ${(index + 1) * step}%`,
+      )
+      .join(", ");
+    const html = `<span class="team-map-marker" style="width: ${size}px; height: ${size}px; background: conic-gradient(${segments})"></span>`;
+
+    return this.leaflet.divIcon({
+      className: "",
+      html,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+    });
+  },
+
+  markerPopup(markerData) {
+    const popup = document.createElement("ul");
+    popup.className = "team-map-popup";
+
+    markerData.teams.forEach((team) => {
+      const item = document.createElement("li");
+      const swatch = document.createElement("span");
+      const label = document.createElement("span");
+
+      swatch.className = "team-map-popup-swatch";
+      swatch.style.backgroundColor = team.color;
+      label.textContent = `${team.number} · ${team.name} · ${team.league}`;
+      item.append(swatch, label);
+      popup.append(item);
+    });
+
+    return popup;
+  },
+};
+
 const AUTOSAVE_DELAY_MS = 5000;
 
 Hooks.AutoSave = {
