@@ -57,6 +57,12 @@ defmodule RMWeb.Router do
     get "/", PageController, :home
     get "/r/:region/*rest", PageController, :redirect_to_current_season
 
+    get "/s/:season/r/:region/e/:event/r/team_list.pdf", EventResourceController, :team_list
+
+    get "/s/:season/r/:region/l/:league/e/:event/r/team_list.pdf",
+        EventResourceController,
+        :team_list
+
     live_session :ambiguous,
       on_mount: [
         {Identity.LiveView, :fetch_identity},

@@ -18,6 +18,32 @@
 
 <.title>Resources for {@event.name}</.title>
 
-<.card spaced>
-  <p class="text-sm">Event resources will be available here.</p>
-</.card>
+<div class="gap-4 grid sm:grid-cols-2 lg:grid-cols-3">
+  <.link_card
+    class="group flex flex-col gap-4 h-full transition-colors hover:border-orange-300 hover:bg-orange-50/30"
+    href={
+      path =
+        if @local_league || @first_league do
+          ~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/e/#{@event}/r/team_list.pdf"
+        else
+          ~p"/s/#{@season}/r/#{@region}/e/#{@event}/r/team_list.pdf"
+        end
+
+      path <> "?" <> URI.encode_query(timezone: @timezone)
+    }
+  >
+    <div class="text-center">
+      <.icon
+        class="h-8 text-orange-600 w-8"
+        name="hero-clipboard-document-list"
+        aria-hidden="true"
+      />
+    </div>
+    <div>
+      <h2 class="font-title font-semibold">Team Check-in List</h2>
+      <p class="mt-1 text-sm">
+        Printable team list with "Event Ready" status and check-in tracking.
+      </p>
+    </div>
+  </.link_card>
+</div>

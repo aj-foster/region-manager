@@ -19,7 +19,7 @@ defmodule RMWeb.EventLive.Resources do
 
   @spec assign_event(Socket.t(), String.t()) :: Socket.t()
   defp assign_event(socket, event_code) do
-    preloads = [:league, :local_league]
+    preloads = [:league, :local_league, :proposal, :settings]
     region = socket.assigns[:region]
     season = socket.assigns[:season]
 
