@@ -47,6 +47,11 @@ defmodule RMWeb.Router do
   # Main Routes
 
   scope "/", RMWeb do
+    get "/calendar/r/:region/events.ics", CalendarController, :region
+    get "/calendar/r/:region/l/:league/events.ics", CalendarController, :league
+  end
+
+  scope "/", RMWeb do
     pipe_through :browser
 
     get "/", PageController, :home

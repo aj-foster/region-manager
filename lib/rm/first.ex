@@ -522,6 +522,51 @@ defmodule RM.FIRST do
     |> Enum.sort(Event)
   end
 
+  @doc """
+  List all non-removed, non-division events in a region for calendar feeds.
+
+  Unlike the regular event listing, this query is not limited to the region's current season.
+  """
+  @spec list_calendar_events_by_region(Region.t()) :: [Event.t()]
+  @spec list_calendar_events_by_region(Region.t(), keyword) :: [Event.t()]
+  def list_calendar_events_by_region(region, opts \\ []) do
+    preload = Enum.uniq([:league, :local_league, :proposal] ++ (opts[:preload] || []))
+
+    Query.from_event()
+    |> Query.event_region(region)
+    |> Query.event_not_removed()
+    |> Query.preload_assoc(:event, preload)
+    |> Repo.all()
+    |> Enum.filter(&is_nil(&1.division_code))
+    |> Enum.filter(&calendar_event_in_scope?(&1, opts[:league]))
+    |> Enum.map(fn
+      %Event{region: %Region{}} = event -> event
+      %Event{} = event -> %Event{event | region: region}
+    end)
+    |> Enum.sort(Event)
+  end
+
+  defp calendar_event_in_scope?(_event, nil), do: true
+
+  defp calendar_event_in_scope?(
+         %Event{proposal: %RM.Local.EventProposal{league_id: league_id}},
+         league
+       ) do
+    league_id == league.id
+  end
+
+  defp calendar_event_in_scope?(%Event{local_league_id: league_id}, league)
+       when not is_nil(league_id) do
+    league_id == league.id
+  end
+
+  defp calendar_event_in_scope?(event, league) do
+    case event.league do
+      %RM.FIRST.League{local_league_id: league_id} -> league_id == league.id
+      _ -> false
+    end
+  end
+
   @spec list_eligible_events_by_team(RM.Local.Team.t()) :: [Event.t()]
   @spec list_eligible_events_by_team(RM.Local.Team.t(), keyword) :: [Event.t()]
   def list_eligible_events_by_team(team, opts \\ []) do
