@@ -56,9 +56,7 @@
         There {dumb_inflect_is("unsubmitted event proposal", @proposals_count)}
       </p>
       <p>
-        Select new event proposals to include in a Batch Create spreadsheet. For published events
-        with updated details, submit an update request to <em>FIRST</em>
-        and mark it as submitted here.
+        Select new event proposals to include in a Batch Create spreadsheet. Events already in the Event Portal require an update request and can't be batched.
       </p>
     </.information>
 
@@ -68,6 +66,7 @@
           <:item :for={proposal <- @proposals} class="flex items-center px-4 py-2 relative">
             <div class="grow">
               <input
+                disabled={not is_nil(proposal.first_event_id)}
                 id={"proposal-include-#{proposal.id}-hidden"}
                 name={"proposal-include[#{proposal.id}]"}
                 type="hidden"
@@ -75,7 +74,8 @@
               />
               <input
                 class="absolute left-8 opacity-0 peer"
-                checked={true}
+                checked={is_nil(proposal.first_event_id)}
+                disabled={not is_nil(proposal.first_event_id)}
                 id={"proposal-include-#{proposal.id}"}
                 name={"proposal-include[#{proposal.id}]"}
                 type="checkbox"
@@ -91,7 +91,7 @@
                 </div>
                 <div class="grow min-w-0 ml-4 text-ellipsis whitespace-nowrap">
                   <h3 class="gap-1 flex items-center">{proposal.name}</h3>
-                  <p class="text-sm">
+                  <p :if={is_nil(proposal.first_event_id)} class="text-sm">
                     <span>{format_range(proposal.date_start, proposal.date_end)}</span>
                     <span>&bull; {RM.FIRST.Event.type_name(proposal.type)}</span>
                     <span :if={proposal.format != :traditional}>
@@ -100,6 +100,9 @@
                     <span :if={proposal.league}>
                       &bull; {proposal.league.name}
                     </span>
+                  </p>
+                  <p :if={proposal.first_event_id} class="text-sm">
+                    Updated {format_date(proposal.details_updated_at, :date)}
                   </p>
                 </div>
               </label>

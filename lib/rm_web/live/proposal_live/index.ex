@@ -137,12 +137,14 @@ defmodule RMWeb.ProposalLive.Index do
     unsubmitted_proposals =
       Enum.sort(open_proposals ++ details_updated_proposals, RM.Local.EventProposal)
 
+    batchable_proposals_count = Enum.count(unsubmitted_proposals, &is_nil(&1.first_event_id))
+
     assign(socket,
       matched_proposals: matched_proposals,
       matched_proposals_count: length(matched_proposals),
       proposals: unsubmitted_proposals,
       proposals_count: length(unsubmitted_proposals),
-      batch_proposals_count: length(open_proposals),
+      batch_proposals_count: batchable_proposals_count,
       removed_proposals: removed_proposals,
       removed_proposals_count: length(removed_proposals),
       submitted_proposals: submitted_proposals,
