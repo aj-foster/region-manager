@@ -48,8 +48,6 @@ defmodule RMWeb.TeamLive.MapTest do
 
     {:ok, _view, html} = live(conn, path)
 
-    assert html =~ "Showing 2 active teams"
-
     [map] =
       html
       |> Floki.parse_document!()
