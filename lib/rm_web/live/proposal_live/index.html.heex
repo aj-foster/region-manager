@@ -53,10 +53,12 @@
   <%= if @proposals_count > 0 do %>
     <.information class="mb-4">
       <p class="font-bold">
-        There {dumb_inflect_is("pending event proposal", @proposals_count)}
+        There {dumb_inflect_is("unsubmitted event proposal", @proposals_count)}
       </p>
       <p>
-        Select event proposals to include in a Batch Create spreadsheet.
+        Select new event proposals to include in a Batch Create spreadsheet. For published events
+        with updated details, submit an update request to <em>FIRST</em>
+        and mark it as submitted here.
       </p>
     </.information>
 
@@ -80,7 +82,10 @@
                 value="true"
               />
 
-              <label class="flex grow items-center group" for={"proposal-include-#{proposal.id}"}>
+              <label
+                class="flex grow items-center group"
+                for={"proposal-include-#{proposal.id}"}
+              >
                 <div class="bg-slate-300 flex h-5 items-center rounded w-5 peer-checked:group-[]:bg-emerald-300 peer-disabled:group-[]:bg-slate-100 peer-disabled:group-[]:cursor-not-allowed">
                   <.icon class="h-5 hidden w-5 peer-checked:group-[]:flex" name="hero-check" />
                 </div>
@@ -99,6 +104,17 @@
                 </div>
               </label>
             </div>
+            <%= if proposal.details_updated_at do %>
+              <.button
+                phx-click="mark_submitted"
+                phx-value-proposal={proposal.id}
+                style="tertiary"
+                title="Mark Submitted"
+                type="button"
+              >
+                <.icon name="hero-check" />
+              </.button>
+            <% end %>
             <.link_button
               navigate={url_for([@season, @region, @local_league, proposal])}
               style="tertiary"
@@ -107,7 +123,7 @@
             </.link_button>
           </:item>
         </.list>
-        <p class="px-4 py-2 text-right">
+        <p :if={@batch_proposals_count > 0} class="px-4 py-2 text-right">
           <.button class="mr-2" type="submit">Generate...</.button>
         </p>
       </form>

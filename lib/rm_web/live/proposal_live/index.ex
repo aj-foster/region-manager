@@ -75,6 +75,12 @@ defmodule RMWeb.ProposalLive.Index do
     |> noreply()
   end
 
+  def handle_event("mark_submitted", %{"proposal" => proposal_id}, socket) do
+    socket
+    |> proposal_mark_submitted(proposal_id)
+    |> noreply()
+  end
+
   #
   # Helpers
   #
@@ -114,8 +120,9 @@ defmodule RMWeb.ProposalLive.Index do
       |> Enum.sort(RM.Local.EventProposal)
       |> Enum.group_by(fn proposal ->
         cond do
-          proposal.first_event_id -> :matched
           proposal.removed_at -> :removed
+          proposal.details_updated_at -> :details_updated
+          proposal.first_event_id -> :matched
           proposal.submitted_at -> :submitted
           :else -> :rest
         end
@@ -125,12 +132,17 @@ defmodule RMWeb.ProposalLive.Index do
     open_proposals = proposals[:rest] || []
     removed_proposals = proposals[:removed] || []
     submitted_proposals = proposals[:submitted] || []
+    details_updated_proposals = proposals[:details_updated] || []
+
+    unsubmitted_proposals =
+      Enum.sort(open_proposals ++ details_updated_proposals, RM.Local.EventProposal)
 
     assign(socket,
       matched_proposals: matched_proposals,
       matched_proposals_count: length(matched_proposals),
-      proposals: open_proposals,
-      proposals_count: length(open_proposals),
+      proposals: unsubmitted_proposals,
+      proposals_count: length(unsubmitted_proposals),
+      batch_proposals_count: length(open_proposals),
       removed_proposals: removed_proposals,
       removed_proposals_count: length(removed_proposals),
       submitted_proposals: submitted_proposals,
@@ -168,7 +180,7 @@ defmodule RMWeb.ProposalLive.Index do
 
     proposals =
       socket.assigns[:proposals]
-      |> Enum.filter(&(&1.id in proposal_ids))
+      |> Enum.filter(&(&1.id in proposal_ids and is_nil(&1.first_event_id)))
 
     case RM.Local.create_batch_submission(region, proposals, user) do
       {:ok, url} ->
@@ -184,6 +196,32 @@ defmodule RMWeb.ProposalLive.Index do
       {:error, reason} ->
         Logger.warning("Error while generating Batch Create file: #{inspect(reason)}")
         put_flash(socket, :error, "An error occurred while generating file")
+    end
+  end
+
+  @spec proposal_mark_submitted(Socket.t(), Ecto.UUID.t()) :: Socket.t()
+  defp proposal_mark_submitted(socket, proposal_id) do
+    region = socket.assigns[:region]
+    user = socket.assigns[:current_user]
+
+    proposal =
+      Enum.find(socket.assigns[:proposals], &(&1.id == proposal_id and &1.details_updated_at))
+
+    cond do
+      socket.assigns[:local_league] || not can?(user, :proposal_submit, region) ->
+        put_flash(socket, :error, "You are not authorized to perform this action")
+
+      is_nil(proposal) ->
+        socket
+        |> put_flash(:error, "Event proposal not found")
+        |> assign_proposals()
+
+      :else ->
+        RM.Local.mark_event_proposal_submitted(proposal)
+
+        socket
+        |> put_flash(:info, "Event proposal marked as submitted")
+        |> assign_proposals()
     end
   end
 end
