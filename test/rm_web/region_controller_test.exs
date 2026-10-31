@@ -39,6 +39,20 @@ defmodule RMWeb.RegionControllerTest do
   end
 
   describe "GET /api/r/:region/events" do
+    test "uses an already assigned region to determine the season", %{conn: conn, region: region} do
+      region =
+        region
+        |> Ecto.Changeset.change(current_season: 2023)
+        |> RM.Repo.update!()
+
+      conn =
+        conn
+        |> Plug.Conn.assign(:region, region)
+        |> RMWeb.Controller.Util.assign_season([])
+
+      assert conn.assigns.season == 2023
+    end
+
     test "returns events for the current season", %{conn: conn, region: region} do
       Factory.insert(:first_event, code: "USFLORS", region: region, season: 2024)
       |> Factory.with_event_settings()
@@ -58,6 +72,35 @@ defmodule RMWeb.RegionControllerTest do
             "type" => "Scrimmage",
             "location" => %{},
             "registration" => %{}
+          }
+        ],
+        "event_count" => 1
+      })
+    end
+
+    test "uses the region's current season instead of the system-wide season", %{
+      conn: conn,
+      region: region
+    } do
+      region =
+        region
+        |> Ecto.Changeset.change(current_season: 2023)
+        |> RM.Repo.update!()
+
+      Factory.insert(:first_event, code: "USFLORS", region: region, season: 2023)
+      |> Factory.with_event_settings()
+
+      Factory.insert(:first_event, code: "USFLORS2", region: region, season: 2024)
+      |> Factory.with_event_settings()
+
+      conn
+      |> get(~p"/api/r/FL/events")
+      |> assert_success()
+      |> assert_match(%{
+        "events" => [
+          %{
+            "code" => "USFLORS",
+            "season" => 2023
           }
         ],
         "event_count" => 1

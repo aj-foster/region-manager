@@ -1,5 +1,7 @@
 defmodule RMWeb.RegionController do
   use RMWeb, :controller
+  import RMWeb.Controller.Util, only: [assign_season: 2]
+
   plug :assign_season
 
   def show(conn, %{"region" => abbreviation}) do
@@ -72,21 +74,5 @@ defmodule RMWeb.RegionController do
 
       render(conn, :videos, videos: videos)
     end
-  end
-
-  #
-  # Helper Plugs
-  #
-
-  @spec assign_season(Plug.Conn.t(), any) :: Plug.Conn.t()
-  defp assign_season(%Plug.Conn{path_params: %{"season" => season}} = conn, _opts) do
-    case Integer.parse(season) do
-      {season, ""} -> assign(conn, :season, season)
-      :error -> assign(conn, :season, RM.System.current_season())
-    end
-  end
-
-  defp assign_season(conn, _opts) do
-    assign(conn, :season, RM.System.current_season())
   end
 end
