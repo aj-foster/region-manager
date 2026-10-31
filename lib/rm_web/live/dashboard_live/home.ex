@@ -25,14 +25,22 @@ defmodule RMWeb.DashboardLive.Home do
 
   @impl true
   def handle_async(name, {:ok, tasks}, socket)
-      when name in [:pending_proposals, :teams_to_import, :teams_without_league] do
+      when name in [
+             :pending_proposals,
+             :teams_to_import,
+             :teams_without_league
+           ] do
     socket
     |> assign(:pending_tasks, socket.assigns.pending_tasks ++ tasks)
     |> noreply()
   end
 
   def handle_async(name, {:exit, reason}, socket)
-      when name in [:pending_proposals, :teams_to_import, :teams_without_league] do
+      when name in [
+             :pending_proposals,
+             :teams_to_import,
+             :teams_without_league
+           ] do
     Logger.error("Error while loading dashboard pending tasks (#{name}): #{inspect(reason)}")
 
     socket
@@ -65,8 +73,9 @@ defmodule RMWeb.DashboardLive.Home do
       count =
         RM.Local.list_event_proposals_by_region(region)
         |> Enum.count(fn proposal ->
-          is_nil(proposal.first_event_id) and is_nil(proposal.removed_at) and
-            is_nil(proposal.submitted_at)
+          is_nil(proposal.removed_at) and
+            ((is_nil(proposal.first_event_id) and is_nil(proposal.submitted_at)) or
+               not is_nil(proposal.details_updated_at))
         end)
 
       if count > 0 do
@@ -74,7 +83,7 @@ defmodule RMWeb.DashboardLive.Home do
           %{
             id: "pending-proposals-#{region.id}",
             title:
-              "#{region.name} has #{dumb_inflect("event proposal", count)} awaiting submission",
+              "#{region.name} has #{dumb_inflect("new or updated event proposal", count)} awaiting submission",
             description: "Click to navigate to the event proposals page.",
             href: ~p"/s/#{region.current_season}/r/#{region}/proposals",
             error: false
