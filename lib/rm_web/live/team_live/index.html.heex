@@ -7,6 +7,17 @@
 
 <RMWeb.RegionLive.Util.region_nav
   :if={is_nil(@local_league) and is_nil(@first_league)}
+  class={if can?(@current_user, :team_update, @region), do: "", else: "mb-8"}
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<RMWeb.RegionLive.Util.team_index_nav
+  :if={
+    is_nil(@local_league) and is_nil(@first_league) and can?(@current_user, :team_update, @region)
+  }
   class="mb-8"
   season={@season}
   region={@region}

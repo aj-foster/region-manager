@@ -1,0 +1,42 @@
+<.breadcrumbs class="mb-4" season={@season} region={@region} />
+
+<RMWeb.RegionLive.Util.region_nav
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<RMWeb.RegionLive.Util.team_index_nav
+  class="mb-8"
+  season={@season}
+  region={@region}
+  user={@current_user}
+  view={@socket.view}
+/>
+
+<.title>Teams in {@region.name}</.title>
+
+<.card flush spaced>
+  <div
+    :if={@markers != []}
+    id="team-map"
+    class="team-map"
+    role="application"
+    aria-label="Map of active teams in {@region.name}"
+    phx-hook="TeamMap"
+    phx-update="ignore"
+    data-markers={JSON.encode!(@markers)}
+  />
+
+  <p :if={@markers == []} class="italic text-sm">
+    No team locations are available to map.
+  </p>
+
+  <ul :if={@leagues != []} class="border rounded p-4 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+    <li :for={league <- @leagues} class="flex items-center gap-2">
+      <span class="h-3 w-3 rounded-full" style={"background-color: #{league.color}"} />
+      {league.name}
+    </li>
+  </ul>
+</.card>
