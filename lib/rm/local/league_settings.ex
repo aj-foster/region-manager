@@ -41,6 +41,14 @@ defmodule RM.Local.LeagueSettings do
   end
 
   @doc """
+  Default settings struct for a new league
+  """
+  @spec default_struct(League.t()) :: t
+  def default_struct(league) do
+    struct(__MODULE__, default_params(league))
+  end
+
+  @doc """
   Create a changeset to insert or update event settings
   """
   @spec changeset(map) :: Changeset.t(t)

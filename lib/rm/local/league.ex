@@ -79,6 +79,7 @@ defmodule RM.Local.League do
     |> Changeset.put_assoc(:region, region)
     |> Changeset.validate_required(@required_fields)
     |> Changeset.unique_constraint([:code, :region_id])
+    |> Changeset.put_assoc(:settings, LeagueSettings.default_struct(%__MODULE__{}))
   end
 
   @doc """

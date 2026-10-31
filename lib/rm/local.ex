@@ -535,7 +535,10 @@ defmodule RM.Local do
       |> Map.new(&{&1.code, &1.id})
 
     params = League.from_first_league(first_league, league_id_map)
-    changeset = Changeset.change(%League{}, params)
+
+    changeset =
+      Changeset.change(%League{}, params)
+      |> Changeset.put_assoc(:settings, LeagueSettings.default_struct(%League{}))
 
     with {:ok, league} <- Repo.insert(changeset) do
       RM.FIRST.update_region_league_counts(league.region_id)
