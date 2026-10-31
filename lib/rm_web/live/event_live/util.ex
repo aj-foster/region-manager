@@ -87,8 +87,21 @@ defmodule RMWeb.EventLive.Util do
         Registration
       </.nav_item>
       <.nav_item
+        :if={@season == @region.current_season and can?(@user, :event_resources_show, @event)}
+        current={@view}
+        navigate={
+          if @league,
+            do: ~p"/s/#{@season}/r/#{@region}/l/#{@league}/e/#{@event}/resources",
+            else: ~p"/s/#{@season}/r/#{@region}/e/#{@event}/resources"
+        }
+        target={RMWeb.EventLive.Resources}
+      >
+        Resources
+      </.nav_item>
+      <.nav_item
         :if={
-          (@user || @event.settings.video_submission) &&
+          @season == @region.current_season &&
+            (@user || @event.settings.video_submission) &&
             @event.type not in [:league_meet, :kickoff, :workshop, :demo, :volunteer]
         }
         current={@view}
@@ -102,7 +115,7 @@ defmodule RMWeb.EventLive.Util do
         Awards
       </.nav_item>
       <.nav_item
-        :if={can?(@user, :registration_settings_update, @event)}
+        :if={@season == @region.current_season and can?(@user, :registration_settings_update, @event)}
         current={@view}
         navigate={
           if @league,

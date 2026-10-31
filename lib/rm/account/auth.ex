@@ -74,6 +74,19 @@ defmodule RM.Account.Auth do
   end
 
   #
+  # Event Resources
+  #
+
+  # View resources for an event
+  def can?(%User{} = user, :event_resources_show, %Event{} = event) do
+    can?(user, :event_settings_update, event) or
+      case event.proposal do
+        %EventProposal{id: proposal_id} -> proposal_id in event_proposal_ids(user)
+        _ -> false
+      end
+  end
+
+  #
   # Event Proposals
   #
 

@@ -72,6 +72,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/e/:event", EventLive.Show
       live "/s/:season/r/:region/e/:event/awards", EventLive.Awards
       live "/s/:season/r/:region/e/:event/registration", EventLive.Registration
+      live "/s/:season/r/:region/e/:event/resources", EventLive.Resources
       live "/s/:season/r/:region/e/:event/settings", EventLive.Settings
       live "/s/:season/r/:region/messages", EmailLive.Index
       live "/s/:season/r/:region/messages/new", EmailLive.New
@@ -96,6 +97,7 @@ defmodule RMWeb.Router do
       live "/s/:season/r/:region/l/:league/e/:event", EventLive.Show
       live "/s/:season/r/:region/l/:league/e/:event/awards", EventLive.Awards
       live "/s/:season/r/:region/l/:league/e/:event/registration", EventLive.Registration
+      live "/s/:season/r/:region/l/:league/e/:event/resources", EventLive.Resources
       live "/s/:season/r/:region/l/:league/e/:event/settings", EventLive.Settings
       live "/s/:season/r/:region/l/:league/messages", EmailLive.Index
       live "/s/:season/r/:region/l/:league/messages/new", EmailLive.New

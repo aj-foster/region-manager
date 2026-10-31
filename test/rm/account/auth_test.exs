@@ -89,6 +89,46 @@ defmodule RM.Account.AuthTest do
     end
   end
 
+  describe "event resource access" do
+    test "event, region, and event-enabled league admins can view resources" do
+      region_id = id()
+      league_id = id()
+      proposal_id = id()
+
+      event = %FIRST.Event{
+        region_id: region_id,
+        local_league_id: league_id,
+        proposal: %Local.EventProposal{id: proposal_id, first_event_id: id()}
+      }
+
+      assert Auth.can?(
+               user(event_assignments: [%Account.Event{proposal_id: proposal_id}]),
+               :event_resources_show,
+               event
+             )
+
+      assert Auth.can?(
+               user(regions: [%FIRST.Region{id: region_id}]),
+               :event_resources_show,
+               event
+             )
+
+      assert Auth.can?(
+               user(league_assignments: [league_assignment(league_id, events: true)]),
+               :event_resources_show,
+               event
+             )
+
+      refute Auth.can?(user(), :event_resources_show, event)
+
+      refute Auth.can?(
+               user(league_assignments: [league_assignment(league_id)]),
+               :event_resources_show,
+               event
+             )
+    end
+  end
+
   describe "event proposal access" do
     test "region admins can create proposals and access proposal indexes" do
       region_id = id()
