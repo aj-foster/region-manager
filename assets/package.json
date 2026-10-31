@@ -2,6 +2,7 @@
   "name": "rm-assets",
   "private": true,
   "dependencies": {
+    "leaflet": "1.9.4",
     "markdown-it": "15.0.3",
     "punycode": "2.1.1",
     "prosemirror-commands": "1.1.12",
