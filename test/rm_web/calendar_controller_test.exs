@@ -24,8 +24,17 @@ defmodule RMWeb.CalendarControllerTest do
           date_end: ~D[2025-11-02],
           region: region,
           season: 2025,
-          name: "Changed; Event"
+          name: "Changed; Event",
+          website: "https://events.example/new"
         )
+
+      venue = Factory.insert(:venue, notes: "Parking, use rear gate")
+
+      Factory.insert(:event_proposal,
+        first_event: changed_event,
+        region: region,
+        venue: venue
+      )
 
       Factory.insert(:first_event,
         code: "REMOVED",
@@ -44,6 +53,11 @@ defmodule RMWeb.CalendarControllerTest do
       assert response =~ "BEGIN:VCALENDAR\r\n"
       assert response =~ "SUMMARY:Old season event"
       assert response =~ "SUMMARY:Changed\\; Event"
+      assert response =~ "URL:http://localhost:4002/s/2025/r/fl/e/new"
+
+      assert response =~
+               "DESCRIPTION:Scrimmage\\nhttps://events.example/new\\nParking\\, use rear gate"
+
       assert response =~ "DTSTART;VALUE=DATE:20251102"
       assert response =~ "DTEND;VALUE=DATE:20251103"
       refute response =~ "REMOVED"

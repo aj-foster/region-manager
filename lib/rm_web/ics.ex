@@ -1,7 +1,7 @@
 defmodule RMWeb.ICS do
   @moduledoc false
 
-  def render(name, events) do
+  def render(name, events, event_url_fn) do
     [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
@@ -9,14 +9,14 @@ defmodule RMWeb.ICS do
       "CALSCALE:GREGORIAN",
       "METHOD:PUBLISH",
       property("X-WR-CALNAME", name),
-      Enum.map(events, &render_event/1),
+      Enum.map(events, &render_event(&1, event_url_fn)),
       "END:VCALENDAR"
     ]
     |> List.flatten()
     |> Enum.map_join("", &"#{fold_line(&1)}\r\n")
   end
 
-  defp render_event(event) do
+  defp render_event(event, event_url_fn) do
     modified_at = event |> last_modified() |> timestamp()
 
     [
@@ -29,7 +29,7 @@ defmodule RMWeb.ICS do
       property("DTEND;VALUE=DATE", date(Date.add(event.date_end, 1))),
       property("LOCATION", location(event.location)),
       property("DESCRIPTION", description(event)),
-      property("URL", website(event)),
+      property("URL", event_url_fn.(event)),
       "END:VEVENT"
     ]
     |> Enum.reject(&is_nil/1)
@@ -39,14 +39,16 @@ defmodule RMWeb.ICS do
     [
       RM.FIRST.Event.type_name(event.type),
       proposal.description,
-      proposal.live_stream_url || event.live_stream_url
+      proposal.live_stream_url || event.live_stream_url,
+      website(event),
+      venue_notes(proposal)
     ]
     |> Enum.reject(&blank?/1)
     |> Enum.join("\n")
   end
 
   defp description(event) do
-    [RM.FIRST.Event.type_name(event.type), event.live_stream_url]
+    [RM.FIRST.Event.type_name(event.type), event.live_stream_url, website(event)]
     |> Enum.reject(&blank?/1)
     |> Enum.join("\n")
   end
@@ -56,6 +58,9 @@ defmodule RMWeb.ICS do
   end
 
   defp website(event), do: event.website
+
+  defp venue_notes(%RM.Local.EventProposal{venue: %RM.Local.Venue{notes: notes}}), do: notes
+  defp venue_notes(_proposal), do: nil
 
   defp last_modified(%{updated_at: event_updated_at, proposal: proposal}) do
     proposal_updated_at = if proposal, do: proposal.updated_at
