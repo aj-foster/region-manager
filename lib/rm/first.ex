@@ -331,14 +331,18 @@ defmodule RM.FIRST do
     end)
   end
 
-  @spec fetch_region_by_abbreviation(String.t(), keyword) ::
-          {:ok, Region.t()} | {:error, :region, :not_found}
-  def fetch_region_by_abbreviation(abbreviation, opts \\ []) do
+  @spec get_region_by_abbreviation(String.t(), keyword) :: Region.t() | nil
+  def get_region_by_abbreviation(abbreviation, opts \\ []) do
     Query.from_region()
     |> Query.region_abbreviation(abbreviation)
     |> Query.preload_assoc(:region, opts[:preload])
     |> Repo.one()
-    |> case do
+  end
+
+  @spec fetch_region_by_abbreviation(String.t(), keyword) ::
+          {:ok, Region.t()} | {:error, :region, :not_found}
+  def fetch_region_by_abbreviation(abbreviation, opts \\ []) do
+    case get_region_by_abbreviation(abbreviation, opts) do
       %Region{} = region -> {:ok, region}
       nil -> {:error, :region, :not_found}
     end

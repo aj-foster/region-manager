@@ -3,6 +3,45 @@ defmodule RM.FIRSTTest do
 
   alias RM.FIRST
 
+  describe "get_region_by_abbreviation/2" do
+    test "finds a region by abbreviation or FTC Events API code" do
+      region = Factory.insert(:region, abbreviation: "FL", code: "USFL")
+      region_id = region.id
+
+      assert %RM.FIRST.Region{id: ^region_id} = FIRST.get_region_by_abbreviation("FL")
+      assert %RM.FIRST.Region{id: ^region_id} = FIRST.get_region_by_abbreviation("USFL")
+    end
+
+    test "returns nil when the region isn't found" do
+      assert FIRST.get_region_by_abbreviation("missing") == nil
+    end
+
+    test "preloads requested associations" do
+      region = Factory.insert(:region, abbreviation: "FL", code: "USFL")
+      league = Factory.insert(:league, region: region)
+      region_id = region.id
+      league_id = league.id
+
+      assert %RM.FIRST.Region{id: ^region_id, leagues: [%{id: ^league_id}]} =
+               FIRST.get_region_by_abbreviation("FL", preload: [:leagues])
+    end
+  end
+
+  describe "fetch_region_by_abbreviation/2" do
+    test "returns the region in an ok tuple" do
+      region = Factory.insert(:region, abbreviation: "FL", code: "USFL")
+      region_id = region.id
+
+      assert {:ok, %RM.FIRST.Region{id: ^region_id}} =
+               FIRST.fetch_region_by_abbreviation("USFL")
+    end
+
+    test "returns a not-found error when the region isn't found" do
+      assert FIRST.fetch_region_by_abbreviation("missing") ==
+               {:error, :region, :not_found}
+    end
+  end
+
   describe "update_events_from_ftc_events/2" do
     test "inserts, updates, and removes events" do
       region = Factory.insert(:region, code: "USFL")
