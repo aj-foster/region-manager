@@ -26,7 +26,8 @@ defmodule RM.Local.Team do
   @optional_fields [
     :hidden_at,
     :temporary_number,
-    :website
+    :website,
+    :youth_organization
   ]
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -43,6 +44,7 @@ defmodule RM.Local.Team do
     field :team_id, :integer
     field :temporary_number, :integer
     field :website, :string
+    field :youth_organization, :string
 
     timestamps type: :utc_datetime_usec
     field :hidden_at, :utc_datetime_usec
@@ -98,7 +100,8 @@ defmodule RM.Local.Team do
         rookie_year: rookie_year,
         secured: secured,
         temporary_number: temporary_number,
-        website: website
+        website: website,
+        youth_orgs: youth_organization
       }
     } = import_team
 
@@ -116,6 +119,7 @@ defmodule RM.Local.Team do
         team_id: team_id,
         temporary_number: temporary_number,
         website: website,
+        youth_organization: youth_organization,
         location: %{
           city: city,
           country: country,
