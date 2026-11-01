@@ -14,7 +14,7 @@ defmodule RM.FIRST do
   alias RM.FIRST.Query
   alias RM.Local.EventSettings
   alias RM.Repo
-  alias RM.Util
+  alias RM.Util.Struct
 
   #
   # Operations
@@ -97,19 +97,19 @@ defmodule RM.FIRST do
     {_count, removed_events} =
       Query.from_event()
       |> Query.event_season(season)
-      |> where([event: e], e.id not in ^Util.extract_ids(events))
+      |> where([event: e], e.id not in ^Struct.extract_ids(events))
       |> update(set: [removed_at: ^now])
       |> select([event: e], e)
       |> Repo.update_all([])
 
-    Util.extract_ids(events ++ removed_events, :region_id)
+    Struct.extract_ids(events ++ removed_events, :region_id)
     |> update_region_event_counts()
 
-    Util.extract_ids(events ++ removed_events, :league_id)
+    Struct.extract_ids(events ++ removed_events, :league_id)
     |> Enum.reject(&is_nil/1)
     |> update_league_event_counts()
 
-    Util.extract_ids(events ++ removed_events, :local_league_id)
+    Struct.extract_ids(events ++ removed_events, :local_league_id)
     |> Enum.reject(&is_nil/1)
     |> RM.Local.update_league_event_counts()
 
@@ -207,7 +207,9 @@ defmodule RM.FIRST do
       )
       |> elem(1)
 
-    region_ids = Util.extract_ids(leagues, :region_id) ++ Util.extract_ids(opts[:delete_region])
+    region_ids =
+      Struct.extract_ids(leagues, :region_id) ++ Struct.extract_ids(opts[:delete_region])
+
     update_region_published_league_counts(region_ids)
     update_region_league_counts(region_ids)
 
@@ -352,7 +354,7 @@ defmodule RM.FIRST do
   @spec update_region_event_counts([Repo.struct_or_id(Region.t())]) :: :ok
   def update_region_event_counts(region_or_id_or_list) do
     region_or_id_or_list
-    |> Util.extract_ids()
+    |> Struct.extract_ids()
     |> Enum.uniq()
     |> Region.event_stats_update_query()
     |> Repo.update_all([])
@@ -364,7 +366,7 @@ defmodule RM.FIRST do
   @spec update_region_league_counts([Repo.struct_or_id(Region.t())]) :: :ok
   def update_region_league_counts(region_or_id_or_list) do
     region_or_id_or_list
-    |> Util.extract_ids()
+    |> Struct.extract_ids()
     |> Enum.uniq()
     |> Region.league_stats_update_query()
     |> Repo.update_all([])
@@ -376,7 +378,7 @@ defmodule RM.FIRST do
   @spec update_region_published_league_counts([Repo.struct_or_id(Region.t())]) :: :ok
   def update_region_published_league_counts(region_or_id_or_list) do
     region_or_id_or_list
-    |> Util.extract_ids()
+    |> Struct.extract_ids()
     |> Enum.uniq()
     |> Region.published_league_stats_update_query()
     |> Repo.update_all([])
@@ -410,7 +412,7 @@ defmodule RM.FIRST do
   @spec update_region_team_counts([Repo.struct_or_id(Region.t())]) :: :ok
   def update_region_team_counts(region_or_id_or_list) do
     region_or_id_or_list
-    |> Util.extract_ids()
+    |> Struct.extract_ids()
     |> Enum.uniq()
     |> Region.team_stats_update_query()
     |> Repo.update_all([])
@@ -484,7 +486,7 @@ defmodule RM.FIRST do
   @spec update_league_event_counts([Repo.struct_or_id(League.t())]) :: :ok
   def update_league_event_counts(league_or_id_or_list) do
     league_or_id_or_list
-    |> Util.extract_ids()
+    |> Struct.extract_ids()
     |> Enum.uniq()
     |> League.event_stats_update_query()
     |> Repo.update_all([])
@@ -496,7 +498,7 @@ defmodule RM.FIRST do
   @spec update_league_team_counts([Repo.struct_or_id(League.t())]) :: :ok
   def update_league_team_counts(leagues) do
     leagues
-    |> Util.extract_ids()
+    |> Struct.extract_ids()
     |> Enum.uniq()
     |> League.team_stats_update_query()
     |> Repo.update_all([])

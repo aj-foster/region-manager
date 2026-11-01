@@ -21,7 +21,7 @@ defmodule RM.Local do
   alias RM.Local.Team
   alias RM.Local.Venue
   alias RM.Repo
-  alias RM.Util
+  alias RM.Util.Struct
 
   @event_director_email_regex ~r/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
@@ -618,7 +618,7 @@ defmodule RM.Local do
   @spec update_league_event_counts([Repo.struct_or_id(League.t())], keyword) :: :ok
   def update_league_event_counts(league_or_id_or_list, opts \\ []) do
     league_or_id_or_list
-    |> Util.extract_ids()
+    |> Struct.extract_ids()
     |> Enum.uniq()
     |> RM.Local.League.event_stats_update_query(opts)
     |> Repo.update_all([])
@@ -632,7 +632,7 @@ defmodule RM.Local do
   @spec update_league_team_counts([Repo.struct_or_id(League.t())], keyword) :: :ok
   def update_league_team_counts(league_or_id_or_list, opts \\ []) do
     league_or_id_or_list
-    |> Util.extract_ids()
+    |> Struct.extract_ids()
     |> Enum.uniq()
     |> RM.Local.League.team_stats_update_query(opts)
     |> Repo.update_all([])

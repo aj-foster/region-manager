@@ -7,7 +7,7 @@ defmodule RM.Import do
   alias RM.Import.Upload
   alias RM.Local
   alias RM.Repo
-  alias RM.Util
+  alias RM.Util.Struct
 
   NimbleCSV.define(RM.Import.TeamDataParser,
     separator: "\t",
@@ -51,7 +51,7 @@ defmodule RM.Import do
 
     regions_affected =
       import_teams
-      |> Util.extract_ids(:region_id)
+      |> Struct.extract_ids(:region_id)
       |> Enum.uniq()
       |> Enum.map(&allowed_regions_by_id[&1])
 

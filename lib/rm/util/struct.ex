@@ -1,4 +1,4 @@
-defmodule RM.Util do
+defmodule RM.Util.Struct do
   @moduledoc """
   Small utility functions for working with data
   """
