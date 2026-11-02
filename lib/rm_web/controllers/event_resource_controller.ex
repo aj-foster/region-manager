@@ -62,17 +62,6 @@ defmodule RMWeb.EventResourceController do
     end
   end
 
-  defp render_template(conn, template_path, variables) do
-    with {:ok, template} <- File.read(template_path),
-         {:ok, pdf} <- RM.Util.Typst.render_pdf(template, variables) do
-      {:ok, pdf}
-    else
-      {:error, reason} ->
-        Logger.error("Failed to render template PDF: #{inspect(reason)}")
-        send_resp(conn, :internal_server_error, "Unable to generate the PDF")
-    end
-  end
-
   @doc """
   GET `/s/:season/r/:region/e/:event/resources/team_list.pdf`
 
@@ -82,11 +71,7 @@ defmodule RMWeb.EventResourceController do
   def team_list(conn, params) do
     event = conn.assigns.event
     region = conn.assigns.region
-
-    render_team_list(conn, event, region, canonical_timezone(params["timezone"]))
-  end
-
-  defp render_team_list(conn, event, region, timezone) do
+    timezone = canonical_timezone(params["timezone"])
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     %{registered: registered_teams, unregistered: unregistered_teams} =
@@ -107,22 +92,21 @@ defmodule RMWeb.EventResourceController do
 
     template_path = Application.app_dir(:rm, "priv/templates/event_team_list.typ")
 
-    with {:ok, template} <- File.read(template_path),
-         {:ok, pdf} <- RM.Util.Typst.render_pdf(template, variables) do
+    with {:ok, pdf} <- render_template(conn, template_path, variables) do
       send_download(conn, {:binary, pdf},
         filename: "event-teams-#{String.downcase(event.code)}.pdf",
         content_type: "application/pdf"
       )
-    else
-      {:error, reason} ->
-        Logger.error("Failed to render event team list PDF: #{inspect(reason)}")
-        send_resp(conn, :internal_server_error, "Unable to generate the event team list")
     end
   end
 
   defp format_team(team) do
     %{event_ready: team.event_ready == true, name: team.name || "", number: team.number}
   end
+
+  #
+  # Helpers
+  #
 
   defp canonical_timezone(timezone) when is_binary(timezone) do
     case TzExtra.canonical_time_zone_id(timezone) do
@@ -132,6 +116,17 @@ defmodule RMWeb.EventResourceController do
   end
 
   defp canonical_timezone(_timezone), do: "Etc/UTC"
+
+  defp render_template(conn, template_path, variables) do
+    with {:ok, template} <- File.read(template_path),
+         {:ok, pdf} <- RM.Util.Typst.render_pdf(template, variables) do
+      {:ok, pdf}
+    else
+      {:error, reason} ->
+        Logger.error("Failed to render template PDF: #{inspect(reason)}")
+        send_resp(conn, :internal_server_error, "Unable to generate the PDF")
+    end
+  end
 
   #
   # Plugs
