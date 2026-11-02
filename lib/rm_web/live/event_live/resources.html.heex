@@ -46,4 +46,79 @@
       </p>
     </div>
   </.link_card>
+
+  <.link_card
+    class="group flex flex-col gap-4 h-full transition-colors hover:border-orange-300 hover:bg-orange-50/30"
+    href={
+      path =
+        if @local_league || @first_league do
+          ~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/e/#{@event}/r/qr_code.pdf"
+        else
+          ~p"/s/#{@season}/r/#{@region}/e/#{@event}/r/qr_code.pdf"
+        end
+
+      query =
+        URI.encode_query(
+          timezone: @timezone,
+          title: "Match Schedule and Results",
+          url: "https://ftc-events.firstinspires.org/#{@season}/#{String.upcase(@event.code)}",
+          description:
+            "Use this link to see an online copy of the Match Schedule (when it is published) and Match Results."
+        )
+
+      path <> "?" <> query
+    }
+  >
+    <div class="text-center">
+      <.icon
+        class="h-8 text-orange-600 w-8"
+        name="hero-document-text"
+        aria-hidden="true"
+      />
+    </div>
+    <div>
+      <h2 class="font-title font-semibold">Match Schedule and Results</h2>
+      <p class="mt-1 text-sm">
+        Printable QR code (internet-connected events only).
+      </p>
+    </div>
+  </.link_card>
+
+  <.link_card
+    :if={@local_league && @local_league.settings && @local_league.settings.enable_email}
+    class="group flex flex-col gap-4 h-full transition-colors hover:border-orange-300 hover:bg-orange-50/30"
+    href={
+      path =
+        if @local_league || @first_league do
+          ~p"/s/#{@season}/r/#{@region}/l/#{@local_league || @first_league}/e/#{@event}/r/qr_code.pdf"
+        else
+          ~p"/s/#{@season}/r/#{@region}/e/#{@event}/r/qr_code.pdf"
+        end
+
+      query =
+        URI.encode_query(
+          timezone: @timezone,
+          title: "Sign Up for Emails",
+          url: "https://ftc-events.firstinspires.org/#{@season}/#{String.upcase(@event.code)}",
+          description:
+            "Sign up for updates from the #{if @local_league, do: "league and region", else: "program"}"
+        )
+
+      path <> "?" <> query
+    }
+  >
+    <div class="text-center">
+      <.icon
+        class="h-8 text-orange-600 w-8"
+        name="hero-envelope"
+        aria-hidden="true"
+      />
+    </div>
+    <div>
+      <h2 class="font-title font-semibold">Email Signup Link</h2>
+      <p class="mt-1 text-sm">
+        Printable QR code for the email signup form.
+      </p>
+    </div>
+  </.link_card>
 </div>

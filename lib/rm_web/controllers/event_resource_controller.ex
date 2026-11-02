@@ -1,19 +1,77 @@
 defmodule RMWeb.EventResourceController do
   use RMWeb, :controller
+  import Ecto.Query
   import RMWeb.Controller.Util, only: [assign_season: 2, assign_region: 2, assign_event: 2]
+  require Logger
 
   plug :assign_season
   plug :assign_region
   plug :assign_event, preload: [:league, :local_league, :proposal]
   plug :authorize_event_resources_show
 
-  import Ecto.Query
-  require Logger
-
+  alias Ecto.Changeset
   alias RM.Account
   alias RM.Account.Event, as: UserEvent
   alias RM.Local.EventTeamList
   alias RM.Repo
+
+  @doc """
+  GET `/s/:season/r/:region/e/:event/resources/qr_code.pdf`
+
+  Generates a QR code PDF for the given event. The QR code contains the specified URL and includes
+  a title and description.
+  """
+  def qr_code(conn, params) do
+    event = conn.assigns.event
+    now = DateTime.utc_now()
+    template_path = Application.app_dir(:rm, "priv/templates/qr_code.typ")
+    timezone = canonical_timezone(params["timezone"])
+
+    variables = %{
+      event: %{name: event.name},
+      generated_at: RMWeb.CoreComponents.format_date(now, :full, timezone)
+    }
+
+    with {:ok, params} <- validate_qr_code_params(conn, params),
+         {:ok, pdf} <- render_template(conn, template_path, Map.merge(variables, params)) do
+      filename_prefix = params[:title] |> String.downcase() |> String.replace(~r/[^a-z0-9]+/, "-")
+
+      send_download(conn, {:binary, pdf},
+        filename: "#{filename_prefix}-#{String.downcase(event.code)}.pdf",
+        content_type: "application/pdf"
+      )
+    end
+  end
+
+  defp validate_qr_code_params(conn, params) do
+    types = %{
+      description: :string,
+      title: :string,
+      url: :string
+    }
+
+    changeset =
+      Changeset.cast({%{}, types}, params, Map.keys(types))
+      |> Changeset.validate_required([:title, :url])
+      |> Changeset.validate_format(:url, ~r/^https?:\/\//)
+
+    if changeset.valid? do
+      {:ok, changeset.changes}
+    else
+      send_resp(conn, :bad_request, "Invalid parameters: #{inspect(changeset.errors)}")
+    end
+  end
+
+  defp render_template(conn, template_path, variables) do
+    with {:ok, template} <- File.read(template_path),
+         {:ok, pdf} <- RM.Util.Typst.render_pdf(template, variables) do
+      {:ok, pdf}
+    else
+      {:error, reason} ->
+        Logger.error("Failed to render template PDF: #{inspect(reason)}")
+        send_resp(conn, :internal_server_error, "Unable to generate the PDF")
+    end
+  end
 
   @doc """
   GET `/s/:season/r/:region/e/:event/resources/team_list.pdf`
