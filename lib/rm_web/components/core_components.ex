@@ -1063,9 +1063,14 @@ defmodule RMWeb.CoreComponents do
 
   @doc """
   Expandable card with a title and toggle arrow
+
+  `param` identifies the component and the URL query parameter controlling its
+  expanded state. It must be unique on the page and safe in a CSS ID selector.
+  The parameter is omitted when the state matches `show`, and otherwise set to
+  `"true"` or `"false"`.
   """
   attr :class, :string, default: nil, doc: "additional classes for the revealed container"
-  attr :id, :string, required: true
+  attr :param, :string, required: true, doc: "unique ID and query parameter for the reveal"
   attr :show, :boolean, default: false, doc: "whether to show the content by default"
   attr :title, :string, required: true
   attr :wrapper, :string, default: nil, doc: "additional classes for the wrapping card"
@@ -1077,17 +1082,32 @@ defmodule RMWeb.CoreComponents do
     <.card class={@wrapper} flush {@rest}>
       <div
         class="cursor-pointer flex gap-4 items-center px-4 py-2"
-        phx-click={
-          JS.toggle_class("h-0 h-auto", to: "##{@id}-reveal-contents")
-          |> JS.toggle_class("rotate-180", to: "##{@id}-reveal-icon")
+        id={"reveal-#{@param}-toggle"}
+        phx-hook="QueryReveal"
+        data-query-param={@param}
+        data-default-expanded={to_string(@show)}
+        data-reveal-show={
+          JS.remove_class("h-0", to: "#reveal-#{@param}-contents")
+          |> JS.add_class("h-auto", to: "#reveal-#{@param}-contents")
+          |> JS.add_class("rotate-180", to: "#reveal-#{@param}-icon")
         }
+        data-reveal-hide={
+          JS.remove_class("h-auto", to: "#reveal-#{@param}-contents")
+          |> JS.add_class("h-0", to: "#reveal-#{@param}-contents")
+          |> JS.remove_class("rotate-180", to: "#reveal-#{@param}-icon")
+        }
+        phx-click={JS.dispatch("query-reveal:toggle")}
       >
         <h3 class="font-semibold grow">{@title}</h3>
-        <.icon class="transition-transform" id={"#{@id}-reveal-icon"} name="hero-chevron-up" />
+        <.icon
+          class="transition-transform"
+          id={"reveal-#{@param}-icon"}
+          name="hero-chevron-up"
+        />
       </div>
       <div
         class={["overflow-y-hidden", @class, if(@show, do: "h-auto", else: "h-0")]}
-        id={"#{@id}-reveal-contents"}
+        id={"reveal-#{@param}-contents"}
       >
         {render_slot(@inner_block)}
       </div>

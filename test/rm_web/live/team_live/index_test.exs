@@ -65,4 +65,38 @@ defmodule RMWeb.TeamLive.IndexTest do
 
     refute html =~ "Awaiting League Assignment"
   end
+
+  test "inactive lists opt into query state without changing the host LiveView", %{conn: conn} do
+    region = Factory.insert(:region)
+    Factory.insert(:team, region: region, active: false, intend_to_return: true)
+    user = Factory.insert(:user)
+    Repo.insert!(%UserRegion{region_id: region.id, user_id: user.id})
+
+    conn =
+      conn
+      |> Plug.Test.init_test_session(%{})
+      |> Identity.Plug.log_in_user(user)
+
+    path = "/s/#{region.current_season}/r/#{region.abbreviation}/teams"
+    {:ok, view, _html} = live(conn, path <> "?inactive=true")
+
+    assert has_element?(
+             view,
+             "#reveal-returning-toggle[phx-hook=QueryReveal][data-query-param=returning]"
+           )
+
+    assert has_element?(
+             view,
+             "#reveal-inactive-toggle[phx-hook=QueryReveal][data-query-param=inactive]"
+           )
+
+    assert has_element?(view, "#reveal-inactive-toggle[data-reveal-show][data-reveal-hide]")
+    assert render_patch(view, path) =~ "reveal-inactive-toggle"
+    assert render_patch(view, path <> "?inactive=true") =~ "reveal-inactive-toggle"
+
+    {:ok, unauthorized_view, _html} =
+      live(build_conn(), path <> "?inactive=true&returning=true")
+
+    refute has_element?(unauthorized_view, "[phx-hook=QueryReveal]")
+  end
 end

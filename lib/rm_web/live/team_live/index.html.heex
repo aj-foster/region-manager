@@ -208,7 +208,7 @@
 
   <.reveal
     :if={@intend_to_return_teams_count > 0}
-    id="team-intent-return-reveal"
+    param="returning"
     spaced
     title={"Teams Intending to Return (#{@intend_to_return_teams_count})"}
   >
@@ -235,7 +235,7 @@
 
   <.reveal
     :if={@inactive_teams_count > 0}
-    id="team-inactive-reveal"
+    param="inactive"
     spaced
     title={"All Inactive Teams (#{@inactive_teams_count})"}
   >

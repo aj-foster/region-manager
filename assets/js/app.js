@@ -2,12 +2,14 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
+import QueryReveal from "./hooks/query_reveal";
 
 //
 // Hooks
 //
 
 let Hooks = {
+  QueryReveal,
   MarkdownEditor: {
     mounted() {
       this.isDestroyed = false;

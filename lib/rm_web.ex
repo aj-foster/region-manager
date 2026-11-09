@@ -63,6 +63,11 @@ defmodule RMWeb do
 
       alias Phoenix.LiveView.Socket
 
+      # Initially added for `reveal` component
+      @impl true
+      def handle_params(_params, _uri, socket), do: {:noreply, socket}
+      defoverridable handle_params: 3
+
       unquote(html_helpers())
     end
   end
