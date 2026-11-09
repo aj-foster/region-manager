@@ -15,7 +15,7 @@ defmodule RM.Local.EventProposalTest do
           address: "123 Main St.",
           city: "Some City",
           country: "United States",
-          state_province: "New State",
+          state_province: "Florida",
           timezone: "Etc/UTC"
         )
 
@@ -32,8 +32,8 @@ defmodule RM.Local.EventProposalTest do
           location: %RM.FIRST.Event.Location{
             address: venue.address,
             city: venue.city,
-            country: venue.country,
-            state_province: venue.state_province,
+            country: "USA",
+            state_province: "FL",
             venue: venue.name
           }
         )
@@ -80,6 +80,67 @@ defmodule RM.Local.EventProposalTest do
 
       assert :ok = Local.update_event_proposal_events([{proposal.id, event.id}])
       assert is_nil(Repo.reload!(proposal).details_updated_at)
+    end
+
+    test "compares published country and state abbreviations without masking real changes" do
+      date = ~D[2025-01-01]
+
+      for {country, state, published_country, published_state, matches?} <- [
+            {"United States", "Florida", "USA", "FL", true},
+            {"United States", "Florida", "United States", "Florida", true},
+            {"United States", "FL", "USA", "FL", true},
+            {"Canada", "Québec", "Canada", "QC", true},
+            {"Canada", "Ontario", "Canada", "ON", true},
+            {"United States", "Florida", "USA", "CA", false},
+            {"United States", "Florida", "Canada", "FL", false},
+            {"Canada", "Ontario", "Canada", "CA", false},
+            {"Canada", "Ontario", "USA", "ON", false},
+            {"Mexico", "Unknown", "Mexico", "Unknown", true},
+            {"Mexico", "Unknown", "Mexico", "XX", false},
+            {"Mexico", "Unknown", "Mexico", nil, false},
+            {"Mexico", "Unknown", nil, "Unknown", false},
+            {nil, nil, nil, nil, true},
+            {"United States", "Florida", "USA", nil, false}
+          ] do
+        venue = %RM.Local.Venue{
+          name: "Venue",
+          address: "Address",
+          city: "City",
+          country: country,
+          state_province: state,
+          timezone: "Etc/UTC"
+        }
+
+        event = %RM.FIRST.Event{
+          date_end: date,
+          date_start: date,
+          date_timezone: venue.timezone,
+          hybrid: false,
+          remote: false,
+          name: "Event",
+          type: :scrimmage,
+          location: %RM.FIRST.Event.Location{
+            venue: venue.name,
+            address: venue.address,
+            city: venue.city,
+            country: published_country,
+            state_province: published_state
+          }
+        }
+
+        proposal = %RM.Local.EventProposal{
+          date_end: date,
+          date_start: date,
+          format: :traditional,
+          name: event.name,
+          type: event.type,
+          venue: venue,
+          first_event: event
+        }
+
+        changeset = RM.Local.EventProposal.details_updated_changeset(proposal)
+        assert is_nil(Ecto.Changeset.get_field(changeset, :details_updated_at)) == matches?
+      end
     end
 
     test "manual submission clears the detail update marker" do

@@ -10,24 +10,24 @@ defmodule RM.Util.Location do
   Countries should be added to this module whenever their regions adopt Region Manager.
   """
 
-  # Countries, states, and provinces as they appear in event Batch Create spreadsheets
+  # Names as they appear in event Batch Create spreadsheets, paired with postal abbreviations
   @database %{
     "Canada" => %{
       state_province_required: true,
       state_provinces: [
-        "Alberta",
-        "British Columbia",
-        "Manitoba",
-        "New Brunswick",
-        "Newfoundland and Labrador",
-        "Northwest Territories",
-        "Nova Scotia",
-        "Nunavut",
-        "Ontario",
-        "Prince Edward Island",
-        "Québec",
-        "Saskatchewan",
-        "Yukon Territory"
+        {"Alberta", "AB"},
+        {"British Columbia", "BC"},
+        {"Manitoba", "MB"},
+        {"New Brunswick", "NB"},
+        {"Newfoundland and Labrador", "NL"},
+        {"Northwest Territories", "NT"},
+        {"Nova Scotia", "NS"},
+        {"Nunavut", "NU"},
+        {"Ontario", "ON"},
+        {"Prince Edward Island", "PE"},
+        {"Québec", "QC"},
+        {"Saskatchewan", "SK"},
+        {"Yukon Territory", "YT"}
       ],
       timezones: [
         "America/St_Johns",
@@ -56,68 +56,69 @@ defmodule RM.Util.Location do
       ]
     },
     "United States" => %{
+      published_abbreviation: "USA",
       state_province_required: true,
       state_provinces: [
-        "Alabama",
-        "Alaska",
-        "American Samoa",
-        "Arizona",
-        "Arkansas",
-        "Armed Forces - Americas",
-        "Armed Forces - Europe",
-        "Armed Forces - Pacific",
-        "California",
-        "Colorado",
-        "Connecticut",
-        "Delaware",
-        "District of Columbia",
-        "Florida",
-        "Georgia",
-        "Guam",
-        "Hawaii",
-        "Idaho",
-        "Illinois",
-        "Indiana",
-        "Iowa",
-        "Kansas",
-        "Kentucky",
-        "Louisiana",
-        "Maine",
-        "Maryland",
-        "Massachusetts",
-        "Michigan",
-        "Minnesota",
-        "Mississippi",
-        "Missouri",
-        "Montana",
-        "Nebraska",
-        "Nevada",
-        "New Hampshire",
-        "New Jersey",
-        "New Mexico",
-        "New York",
-        "North Carolina",
-        "North Dakota",
-        "Northern Mariana Islands",
-        "Ohio",
-        "Oklahoma",
-        "Oregon",
-        "Pennsylvania",
-        "Puerto Rico",
-        "Rhode Island",
-        "South Carolina",
-        "South Dakota",
-        "Tennessee",
-        "Texas",
-        "United States Minor Outlying Islands",
-        "Utah",
-        "Vermont",
-        "Virgin Islands",
-        "Virginia",
-        "Washington",
-        "West Virginia",
-        "Wisconsin",
-        "Wyoming"
+        {"Alabama", "AL"},
+        {"Alaska", "AK"},
+        {"American Samoa", "AS"},
+        {"Arizona", "AZ"},
+        {"Arkansas", "AR"},
+        {"Armed Forces - Americas", "AA"},
+        {"Armed Forces - Europe", "AE"},
+        {"Armed Forces - Pacific", "AP"},
+        {"California", "CA"},
+        {"Colorado", "CO"},
+        {"Connecticut", "CT"},
+        {"Delaware", "DE"},
+        {"District of Columbia", "DC"},
+        {"Florida", "FL"},
+        {"Georgia", "GA"},
+        {"Guam", "GU"},
+        {"Hawaii", "HI"},
+        {"Idaho", "ID"},
+        {"Illinois", "IL"},
+        {"Indiana", "IN"},
+        {"Iowa", "IA"},
+        {"Kansas", "KS"},
+        {"Kentucky", "KY"},
+        {"Louisiana", "LA"},
+        {"Maine", "ME"},
+        {"Maryland", "MD"},
+        {"Massachusetts", "MA"},
+        {"Michigan", "MI"},
+        {"Minnesota", "MN"},
+        {"Mississippi", "MS"},
+        {"Missouri", "MO"},
+        {"Montana", "MT"},
+        {"Nebraska", "NE"},
+        {"Nevada", "NV"},
+        {"New Hampshire", "NH"},
+        {"New Jersey", "NJ"},
+        {"New Mexico", "NM"},
+        {"New York", "NY"},
+        {"North Carolina", "NC"},
+        {"North Dakota", "ND"},
+        {"Northern Mariana Islands", "MP"},
+        {"Ohio", "OH"},
+        {"Oklahoma", "OK"},
+        {"Oregon", "OR"},
+        {"Pennsylvania", "PA"},
+        {"Puerto Rico", "PR"},
+        {"Rhode Island", "RI"},
+        {"South Carolina", "SC"},
+        {"South Dakota", "SD"},
+        {"Tennessee", "TN"},
+        {"Texas", "TX"},
+        {"United States Minor Outlying Islands", "UM"},
+        {"Utah", "UT"},
+        {"Vermont", "VT"},
+        {"Virgin Islands", "VI"},
+        {"Virginia", "VA"},
+        {"Washington", "WA"},
+        {"West Virginia", "WV"},
+        {"Wisconsin", "WI"},
+        {"Wyoming", "WY"}
       ],
       timezones: [
         "America/Puerto_Rico",
@@ -142,9 +143,20 @@ defmodule RM.Util.Location do
   def countries, do: @countries
 
   @doc """
-  Create a list of states/provinces for the given country
+  Return the country abbreviation used by published events, if one is configured.
   """
-  @spec state_provinces(String.t()) :: [String.t()]
+  @spec published_abbreviation(String.t() | nil) :: String.t() | nil
+  def published_abbreviation(country_name) do
+    case Map.fetch(@database, country_name) do
+      {:ok, %{published_abbreviation: abbreviation}} -> abbreviation
+      _ -> nil
+    end
+  end
+
+  @doc """
+  Create a list of {full name, postal abbreviation} pairs for the given country.
+  """
+  @spec state_provinces(String.t() | nil) :: [{String.t(), String.t()}]
   def state_provinces(country_name) do
     case Map.fetch(@database, country_name) do
       {:ok, %{state_provinces: state_provinces}} -> state_provinces

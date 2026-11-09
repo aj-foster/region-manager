@@ -10,6 +10,7 @@ defmodule RM.Local.EventProposal do
   alias RM.Local.Query
   alias RM.Local.RegistrationSettings
   alias RM.Local.Venue
+  alias RM.Util.Location
 
   @type t :: %__MODULE__{}
 
@@ -315,9 +316,27 @@ defmodule RM.Local.EventProposal do
       venue.name != location.venue or
       venue.address != location.address or
       venue.city != location.city or
-      venue.state_province != location.state_province or
-      venue.country != location.country or
+      not country_matches?(venue.country, location.country) or
+      not state_province_matches?(venue.country, venue.state_province, location.state_province) or
       venue.timezone != event.date_timezone
+  end
+
+  defp country_matches?(country, country), do: true
+
+  defp country_matches?(country, published_country) do
+    if abbreviation = Location.published_abbreviation(country) do
+      abbreviation == published_country
+    else
+      false
+    end
+  end
+
+  defp state_province_matches?(_country, state_province, state_province), do: true
+
+  defp state_province_matches?(country, state_province, published_state_province) do
+    Enum.any?(Location.state_provinces(country), fn {name, abbreviation} ->
+      state_province == name and published_state_province == abbreviation
+    end)
   end
 
   defp format_matches?(:traditional, %{hybrid: false, remote: false}), do: true

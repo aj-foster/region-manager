@@ -400,7 +400,7 @@ defmodule RMWeb.ProposalLive.New do
   @spec state_province_options(String.t()) :: [{String.t(), String.t()}]
   defp state_province_options(country_name) do
     RM.Util.Location.state_provinces(country_name)
-    |> Enum.map(&{&1, &1})
+    |> Enum.map(fn {name, _abbreviation} -> {name, name} end)
   end
 
   @spec timezone_options(String.t()) :: [{String.t(), String.t()}]
