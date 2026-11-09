@@ -5,6 +5,40 @@ defmodule RMWeb.EventResourceControllerTest do
   alias RM.Local.LeagueAssignment
   alias RM.Repo
 
+  describe "GET /s/:season/r/:region/e/:event/r/qr_code.pdf" do
+    test "renders the match schedule QR code outside the application directory", %{conn: conn} do
+      region = Factory.insert(:region)
+      event = Factory.insert(:first_event, region: region)
+      user = Factory.insert(:user)
+      Repo.insert!(%UserRegion{region_id: region.id, user_id: user.id})
+
+      path =
+        "/s/#{region.current_season}/r/#{region.abbreviation}/e/#{event.code}/r/qr_code.pdf"
+
+      conn =
+        conn
+        |> Plug.Test.init_test_session(%{})
+        |> Identity.Plug.log_in_user(user)
+
+      conn =
+        File.cd!(System.tmp_dir!(), fn ->
+          get(conn, path, %{
+            title: "Match Schedule and Results",
+            description: "View the schedule and results.",
+            url: "https://example.com/results"
+          })
+        end)
+
+      assert response(conn, 200) =~ "%PDF-"
+      assert get_resp_header(conn, "content-type") == ["application/pdf"]
+
+      assert Enum.any?(
+               get_resp_header(conn, "content-disposition"),
+               &String.contains?(&1, "match-schedule-and-results-")
+             )
+    end
+  end
+
   describe "GET /s/:season/r/:region/e/:event/r/team_list.pdf" do
     test "region admins can download an event team list PDF", %{conn: conn} do
       imported_at = ~U[2026-10-30 18:15:00Z]

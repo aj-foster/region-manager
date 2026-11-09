@@ -119,7 +119,10 @@ defmodule RMWeb.EventResourceController do
 
   defp render_template(conn, template_path, variables) do
     with {:ok, template} <- File.read(template_path),
-         {:ok, pdf} <- RM.Util.Typst.render_pdf(template, variables) do
+         {:ok, pdf} <-
+           RM.Util.Typst.render_pdf(template, variables,
+             root_path: Application.app_dir(:rm, "priv")
+           ) do
       {:ok, pdf}
     else
       {:error, reason} ->

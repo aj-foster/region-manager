@@ -8,7 +8,7 @@
   header: context align(center + horizon)[
     #box(text(size: 20pt, weight: "bold")[#title], height: 0.5in)
     #h(1fr)
-    #box(image("priv/static/images/ftc-horizontal.svg", height: 0.5in, width: 2in))
+    #box(image("static/images/ftc-horizontal.svg", height: 0.5in, width: 2in))
   ],
   footer: context align(center)[
     #set text(size: 9pt, fill: luma(128))
