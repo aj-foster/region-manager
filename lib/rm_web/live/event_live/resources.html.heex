@@ -85,7 +85,6 @@
   </.link_card>
 
   <.link_card
-    :if={@local_league && @local_league.settings && @local_league.settings.enable_email}
     class="group flex flex-col gap-4 h-full transition-colors hover:border-orange-300 hover:bg-orange-50/30"
     href={
       path =
@@ -99,9 +98,9 @@
         URI.encode_query(
           timezone: @timezone,
           title: "Sign Up for Emails",
-          url: "https://ftc-events.firstinspires.org/#{@season}/#{String.upcase(@event.code)}",
+          url: url(~p"/email/sub/#{@region}"),
           description:
-            "Sign up for updates from the #{if @local_league, do: "league and region", else: "program"}"
+            "Sign up for updates from the #{if @event.local_league, do: "league and region", else: "program"}"
         )
 
       path <> "?" <> query

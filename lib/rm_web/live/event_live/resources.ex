@@ -43,18 +43,27 @@ defmodule RMWeb.EventLive.Resources do
 
   @spec require_permission(Socket.t()) :: Socket.t()
   defp require_permission(socket) do
-    case socket.assigns[:event] do
-      nil ->
+    event = socket.assigns[:event]
+    region = socket.assigns[:region]
+    league = socket.assigns[:local_league] || socket.assigns[:first_league]
+    season = socket.assigns[:season]
+
+    cond do
+      is_nil(event) ->
         socket
 
-      event ->
-        if can?(socket.assigns[:current_user], :event_resources_show, event) do
-          socket
-        else
-          socket
-          |> put_flash(:error, "You are not authorized to perform this action")
-          |> redirect(to: ~p"/")
-        end
+      season != region.current_season ->
+        socket
+        |> put_flash(:error, "Resources are not available for events outside the current season")
+        |> redirect(to: url_for([season, region, league, event]))
+
+      can?(socket.assigns[:current_user], :event_resources_show, event) ->
+        socket
+
+      :else ->
+        socket
+        |> put_flash(:error, "You are not authorized to perform this action")
+        |> redirect(to: url_for([season, region, league, event]))
     end
   end
 end

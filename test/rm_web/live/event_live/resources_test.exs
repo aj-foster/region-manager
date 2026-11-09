@@ -58,14 +58,13 @@ defmodule RMWeb.EventLive.ResourcesTest do
       |> Plug.Test.init_test_session(%{})
       |> Identity.Plug.log_in_user(user)
 
-    path =
-      "/s/#{region.current_season}/r/#{region.abbreviation}/e/#{event.code}/resources"
+    event_path = RMWeb.CoreComponents.url_for([region.current_season, region, event])
 
     assert {:error,
             {:redirect,
              %{
-               to: "/",
+               to: ^event_path,
                flash: %{"error" => "You are not authorized to perform this action"}
-             }}} = live(conn, path)
+             }}} = live(conn, event_path <> "/resources")
   end
 end
