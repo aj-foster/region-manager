@@ -1,9 +1,10 @@
 defmodule RMWeb.ProposalLive.Edit do
   use RMWeb, :live_view
 
-  alias Phoenix.LiveView.UploadConfig
-  alias Phoenix.LiveView.UploadEntry
+  import RMWeb.ProposalLive.Util, only: [upload_error_to_string: 1]
+
   alias RM.Local.Venue
+  alias RMWeb.ProposalLive.Util
 
   #
   # Lifecycle
@@ -20,12 +21,7 @@ defmodule RMWeb.ProposalLive.Edit do
     |> assign_venues()
     |> add_venue_form()
     |> proposal_form()
-    |> allow_upload(:attachment,
-      accept: ["application/pdf"],
-      auto_upload: true,
-      max_entries: 4,
-      max_file_size: 10 * 1024 * 1024
-    )
+    |> Util.configure_attachment_upload()
     |> ok()
   end
 
@@ -227,6 +223,14 @@ defmodule RMWeb.ProposalLive.Edit do
 
   @spec proposal_submit(Socket.t(), map) :: Socket.t()
   def proposal_submit(socket, params) do
+    if Util.upload_pending_or_error?(socket.assigns.uploads) do
+      put_flash(socket, :error, "Please resolve attachment errors and wait for uploads to finish")
+    else
+      update_proposal(socket, params)
+    end
+  end
+
+  defp update_proposal(socket, params) do
     league = socket.assigns[:local_league]
     region = socket.assigns[:region]
     season = socket.assigns[:season]
@@ -245,23 +249,22 @@ defmodule RMWeb.ProposalLive.Edit do
 
     case RM.Local.update_event(proposal, params) do
       {:ok, proposal} ->
-        consume_uploaded_entries(socket, :attachment, fn %{path: path},
-                                                         %UploadEntry{client_name: name} ->
-          params = %{
-            "name" => name,
-            "path" => path,
-            "type" => "program",
-            "user" => socket.assigns[:current_user]
-          }
-
-          RM.Local.create_or_update_attachment(proposal, params)
-        end)
+        failures = Util.save_attachments(socket, proposal)
 
         after_success_target = url_for([season, region, league, proposal.first_event || proposal])
 
-        socket
-        |> put_flash(:info, "Event proposal updated successfully")
-        |> push_navigate(to: after_success_target)
+        socket =
+          if failures == [] do
+            put_flash(socket, :info, "Event proposal updated successfully")
+          else
+            put_flash(
+              socket,
+              :error,
+              "Event proposal updated, but these attachments could not be saved: #{Enum.join(failures, ", ")}. Please add them by editing the proposal."
+            )
+          end
+
+        push_navigate(socket, to: after_success_target)
 
       {:error, changeset} ->
         assign(socket, proposal_form: to_form(changeset))
@@ -446,18 +449,6 @@ defmodule RMWeb.ProposalLive.Edit do
   defp timezone_options(country_name) do
     RM.Util.Time.zones_for_country(country_name)
   end
-
-  @spec upload_error?(%{attachment: %UploadConfig{}}) :: boolean
-  defp upload_error?(uploads) do
-    upload_errors(uploads.attachment) != [] or
-      Enum.any?(uploads.attachment.entries, &(not &1.valid?))
-  end
-
-  @spec upload_error_to_string(atom) :: String.t()
-  defp upload_error_to_string(:too_large), do: "Provided file is too large"
-  defp upload_error_to_string(:not_accepted), do: "Please select a .pdf file"
-  defp upload_error_to_string(:external_client_failure), do: "Something went terribly wrong"
-  defp upload_error_to_string(:too_many_files), do: "Please select up to 4 files at once"
 
   @spec venue_options([Venue.t()]) :: [{String.t(), Ecto.UUID.t()}]
   defp venue_options(venues) do

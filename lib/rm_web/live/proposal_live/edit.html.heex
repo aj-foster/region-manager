@@ -412,7 +412,7 @@
       accepts and publishes the event. You should contact your region's Program Delivery Partner if the event has already been submitted or published.
     </p>
     <div class="flex flex-row-reverse gap-4 items-center justify-between">
-      <.button disabled={upload_error?(@uploads)} type="submit">
+      <.button disabled={Util.upload_pending_or_error?(@uploads)} type="submit">
         Update Proposal
       </.button>
       <p :if={@proposal_form.errors != []} class="text-orange-600 text-sm">

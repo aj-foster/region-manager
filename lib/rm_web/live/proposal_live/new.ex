@@ -1,7 +1,10 @@
 defmodule RMWeb.ProposalLive.New do
   use RMWeb, :live_view
 
+  import RMWeb.ProposalLive.Util, only: [upload_error_to_string: 1]
+
   alias RM.Local.Venue
+  alias RMWeb.ProposalLive.Util
 
   #
   # Lifecycle
@@ -16,6 +19,7 @@ defmodule RMWeb.ProposalLive.New do
       |> assign_venues()
       |> add_venue_form()
       |> proposal_form()
+      |> Util.configure_attachment_upload()
       |> ok()
     end
   end
@@ -85,6 +89,12 @@ defmodule RMWeb.ProposalLive.New do
   def handle_event("proposal_submit", %{"event_proposal" => params}, socket) do
     socket
     |> proposal_submit(params)
+    |> noreply()
+  end
+
+  def handle_event("upload_cancel", %{"ref" => ref}, socket) do
+    socket
+    |> cancel_upload(:attachment, ref)
     |> noreply()
   end
 
@@ -216,6 +226,14 @@ defmodule RMWeb.ProposalLive.New do
 
   @spec proposal_submit(Socket.t(), map) :: Socket.t()
   def proposal_submit(socket, params) do
+    if Util.upload_pending_or_error?(socket.assigns.uploads) do
+      put_flash(socket, :error, "Please resolve attachment errors and wait for uploads to finish")
+    else
+      create_proposal(socket, params)
+    end
+  end
+
+  defp create_proposal(socket, params) do
     league = socket.assigns[:local_league]
     region = socket.assigns[:region]
     season = socket.assigns[:season]
@@ -234,26 +252,32 @@ defmodule RMWeb.ProposalLive.New do
 
     after_success_target = url_for([season, region, league, :events])
 
-    if event = socket.assigns[:event] do
-      case RM.Local.create_proposal_from_event(event, params) do
-        {:ok, _proposal} ->
-          socket
-          |> put_flash(:info, "Event proposal created successfully")
-          |> push_navigate(to: after_success_target)
-
-        {:error, changeset} ->
-          assign(socket, proposal_form: to_form(changeset))
+    result =
+      if event = socket.assigns[:event] do
+        RM.Local.create_proposal_from_event(event, params)
+      else
+        RM.Local.create_event(params)
       end
-    else
-      case RM.Local.create_event(params) do
-        {:ok, _proposal} ->
-          socket
-          |> put_flash(:info, "Event proposal created successfully")
-          |> push_navigate(to: after_success_target)
 
-        {:error, changeset} ->
-          assign(socket, proposal_form: to_form(changeset))
-      end
+    case result do
+      {:ok, proposal} ->
+        failures = Util.save_attachments(socket, proposal)
+
+        socket =
+          if failures == [] do
+            put_flash(socket, :info, "Event proposal created successfully")
+          else
+            put_flash(
+              socket,
+              :error,
+              "Event proposal created, but these attachments could not be saved: #{Enum.join(failures, ", ")}. Please add them by editing the proposal."
+            )
+          end
+
+        push_navigate(socket, to: after_success_target)
+
+      {:error, changeset} ->
+        assign(socket, proposal_form: to_form(changeset))
     end
   end
 
